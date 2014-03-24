@@ -1,0 +1,25 @@
+<block>
+  <name>Apply Betas</name>
+  <key>fbmc_apply_betas_cc</key>
+  <category>FBMC</category>
+  <import>import fbmc</import>
+  <make>fbmc.apply_betas_cc($K, $M)</make>
+  <param>
+    <name>K (# symbols/subchannel/frame)</name>
+    <key>K</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>M (# subchannels)</name>
+    <key>M</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>
