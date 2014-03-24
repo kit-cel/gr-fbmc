@@ -49,6 +49,8 @@ namespace gr {
               d_beta(NULL)
     {
     	set_relative_rate(1.0); // make this block behave like a sync block
+
+    	// calculate betas
     	d_beta = new gr_complex*[4]; // allocate memory for beta matrix
     	for(int i = 0; i < 4; i++)
     		d_beta[i] = new gr_complex[2];

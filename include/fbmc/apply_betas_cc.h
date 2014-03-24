@@ -29,7 +29,9 @@ namespace gr {
   namespace fbmc {
 
     /*!
-     * \brief Applies phase rotations depending on the symbol position on the time frequency grid
+     * \brief Applies phase rotations depending on the symbol position on the time frequency grid.
+     * Samples are expected to come in channel-wise, e.g.
+     * S11, S12, S21, S22, S31, S32, ... with S_mk denoting the k-th symbol on the m-th subchannel.
      * \ingroup fbmc
      *
      */
