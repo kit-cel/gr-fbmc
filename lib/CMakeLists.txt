@@ -25,9 +25,9 @@ include(GrPlatform) #define LIB_SUFFIX
 include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 list(APPEND fbmc_sources
-    serialize_iq_cc_impl.cc
     apply_betas_vcvc_impl.cc
     serial_to_parallel_cvc_impl.cc
+    serialize_iq_vcvc_impl.cc
 )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)

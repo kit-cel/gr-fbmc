@@ -41,6 +41,6 @@ include(GrTest)
 
 set(GR_TEST_TARGET_DEPS gnuradio-fbmc)
 set(GR_TEST_PYTHON_DIRS ${CMAKE_BINARY_DIR}/swig)
-GR_ADD_TEST(qa_serialize_iq_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_serialize_iq_cc.py)
 GR_ADD_TEST(qa_apply_betas_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_apply_betas_vcvc.py)
 GR_ADD_TEST(qa_serial_to_parallel_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_serial_to_parallel_cvc.py)
+GR_ADD_TEST(qa_serialize_iq_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_serialize_iq_vcvc.py)
