@@ -18,5 +18,6 @@
 # Boston, MA 02110-1301, USA.
 install(FILES
     fbmc_serialize_iq_cc.xml
-    fbmc_apply_betas_vcvc.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_apply_betas_vcvc.xml
+    fbmc_serial_to_parallel_cvc.xml DESTINATION share/gnuradio/grc/blocks
 )

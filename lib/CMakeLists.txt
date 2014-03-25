@@ -27,6 +27,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 list(APPEND fbmc_sources
     serialize_iq_cc_impl.cc
     apply_betas_vcvc_impl.cc
+    serial_to_parallel_cvc_impl.cc
 )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
