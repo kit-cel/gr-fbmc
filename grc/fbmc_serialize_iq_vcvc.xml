@@ -1,0 +1,22 @@
+<block>
+  <name>Serialize IQ</name>
+  <key>fbmc_serialize_iq_vcvc</key>
+  <category>FBMC</category>
+  <import>import fbmc</import>
+  <make>fbmc.serialize_iq_vcvc($L)</make>
+  <param>
+    <name>Input vector length</name>
+    <key>L</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$L</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$L</vlen>
+  </source>
+</block>

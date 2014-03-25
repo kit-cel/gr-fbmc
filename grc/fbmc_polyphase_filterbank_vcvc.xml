@@ -1,0 +1,27 @@
+<block>
+  <name>Polyphase filterbank</name>
+  <key>fbmc_polyphase_filterbank_vcvc</key>
+  <category>FBMC</category>
+  <import>import fbmc</import>
+  <make>fbmc.polyphase_filterbank_vcvc($taps, $L)</make>
+  <param>
+    <name>Prototype filter taps</name>
+    <key>taps</key>
+    <type>complex_vector</type>
+  </param>
+  <param>
+    <name>Number of branch filters</name>
+    <key>L</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$L</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$L</vlen>
+  </source>
+</block>

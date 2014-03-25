@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # 
-# Copyright 2014 Communications Engineering Lab (CEL), Karlsruhe Institute of Technology (KIT).
+# Copyright 2014 <+YOU OR YOUR COMPANY+>.
 # 
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
 
-class qa_serialize_iq_cc (gr_unittest.TestCase):
+class qa_polyphase_filterbank_vcvc (gr_unittest.TestCase):
 
     def setUp (self):
         self.tb = gr.top_block ()
@@ -32,14 +32,13 @@ class qa_serialize_iq_cc (gr_unittest.TestCase):
         self.tb = None
 
     def test_001_t (self):
-        # set up fg
-        self.src = blocks.vector_source_c([1+2j,3+4j,5+6j,7+8j])
-        self.serialize = fbmc.serialize_iq_cc()
-        self.snk = blocks.vector_sink_c()
-        self.tb.connect(self.src, self.serialize, self.snk)
+    	self.src = blocks.vector_source_c([complex(i, i+8) for i in range(1,9)], vlen=8)
+    	self.ppfb = fbmc.polyphase_filterbank_vcvc(taps=range(1,41), L=8)
+    	self.snk = blocks.vector_sink_c(vlen=8)
+    	self.tb.connect(self.src, self.ppfb, self.snk)
         self.tb.run ()
         # check data
-		data = self.snk.data()
+
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_serialize_iq_cc, "qa_serialize_iq_cc.xml")
+    gr_unittest.run(qa_polyphase_filterbank_vcvc, "qa_polyphase_filterbank_vcvc.xml")

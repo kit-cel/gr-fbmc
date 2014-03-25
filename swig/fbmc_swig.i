@@ -11,6 +11,7 @@
 #include "fbmc/apply_betas_vcvc.h"
 #include "fbmc/serial_to_parallel_cvc.h"
 #include "fbmc/serialize_iq_vcvc.h"
+#include "fbmc/polyphase_filterbank_vcvc.h"
 %}
 
 
@@ -20,3 +21,5 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, apply_betas_vcvc);
 GR_SWIG_BLOCK_MAGIC2(fbmc, serial_to_parallel_cvc);
 %include "fbmc/serialize_iq_vcvc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, serialize_iq_vcvc);
+%include "fbmc/polyphase_filterbank_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, polyphase_filterbank_vcvc);

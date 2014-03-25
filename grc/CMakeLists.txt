@@ -19,5 +19,6 @@
 install(FILES
     fbmc_apply_betas_vcvc.xml
     fbmc_serial_to_parallel_cvc.xml
-    fbmc_serialize_iq_vcvc.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_serialize_iq_vcvc.xml
+    fbmc_polyphase_filterbank_vcvc.xml DESTINATION share/gnuradio/grc/blocks
 )

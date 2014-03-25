@@ -24,5 +24,6 @@ install(FILES
     api.h
     apply_betas_vcvc.h
     serial_to_parallel_cvc.h
-    serialize_iq_vcvc.h DESTINATION include/fbmc
+    serialize_iq_vcvc.h
+    polyphase_filterbank_vcvc.h DESTINATION include/fbmc
 )
