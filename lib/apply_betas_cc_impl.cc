@@ -50,7 +50,8 @@ namespace gr {
     {
     	set_relative_rate(1.0); // make this block behave like a sync block
 
-    	// calculate betas
+    	// calculate minimum set of betas
+    	// frames that exceed the dimension of this set can be processed by periodic continuation of this matrix
     	d_beta = new gr_complex*[4]; // allocate memory for beta matrix
     	for(int i = 0; i < 4; i++)
     		d_beta[i] = new gr_complex[2];
@@ -100,6 +101,7 @@ namespace gr {
 
         // Apply the betas to the respective symbols
         // This should always work on an entire frame as d_M*d_K == frame_len
+        // TODO: check if d_M*d_K == frame_len
         for(int m = 0; m < d_M; m++)
         {
         	for(int k = 0; k < d_K; k++)
@@ -110,7 +112,7 @@ namespace gr {
 
         // Tell runtime system how many output items we produced.
         std::cout << "return noutput_items from work = " << noutput_items << std::endl;
-        return noutput_items;
+        return ninput_items[0];
     }
 
   } /* namespace fbmc */

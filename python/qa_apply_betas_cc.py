@@ -39,11 +39,13 @@ class qa_apply_betas_cc (gr_unittest.TestCase):
     	self.snk = blocks.vector_sink_c()
     	self.tb.connect(self.src, self.tagged_stream_adaptor, self.apply_betas, self.snk)
         self.tb.run ()
+		# test data      
         data = self.snk.data()
         ref_data = (1, 2j, 3, 4j, 5j, -6, 7j, -8, 9, 10j, 11, 12j, 13j, -14, 15j, -16, 17, 18j, 19, 20j)
         print "len data:", len(data), "len ref_data:", len(ref_data)
-        print data[:100]
-        self.assertComplexTuplesAlmostEqual(data[:20], ref_data)
+        print "ref:", ref_data
+        print "res:", data
+        self.assertComplexTuplesAlmostEqual(data, ref_data)
 
 
 if __name__ == '__main__':
