@@ -1,25 +1,22 @@
 <block>
   <name>Apply Betas</name>
-  <key>fbmc_apply_betas_cc</key>
+  <key>fbmc_apply_betas_vcvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.apply_betas_cc($K, $M)</make>
+  <make>fbmc.apply_betas_vcvc($L)</make>
   <param>
-    <name>K (# symbols/subchannel/frame)</name>
-    <key>K</key>
-    <type>int</type>
-  </param>
-  <param>
-    <name>M (# subchannels)</name>
-    <key>M</key>
+    <name>Number of subcarriers (padded)</name>
+    <key>L</key>
     <type>int</type>
   </param>
   <sink>
     <name>in</name>
     <type>complex</type>
+    <vlen>$L</vlen>
   </sink>
   <source>
     <name>out</name>
     <type>complex</type>
+    <vlen>$L</vlen>
   </source>
 </block>

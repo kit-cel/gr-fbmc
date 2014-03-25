@@ -19,40 +19,38 @@
  */
 
 
-#ifndef INCLUDED_FBMC_APPLY_BETAS_CC_H
-#define INCLUDED_FBMC_APPLY_BETAS_CC_H
+#ifndef INCLUDED_FBMC_APPLY_BETAS_VCVC_H
+#define INCLUDED_FBMC_APPLY_BETAS_VCVC_H
 
 #include <fbmc/api.h>
-#include <gnuradio/tagged_stream_block.h>
+#include <gnuradio/sync_block.h>
 
 namespace gr {
   namespace fbmc {
 
     /*!
-     * \brief Applies phase rotations depending on the symbol position on the time frequency grid.
-     * Samples are expected to come in channel-wise, e.g.
-     * S11, S12, S21, S22, S31, S32, ... with S_mk denoting the k-th symbol on the m-th subchannel.
+     * \brief Applies the necessary phase shifts to the subcarrier symbols. Operates on one symbol (L subcarriers) at a time.
      * \ingroup fbmc
      *
      */
-    class FBMC_API apply_betas_cc : virtual public gr::tagged_stream_block
+    class FBMC_API apply_betas_vcvc : virtual public gr::sync_block
     {
      public:
-      typedef boost::shared_ptr<apply_betas_cc> sptr;
+      typedef boost::shared_ptr<apply_betas_vcvc> sptr;
 
       /*!
-       * \brief Return a shared_ptr to a new instance of fbmc::apply_betas_cc.
+       * \brief Return a shared_ptr to a new instance of fbmc::apply_betas_vcvc.
        *
-       * To avoid accidental use of raw pointers, fbmc::apply_betas_cc's
+       * To avoid accidental use of raw pointers, fbmc::apply_betas_vcvc's
        * constructor is in a private implementation
-       * class. fbmc::apply_betas_cc::make is the public interface for
+       * class. fbmc::apply_betas_vcvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int K, int M);
+      static sptr make(int L);
     };
 
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_APPLY_BETAS_CC_H */
+#endif /* INCLUDED_FBMC_APPLY_BETAS_VCVC_H */
 

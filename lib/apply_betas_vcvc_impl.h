@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2014  Communications Engineering Lab (CEL), Karlsruhe Institute of Technology (KIT).
+ * Copyright 2014 Communications Engineering Lab (CEL), Karlsruhe Institute of Technology (KIT).
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,37 +18,32 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_FBMC_APPLY_BETAS_CC_IMPL_H
-#define INCLUDED_FBMC_APPLY_BETAS_CC_IMPL_H
+#ifndef INCLUDED_FBMC_APPLY_BETAS_VCVC_IMPL_H
+#define INCLUDED_FBMC_APPLY_BETAS_VCVC_IMPL_H
 
-#include <fbmc/apply_betas_cc.h>
+#include <fbmc/apply_betas_vcvc.h>
 
 namespace gr {
   namespace fbmc {
 
-    class apply_betas_cc_impl : public apply_betas_cc
+    class apply_betas_vcvc_impl : public apply_betas_vcvc
     {
      private:
-      int d_K; // number of symbols per frame
-      int d_M; // number of subcarriers
+      int d_L; // number of subcarriers (some are possibly zero)
       gr_complex** d_beta; // matrix of possible betas
-
-     protected:
-      int calculate_output_stream_length(const gr_vector_int &ninput_items);
-
+      int d_sym_ctr; // tells the block if it's an even or odd symbol count and adjusts the betas accordingly
      public:
-      apply_betas_cc_impl(int K, int M);
-      ~apply_betas_cc_impl();
+      apply_betas_vcvc_impl(int L);
+      ~apply_betas_vcvc_impl();
 
       // Where all the action really happens
       int work(int noutput_items,
-		       gr_vector_int &ninput_items,
-		       gr_vector_const_void_star &input_items,
-		       gr_vector_void_star &output_items);
+	       gr_vector_const_void_star &input_items,
+	       gr_vector_void_star &output_items);
     };
 
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_APPLY_BETAS_CC_IMPL_H */
+#endif /* INCLUDED_FBMC_APPLY_BETAS_VCVC_IMPL_H */
 

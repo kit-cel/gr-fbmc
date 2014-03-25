@@ -9,11 +9,12 @@
 
 %{
 #include "fbmc/serialize_iq_cc.h"
-#include "fbmc/apply_betas_cc.h"
+#include "fbmc/apply_betas_vcvc.h"
 %}
 
 
 %include "fbmc/serialize_iq_cc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, serialize_iq_cc);
-%include "fbmc/apply_betas_cc.h"
-GR_SWIG_BLOCK_MAGIC2(fbmc, apply_betas_cc);
+
+%include "fbmc/apply_betas_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, apply_betas_vcvc);

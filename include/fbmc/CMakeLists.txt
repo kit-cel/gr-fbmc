@@ -23,5 +23,5 @@
 install(FILES
     api.h
     serialize_iq_cc.h
-    apply_betas_cc.h DESTINATION include/fbmc
+    apply_betas_vcvc.h DESTINATION include/fbmc
 )

@@ -23,7 +23,7 @@ from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
 
-class qa_apply_betas_cc (gr_unittest.TestCase):
+class qa_apply_betas_vcvc (gr_unittest.TestCase):
 
     def setUp (self):
         self.tb = gr.top_block ()
@@ -32,21 +32,16 @@ class qa_apply_betas_cc (gr_unittest.TestCase):
         self.tb = None
 
     def test_001_t (self):
-        # set up fg
-    	self.src = blocks.vector_source_c(range(1,21))
-    	self.tagged_stream_adaptor = blocks.stream_to_tagged_stream(gr.sizeof_gr_complex, 1, 20, "frame_len")
-    	self.apply_betas = fbmc.apply_betas_cc(K=4,M=5)
-    	self.snk = blocks.vector_sink_c()
-    	self.tb.connect(self.src, self.tagged_stream_adaptor, self.apply_betas, self.snk)
-        self.tb.run ()
+		# set up fg
+		self.src = blocks.vector_source_c(range(1,25), repeat=False, vlen=8)
+		self.apply_betas = fbmc.apply_betas_vcvc(L=8)
+		self.snk = blocks.vector_sink_c(vlen=8)
+		self.tb.connect(self.src, self.apply_betas, self.snk)
+		self.tb.run ()
 		# test data      
-        data = self.snk.data()
-        ref_data = (1, 2j, 3, 4j, 5j, -6, 7j, -8, 9, 10j, 11, 12j, 13j, -14, 15j, -16, 17, 18j, 19, 20j)
-        print "len data:", len(data), "len ref_data:", len(ref_data)
-        print "ref:", ref_data
-        print "res:", data
-        self.assertComplexTuplesAlmostEqual(data, ref_data)
-
+		data = self.snk.data()
+		ref_data = (1, 2j, 3, 4j, 5, 6j, 7, 8j, 9j, -10, 11j, -12, 13j, -14, 15j, -16, 17, 18j, 19, 20j, 21, 22j, 23, 24j)
+		self.assertComplexTuplesAlmostEqual(data, ref_data)
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_apply_betas_cc)
+    gr_unittest.run(qa_apply_betas_vcvc)
