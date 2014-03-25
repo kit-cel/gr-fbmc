@@ -99,6 +99,9 @@ namespace gr {
         const gr_complex *in = (const gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
 
+        // check if the input has the correct size
+        assert(d_K*d_M == ninput_items[0]);
+
         // Apply the betas to the respective symbols
         // This should always work on an entire frame as d_M*d_K == frame_len
         // TODO: check if d_M*d_K == frame_len
