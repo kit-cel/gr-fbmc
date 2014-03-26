@@ -22,6 +22,7 @@
 #define INCLUDED_FBMC_POLYPHASE_FILTERBANK_VCVC_IMPL_H
 
 #include <fbmc/polyphase_filterbank_vcvc.h>
+#include <boost/circular_buffer.hpp>
 
 namespace gr {
   namespace fbmc {
@@ -33,7 +34,11 @@ namespace gr {
       int d_L; // vector length (number of filter branches)
       int d_num_branch_taps; // number of taps per filter branch
       gr_complex** d_branch_taps; // filter branch taps. 2d array of taps, one row per filter (L x d_num_branch_taps)
+      boost::circular_buffer<gr_complex>* d_branch_states; // state registers of the different branch filters
       int d_group_delay; // group delay of the filter bank
+
+      void filter(gr_complex* in, gr_complex* out); // perform one filter step producing d_L output values from d_L input values reading from *in and writing to *out
+      void filter_branch(gr_complex *in, gr_complex *out, int l); // perform one filter step in branch l producing 1 output value from 1 input value reading from *in and writing to *out
 
      public:
       polyphase_filterbank_vcvc_impl(std::vector<gr_complex> taps, int L);

@@ -46,28 +46,46 @@ namespace gr {
               d_L(L),
               d_num_branch_taps(0),
               d_branch_taps(NULL),
+              d_branch_states(NULL),
               d_group_delay((taps.size()-1)/2)
     {
-    	// prepare the filter branches
-    	if(d_prototype_taps.size() % d_L != 0)
-    		std::cerr << "polyphase_filterbank_vcvc_impl::polyphase_filterbank_vcvc_impl(): Prototype filter truncated by " << d_prototype_taps.size() % d_L << " taps." << std::endl;
-    	d_num_branch_taps = (d_prototype_taps.size()/d_L - 1)*2; // NOTE: The filter might be cropped by this
-    	d_branch_taps = new gr_complex*[d_L];
-    	for(int i = 0; i < d_L; i++)
-    	{
-    		d_branch_taps[i] = new gr_complex[d_num_branch_taps];
-    		// write the upsampled prototype coefficients into the branch filter
-    		memset(d_branch_taps[i], 0, d_num_branch_taps*sizeof(gr_complex));
-    		//FIXME write taps into filters
-    	}
+    	// pad the prototype to an integer multiple length of L
+    	while(d_prototype_taps.size() % d_L != 0)
+    		d_prototype_taps.push_back(gr_complex(0,0));
 
+    	// prepare the filter branches
+    	d_num_branch_taps = d_prototype_taps.size()/d_L*2; // calculate number of taps per branch filter
+    	d_branch_taps = new gr_complex*[d_L];
+    	d_branch_states = new boost::circular_buffer<gr_complex>[d_L];
     	for(int l = 0; l < d_L; l++)
     	{
-    		std::cout << "l: " << l << "taps:\t";
+    		// write the upsampled prototype coefficients into the branch filter
+    		d_branch_taps[l] = new gr_complex[d_num_branch_taps];
+    		memset(d_branch_taps[l], 0, d_num_branch_taps*sizeof(gr_complex));
+    		int offset = 0;
+    		if(l >= L/2)
+    			offset = 1;
+    		for(int n = 0; n < d_num_branch_taps; n++)
+    			if( (n+offset) % 2) // tap is zero due to oversampling
+    				d_branch_taps[l][n] = 0;
+    			else
+    				d_branch_taps[l][n] = d_prototype_taps[l+(n/2)*d_L];
+
+    		// set size of state registers and initialize them with zeros
+    		d_branch_states[l].set_capacity(d_num_branch_taps); // this includes the new sample in each iteration
+    		for(int i = 0; i < d_num_branch_taps; i++)
+    			d_branch_states[l].push_front(gr_complex(0,0));
+    	}
+
+    	/*std::cout << "prototype length (padded): " << d_prototype_taps.size() << ", ";
+    	std::cout << "branch filter length: " << d_num_branch_taps << std::endl;
+    	for(int l = 0; l < d_L; l++)
+    	{
+    		std::cout << "l: " << l << ", taps:\t";
     		for(int n = 0; n < d_num_branch_taps; n++)
     			std::cout << d_branch_taps[l][n] << "\t";
     		std::cout << std::endl;
-    	}
+    	}*/
 
     }
 
@@ -77,6 +95,24 @@ namespace gr {
     polyphase_filterbank_vcvc_impl::~polyphase_filterbank_vcvc_impl()
     {
     	delete[] d_branch_taps;
+    	delete[] d_branch_states;
+    }
+
+    void
+    polyphase_filterbank_vcvc_impl::filter(gr_complex* in, gr_complex* out)
+    {
+    	for(int l = 0; l < d_L; l++)
+    		filter_branch(&in[l], &out[l], l);
+    }
+
+    void
+    polyphase_filterbank_vcvc_impl::filter_branch(gr_complex* in, gr_complex* out, int l)
+    {
+    	// the actual convolution
+    	d_branch_states[l].push_front(*in);
+    	*out = 0;
+    	for(int n = 0; n < d_num_branch_taps; n++)
+    		*out += d_branch_states[l][n] * d_branch_taps[l][n];
     }
 
     int
@@ -84,10 +120,11 @@ namespace gr {
 			  gr_vector_const_void_star &input_items,
 			  gr_vector_void_star &output_items)
     {
-        const gr_complex *in = (const gr_complex *) input_items[0];
+        gr_complex *in  = (gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
 
-        // Do <+signal processing+>
+        // Filter one vector of L samples and return L samples
+        filter(in, out);
 
         // Tell runtime system how many output items we produced.
         return 1;
