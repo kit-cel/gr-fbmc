@@ -23,7 +23,7 @@ from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
 
-class qa_polyphase_filterbank_vcvc (gr_unittest.TestCase):
+class qa_output_commutator_vcc (gr_unittest.TestCase):
 
     def setUp (self):
         self.tb = gr.top_block ()
@@ -32,19 +32,15 @@ class qa_polyphase_filterbank_vcvc (gr_unittest.TestCase):
         self.tb = None
 
     def test_001_t (self):
-    	vec_len = 4
-    	num_items = 3;
-    	self.src = blocks.vector_source_c([complex(i,i) for i in range(1,vec_len+1)], vlen=vec_len, repeat=True)
-    	self.head = blocks.head(gr.sizeof_gr_complex*vec_len,num_items)
-    	self.ppfb = fbmc.polyphase_filterbank_vcvc(taps=range(10,40,10), L=vec_len)
-    	self.snk = blocks.vector_sink_c(vlen=vec_len)
-    	self.tb.connect(self.src, self.head, self.ppfb, self.snk)
+    	self.src = blocks.vector_source_c([complex(i,i) for i in range(1,5)], vlen=4)
+    	self.comm = fbmc.output_commutator_vcc(L=4)
+    	self.snk = blocks.vector_sink_c(vlen=1)
+    	self.tb.connect(self.src, self.comm, self.snk)
         self.tb.run ()
         # check data
         data = self.snk.data()
-        ref = (10 + 10j, 40 + 40j, 0 , 0, 10 +10j, 40 + 40j, 90 + 90j, 0, 10 +10j, 40 + 40j, 90 + 90j, 0)
-        self.assertEqual(len(data), vec_len*num_items)
+        ref = (4+4j, 6+6j)
         self.assertComplexTuplesAlmostEqual(data, ref)
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_polyphase_filterbank_vcvc)
+    gr_unittest.run(qa_output_commutator_vcc)

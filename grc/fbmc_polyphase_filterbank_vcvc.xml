@@ -10,7 +10,7 @@
     <type>complex_vector</type>
   </param>
   <param>
-    <name>Number of branch filters</name>
+    <name># filter branches</name>
     <key>L</key>
     <type>int</type>
   </param>

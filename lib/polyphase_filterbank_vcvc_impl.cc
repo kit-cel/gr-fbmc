@@ -123,6 +123,9 @@ namespace gr {
         gr_complex *in  = (gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
 
+        //FIXME: make sure center coeff has phase 0
+        assert(d_group_delay % d_L == 0); // just a reminder
+
         // Filter one vector of L samples and return L samples
         filter(in, out);
 

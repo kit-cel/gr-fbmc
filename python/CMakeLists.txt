@@ -45,3 +45,4 @@ GR_ADD_TEST(qa_apply_betas_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}
 GR_ADD_TEST(qa_serial_to_parallel_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_serial_to_parallel_cvc.py)
 GR_ADD_TEST(qa_serialize_iq_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_serialize_iq_vcvc.py)
 GR_ADD_TEST(qa_polyphase_filterbank_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_polyphase_filterbank_vcvc.py)
+GR_ADD_TEST(qa_output_commutator_vcc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_output_commutator_vcc.py)
