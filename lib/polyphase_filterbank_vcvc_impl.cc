@@ -48,8 +48,36 @@ namespace gr {
               d_branch_taps(NULL),
               d_branch_states(NULL),
               d_group_delay(0),
-              d_overlap(4) // hard-coded for now
+              d_overlap(4) // hard-coded for now)
     {
+    	// set up the table needed for the generation of the filter taps
+        // [0, Table V]
+        float tab[15][8] = {
+            {1.0, 3.0/4, 105.0/64, 675.0/256, 76233.0/16384, 457107.0/65536, 12097169.0/1048576, 70545315.0/4194304},
+            {-1.0, -15.0/8, -219.0/64, -6055.0/1024, -161925.0/16384, -2067909.0/131072, -26060847.0/1048576, 0},
+            {3.0/4, 16.0/19, 1545.0/512, 9765.0/2048, 596227.0/65536, 3679941.0/262144, 3941559701.0/1677216, 0},
+            {-5.0/8, -123.0/128, -2289.0/1024, -34871.0/8192, -969375.0/131072, -51182445.0/4194304, 0, 0},
+            {35.0/64, 213.0/256, 7797.0/4096, 56163.0/16384, 13861065.0/2097152, 87185895.0/8388608, 0, 0},
+            {-63.0/128, -763.0/1024, -13875.0/8192, -790815.0/262144, -23600537.0/4194304, 0, 0, 0},
+            {231.0/512, 1395.0/2048, 202281.0/131072, 1434705.0/524288, 85037895.0/16777216, 0, 0, 0},
+            {-429.0/1024, -20691.0/32768, -374325.0/262144, -5297445.0/2097152, 0, 0, 0, 0},
+            {6435.0/16384, 38753.0/65536, 1400487.0/1048576, 9895893.0/4194304, 0, 0, 0, 0},
+            {-12155.0/32768, -146289.0/262144, -2641197.0/2097152, 0, 0, 0, 0, 0},
+            {46189.0/131072, 277797.0/524288, 20050485.0/16777216, 0, 0, 0, 0, 0},
+            {-88179.0/262144, -2120495.0/4194304, 0, 0, 0, 0, 0, 0},
+            {676039.0/2097152, 4063017.0/8388608, 0, 0, 0, 0, 0, 0},
+            {-1300075.0/4194304, 0, 0, 0, 0, 0, 0, 0},
+            {5014575.0/16777216, 0, 0, 0, 0, 0, 0, 0}
+        };
+
+        // initialize table as std::valarray for convenient handling
+        for(int i = 0; i < 15; i++)
+        {
+        	d_b[i] = std::valarray<float>(8);
+        	for(int n = 0; n < 8; n++)
+        		d_b[i][n] = tab[i][n];
+        }
+
     	// generate the prototype filter taps
     	gen_prototype_filter();
     	std::cout << "number of prototype taps: " << d_prototype_taps.size() << std::endl;
@@ -84,16 +112,16 @@ namespace gr {
     			d_branch_states[l].push_front(gr_complex(0,0));
     	}
 
-    	std::cout << "L: " << d_L << std::endl;
+    	/*std::cout << "L: " << d_L << std::endl;
     	std::cout << "prototype length (padded): " << d_prototype_taps.size() << ", ";
-    	/*std::cout << "branch filter length: " << d_num_branch_taps << std::endl;
+    	std::cout << "branch filter length: " << d_num_branch_taps << std::endl;
     	for(int l = 0; l < d_L; l++)
     	{
     		std::cout << "l: " << l << ", taps:\t";
     		for(int n = 0; n < d_num_branch_taps; n++)
     			std::cout << d_branch_taps[l][n].real() << "\t";
     		std::cout << std::endl;
-    	}*/
+    	}
     	std::cout << "prototype taps: ";
     	for(int n = 0; n < d_prototype_taps.size(); n++)
     	{
@@ -101,7 +129,7 @@ namespace gr {
     			std::cout << std::endl;
     		std::cout << d_prototype_taps[n].real() << "\t";
     	}
-    	std::cout << std::endl;
+    	std::cout << std::endl;*/
 
     }
 
@@ -148,7 +176,6 @@ namespace gr {
 		// Build impulse response
 
 		// Select sample times [0, Eq. (13)]
-		// t = tau0 * arange(-delay*sps, delay*sps+1) / sps
 		std::valarray<float> t(2*sps*delay+1);
 		for(int i = -sps*delay; i < sps*delay+1; i++)
 			t[i+sps*delay] = tau0 / sps * i;
@@ -156,24 +183,12 @@ namespace gr {
 		// Number of iterations for sums in Eq. (7) [0, below Eq. (27)]
 		int K=14;
 
-		std::cout << "sps: " << sps << std::endl;
-		std::cout << "delay: " << delay << std::endl;
-		std::cout << "alpha: " << alpha << std::endl;
-		std::cout << "alpha_m_v0: " << alpha_m_v0 << std::endl;
-		std::cout << "alpha_m_tau0: " << alpha_m_tau0 << std::endl;
-		std::cout << "K: " << K << std::endl;
-		std::cout << "len(t): " << t.size() << std::endl;
-		/*std::cout << "t:" << std::endl;
-		for(int i = 0; i < t.size(); i++)
-			std::cout << t[i] << std::endl;*/
-
 		// Calculate IOTA impulse response [0, Eq. (7)] or [1, Eq. (15)] with c = 2
 		std::valarray<float> s1(0.0, t.size());
 		std::valarray<float> s2(0.0, t.size());
 
 		for(int k = 0; k < K+1; k++)
 		{
-			//std::cout << "d(" << k << "):" << d(k,    alpha,  v0, K) << std::endl;
 			// Elements of first sum
 			s1 += d(k,    alpha,  v0, K) * ( gauss(t+float(k)/v0,alpha) + gauss(t-float(k)/v0,alpha) );
 			// Elements of second sum
@@ -202,35 +217,6 @@ namespace gr {
         // d Coefficients for closed form IOTA calculation
         assert(v0 == 1.0/std::sqrt(2.0));
 
-        // [0, Table V]
-        //FIXME put the matrix into a member variable to avoid multiple calculations
-        float tab[15][8] = {
-            {1.0, 3.0/4, 105.0/64, 675.0/256, 76233.0/16384, 457107.0/65536, 12097169.0/1048576, 70545315.0/4194304},
-            {-1.0, -15.0/8, -219.0/64, -6055.0/1024, -161925.0/16384, -2067909.0/131072, -26060847.0/1048576, 0},
-            {3.0/4, 16.0/19, 1545.0/512, 9765.0/2048, 596227.0/65536, 3679941.0/262144, 3941559701.0/1677216, 0},
-            {-5.0/8, -123.0/128, -2289.0/1024, -34871.0/8192, -969375.0/131072, -51182445.0/4194304, 0, 0},
-            {35.0/64, 213.0/256, 7797.0/4096, 56163.0/16384, 13861065.0/2097152, 87185895.0/8388608, 0, 0},
-            {-63.0/128, -763.0/1024, -13875.0/8192, -790815.0/262144, -23600537.0/4194304, 0, 0, 0},
-            {231.0/512, 1395.0/2048, 202281.0/131072, 1434705.0/524288, 85037895.0/16777216, 0, 0, 0},
-            {-429.0/1024, -20691.0/32768, -374325.0/262144, -5297445.0/2097152, 0, 0, 0, 0},
-            {6435.0/16384, 38753.0/65536, 1400487.0/1048576, 9895893.0/4194304, 0, 0, 0, 0},
-            {-12155.0/32768, -146289.0/262144, -2641197.0/2097152, 0, 0, 0, 0, 0},
-            {46189.0/131072, 277797.0/524288, 20050485.0/16777216, 0, 0, 0, 0, 0},
-            {-88179.0/262144, -2120495.0/4194304, 0, 0, 0, 0, 0, 0},
-            {676039.0/2097152, 4063017.0/8388608, 0, 0, 0, 0, 0, 0},
-            {-1300075.0/4194304, 0, 0, 0, 0, 0, 0, 0},
-            {5014575.0/16777216, 0, 0, 0, 0, 0, 0, 0}
-        };
-
-        // initialize table as std::valarray for convenient handling
-        std::valarray<float> b[15];
-        for(int i = 0; i < 15; i++)
-        {
-        	b[i] = std::valarray<float>(8);
-        	for(int n = 0; n < 8; n++)
-        		b[i][n] = tab[i][n];
-        }
-
         assert(K == 14);
 
 		// Number of iterations [0, below Eq. (27)]
@@ -239,14 +225,9 @@ namespace gr {
 		std::valarray<float> tmp(jk+1);
 		for(int i = 0; i < jk+1; i++)
 			tmp[i] = 2*i + k;
-		std::valarray<float> fac1 = b[k][std::slice(0,jk+1,1)];
+		std::valarray<float> fac1 = d_b[k][std::slice(0,jk+1,1)];
 		std::valarray<float> fac2 = std::exp(float(-M_PI*alpha/(2.0*std::pow(v0,float(2.0)))) * tmp);
     	std::valarray<float> res = fac1 * fac2;
-
-    	/*std::cout << "fac2: ";
-    	for(int i = 0; i < fac2.size(); i++)
-    		std::cout << fac2[i] << "\t";
-    	std::cout << std::endl;*/
 
     	return res.sum();
     }

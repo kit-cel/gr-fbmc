@@ -38,6 +38,7 @@ namespace gr {
       boost::circular_buffer<gr_complex>* d_branch_states; // state registers of the different branch filters
       int d_group_delay; // group delay of the filter bank
       int d_overlap;
+      std::valarray<float> d_b[15]; // keeps a table of coefficients needed for the IOTA pulse generation
 
       void gen_prototype_filter(); // calculates the taps for the prototype filter (IOTA)
       std::valarray<float> gauss(std::valarray<float> x, float alpha); // calculates a gauss pulse
