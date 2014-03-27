@@ -32,7 +32,7 @@ class qa_polyphase_filterbank_vcvc (gr_unittest.TestCase):
         self.tb = None
 
     def test_001_t (self):
-    	vec_len = 4
+    	vec_len = 8
     	num_items = 3;
     	self.src = blocks.vector_source_c([complex(i,i) for i in range(1,vec_len+1)], vlen=vec_len, repeat=True)
     	self.head = blocks.head(gr.sizeof_gr_complex*vec_len,num_items)

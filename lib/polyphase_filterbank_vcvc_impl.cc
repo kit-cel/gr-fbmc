@@ -52,6 +52,7 @@ namespace gr {
     {
     	// generate the prototype filter taps
     	gen_prototype_filter();
+    	std::cout << "number of prototype taps: " << d_prototype_taps.size() << std::endl;
 
     	d_group_delay = (d_prototype_taps.size() - 1)/2;
 
@@ -85,17 +86,21 @@ namespace gr {
 
     	std::cout << "L: " << d_L << std::endl;
     	std::cout << "prototype length (padded): " << d_prototype_taps.size() << ", ";
-    	std::cout << "branch filter length: " << d_num_branch_taps << std::endl;
+    	/*std::cout << "branch filter length: " << d_num_branch_taps << std::endl;
     	for(int l = 0; l < d_L; l++)
     	{
     		std::cout << "l: " << l << ", taps:\t";
     		for(int n = 0; n < d_num_branch_taps; n++)
-    			std::cout << d_branch_taps[l][n] << "\t";
+    			std::cout << d_branch_taps[l][n].real() << "\t";
     		std::cout << std::endl;
-    	}
+    	}*/
     	std::cout << "prototype taps: ";
     	for(int n = 0; n < d_prototype_taps.size(); n++)
-    		std::cout << d_prototype_taps[n] << "\t";
+    	{
+    		if(n%4 == 0)
+    			std::cout << std::endl;
+    		std::cout << d_prototype_taps[n].real() << "\t";
+    	}
     	std::cout << std::endl;
 
     }
@@ -143,24 +148,38 @@ namespace gr {
 		// Build impulse response
 
 		// Select sample times [0, Eq. (13)]
-		std::valarray<float> t(2*sps*delay);
+		// t = tau0 * arange(-delay*sps, delay*sps+1) / sps
+		std::valarray<float> t(2*sps*delay+1);
 		for(int i = -sps*delay; i < sps*delay+1; i++)
 			t[i+sps*delay] = tau0 / sps * i;
 
 		// Number of iterations for sums in Eq. (7) [0, below Eq. (27)]
 		int K=14;
 
+		std::cout << "sps: " << sps << std::endl;
+		std::cout << "delay: " << delay << std::endl;
+		std::cout << "alpha: " << alpha << std::endl;
+		std::cout << "alpha_m_v0: " << alpha_m_v0 << std::endl;
+		std::cout << "alpha_m_tau0: " << alpha_m_tau0 << std::endl;
+		std::cout << "K: " << K << std::endl;
+		std::cout << "len(t): " << t.size() << std::endl;
+		/*std::cout << "t:" << std::endl;
+		for(int i = 0; i < t.size(); i++)
+			std::cout << t[i] << std::endl;*/
+
 		// Calculate IOTA impulse response [0, Eq. (7)] or [1, Eq. (15)] with c = 2
-		std::valarray<float> s1(0.0, 2*sps*delay);
-		std::valarray<float> s2(0.0, 2*sps*delay);
+		std::valarray<float> s1(0.0, t.size());
+		std::valarray<float> s2(0.0, t.size());
 
 		for(int k = 0; k < K+1; k++)
 		{
+			//std::cout << "d(" << k << "):" << d(k,    alpha,  v0, K) << std::endl;
 			// Elements of first sum
 			s1 += d(k,    alpha,  v0, K) * ( gauss(t+float(k)/v0,alpha) + gauss(t-float(k)/v0,alpha) );
 			// Elements of second sum
 			s2 += d(k,1.0/alpha,tau0, K) * std::cos(float(2.0*M_PI*k)*t/tau0);
 		}
+
 
 		// construct impulse response
 		std::valarray<float> imp_res = float(0.5) * s1 * s2;
@@ -219,11 +238,16 @@ namespace gr {
 
 		std::valarray<float> tmp(jk+1);
 		for(int i = 0; i < jk+1; i++)
-			tmp[i] = i;
-
+			tmp[i] = 2*i + k;
 		std::valarray<float> fac1 = b[k][std::slice(0,jk+1,1)];
-		std::valarray<float> fac2 = std::exp(-M_PI*alpha/(2.0*std::pow(v0,float(2.0)))) * (float(2.0)*tmp+k);
+		std::valarray<float> fac2 = std::exp(float(-M_PI*alpha/(2.0*std::pow(v0,float(2.0)))) * tmp);
     	std::valarray<float> res = fac1 * fac2;
+
+    	/*std::cout << "fac2: ";
+    	for(int i = 0; i < fac2.size(); i++)
+    		std::cout << fac2[i] << "\t";
+    	std::cout << std::endl;*/
+
     	return res.sum();
     }
 
