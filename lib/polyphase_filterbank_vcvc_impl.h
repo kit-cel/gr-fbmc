@@ -23,6 +23,7 @@
 
 #include <fbmc/polyphase_filterbank_vcvc.h>
 #include <boost/circular_buffer.hpp>
+#include <valarray>
 
 namespace gr {
   namespace fbmc {
@@ -36,12 +37,16 @@ namespace gr {
       gr_complex** d_branch_taps; // filter branch taps. 2d array of taps, one row per filter (L x d_num_branch_taps)
       boost::circular_buffer<gr_complex>* d_branch_states; // state registers of the different branch filters
       int d_group_delay; // group delay of the filter bank
+      int d_overlap;
 
+      void gen_prototype_filter(); // calculates the taps for the prototype filter (IOTA)
+      std::valarray<float> gauss(std::valarray<float> x, float alpha); // calculates a gauss pulse
+      float d(int k, float alpha, float v0, int K); // coefficients for IOTA calculation
       void filter(gr_complex* in, gr_complex* out); // perform one filter step producing d_L output values from d_L input values reading from *in and writing to *out
       void filter_branch(gr_complex *in, gr_complex *out, int l); // perform one filter step in branch l producing 1 output value from 1 input value reading from *in and writing to *out
 
      public:
-      polyphase_filterbank_vcvc_impl(std::vector<gr_complex> taps, int L);
+      polyphase_filterbank_vcvc_impl(int L);
       ~polyphase_filterbank_vcvc_impl();
 
       // Where all the action really happens

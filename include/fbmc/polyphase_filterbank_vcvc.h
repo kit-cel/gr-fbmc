@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::polyphase_filterbank_vcvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(std::vector<gr_complex> taps, int L);
+      static sptr make(int L);
     };
 
   } // namespace fbmc

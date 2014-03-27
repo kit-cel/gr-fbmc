@@ -3,12 +3,7 @@
   <key>fbmc_polyphase_filterbank_vcvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.polyphase_filterbank_vcvc($taps, $L)</make>
-  <param>
-    <name>Prototype filter taps</name>
-    <key>taps</key>
-    <type>complex_vector</type>
-  </param>
+  <make>fbmc.polyphase_filterbank_vcvc($L)</make>
   <param>
     <name># filter branches</name>
     <key>L</key>
