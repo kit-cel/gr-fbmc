@@ -161,17 +161,23 @@ namespace gr {
     	int delay = d_overlap;
 
 		// Distance between zeros in time (tau0) and frequency(v0)
-		float tau0 = 1.0/std::sqrt(2.0);
-		float v0   = 1.0/std::sqrt(2.0);
-		assert(std::abs(tau0*v0-0.5) <= std::pow(10.0, -12));
+		double tau0 = 1.0/std::sqrt(2.0);
+		double v0   = 1.0/std::sqrt(2.0);
+		if(std::abs(tau0*v0-0.5) > 1e-6)
+		{
+			std::cout << std::abs(tau0*v0-0.5) << " > " << 1e-6 << std::endl;
+			throw std::runtime_error("assertion std::abs(tau0*v0-0.5) <= 1e-6 failed");
+		}
 
 		// Gaussian function parameter
 		float alpha = 1.0;
 		// Check alpha [1, above Eq. (15)]
 		float alpha_m_v0   = 0.528 * std::pow(v0,2);
 		float alpha_m_tau0 = 1.892/std::pow(tau0,2);
-		assert(alpha_m_v0 <= alpha);
-		assert(alpha <= alpha_m_tau0);
+		if(alpha_m_v0 > alpha)
+			throw std::runtime_error("assertion alpha_m_v0 <= alpha failed");
+		if(alpha > alpha_m_tau0)
+			throw std::runtime_error("assertion alpha <= alpha_m_tau0 failed");
 
 		// Build impulse response
 
@@ -190,9 +196,9 @@ namespace gr {
 		for(int k = 0; k < K+1; k++)
 		{
 			// Elements of first sum
-			s1 += d(k,    alpha,  v0, K) * ( gauss(t+float(k)/v0,alpha) + gauss(t-float(k)/v0,alpha) );
+			s1 += d(k,    alpha,  v0, K) * ( gauss(t+float(k)/float(v0),alpha) + gauss(t-float(k)/float(v0),alpha) );
 			// Elements of second sum
-			s2 += d(k,1.0/alpha,tau0, K) * std::cos(float(2.0*M_PI*k)*t/tau0);
+			s2 += d(k,1.0/alpha,tau0, K) * std::cos(float(2.0*M_PI*k)*t/float(tau0));
 		}
 
 
@@ -215,9 +221,14 @@ namespace gr {
     polyphase_filterbank_vcvc_impl::d(int k, float alpha, float v0, int K)
     {
         // d Coefficients for closed form IOTA calculation
-        assert(v0 == 1.0/std::sqrt(2.0));
+        if(std::abs(v0 - 1.0/std::sqrt(2.0)) > 1e-6)
+        {
+        	std::cerr << "std::abs(v0 - 1.0/std::sqrt(2.0)) = " << std::abs(v0 - 1.0/std::sqrt(2.0)) << std::endl;
+        	throw std::runtime_error("assertion std::abs(v0 - 1.0/std::sqrt(2.0)) < 1e-6 failed");
+        }
 
-        assert(K == 14);
+        if(K != 14)
+        	throw std::runtime_error("assertion K == 14 failed");
 
 		// Number of iterations [0, below Eq. (27)]
 		int jk = std::floor(float(K-k)/2);
@@ -258,12 +269,20 @@ namespace gr {
         gr_complex *out = (gr_complex *) output_items[0];
 
         //FIXME: make sure center coeff has phase 0
-        assert(d_group_delay % d_L == 0); // just a reminder to avoid unexpected behavior
+        if(d_group_delay % d_L != 0) // just a reminder to avoid unexpected behavior
+        	throw std::runtime_error("assertion d_group_delay % d_L == 0 failed");
 
         // Filter one vector of L samples and return L samples
         filter(in, out);
 
         // Tell runtime system how many output items we produced.
+        std::cout << "in:";
+        for(int i = 0; i < d_L; i++)
+        	std::cout << *(in+i) << "\t";
+        std::cout << std::endl << "out: ";
+        for(int i = 0; i < d_L; i++)
+        	std::cout << *(out+i) << "\t";
+        std::cout << std::endl;
         return 1;
     }
 

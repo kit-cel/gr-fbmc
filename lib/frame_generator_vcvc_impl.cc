@@ -48,6 +48,9 @@ namespace gr {
               d_num_payload_sym(0),
               d_payload_sym_ctr(0)
     {
+    	// the frame length has to be a multiple of 4 because of the periodicity beta matrix
+    	if(d_frame_len % 4 != 0)
+    		throw std::runtime_error(std::string("frame length must be a a multiple of 4 because of the periodicity beta matrix"));
     	// this is necessary to convey at least 1 payload symbol per frame
     	if(d_frame_len <= d_overlap)
     		throw std::runtime_error(std::string("frame length must be greater than the overlap"));

@@ -48,27 +48,23 @@ namespace gr {
         {
         	set_relative_rate(1.0); // make this block behave like a sync block
 
-        	// calculate minimum set of betas
+        	// define the minimum set of betas
         	// frames that exceed the dimension of this set can be processed by periodic continuation of this matrix
         	d_beta = new gr_complex*[4]; // allocate memory for beta matrix
         	for(int i = 0; i < 4; i++)
         		d_beta[i] = new gr_complex[2];
 
-        	for(int l = 0; l < 4; l++)
+        	// basically this is the result of j**(l+k) and beta[1::2,1::2] = -beta[1::2,1::2]
+        	gr_complex beta[][4] = {
+        			{gr_complex(1,0), gr_complex(0,1), gr_complex(-1,0), gr_complex(0,-1)},
+        			{gr_complex(0,1), gr_complex(1,0), gr_complex(0,-1), gr_complex(-1,0)},
+        			{gr_complex(-1,0), gr_complex(0,-1), gr_complex(1,0), gr_complex(0,1)},
+        			{gr_complex(0,-1), gr_complex(-1,0), gr_complex(0,1), gr_complex(1,0)}
+        	};
+        	for(int k = 0; k < 4; k++)
         	{
-        		for(int k = 0; k < 2; k++)
-        		{
-        			gr_complex fac1, fac2;
-        			if( (l*k) % 2) // if m*k odd
-        				fac1 = -1;
-        			else
-        				fac1 = 1;
-        			if( (l+k) % 2) // if m+k odd
-        				fac2 = gr_complex(0,1);
-        			else
-        				fac2 = 1;
-        			d_beta[l][k] = fac1*fac2;
-        		}
+        		for(int m = 0; m < 4; m++)
+        			d_beta[m][k] = beta[m][k];
         	}
         }
     /*
@@ -92,7 +88,12 @@ namespace gr {
         	out[l] = d_beta[l%4][d_sym_ctr] * in[l];
 
         // update symbol counter
-        d_sym_ctr = (d_sym_ctr+1) % 2;
+        d_sym_ctr = (d_sym_ctr+1) % 4;
+
+        std::cout << "x with betas: ";
+        for(int i = 0; i < d_L; i++)
+        	std::cout << out[i] << "\t";
+        std::cout << std::endl;
 
         // Return one vector of L elements
         return 1;
