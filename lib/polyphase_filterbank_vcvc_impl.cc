@@ -276,13 +276,13 @@ namespace gr {
         filter(in, out);
 
         // Tell runtime system how many output items we produced.
-        std::cout << "in:";
+        /*std::cout << "in:";
         for(int i = 0; i < d_L; i++)
         	std::cout << *(in+i) << "\t";
         std::cout << std::endl << "out: ";
         for(int i = 0; i < d_L; i++)
         	std::cout << *(out+i) << "\t";
-        std::cout << std::endl;
+        std::cout << std::endl;*/
         return 1;
     }
 
