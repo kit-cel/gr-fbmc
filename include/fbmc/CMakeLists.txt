@@ -26,5 +26,6 @@ install(FILES
     serial_to_parallel_cvc.h
     serialize_iq_vcvc.h
     polyphase_filterbank_vcvc.h
-    output_commutator_vcc.h DESTINATION include/fbmc
+    output_commutator_vcc.h
+    frame_generator_vcvc.h DESTINATION include/fbmc
 )

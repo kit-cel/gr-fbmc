@@ -1,0 +1,27 @@
+<block>
+  <name>Frame generator</name>
+  <key>fbmc_frame_generator_vcvc</key>
+  <category>FBMC</category>
+  <import>import fbmc</import>
+  <make>fbmc.frame_generator_vcvc($sym_len, $frame_len)</make>
+  <param>
+    <name>Sym_len</name>
+    <key>sym_len</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Frame_len</name>
+    <key>frame_len</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$sym_len</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$sym_len</vlen>
+  </source>
+</block>

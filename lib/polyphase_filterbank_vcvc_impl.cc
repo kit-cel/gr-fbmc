@@ -112,16 +112,16 @@ namespace gr {
     			d_branch_states[l].push_front(gr_complex(0,0));
     	}
 
-    	/*std::cout << "L: " << d_L << std::endl;
+    	std::cout << "L: " << d_L << std::endl;
     	std::cout << "prototype length (padded): " << d_prototype_taps.size() << ", ";
     	std::cout << "branch filter length: " << d_num_branch_taps << std::endl;
-    	for(int l = 0; l < d_L; l++)
+    	/*for(int l = 0; l < d_L; l++)
     	{
     		std::cout << "l: " << l << ", taps:\t";
     		for(int n = 0; n < d_num_branch_taps; n++)
     			std::cout << d_branch_taps[l][n].real() << "\t";
     		std::cout << std::endl;
-    	}
+    	}*/
     	std::cout << "prototype taps: ";
     	for(int n = 0; n < d_prototype_taps.size(); n++)
     	{
@@ -129,7 +129,7 @@ namespace gr {
     			std::cout << std::endl;
     		std::cout << d_prototype_taps[n].real() << "\t";
     	}
-    	std::cout << std::endl;*/
+    	std::cout << std::endl;
 
     }
 

@@ -29,7 +29,8 @@ list(APPEND fbmc_sources
     serial_to_parallel_cvc_impl.cc
     serialize_iq_vcvc_impl.cc
     polyphase_filterbank_vcvc_impl.cc
-    output_commutator_vcc_impl.cc )
+    output_commutator_vcc_impl.cc
+    frame_generator_vcvc_impl.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)
