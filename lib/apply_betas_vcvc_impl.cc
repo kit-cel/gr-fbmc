@@ -52,10 +52,10 @@ namespace gr {
         	// frames that exceed the dimension of this set can be processed by periodic continuation of this matrix
         	d_beta = new gr_complex*[4]; // allocate memory for beta matrix
         	for(int i = 0; i < 4; i++)
-        		d_beta[i] = new gr_complex[2];
+        		d_beta[i] = new gr_complex[4];
 
         	// basically this is the result of j**(l+k) and beta[1::2,1::2] = -beta[1::2,1::2]
-        	gr_complex beta[][4] = {
+        	gr_complex beta[4][4] = {
         			{gr_complex(1,0), gr_complex(0,1), gr_complex(-1,0), gr_complex(0,-1)},
         			{gr_complex(0,1), gr_complex(1,0), gr_complex(0,-1), gr_complex(-1,0)},
         			{gr_complex(-1,0), gr_complex(0,-1), gr_complex(1,0), gr_complex(0,1)},

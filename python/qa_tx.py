@@ -38,9 +38,9 @@ class qa_tx (gr_unittest.TestCase):
     	overlap = 4 # this is hardcoded and not changeable at the moment
     	
     	self.src = blocks.vector_source_c([1.0/pl.sqrt(2)+1.0j/pl.sqrt(2)], vlen=1, repeat=True)
-    	self.head = blocks.head(gr.sizeof_gr_complex,num_items)
+    	self.head = blocks.head(gr.sizeof_gr_complex,num_items +  L*(4 - ((L/num_items + overlap)%4)))
     	self.s2p = fbmc.serial_to_parallel_cvc(L,L)		
-    	self.frame_gen = fbmc.frame_generator_vcvc(L,num_items/L+overlap)
+    	self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L,frame_len=L/num_items + overlap + 4 - ((L/num_items + overlap)%4))
     	self.serialize_iq = fbmc.serialize_iq_vcvc(L)
     	self.apply_betas = fbmc.apply_betas_vcvc(L)
     	self.fft = fft.fft_vcc(L, False, (()), False, 1)

@@ -32,13 +32,13 @@ class qa_frame_generator_vcvc (gr_unittest.TestCase):
         self.tb = None
 
     def test_001_t (self):
-    	self.src = blocks.vector_source_c(range(1,13), vlen=2, repeat=False)
-    	self.frame_gen = fbmc.frame_generator_vcvc(sym_len=2, frame_len=7)
+    	self.src = blocks.vector_source_c(range(1,17), vlen=2, repeat=False)
+    	self.frame_gen = fbmc.frame_generator_vcvc(sym_len=2, frame_len=8)
     	self.snk = blocks.vector_sink_c(vlen=2)
     	self.tb.connect(self.src, self.frame_gen, self.snk)
         self.tb.run ()
         # check data
-        ref = (1,2,3,4,5,6,0,0,0,0,0,0,0,0,7,8,9,10,11,12,0,0,0,0,0,0,0,0)
+        ref = (1,2,3,4,5,6,7,8,0,0,0,0,0,0,0,0,9,10,11,12,13,14,15,16,0,0,0,0,0,0,0,0)
         data = self.snk.data()
         print data
         print ref
