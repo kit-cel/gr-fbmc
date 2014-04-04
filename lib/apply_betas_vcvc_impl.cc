@@ -90,11 +90,6 @@ namespace gr {
         // update symbol counter
         d_sym_ctr = (d_sym_ctr+1) % 4;
 
-        /*std::cout << "x with betas: ";
-        for(int i = 0; i < d_L; i++)
-        	std::cout << out[i] << "\t";
-        std::cout << std::endl;*/
-
         // Return one vector of L elements
         return 1;
     }

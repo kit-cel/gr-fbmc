@@ -111,26 +111,6 @@ namespace gr {
     		for(int i = 0; i < d_num_branch_taps; i++)
     			d_branch_states[l].push_front(gr_complex(0,0));
     	}
-
-    	/*std::cout << "L: " << d_L << std::endl;
-    	std::cout << "prototype length (padded): " << d_prototype_taps.size() << ", ";
-    	std::cout << "branch filter length: " << d_num_branch_taps << std::endl;
-    	for(int l = 0; l < d_L; l++)
-    	{
-    		std::cout << "l: " << l << ", taps:\t";
-    		for(int n = 0; n < d_num_branch_taps; n++)
-    			std::cout << d_branch_taps[l][n].real() << "\t";
-    		std::cout << std::endl;
-    	}
-    	std::cout << "prototype taps: ";
-    	for(int n = 0; n < d_prototype_taps.size(); n++)
-    	{
-    		if(n%4 == 0)
-    			std::cout << std::endl;
-    		std::cout << d_prototype_taps[n].real() << "\t";
-    	}
-    	std::cout << std::endl;*/
-
     }
 
     /*
@@ -276,13 +256,6 @@ namespace gr {
         filter(in, out);
 
         // Tell runtime system how many output items we produced.
-        /*std::cout << "in:";
-        for(int i = 0; i < d_L; i++)
-        	std::cout << *(in+i) << "\t";
-        std::cout << std::endl << "out: ";
-        for(int i = 0; i < d_L; i++)
-        	std::cout << *(out+i) << "\t";
-        std::cout << std::endl;*/
         return 1;
     }
 
