@@ -48,3 +48,4 @@ GR_ADD_TEST(qa_polyphase_filterbank_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SO
 GR_ADD_TEST(qa_output_commutator_vcc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_output_commutator_vcc.py)
 GR_ADD_TEST(qa_tx ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_tx.py)
 GR_ADD_TEST(qa_frame_generator_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_frame_generator_vcvc.py)
+GR_ADD_TEST(qa_input_commutator_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_input_commutator_cvc.py)

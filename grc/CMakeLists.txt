@@ -22,5 +22,6 @@ install(FILES
     fbmc_serialize_iq_vcvc.xml
     fbmc_polyphase_filterbank_vcvc.xml
     fbmc_output_commutator_vcc.xml
-    fbmc_frame_generator_vcvc.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_frame_generator_vcvc.xml
+    fbmc_input_commutator_cvc.xml DESTINATION share/gnuradio/grc/blocks
 )
