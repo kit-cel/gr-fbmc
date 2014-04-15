@@ -83,7 +83,6 @@ namespace gr {
      */
     apply_betas_vcvc_impl::~apply_betas_vcvc_impl()
     {
-    	delete[] d_beta;
     }
 
     int

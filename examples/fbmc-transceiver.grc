@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Tue Apr 15 14:49:16 2014</timestamp>
+  <timestamp>Tue Apr 15 15:49:35 2014</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -1071,88 +1071,6 @@
     </param>
   </block>
   <block>
-    <key>blocks_vector_to_stream</key>
-    <param>
-      <key>id</key>
-      <value>blocks_vector_to_stream_0_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>num_items</key>
-      <value>L</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(896, 715)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
-    <key>fbmc_apply_betas_vcvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_apply_betas_vcvc_1</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>L</key>
-      <value>L</value>
-    </param>
-    <param>
-      <key>inverse</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1004, 604)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>fbmc_serialize_iq_vcvc</key>
     <param>
       <key>id</key>
@@ -1282,82 +1200,73 @@
     </param>
   </block>
   <block>
-    <key>wxgui_constellationsink2</key>
+    <key>fbmc_apply_betas_vcvc</key>
     <param>
       <key>id</key>
-      <value>wxgui_constellationsink2_0</value>
+      <value>fbmc_apply_betas_vcvc_1</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
-      <key>title</key>
-      <value>Constellation Plot</value>
+      <key>L</key>
+      <value>L</value>
     </param>
     <param>
-      <key>samp_rate</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>frame_rate</key>
-      <value>5</value>
-    </param>
-    <param>
-      <key>const_size</key>
-      <value>2048</value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>4</value>
-    </param>
-    <param>
-      <key>theta</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>loop_bw</key>
-      <value>6.28/100.0</value>
-    </param>
-    <param>
-      <key>fmax</key>
-      <value>0.06</value>
-    </param>
-    <param>
-      <key>mu</key>
-      <value>0.5</value>
-    </param>
-    <param>
-      <key>gain_mu</key>
-      <value>0.005</value>
-    </param>
-    <param>
-      <key>symbol_rate</key>
-      <value>samp_rate/4.</value>
-    </param>
-    <param>
-      <key>omega_limit</key>
-      <value>0.005</value>
-    </param>
-    <param>
-      <key>win_size</key>
-      <value></value>
-    </param>
-    <param>
-      <key>grid_pos</key>
-      <value></value>
-    </param>
-    <param>
-      <key>notebook</key>
-      <value></value>
+      <key>inverse</key>
+      <value>1</value>
     </param>
     <param>
       <key>affinity</key>
       <value></value>
     </param>
     <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
       <key>_coordinate</key>
-      <value>(521, 685)</value>
+      <value>(1003, 604)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_combine_iq_vcvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_combine_iq_vcvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>L</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1122, 757)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1396,7 +1305,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1045, 763)</value>
+      <value>(923, 757)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1500,26 +1409,8 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_vector_to_stream_0_0</source_block_id>
-    <sink_block_id>wxgui_constellationsink2_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>fft_vxx_0_0</source_block_id>
     <sink_block_id>fbmc_apply_betas_vcvc_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fbmc_apply_betas_vcvc_1</source_block_id>
-    <sink_block_id>blocks_null_sink_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fbmc_apply_betas_vcvc_1</source_block_id>
-    <sink_block_id>blocks_vector_to_stream_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -1532,6 +1423,18 @@
   <connection>
     <source_block_id>fbmc_apply_betas_vcvc_1_0</source_block_id>
     <sink_block_id>fft_vxx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_apply_betas_vcvc_1</source_block_id>
+    <sink_block_id>fbmc_combine_iq_vcvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_combine_iq_vcvc_0</source_block_id>
+    <sink_block_id>blocks_null_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
