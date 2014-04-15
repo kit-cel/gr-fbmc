@@ -33,3 +33,4 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, output_commutator_vcc);
 GR_SWIG_BLOCK_MAGIC2(fbmc, frame_generator_vcvc);
 %include "fbmc/input_commutator_cvc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, input_commutator_cvc);
+

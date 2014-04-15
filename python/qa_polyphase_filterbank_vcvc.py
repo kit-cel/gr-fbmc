@@ -31,7 +31,7 @@ class qa_polyphase_filterbank_vcvc (gr_unittest.TestCase):
     def tearDown (self):
         self.tb = None
 
-    def test_001_t (self):
+    def test_001_t (self): # very basic test
     	vec_len = 8
     	num_items = 3;
     	self.src = blocks.vector_source_c([complex(i,i) for i in range(1,vec_len+1)], vlen=vec_len, repeat=True)

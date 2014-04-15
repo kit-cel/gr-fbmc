@@ -28,5 +28,6 @@ install(FILES
     polyphase_filterbank_vcvc.h
     output_commutator_vcc.h
     frame_generator_vcvc.h
-    input_commutator_cvc.h DESTINATION include/fbmc
+    input_commutator_cvc.h
+    DESTINATION include/fbmc
 )

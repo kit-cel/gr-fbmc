@@ -31,7 +31,8 @@ list(APPEND fbmc_sources
     polyphase_filterbank_vcvc_impl.cc
     output_commutator_vcc_impl.cc
     frame_generator_vcvc_impl.cc
-    input_commutator_cvc_impl.cc )
+    input_commutator_cvc_impl.cc
+    )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)

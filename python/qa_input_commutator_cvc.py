@@ -22,6 +22,7 @@
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
+from numpy import *
 
 class qa_input_commutator_cvc (gr_unittest.TestCase):
 
@@ -43,7 +44,24 @@ class qa_input_commutator_cvc (gr_unittest.TestCase):
         data = self.snk.data()
         ref = (1,0,0,1,0,0,4,3,2,4,3,2,7,6,5,7,6,5,10,9,8,10,9,8)
         self.assertComplexTuplesAlmostEqual(data, ref)
+        
+    def test_002_t (self):
+        # prepare reference data
+        n = 16
+        L = 8
+        input_stream = arange(n)
+        input_matrix = flipud(r_[zeros(L / 2 - 1), input_stream[:-(L / 2 - 1)]].reshape((L / 2, -1), order='F'))
+        input_matrix = r_[input_matrix, input_matrix]
+        ref_output = input_matrix.transpose().reshape((n*2,1))
 
-
+        self.src = blocks.vector_source_c(range(n), vlen=1)
+        self.comm = fbmc.input_commutator_cvc(L)
+        self.snk = blocks.vector_sink_c(vlen=L)
+        self.tb.connect(self.src, self.comm, self.snk)
+        self.tb.run ()
+        # check data
+        data = self.snk.data()
+        self.assertComplexTuplesAlmostEqual(data, ref_output)
+        
 if __name__ == '__main__':
     gr_unittest.run(qa_input_commutator_cvc)
