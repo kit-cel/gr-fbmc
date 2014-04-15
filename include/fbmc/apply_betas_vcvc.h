@@ -30,6 +30,7 @@ namespace gr {
 
     /*!
      * \brief Applies the necessary phase shifts to the subcarrier symbols. Operates on one symbol (L subcarriers) at a time.
+     * Set inverse to 0 in the TX path, 1 is used for RX
      * \ingroup fbmc
      *
      */
@@ -46,7 +47,7 @@ namespace gr {
        * class. fbmc::apply_betas_vcvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int L);
+      static sptr make(int L, int inverse);
     };
 
   } // namespace fbmc

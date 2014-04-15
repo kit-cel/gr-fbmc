@@ -31,9 +31,11 @@ namespace gr {
      private:
       int d_L; // number of subcarriers (some are possibly zero)
       gr_complex** d_beta; // matrix of possible betas
+      std::vector< std::vector< std::vector<gr_complex> > > d_betas; // 3D matrix holding the beta values
       int d_sym_ctr; // tells the block if it's an even or odd symbol count and adjusts the betas accordingly
+      int d_inverse; // tells the block which table is to be used
      public:
-      apply_betas_vcvc_impl(int L);
+      apply_betas_vcvc_impl(int L, int inverse);
       ~apply_betas_vcvc_impl();
 
       // Where all the action really happens
