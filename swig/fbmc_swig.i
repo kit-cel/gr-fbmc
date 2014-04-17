@@ -16,6 +16,7 @@
 #include "fbmc/frame_generator_vcvc.h"
 #include "fbmc/input_commutator_cvc.h"
 #include "fbmc/combine_iq_vcvc.h"
+#include "fbmc/parallel_to_serial_vcc.h"
 %}
 
 
@@ -37,3 +38,5 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, input_commutator_cvc);
 
 %include "fbmc/combine_iq_vcvc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, combine_iq_vcvc);
+%include "fbmc/parallel_to_serial_vcc.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, parallel_to_serial_vcc);

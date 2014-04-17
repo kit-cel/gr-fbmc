@@ -29,5 +29,6 @@ install(FILES
     output_commutator_vcc.h
     frame_generator_vcvc.h
     input_commutator_cvc.h
-    combine_iq_vcvc.h DESTINATION include/fbmc
+    combine_iq_vcvc.h
+    parallel_to_serial_vcc.h DESTINATION include/fbmc
 )
