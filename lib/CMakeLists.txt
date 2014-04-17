@@ -33,7 +33,8 @@ list(APPEND fbmc_sources
     frame_generator_vcvc_impl.cc
     input_commutator_cvc_impl.cc
     combine_iq_vcvc_impl.cc
-    parallel_to_serial_vcc_impl.cc )
+    parallel_to_serial_vcc_impl.cc
+    symbols_to_bits_cb_impl.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)

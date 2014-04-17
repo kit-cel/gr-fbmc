@@ -17,6 +17,7 @@
 #include "fbmc/input_commutator_cvc.h"
 #include "fbmc/combine_iq_vcvc.h"
 #include "fbmc/parallel_to_serial_vcc.h"
+#include "fbmc/symbols_to_bits_cb.h"
 %}
 
 
@@ -40,3 +41,5 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, input_commutator_cvc);
 GR_SWIG_BLOCK_MAGIC2(fbmc, combine_iq_vcvc);
 %include "fbmc/parallel_to_serial_vcc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, parallel_to_serial_vcc);
+%include "fbmc/symbols_to_bits_cb.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, symbols_to_bits_cb);

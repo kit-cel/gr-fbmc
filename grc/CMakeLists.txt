@@ -25,5 +25,6 @@ install(FILES
     fbmc_frame_generator_vcvc.xml
     fbmc_input_commutator_cvc.xml
     fbmc_combine_iq_vcvc.xml
-    fbmc_parallel_to_serial_vcc.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_parallel_to_serial_vcc.xml
+    fbmc_symbols_to_bits_cb.xml DESTINATION share/gnuradio/grc/blocks
 )

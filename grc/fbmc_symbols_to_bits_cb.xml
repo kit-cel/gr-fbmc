@@ -1,0 +1,15 @@
+<block>
+  <name>4-QAM symbols to bits</name>
+  <key>fbmc_symbols_to_bits_cb</key>
+  <category>FBMC</category>
+  <import>import fbmc</import>
+  <make>fbmc.symbols_to_bits_cb()</make>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>byte</type>
+  </source>
+</block>

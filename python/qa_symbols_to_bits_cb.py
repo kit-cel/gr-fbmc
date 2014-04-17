@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # 
-# Copyright 2014 Communications Engineering Lab (CEL), Karlsruhe Institute of Technology (KIT).
+# Copyright 2014Communications Engineering Lab (CEL), Karlsruhe Institute of Technology (KIT).
 # 
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,10 +20,10 @@
 # 
 
 from gnuradio import gr, gr_unittest
-from gnuradio import blocks
+from gnuradio import blocks, digital
 import fbmc_swig as fbmc
 
-class qa_parallel_to_serial_vcc (gr_unittest.TestCase):
+class qa_symbols_to_bits_cb (gr_unittest.TestCase):
 
     def setUp (self):
         self.tb = gr.top_block ()
@@ -33,15 +33,18 @@ class qa_parallel_to_serial_vcc (gr_unittest.TestCase):
 
     def test_001_t (self):
         # set up fg
-        self.src = blocks.vector_source_c(range(10), vlen=5)
-        self.p2s = fbmc.parallel_to_serial_vcc(3,5)
-        self.snk = blocks.vector_sink_c()
-        self.tb.connect(self.src, self.p2s, self.snk)
+        samples = (1+1j, 1-1j, -1-1j, -1+1j, .5 +1j*.5, .5 -1j*.5, -.5 +1j*.5, -.5 -1j*.5)
+        self.src = blocks.vector_source_c(samples)
+        self.demod = fbmc.symbols_to_bits_cb()
+        self.snk = blocks.vector_sink_b()
+        self.tb.connect(self.src, self.demod, self.snk)
         self.tb.run ()
         # check data
-        ref = (0,1,2,5,6,7)
+        ref = (3,1,0,2,3,1,2,0)
         data = self.snk.data()
-        self.assertComplexTuplesAlmostEqual(ref, data)
+        print "ref:", ref
+        print "data:", data
+        self.assertFloatTuplesAlmostEqual(data, ref)
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_parallel_to_serial_vcc)
+    gr_unittest.run(qa_symbols_to_bits_cb)
