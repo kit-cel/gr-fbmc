@@ -52,3 +52,4 @@ GR_ADD_TEST(qa_input_commutator_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_
 GR_ADD_TEST(qa_combine_iq_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_combine_iq_vcvc.py)
 GR_ADD_TEST(qa_parallel_to_serial_vcc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_parallel_to_serial_vcc.py)
 GR_ADD_TEST(qa_symbols_to_bits_cb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_symbols_to_bits_cb.py)
+GR_ADD_TEST(qa_rx ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_rx.py)

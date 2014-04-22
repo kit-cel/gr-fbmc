@@ -41,7 +41,7 @@ namespace gr {
     parallel_to_serial_vcc_impl::parallel_to_serial_vcc_impl(int len_out, int vlen_in)
       : gr::sync_interpolator("parallel_to_serial_vcc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)*vlen_in),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)), (vlen_in-len_out)),
+              gr::io_signature::make(1, 1, sizeof(gr_complex)), len_out),
               d_len_out(len_out),
               d_vlen_in(vlen_in)
     {

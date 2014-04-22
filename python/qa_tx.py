@@ -35,7 +35,7 @@ class qa_tx (gr_unittest.TestCase):
     def test_001_t (self):
     	L = 8
     	print "test 1 - L =", L
-    	num_items = L; # does not refer to symbols but to the number of items the head block let's through
+    	num_items = L; # does not refer to symbols but to the number of items the head block lets through
     	overlap = 4 # this is hardcoded and not changeable at the moment
     	symbols = [-0.70710677-0.70710677j, -0.70710677+0.70710677j, -0.70710677-0.70710677j, \
     	           0.70710677+0.70710677j, -0.70710677+0.70710677j,  0.70710677-0.70710677j, \
@@ -138,7 +138,7 @@ class qa_tx (gr_unittest.TestCase):
     def test_002_t (self):
         L = 16
     	print "test 2 - L =", L
-    	num_items = L; # does not refer to symbols but to the number of items the head block let's through
+    	num_items = L; # does not refer to symbols but to the number of items the head block lets through
     	overlap = 4 # this is hardcoded and not changeable at the moment
     	symbols = [-0.70710677-0.70710677j, -0.70710677+0.70710677j, -0.70710677-0.70710677j, \
     	           0.70710677+0.70710677j, -0.70710677+0.70710677j,  0.70710677-0.70710677j, \
