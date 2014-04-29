@@ -1,23 +1,59 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Fri Apr 25 15:51:25 2014</timestamp>
+  <timestamp>Tue Apr 29 22:33:30 2014</timestamp>
   <block>
-    <key>variable</key>
+    <key>options</key>
     <param>
       <key>id</key>
-      <value>samp_rate</value>
+      <value>fbmc_transceiver</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
-      <key>value</key>
-      <value>500e2</value>
+      <key>title</key>
+      <value>FBMC transceiver</value>
+    </param>
+    <param>
+      <key>author</key>
+      <value>Felix Wunsch</value>
+    </param>
+    <param>
+      <key>description</key>
+      <value></value>
+    </param>
+    <param>
+      <key>window_size</key>
+      <value>1280, 1024</value>
+    </param>
+    <param>
+      <key>generate_options</key>
+      <value>wx_gui</value>
+    </param>
+    <param>
+      <key>category</key>
+      <value>Custom</value>
+    </param>
+    <param>
+      <key>run_options</key>
+      <value>run</value>
+    </param>
+    <param>
+      <key>run</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>max_nouts</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>realtime_scheduling</key>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(175, 10)</value>
+      <value>(10, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -28,7 +64,7 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>overlap</value>
+      <value>modulation</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -36,103 +72,11 @@
     </param>
     <param>
       <key>value</key>
-      <value>4</value>
+      <value>digital.constellation_qpsk()</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(751, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>output_oversampling</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>4</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(829, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>L</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>int(2**(np.ceil(np.log2(M))))</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(675, 10)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>frame_len</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>M*K</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(268, 10)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
-      <value>M</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>100</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(363, 10)</value>
+      <value>(510, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -166,7 +110,7 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>modulation</value>
+      <value>M</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -174,11 +118,11 @@
     </param>
     <param>
       <key>value</key>
-      <value>digital.constellation_qpsk()</value>
+      <value>100</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(510, 10)</value>
+      <value>(363, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -186,38 +130,114 @@
     </param>
   </block>
   <block>
-    <key>fbmc_serial_to_parallel_cvc</key>
+    <key>variable</key>
     <param>
       <key>id</key>
-      <value>fbmc_serial_to_parallel_cvc_0</value>
+      <value>frame_len</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
-      <key>len_in</key>
-      <value>M</value>
-    </param>
-    <param>
-      <key>vlen_out</key>
-      <value>L</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
+      <key>value</key>
+      <value>M*K</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(750, 138)</value>
+      <value>(268, 10)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>L</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>int(2**(np.ceil(np.log2(M))))</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(675, 10)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>output_oversampling</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(829, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>overlap</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(751, 11)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>500e2</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(175, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -241,45 +261,6 @@
     <param>
       <key>_coordinate</key>
       <value>(976, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>fbmc_frame_generator_vcvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_frame_generator_vcvc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>sym_len</key>
-      <value>L</value>
-    </param>
-    <param>
-      <key>frame_len</key>
-      <value>K+overlap</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1040, 138)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -403,41 +384,6 @@
     </param>
   </block>
   <block>
-    <key>fbmc_input_commutator_cvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_input_commutator_cvc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>L</key>
-      <value>L</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(286, 612)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>analog_random_source_x</key>
     <param>
       <key>id</key>
@@ -482,41 +428,6 @@
     <param>
       <key>_coordinate</key>
       <value>(38, 122)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>fbmc_polyphase_filterbank_vcvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_polyphase_filterbank_vcvc_0_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>L</key>
-      <value>L</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(507, 612)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -914,41 +825,6 @@
     </param>
   </block>
   <block>
-    <key>fbmc_serialize_iq_vcvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_serialize_iq_vcvc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>L</key>
-      <value>L</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1032, 258)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
     <key>fft_vxx</key>
     <param>
       <key>id</key>
@@ -1082,41 +958,6 @@
     </param>
   </block>
   <block>
-    <key>fbmc_combine_iq_vcvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_combine_iq_vcvc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>L</key>
-      <value>L</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1122, 757)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
     <key>blocks_complex_to_real</key>
     <param>
       <key>id</key>
@@ -1180,100 +1021,6 @@
     <param>
       <key>_coordinate</key>
       <value>(815, 952)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>wxgui_histosink2</key>
-    <param>
-      <key>id</key>
-      <value>wxgui_histosink2_0_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>title</key>
-      <value>Imag</value>
-    </param>
-    <param>
-      <key>num_bins</key>
-      <value>27</value>
-    </param>
-    <param>
-      <key>frame_size</key>
-      <value>1000</value>
-    </param>
-    <param>
-      <key>win_size</key>
-      <value></value>
-    </param>
-    <param>
-      <key>grid_pos</key>
-      <value></value>
-    </param>
-    <param>
-      <key>notebook</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1073, 932)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>wxgui_histosink2</key>
-    <param>
-      <key>id</key>
-      <value>wxgui_histosink2_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>title</key>
-      <value>Real</value>
-    </param>
-    <param>
-      <key>num_bins</key>
-      <value>27</value>
-    </param>
-    <param>
-      <key>frame_size</key>
-      <value>1000</value>
-    </param>
-    <param>
-      <key>win_size</key>
-      <value></value>
-    </param>
-    <param>
-      <key>grid_pos</key>
-      <value></value>
-    </param>
-    <param>
-      <key>notebook</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1070, 848)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1631,7 +1378,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(383, 757)</value>
+      <value>(14, 757)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1662,7 +1409,151 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(569, 761)</value>
+      <value>(200, 761)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_input_commutator_cvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_input_commutator_cvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>L</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(286, 612)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_polyphase_filterbank_vcvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_polyphase_filterbank_vcvc_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>L</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(507, 612)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_serial_to_parallel_cvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_serial_to_parallel_cvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>len_in</key>
+      <value>M</value>
+    </param>
+    <param>
+      <key>vlen_out</key>
+      <value>L</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(750, 138)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_serialize_iq_vcvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_serialize_iq_vcvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>L</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1032, 258)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1701,7 +1592,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(819, 749)</value>
+      <value>(453, 749)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1709,10 +1600,10 @@
     </param>
   </block>
   <block>
-    <key>options</key>
+    <key>wxgui_histosink2</key>
     <param>
       <key>id</key>
-      <value>fbmc_transceiver</value>
+      <value>wxgui_histosink2_0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -1720,47 +1611,219 @@
     </param>
     <param>
       <key>title</key>
-      <value>FBMC transceiver</value>
+      <value>Real</value>
     </param>
     <param>
-      <key>author</key>
-      <value>Felix Wunsch</value>
+      <key>num_bins</key>
+      <value>10</value>
     </param>
     <param>
-      <key>description</key>
+      <key>frame_size</key>
+      <value>1000</value>
+    </param>
+    <param>
+      <key>win_size</key>
       <value></value>
     </param>
     <param>
-      <key>window_size</key>
-      <value>1280, 1024</value>
+      <key>grid_pos</key>
+      <value></value>
     </param>
     <param>
-      <key>generate_options</key>
-      <value>wx_gui</value>
+      <key>notebook</key>
+      <value></value>
     </param>
     <param>
-      <key>category</key>
-      <value>Custom</value>
-    </param>
-    <param>
-      <key>run_options</key>
-      <value>run</value>
-    </param>
-    <param>
-      <key>run</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>max_nouts</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>realtime_scheduling</key>
-      <value>1</value>
+      <key>affinity</key>
+      <value></value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(10, 10)</value>
+      <value>(1070, 848)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>wxgui_histosink2</key>
+    <param>
+      <key>id</key>
+      <value>wxgui_histosink2_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>title</key>
+      <value>Imag</value>
+    </param>
+    <param>
+      <key>num_bins</key>
+      <value>10</value>
+    </param>
+    <param>
+      <key>frame_size</key>
+      <value>1000</value>
+    </param>
+    <param>
+      <key>win_size</key>
+      <value></value>
+    </param>
+    <param>
+      <key>grid_pos</key>
+      <value></value>
+    </param>
+    <param>
+      <key>notebook</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1073, 932)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_combine_iq_vcvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_combine_iq_vcvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>L</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1112, 757)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_frame_generator_vcvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_frame_generator_vcvc_1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>sym_len</key>
+      <value>L</value>
+    </param>
+    <param>
+      <key>num_payload</key>
+      <value>K</value>
+    </param>
+    <param>
+      <key>inverse</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>num_overlap</key>
+      <value>overlap</value>
+    </param>
+    <param>
+      <key>num_sync</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(766, 725)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_frame_generator_vcvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_frame_generator_vcvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>sym_len</key>
+      <value>L</value>
+    </param>
+    <param>
+      <key>num_payload</key>
+      <value>K</value>
+    </param>
+    <param>
+      <key>inverse</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>num_overlap</key>
+      <value>overlap</value>
+    </param>
+    <param>
+      <key>num_sync</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1033, 114)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1888,18 +1951,6 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fbmc_combine_iq_vcvc_0</source_block_id>
-    <sink_block_id>fbmc_parallel_to_serial_vcc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fbmc_parallel_to_serial_vcc_0</source_block_id>
-    <sink_block_id>blocks_complex_to_imag_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>blocks_complex_to_imag_0</source_block_id>
     <sink_block_id>wxgui_histosink2_0_0</sink_block_id>
     <source_key>0</source_key>
@@ -1908,12 +1959,6 @@
   <connection>
     <source_block_id>blocks_complex_to_real_0</source_block_id>
     <sink_block_id>wxgui_histosink2_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fbmc_parallel_to_serial_vcc_0</source_block_id>
-    <sink_block_id>blocks_complex_to_real_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -1954,6 +1999,12 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>fbmc_parallel_to_serial_vcc_0</source_block_id>
+    <sink_block_id>fbmc_symbols_to_bits_cb_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>fbmc_symbols_to_bits_cb_0</source_block_id>
     <sink_block_id>virtual_sink_1</sink_block_id>
     <source_key>0</source_key>
@@ -1961,7 +2012,25 @@
   </connection>
   <connection>
     <source_block_id>fbmc_parallel_to_serial_vcc_0</source_block_id>
-    <sink_block_id>fbmc_symbols_to_bits_cb_0</sink_block_id>
+    <sink_block_id>blocks_complex_to_real_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_parallel_to_serial_vcc_0</source_block_id>
+    <sink_block_id>blocks_complex_to_imag_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_frame_generator_vcvc_1</source_block_id>
+    <sink_block_id>fbmc_parallel_to_serial_vcc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_combine_iq_vcvc_0</source_block_id>
+    <sink_block_id>fbmc_frame_generator_vcvc_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

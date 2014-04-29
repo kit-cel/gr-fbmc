@@ -29,9 +29,13 @@ namespace gr {
   namespace fbmc {
 
     /*!
-     * \brief Creates a frame structure be pre- and appending zero symbols that can be used e.g. for preambles
-     * Currently, this block appends 4 (== overlap) zero symbols at the end of each frame
-     * Frame length includes these symbols, so payload length == frame length - 4
+     * \brief Creates a frame structure be pre- and appending zero symbols that can be used e.g. for preambles and allows for filter settling
+     * sym_len: number of carriers per symbol
+     * num_payload: number of actual payload symbols per frame
+     * inverse: if inverse=1, the frame structure is removed and the payload is returned.
+     * num_overlap: number of overlapping symbols
+     * num_sync: number of sync symbols per frame
+	 * 
      * \ingroup fbmc
      *
      */
@@ -48,7 +52,7 @@ namespace gr {
        * class. fbmc::frame_generator_vcvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int sym_len, int frame_len);
+      static sptr make(int sym_len, int num_payload, int inverse, int num_overlap, int num_sync);
     };
 
   } // namespace fbmc

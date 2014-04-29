@@ -30,13 +30,16 @@ namespace gr {
     {
      private:
       int d_sym_len; // length of one symbol aka the input vector length aka number of subcarriers
-      int d_frame_len; // number of symbols (vectors) per frame
-      int d_overlap; // hard-coded to 4
-      int d_num_payload_sym; // number of payload symbols
+      int d_num_frame; // number of symbols (vectors) per frame
+      int d_num_overlap; // hard-coded to 4
+      int d_num_payload; // number of payload symbols
+      int d_num_sync; // number of sync symbols
       int d_payload_sym_ctr; // payload symbol counter to detect the start/end of frame
+      int d_dropped_sym_ctr; // counter for dropping zero/sync symbols in inverse mode
+	  int d_inverse; // defines if the zero symbols are inserted or removed
 
      public:
-      frame_generator_vcvc_impl(int sym_len, int frame_len);
+      frame_generator_vcvc_impl(int sym_len, int num_payload, int inverse, int num_overlap, int num_sync);
       ~frame_generator_vcvc_impl();
 
       // Where all the action really happens

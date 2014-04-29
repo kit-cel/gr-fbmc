@@ -3,15 +3,39 @@
   <key>fbmc_frame_generator_vcvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.frame_generator_vcvc($sym_len, $frame_len)</make>
+  <make>fbmc.frame_generator_vcvc($sym_len, $num_payload, $inverse, $num_overlap, $num_sync)</make>
   <param>
-    <name>Sym_len</name>
+    <name>Num subcarriers</name>
     <key>sym_len</key>
     <type>int</type>
   </param>
   <param>
-    <name>Frame_len</name>
-    <key>frame_len</key>
+    <name>Num payload symbols</name>
+    <key>num_payload</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Direction</name>
+    <key>inverse</key>
+    <value>0</value>
+    <type>int</type>
+    <option>
+        <name>Forward</name>
+        <key>0</key>
+    </option>
+    <option>
+        <name>Reverse</name>
+        <key>1</key>
+    </option>    
+  </param>
+  <param>
+    <name>Num overlap symbols</name>
+    <key>num_overlap</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Num sync symbols</name>
+    <key>num_sync</key>
     <type>int</type>
   </param>
   <sink>

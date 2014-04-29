@@ -43,3 +43,4 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, combine_iq_vcvc);
 GR_SWIG_BLOCK_MAGIC2(fbmc, parallel_to_serial_vcc);
 %include "fbmc/symbols_to_bits_cb.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, symbols_to_bits_cb);
+
