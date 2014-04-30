@@ -69,6 +69,7 @@ namespace gr {
         	memset(out+d_len_in, 0, (d_vlen_out-d_len_in)*sizeof(gr_complex));
 
         // Tell runtime system how many output items we produced.
+        std::cout << "serial to parallel returned: " << noutput_items << std::endl;
         return 1;
     }
 

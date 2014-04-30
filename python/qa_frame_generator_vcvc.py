@@ -59,5 +59,27 @@ class qa_frame_generator_vcvc (gr_unittest.TestCase):
 		print ref
 		self.assertComplexTuplesAlmostEqual(ref, data)
 
+	def test_003_t (self): # forward
+		print "test 3 - forward - many frames"
+		self.src = blocks.vector_source_c(range(1,101), vlen=2, repeat=False)
+		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=2, num_payload = 2, inverse=0, num_overlap = 4, num_sync = 2) # the frame len includes the length of the overlap
+		self.snk = blocks.vector_sink_c(vlen=2)
+		self.tb.connect(self.src, self.frame_gen, self.snk)
+		self.tb.run ()
+		# check data
+		data = self.snk.data()
+		self.assertEqual(len(data), 600)
+	
+	def test_004_t (self): # reverse
+		print "test 4 - reverse - many frames"
+		self.src = blocks.vector_source_c(range(1,601), vlen=2, repeat=False)
+		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=2, num_payload = 2, inverse=1, num_overlap = 4, num_sync = 2)
+		self.snk = blocks.vector_sink_c(vlen=2)
+		self.tb.connect(self.src, self.frame_gen, self.snk)
+		self.tb.run()
+		# check data
+		data = self.snk.data()
+		self.assertEqual(len(data), 100)
+		
 if __name__ == '__main__':
 	gr_unittest.run(qa_frame_generator_vcvc)

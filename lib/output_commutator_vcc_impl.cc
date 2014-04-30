@@ -67,6 +67,7 @@ namespace gr {
         	*out++ = in[l] + in[l+d_L/2];
 
         // Tell runtime system how many output items we produced.
+        std::cout << "output commutator returned: " << d_L/2 << std::endl;
         return d_L/2;
     }
 

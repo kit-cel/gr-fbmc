@@ -97,6 +97,8 @@ namespace gr {
     {
         gr_complex *in = (gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
+        
+        std::cout << "enter frame generator " << d_inverse << std::endl;
 
         // Tell runtime system how many input items we consumed on
         // each input stream.
@@ -187,6 +189,7 @@ namespace gr {
 
         // Tell runtime system how many output items we produced.
         return noutput_items;
+        std::cout << "frame_generator_vcvc " << d_inverse << " returned: " << noutput_items << std::endl;
     }
 
   } /* namespace fbmc */

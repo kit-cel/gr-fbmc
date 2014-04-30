@@ -69,6 +69,7 @@ namespace gr {
         memcpy(out, in, sizeof(gr_complex)*d_len_out);
 
         // Tell runtime system how many output items we produced.
+        std::cout << "parallel to serial returned: " << d_len_out << std::endl;
         return d_len_out;
     }
 
