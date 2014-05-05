@@ -64,10 +64,10 @@ namespace gr {
 
         // Add first and second half and write the result to the output buffer
         for(int l = 0; l < d_L/2; l++)
-        	*out++ = in[l] + in[l+d_L/2];
+        	out[l] = in[l] + in[l+d_L/2];
 
         // Tell runtime system how many output items we produced.
-        std::cout << "output commutator returned: " << d_L/2 << std::endl;
+        //std::cout << "output commutator returned: " << d_L/2 << std::endl;
         return d_L/2;
     }
 

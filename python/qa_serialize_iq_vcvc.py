@@ -25,27 +25,41 @@ import fbmc_swig as fbmc
 
 class qa_serialize_iq_vcvc (gr_unittest.TestCase):
 
-    def setUp (self):
-        self.tb = gr.top_block ()
+	def setUp (self):
+		self.tb = gr.top_block ()
 
-    def tearDown (self):
-        self.tb = None
+	def tearDown (self):
+		self.tb = None
 
-    def test_001_t (self):
-    	input = [complex(i,i+3) for i in range(1,7)]
-    	self.src = blocks.vector_source_c(input, vlen=3)
-    	self.ser = fbmc.serialize_iq_vcvc(3)
-    	self.snk = blocks.vector_sink_c(vlen=3)
-    	self.tb.connect(self.src, self.ser, self.snk)
-        # set up fg
-        self.tb.run ()
-        ref = (1,2,3,4,5,6,4,5,6,7,8,9)
-        data = self.snk.data()
-        print input
-        print ref
-        print data
-        # check data
-        self.assertComplexTuplesAlmostEqual(data, ref)
+	def test_001_t (self):
+		input_data = [complex(i,i+3) for i in range(1,7)]
+		self.src = blocks.vector_source_c(input_data, vlen=3)
+		self.ser = fbmc.serialize_iq_vcvc(3)
+		self.snk = blocks.vector_sink_c(vlen=3)
+		self.tb.connect(self.src, self.ser, self.snk)
+		# set up fg
+		self.tb.run ()
+		ref = (1,2,3,4,5,6,4,5,6,7,8,9)
+		data = self.snk.data()
+		print input
+		print ref
+		print data
+		# check data
+		self.assertComplexTuplesAlmostEqual(data, ref)
+		
+	def test_002_t (self):
+		L = 64
+		n = L*1000
+		input_data = range(n)
+		self.src = blocks.vector_source_c(input_data, vlen=L)
+		self.ser = fbmc.serialize_iq_vcvc(L)
+		self.snk = blocks.vector_sink_c(vlen=L)
+		self.tb.connect(self.src, self.ser, self.snk)
+		# set up fg
+		self.tb.run ()
+		data = self.snk.data()
+		# check data
+		self.assertTrue(len(data), n*2)    
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_serialize_iq_vcvc)
+	gr_unittest.run(qa_serialize_iq_vcvc)

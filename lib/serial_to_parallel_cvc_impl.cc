@@ -64,12 +64,11 @@ namespace gr {
         gr_complex *out = (gr_complex *) output_items[0];
 
         // convert sample stream to vector and pad if necessary
-        memcpy(out, in, d_len_in*sizeof(gr_complex));
+        memcpy((void*) out, (void*) in, d_len_in*sizeof(gr_complex));
         if(d_len_in < d_vlen_out)
-        	memset(out+d_len_in, 0, (d_vlen_out-d_len_in)*sizeof(gr_complex));
+        	memset((void*) (out+d_len_in), 0, (d_vlen_out-d_len_in)*sizeof(gr_complex));
 
         // Tell runtime system how many output items we produced.
-        std::cout << "serial to parallel returned: " << noutput_items << std::endl;
         return 1;
     }
 

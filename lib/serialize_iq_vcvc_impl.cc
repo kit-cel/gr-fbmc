@@ -44,7 +44,7 @@ namespace gr {
               gr::io_signature::make(1, 1, sizeof(gr_complex)*L), 2),
               d_L(L)
     {
-    	assert(L > 0);
+    	assert(d_L > 0);
     }
 
     /*
@@ -61,6 +61,9 @@ namespace gr {
     {
         const gr_complex *in = (const gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
+        
+        if(noutput_items < 2)
+			throw std::runtime_error("noutput items too small");
 
         // Split the complex numbers into real and imaginary part
         for(int i = 0 ; i < d_L; i++)

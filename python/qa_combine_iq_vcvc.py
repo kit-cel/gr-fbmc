@@ -25,24 +25,37 @@ import fbmc_swig as fbmc
 
 class qa_combine_iq_vcvc (gr_unittest.TestCase):
 
-    def setUp (self):
-        self.tb = gr.top_block ()
+	def setUp (self):
+		self.tb = gr.top_block ()
 
-    def tearDown (self):
-        self.tb = None
+	def tearDown (self):
+		self.tb = None
 
-    def test_001_t (self):
-        # set up fg
-        L = 3
-        self.src = blocks.vector_source_c(range(4*L), vlen=L)
-        self.comb = fbmc.combine_iq_vcvc(L=L)
-        self.snk = blocks.vector_sink_c(vlen=L)
-        self.tb.connect(self.src, self.comb, self.snk)
-        self.tb.run ()
-        # check data
-        data = self.snk.data()
-        ref = (0+3j, 1+4j, 2+5j, 6+9j, 7+10j, 8+11j)
-        self.assertComplexTuplesAlmostEqual(ref, data)
-
+	def test_001_t (self):
+		# set up fg
+		L = 3
+		self.src = blocks.vector_source_c(range(4*L), vlen=L)
+		self.comb = fbmc.combine_iq_vcvc(L=L)
+		self.snk = blocks.vector_sink_c(vlen=L)
+		self.tb.connect(self.src, self.comb, self.snk)
+		self.tb.run ()
+		# check data
+		data = self.snk.data()
+		ref = (0+3j, 1+4j, 2+5j, 6+9j, 7+10j, 8+11j)
+		self.assertComplexTuplesAlmostEqual(ref, data)
+		
+	def test_002_t (self):
+		# set up fg
+		L = 64
+		n= L*1000
+		self.src = blocks.vector_source_c(range(n), vlen=L)
+		self.comb = fbmc.combine_iq_vcvc(L=L)
+		self.snk = blocks.vector_sink_c(vlen=L)
+		self.tb.connect(self.src, self.comb, self.snk)
+		self.tb.run ()
+		# check data
+		data = self.snk.data()
+		self.assertEqual(len(data), n/2)
+		
 if __name__ == '__main__':
-    gr_unittest.run(qa_combine_iq_vcvc, "qa_combine_iq_vcvc.xml")
+	gr_unittest.run(qa_combine_iq_vcvc, "qa_combine_iq_vcvc.xml")

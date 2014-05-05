@@ -96,7 +96,7 @@ namespace gr {
     	{
     		// write the upsampled prototype coefficients into the branch filter
     		d_branch_taps[l] = new gr_complex[d_num_branch_taps];
-    		memset(d_branch_taps[l], 0, d_num_branch_taps*sizeof(gr_complex));
+    		memset((void*) d_branch_taps[l], 0, d_num_branch_taps*sizeof(gr_complex));
     		int offset = 0;
     		if(l >= L/2)
     			offset = 1;

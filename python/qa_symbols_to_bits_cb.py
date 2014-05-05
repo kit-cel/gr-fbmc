@@ -42,9 +42,20 @@ class qa_symbols_to_bits_cb (gr_unittest.TestCase):
         # check data
         ref = (3,1,0,2,3,1,2,0)
         data = self.snk.data()
-        print "ref:", ref
-        print "data:", data
         self.assertFloatTuplesAlmostEqual(data, ref)
 
+    def test_002_t (self):
+        # set up fg
+        n = 100000
+        samples = [1 + 1j for i in range(n)]
+        self.src = blocks.vector_source_c(samples)
+        self.demod = fbmc.symbols_to_bits_cb()
+        self.snk = blocks.vector_sink_b()
+        self.tb.connect(self.src, self.demod, self.snk)
+        self.tb.run ()
+        # check data
+        data = self.snk.data()
+        self.assertEqual(n, len(data))
+        
 if __name__ == '__main__':
     gr_unittest.run(qa_symbols_to_bits_cb)

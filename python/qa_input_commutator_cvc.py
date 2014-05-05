@@ -63,5 +63,19 @@ class qa_input_commutator_cvc (gr_unittest.TestCase):
         data = self.snk.data()
         self.assertComplexTuplesAlmostEqual(data, ref_output)
         
+	def test_003_t (self):
+		# test input commutator for large vector lengths
+		L = 16
+		n = L*1000
+		input_stream = arange(n)
+		self.src = blocks.vector_source_c(range(n), vlen=1)
+        self.comm = fbmc.input_commutator_cvc(L)
+        self.snk = blocks.vector_sink_c(vlen=L)
+        self.tb.connect(self.src, self.comm, self.snk)
+        self.tb.run ()
+        # check data
+        data = self.snk.data()
+        self.assertTrue(n, len(data))
+        
 if __name__ == '__main__':
     gr_unittest.run(qa_input_commutator_cvc)

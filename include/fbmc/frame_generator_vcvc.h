@@ -35,6 +35,7 @@ namespace gr {
      * inverse: if inverse=1, the frame structure is removed and the payload is returned.
      * num_overlap: number of overlapping symbols
      * num_sync: number of sync symbols per frame
+     * The general frame structure is: || sync | zeros(overlap) | payload | zeros(overlap) || ...
 	 * 
      * \ingroup fbmc
      *

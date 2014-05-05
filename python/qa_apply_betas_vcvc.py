@@ -71,6 +71,22 @@ class qa_apply_betas_vcvc (gr_unittest.TestCase):
 		# test data    
 		data = self.snk.data()  
 		self.assertComplexTuplesAlmostEqual(data, input_data)	
+		
+	def test_004_t (self):
+		# set up fg
+		print "test 4 - test both directions chained to each other with a long input vector"
+		L=8
+		n = 10000*L
+		input_data = [1+1j for x in range(n)]
+		self.src = blocks.vector_source_c(input_data, vlen=L)
+		self.apply_betas = fbmc.apply_betas_vcvc(L=L, inverse=0)
+		self.apply_inv_betas = fbmc.apply_betas_vcvc(L=8, inverse=1)
+		self.snk = blocks.vector_sink_c(vlen=L)
+		self.tb.connect(self.src, self.apply_betas, self.apply_inv_betas, self.snk)
+		self.tb.run ()
+		# test data    
+		data = self.snk.data()  
+		self.assertComplexTuplesAlmostEqual(data, input_data)			
 				
 if __name__ == '__main__':
 	gr_unittest.run(qa_apply_betas_vcvc)

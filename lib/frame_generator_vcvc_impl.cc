@@ -72,8 +72,8 @@ namespace gr {
     	if(d_num_frame % 4 != 0)
     		throw std::runtime_error(std::string("frame length must be a a multiple of 4 because of the periodicity beta matrix"));
 		
-		// the block's output buffer must be able to hold at least one symbol + the zero symbols
-    	set_min_output_buffer(sizeof(gr_complex)*d_sym_len*(d_num_sync + d_num_overlap+1));
+		// the block's output buffer must be able to hold at least one symbol + the zero and sync symbols
+    	set_min_output_buffer(sizeof(gr_complex)*d_sym_len*(d_num_sync + 2*d_num_overlap+1));
     }
 
     /*
@@ -98,7 +98,8 @@ namespace gr {
         gr_complex *in = (gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
         
-        std::cout << "enter frame generator " << d_inverse << std::endl;
+        //std::cout << "enter frame generator " << d_inverse << std::endl;
+        // The general frame structure is: || sync | zeros(overlap) | payload | zeros(overlap) || ...
 
         // Tell runtime system how many input items we consumed on
         // each input stream.
@@ -111,36 +112,34 @@ namespace gr {
 			// remove zero symbols and overlap symbols if we are at the start of a frame
 			if(d_payload_sym_ctr == 0)
 			{
-				int num_sym_to_drop = 2*d_num_overlap + d_num_sync;
+				int num_sym_to_drop = 2*d_num_overlap + d_num_sync; // this includes the whole preamble and the payload overlap
 				if(d_dropped_sym_ctr < num_sym_to_drop) // there are still zero/sync symbols to drop
 				{
-					// drop the incoming symbol
-					noutput_items = 0;
+					// drop the incoming symbol by doing nothing
 					// increase dropped symbol counter
 					d_dropped_sym_ctr += 1;
 					// increase input buffer pointer by one symbol
 					in += d_sym_len;
+					//std::cout << "drop zero/sync symbol number " << d_dropped_sym_ctr << std::endl;
 				}
-				else // all zero/sync symbols for this frame have been dropped
+				else // all zero/sync symbols for this frame have been dropped, copy payload from input to output
 				{
 					// copy first payload symbol of frame to the output buffer
-					memcpy(out, in, sizeof(gr_complex)*d_sym_len);
-					// increase output pointer
-					out += d_sym_len;
+					memcpy((void*) out, (void*) in, sizeof(gr_complex)*d_sym_len);
 					// increase payload symbol counter
 					d_payload_sym_ctr += 1;
 					// increase number of output items
 					noutput_items += 1;
+					//std::cout << "copy payload symbol number " << d_payload_sym_ctr << std::endl;
 				}
 			}
 			else
 			{
 				// copy symbol to output and reset counter if needed
-				memcpy(out, in, sizeof(gr_complex)*d_sym_len);
-				// increase output pointer
-				out += d_sym_len;
+				memcpy((void*) out, (void*) in, sizeof(gr_complex)*d_sym_len);
 				// increase payload symbol counter and wrap if needed
 				d_payload_sym_ctr += 1;
+				//std::cout << "copy payload symbol number " << d_payload_sym_ctr << std::endl;
 				// increase output items
 				noutput_items += 1;
 				if (d_payload_sym_ctr == d_num_payload)
@@ -157,39 +156,40 @@ namespace gr {
 			if(d_payload_sym_ctr == 0)
 			{
 				// set zeros
-				memset(out, 0, sizeof(gr_complex)*d_sym_len*(d_num_sync+d_num_overlap));
+				memset((void*) out, 0, sizeof(gr_complex)*d_sym_len*(d_num_sync+d_num_overlap));
 				// shift output pointer
 				out += d_sym_len*(d_num_sync+d_num_overlap);
 				// increase output items
 				noutput_items += (d_num_sync + d_num_overlap);
+				//std::cout << "start of frame, insert zeros" << std::endl;
 			}
 			
 			// insert the payload symbol
-			memcpy(out, in, sizeof(gr_complex)*d_sym_len);
+			memcpy((void*) out, (void*) in, sizeof(gr_complex)*d_sym_len);
 			// shift output pointer
 			out += d_sym_len;
 			// increase output items
 			noutput_items += 1;
 			// increase payload symbol counter
 			d_payload_sym_ctr += 1;
+			//std::cout << "copy payload symbol number: " << d_payload_sym_ctr << std::endl;
 			
 			// If we are at the end, insert num_overlap zero symbols to allow for filter settling
 			if(d_payload_sym_ctr == d_num_payload) // the current input buffer contains the last payload symbol in the frame
 			{
 				// append zero symbols
-				memset(out, 0, sizeof(gr_complex)*d_sym_len*d_num_overlap);
-				// just for the sake of completeness, move output pointer
-				out += d_sym_len*d_num_overlap;
+				memset((void*) out, 0, sizeof(gr_complex)*d_sym_len*d_num_overlap);
 				// increase output items
 				noutput_items += d_num_overlap;
 				// reset counter
 				d_payload_sym_ctr = 0; 
+				//std::cout << "end of frame, insert zeros" << std::endl;
 			}
 		}
 
         // Tell runtime system how many output items we produced.
+        //std::cout << "frame_generator_vcvc " << d_inverse << " returned: " << noutput_items << std::endl;
         return noutput_items;
-        std::cout << "frame_generator_vcvc " << d_inverse << " returned: " << noutput_items << std::endl;
     }
 
   } /* namespace fbmc */

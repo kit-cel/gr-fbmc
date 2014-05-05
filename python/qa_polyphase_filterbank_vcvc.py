@@ -43,6 +43,20 @@ class qa_polyphase_filterbank_vcvc (gr_unittest.TestCase):
         # check data
         data = self.snk.data()
         self.assertEqual(len(data), vec_len*num_items)
+        
+    def test_002_t (self): # again, just checking the length of the output
+    	L=64
+    	num_items = 10000
+    	n = L*num_items
+    	input_data = range(n)
+    	self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
+    	self.ppfb = fbmc.polyphase_filterbank_vcvc(L=L)
+    	self.snk = blocks.vector_sink_c(vlen=L)
+    	self.tb.connect(self.src, self.ppfb, self.snk)
+        self.tb.run ()
+        # check data
+        data = self.snk.data()
+        self.assertEqual(len(data), n)       
 
 if __name__ == '__main__':
     gr_unittest.run(qa_polyphase_filterbank_vcvc)

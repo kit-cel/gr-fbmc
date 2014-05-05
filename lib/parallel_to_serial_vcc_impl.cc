@@ -66,10 +66,10 @@ namespace gr {
         gr_complex *out = (gr_complex *) output_items[0];
 
         // Extract d_len_out samples out of the input vector, discard the rest (should be zeros anyway)
-        memcpy(out, in, sizeof(gr_complex)*d_len_out);
+        memcpy((void*) out, (void*) in, sizeof(gr_complex)*d_len_out);
 
         // Tell runtime system how many output items we produced.
-        std::cout << "parallel to serial returned: " << d_len_out << std::endl;
+        //std::cout << "parallel to serial returned: " << d_len_out << std::endl;
         return d_len_out;
     }
 

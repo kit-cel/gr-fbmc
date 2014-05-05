@@ -66,7 +66,7 @@ namespace gr {
             out[i] = static_cast<char>(d_const->decision_maker(&in[i])); // This cast should be fine for constellations with up to 256 points
 
         // Tell runtime system how many output items we produced.
-        std::cout << "symbols to bits returned: " << noutput_items << std::endl;
+        //std::cout << "symbols to bits returned: " << noutput_items << std::endl;
         return noutput_items;
     }
 

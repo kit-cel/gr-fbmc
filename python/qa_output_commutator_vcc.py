@@ -21,26 +21,40 @@
 
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
+from numpy import *
 import fbmc_swig as fbmc
 
 class qa_output_commutator_vcc (gr_unittest.TestCase):
 
-    def setUp (self):
-        self.tb = gr.top_block ()
+	def setUp (self):
+		self.tb = gr.top_block ()
 
-    def tearDown (self):
-        self.tb = None
+	def tearDown (self):
+		self.tb = None
 
-    def test_001_t (self):
-    	self.src = blocks.vector_source_c([complex(i,i) for i in range(1,5)], vlen=4)
-    	self.comm = fbmc.output_commutator_vcc(L=4)
-    	self.snk = blocks.vector_sink_c(vlen=1)
-    	self.tb.connect(self.src, self.comm, self.snk)
-        self.tb.run ()
-        # check data
-        data = self.snk.data()
-        ref = (4+4j, 6+6j)
-        self.assertComplexTuplesAlmostEqual(data, ref)
+	def test_001_t (self):
+		self.src = blocks.vector_source_c([complex(i,i) for i in range(1,5)], vlen=4)
+		self.comm = fbmc.output_commutator_vcc(L=4)
+		self.snk = blocks.vector_sink_c(vlen=1)
+		self.tb.connect(self.src, self.comm, self.snk)
+		self.tb.run ()
+		# check data
+		data = self.snk.data()
+		ref = (4+4j, 6+6j)
+		self.assertComplexTuplesAlmostEqual(data, ref)
+		
+	def test_002_t (self):
+		# test for large vector lengths
+		L = 16
+		n = L*1000
+		self.src = blocks.vector_source_c(range(n), vlen=L)
+		self.comm = fbmc.output_commutator_vcc(L=L)
+		self.snk = blocks.vector_sink_c(vlen=1)
+		self.tb.connect(self.src, self.comm, self.snk)
+		self.tb.run ()
+		# check data
+		data = self.snk.data()
+		self.assertEqual(n/2, len(data))
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_output_commutator_vcc)
+	gr_unittest.run(qa_output_commutator_vcc)
