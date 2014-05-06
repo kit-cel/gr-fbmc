@@ -39,9 +39,9 @@ namespace gr {
      * The private constructor
      */
     input_commutator_cvc_impl::input_commutator_cvc_impl(int L)
-      : gr::sync_decimator("input_commutator_cvc",
+      : gr::block("input_commutator_cvc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*L), L/2),
+              gr::io_signature::make(1, 1, sizeof(gr_complex)*L)),
               d_L(L)
     {
         if(d_L < 2 || d_L % 2 != 0)
@@ -63,13 +63,22 @@ namespace gr {
     {
     }
 
+    void
+    input_commutator_cvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
+    {
+        ninput_items_required[0] = d_L;
+    }
+    
     int
-    input_commutator_cvc_impl::work(int noutput_items,
+    input_commutator_cvc_impl::general_work(int noutput_items,
+				gr_vector_int &ninput_items,
 			  gr_vector_const_void_star &input_items,
 			  gr_vector_void_star &output_items)
     {
         gr_complex *in = (gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
+        
+        consume_each(d_L);
 
         // write input into internal buffer with an offset of L/2-1 samples
         // the offset is needed to generate type-III polyphase components

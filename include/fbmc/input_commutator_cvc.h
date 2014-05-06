@@ -34,7 +34,7 @@ namespace gr {
      * \ingroup fbmc
      *
      */
-    class FBMC_API input_commutator_cvc : virtual public gr::sync_decimator
+    class FBMC_API input_commutator_cvc : virtual public gr::block
     {
      public:
       typedef boost::shared_ptr<input_commutator_cvc> sptr;
