@@ -73,7 +73,7 @@ namespace gr {
     		throw std::runtime_error(std::string("frame length must be a a multiple of 4 because of the periodicity beta matrix"));
 		
 		// the block's output buffer must be able to hold at least one symbol + the zero and sync symbols
-    	set_min_output_buffer(sizeof(gr_complex)*d_sym_len*(d_num_sync + 2*d_num_overlap+1));
+    	set_output_multiple(d_num_sync + 2*d_num_overlap+1);
     }
 
     /*
@@ -86,7 +86,7 @@ namespace gr {
     void
     frame_generator_vcvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
-        ninput_items_required[0] = noutput_items;
+        ninput_items_required[0] = 1;
     }
 
     int
@@ -97,6 +97,12 @@ namespace gr {
     {
         gr_complex *in = (gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
+        
+        if(ninput_items[0] < 1)
+			throw std::runtime_error(std::string("work was called but input buffer is empty"));
+			
+		if(noutput_items < d_num_overlap*2 + d_num_sync + 1)
+			throw std::runtime_error(std::string("output buffer too small"));
         
         //std::cout << "enter frame generator " << d_inverse << std::endl;
         // The general frame structure is: || sync | zeros(overlap) | payload | zeros(overlap) || ...
@@ -119,13 +125,15 @@ namespace gr {
 					// increase dropped symbol counter
 					d_dropped_sym_ctr += 1;
 					// increase input buffer pointer by one symbol
-					in += d_sym_len;
+					//in += d_sym_len;
 					//std::cout << "drop zero/sync symbol number " << d_dropped_sym_ctr << std::endl;
 				}
 				else // all zero/sync symbols for this frame have been dropped, copy payload from input to output
 				{
 					// copy first payload symbol of frame to the output buffer
-					memcpy((void*) out, (void*) in, sizeof(gr_complex)*d_sym_len);
+					//memcpy((void*) out, (void*) in, sizeof(gr_complex)*d_sym_len);
+					for(int i = 0; i < d_sym_len; i++)
+						*out++ = in[i];
 					// increase payload symbol counter
 					d_payload_sym_ctr += 1;
 					// increase number of output items
@@ -136,7 +144,9 @@ namespace gr {
 			else
 			{
 				// copy symbol to output and reset counter if needed
-				memcpy((void*) out, (void*) in, sizeof(gr_complex)*d_sym_len);
+				//memcpy((void*) out, (void*) in, sizeof(gr_complex)*d_sym_len);
+				for(int i = 0; i < d_sym_len; i++)
+					*out++ = in[i];
 				// increase payload symbol counter and wrap if needed
 				d_payload_sym_ctr += 1;
 				//std::cout << "copy payload symbol number " << d_payload_sym_ctr << std::endl;
@@ -156,18 +166,22 @@ namespace gr {
 			if(d_payload_sym_ctr == 0)
 			{
 				// set zeros
-				memset((void*) out, 0, sizeof(gr_complex)*d_sym_len*(d_num_sync+d_num_overlap));
+				//memset((void*) out, 0, sizeof(gr_complex)*d_sym_len*(d_num_sync+d_num_overlap));
+				for(int i = 0; i < d_sym_len*(d_num_sync+d_num_overlap); i++)
+					*out++ = 0;
 				// shift output pointer
-				out += d_sym_len*(d_num_sync+d_num_overlap);
+				//out += d_sym_len*(d_num_sync+d_num_overlap);
 				// increase output items
 				noutput_items += (d_num_sync + d_num_overlap);
 				//std::cout << "start of frame, insert zeros" << std::endl;
 			}
 			
 			// insert the payload symbol
-			memcpy((void*) out, (void*) in, sizeof(gr_complex)*d_sym_len);
+			//memcpy((void*) out, (void*) in, sizeof(gr_complex)*d_sym_len);
+			for(int i = 0; i < d_sym_len; i++)
+				*out++ = in[i];
 			// shift output pointer
-			out += d_sym_len;
+			//out += d_sym_len;
 			// increase output items
 			noutput_items += 1;
 			// increase payload symbol counter
@@ -178,7 +192,9 @@ namespace gr {
 			if(d_payload_sym_ctr == d_num_payload) // the current input buffer contains the last payload symbol in the frame
 			{
 				// append zero symbols
-				memset((void*) out, 0, sizeof(gr_complex)*d_sym_len*d_num_overlap);
+				//memset((void*) out, 0, sizeof(gr_complex)*d_sym_len*d_num_overlap);
+				for(int i = 0; i < d_sym_len*d_num_overlap; i++)
+					*out++ = 0;
 				// increase output items
 				noutput_items += d_num_overlap;
 				// reset counter

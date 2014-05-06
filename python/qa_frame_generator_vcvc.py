@@ -79,27 +79,29 @@ class qa_frame_generator_vcvc (gr_unittest.TestCase):
 
 	def test_005_t (self): # forward
 		print "test 5 - forward - many long frames"
-		L=4
-		K=22
+		L=16
+		K=222
 		num_frames = 1000
+		overlap = 4
+		sync = 6
 		self.src = blocks.vector_source_c(range(1,K*L*num_frames+1), vlen=L, repeat=False)
-		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload = K, inverse=0, num_overlap = 4, num_sync = 6) # the frame len includes the length of the overlap
+		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload = K, inverse=0, num_overlap = overlap, num_sync = sync) # the frame len includes the length of the overlap
 		self.snk = blocks.vector_sink_c(vlen=L)
 		self.tb.connect(self.src, self.frame_gen, self.snk)
 		self.tb.run ()
 		# check data
 		data = self.snk.data()
-		self.assertEqual(len(data), num_frames*L*(K+14))	
+		self.assertEqual(len(data), num_frames*L*(K+sync+2*overlap))	
 
 	def test_006_t (self): # reverse
 		print "test 6 - reverse - many long frames"
-		L=4
-		K=22
+		L=16
+		K=222
 		num_frames = 1000
 		overlap = 4
 		sync = 6
-		self.src = blocks.vector_source_c(range(1,(K+2*overlap+sync)*L*num_frames+1), vlen=L, repeat=False)
-		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload = K, inverse=1, num_overlap = 4, num_sync = 6) # the frame len includes the length of the overlap
+		self.src = blocks.vector_source_c(range((K+2*overlap+sync)*L*num_frames), vlen=L, repeat=False)
+		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload = K, inverse=1, num_overlap = overlap, num_sync = sync) # the frame len includes the length of the overlap
 		self.snk = blocks.vector_sink_c(vlen=L)
 		self.tb.connect(self.src, self.frame_gen, self.snk)
 		self.tb.run ()

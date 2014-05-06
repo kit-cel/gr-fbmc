@@ -36,10 +36,10 @@ class qa_tx (gr_unittest.TestCase):
 		
 		# default configuration, can be overwritten in the test
 		self.L = 16
-		self.num_payload = 102
+		self.num_payload = 22
 		self.num_sync = 2
 		self.num_overlap = 4
-		self.num_frames = 500	
+		self.num_frames = 100
 			
 		
 		# prepare all blocks needed for a full TXRX chain but connect only the needed ones
@@ -83,7 +83,97 @@ class qa_tx (gr_unittest.TestCase):
 		# check data
 		data = self.snk.data()
 		self.assertEqual(len(data), self.num_frames*self.num_payload*self.L)
+	
+	def test_004_t(self):
+		print "test 4 - serializer and OQAM without frame generator inbetween"
+		
+		# random input signal
+		input_data = [i+1j*i for i in range(self.num_payload*self.L)]		
+		
+		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
+		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames) 
+		self.snk = blocks.vector_sink_c(vlen=self.L)
+		
+		self.tb.connect(self.src, self.head, self.serial_to_parallel, self.oqam, self.snk)
+		self.tb.run()
+		
+		# check data
+		data = self.snk.data()
+		self.assertEqual(len(data), self.num_frames*len(input_data)*2)	
+		
+	def test_005_t(self):
+		print "test 5 - serializer, OQAM, betas"
+		# random input signal
+		input_data = [i+1j*i for i in range(self.num_payload*self.num_frames*self.L)]
+		
+		# TX
+		self.src = blocks.vector_source_c(input_data, vlen=1)
+		self.snk = blocks.vector_sink_c(vlen=self.L)
+		self.tb.connect(self.src, self.serial_to_parallel, self.oqam, self.betas, self.snk)
+			  
+		# run the flow graph
+		self.tb.run()
+		
+		# check data
+		output_data = self.snk.data()	
 
+		self.assertEqual(len(input_data)*2, len(output_data))	
+		
+	def test_006_t(self):
+		print "test 6 - serializer, OQAM, betas, ifft"
+		# random input signal
+		input_data = [i+1j*i for i in range(self.num_payload*self.num_frames*self.L)]
+		
+		# TX
+		self.src = blocks.vector_source_c(input_data, vlen=1)
+		self.snk = blocks.vector_sink_c(vlen=self.L)
+		self.tb.connect(self.src, self.serial_to_parallel, self.oqam, self.betas, self.inv_fft, self.snk)
+			  
+		# run the flow graph
+		self.tb.run()
+		
+		# check data
+		output_data = self.snk.data()	
+
+		self.assertEqual(len(input_data)*2, len(output_data))				
+		
+	def test_007_t(self):
+		print "test 7 - serializer, OQAM, betas, ifft, ppfb"
+		# random input signal
+		input_data = [i+1j*i for i in range(self.num_payload*self.num_frames*self.L)]
+		
+		# TX
+		self.src = blocks.vector_source_c(input_data, vlen=1)
+		self.snk = blocks.vector_sink_c(vlen=self.L)
+		self.tb.connect(self.src, self.serial_to_parallel, self.oqam, self.betas, self.inv_fft, self.ppfb, self.snk)
+			  
+		# run the flow graph
+		self.tb.run()
+		
+		# check data
+		output_data = self.snk.data()	
+
+		self.assertEqual(len(input_data)*2, len(output_data))	
+		
+	def test_008_t(self):		
+		print "test 8 - serializer, OQAM, betas, ifft, ppfb, output commutator"
+		# random input signal
+		input_data = [i+1j*i for i in range(self.num_payload*self.num_frames*self.L)]
+		
+		# TX
+		self.src = blocks.vector_source_c(input_data, vlen=1)
+		self.snk = blocks.vector_sink_c(vlen=1)
+		self.tb.connect(self.src, self.serial_to_parallel, self.oqam, self.betas, self.inv_fft, self.ppfb, self.output_commutator, self.snk)
+			  
+		# run the flow graph
+		self.tb.run()
+		
+		# check data
+		output_data = self.snk.data()	
+
+		self.assertEqual(len(input_data), len(output_data))			
+		
+	
 	
 	def test_002_t(self):
 		print "test 2 - src to frame generator"
@@ -101,7 +191,6 @@ class qa_tx (gr_unittest.TestCase):
 		# check data
 		data = self.snk.data()
 		self.assertEqual(len(data), self.num_frames*self.get_frame_len())
-
 			
 	def test_003_t(self):
 		print "test 3 - src to serializer"
@@ -120,9 +209,25 @@ class qa_tx (gr_unittest.TestCase):
 		data = self.snk.data()
 		self.assertEqual(len(data), self.num_frames*self.get_frame_len()*2)		
 		
-"""	
-	def test_001_t(self):
-		print "test 1 - symbol input - M=L - single frame - whole TXRX chain"
+	def test_010_t(self):
+		print "test 10 - complete tx chain (with frame generator)"
+		
+		
+		input_data = [i+1j*i for i in range(self.num_payload*self.num_frames*self.L)]
+		self.src = blocks.vector_source_c(input_data, vlen=1)
+		self.snk = blocks.vector_sink_c(vlen=1)
+		
+		# connect and run
+		self.tb.connect(self.src, self.serial_to_parallel, self.frame_gen, self.oqam, self.betas, self.inv_fft, self.ppfb, self.output_commutator, self.snk)
+		self.tb.run()
+		
+		# check
+		output_data = self.snk.data()
+		self.assertEqual(len(input_data), len(output_data) - self.num_frames*self.L*(2*self.num_overlap+self.num_sync))
+		
+"""				
+	def test_009_t(self):
+		print "test 9 - symbol input - M=L - single frame - whole TXRX chain"
 
 		# random input signal
 		input_data = [i+1j*i for i in range(self.num_payload*self.num_frames*self.L)]
@@ -143,7 +248,7 @@ class qa_tx (gr_unittest.TestCase):
 		#if (len(input_data) != len(output_data)):
 		#	print "output:", output_data
 		self.assertComplexTuplesAlmostEqual(input_data, output_data, 3)	
-		
+	
 	def test_002_t(self):
 		print "test 2 - symbol input - M<L - single frame"
 		# configuration
