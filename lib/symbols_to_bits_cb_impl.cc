@@ -67,6 +67,8 @@ namespace gr {
 
         // Tell runtime system how many output items we produced.
         //std::cout << "symbols to bits returned: " << noutput_items << std::endl;
+        
+        // FIXME: This block actually does not return bits but integers in the range of [0,4)
         return noutput_items;
     }
 

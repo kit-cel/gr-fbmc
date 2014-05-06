@@ -49,7 +49,11 @@ namespace gr {
             
         // set the sample buffer up
         d_buf.resize(2*d_L);
-        memset(&d_buf[0], 0, d_buf.size()*sizeof(gr_complex));
+        for(int i = 0; i < d_buf.size(); i++)
+			d_buf[i] = 0;
+        //memset(&d_buf[0], 0, d_buf.size()*sizeof(gr_complex));
+        
+        set_output_multiple(2);
     }
 
     /*
@@ -69,7 +73,9 @@ namespace gr {
 
         // write input into internal buffer with an offset of L/2-1 samples
         // the offset is needed to generate type-III polyphase components
-        memcpy((void*) (&d_buf[0]+d_L/2-1), (void*) in, d_L*sizeof(gr_complex));  
+        for(int i = 0; i < d_L; i++)
+			d_buf[i+d_L/2-1] = in[i];
+        //memcpy((void*) (&d_buf[0]+d_L/2-1), (void*) in, d_L*sizeof(gr_complex));  
         
         // one call to work produces 2 output vectors
         // the second half of each vector is equal to the first half

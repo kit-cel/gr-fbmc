@@ -247,6 +247,7 @@ class qa_tx (gr_unittest.TestCase):
 		output_data = self.snk.data()	
 		#if (len(input_data) != len(output_data)):
 		#	print "output:", output_data
+		self.assertEqual(len(input_data), len(output_data))
 		self.assertComplexTuplesAlmostEqual(input_data, output_data, 3)	
 	
 	def test_002_t(self):
