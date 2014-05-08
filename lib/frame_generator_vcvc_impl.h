@@ -37,6 +37,8 @@ namespace gr {
       int d_payload_sym_ctr; // payload symbol counter to detect the start/end of frame
       int d_dropped_sym_ctr; // counter for dropping zero/sync symbols in inverse mode
 	  int d_inverse; // defines if the zero symbols are inserted or removed
+	  
+	  void insert_preamble(gr_complex *&start_of_frame); // inserts the preamble (IAM-C)
 
      public:
       frame_generator_vcvc_impl(int sym_len, int num_payload, int inverse, int num_overlap, int num_sync);

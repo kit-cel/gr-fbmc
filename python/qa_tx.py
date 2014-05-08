@@ -36,8 +36,8 @@ class qa_tx (gr_unittest.TestCase):
 		
 		# default configuration, can be overwritten in the test
 		self.L = 16
-		self.num_payload = 22
-		self.num_sync = 2
+		self.num_payload = 21
+		self.num_sync = 3
 		self.num_overlap = 4
 		self.num_frames = 100
 			
@@ -248,17 +248,17 @@ class qa_tx (gr_unittest.TestCase):
 		print "max diff:", max(diff)
 		self.assertTrue(max(diff) < 0.1)
 			
-	
+"""		
 	def test_011_t(self):
 		print "test 11 - symbol input - M<L - single frame"
 		# configuration
 		M = 3
-		L = 4
-		num_payload = 2
-		num_sync = 2
+		L = 8
+		num_payload = 1
+		num_sync = 3
 		num_overlap = 4
 		# random input signal
-		input_data = [1.0+2.0j, 3+4j, 5+6j, 7+8j, 9+10j, 11+12j]
+		input_data = range(1,1+num_payload*L*M)
 		
 		# TX
 		self.src = blocks.vector_source_c(input_data, vlen=1)
@@ -291,7 +291,7 @@ class qa_tx (gr_unittest.TestCase):
 		# check data
 		output_data = self.snk.data()
 		self.assertComplexTuplesAlmostEqual(input_data, output_data, 1)	
-"""	
+
 	def test_003_t(self):
 		print "test 3 - symbol input - M=L - single long frame"
 		# configuration

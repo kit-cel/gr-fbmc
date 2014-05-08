@@ -33,50 +33,81 @@ class qa_frame_generator_vcvc (gr_unittest.TestCase):
 
 	def test_001_t (self): # forward
 		print "test 1 - forward"
-		self.src = blocks.vector_source_c(range(1,9), vlen=2, repeat=False)
-		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=2, num_payload = 2, inverse=0, num_overlap = 4, num_sync = 2) # the frame len includes the length of the overlap
-		self.snk = blocks.vector_sink_c(vlen=2)
+		L=8
+		self.src = blocks.vector_source_c(range(1,L+1), vlen=L, repeat=False)
+		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload = 1, inverse=0, num_overlap = 4, num_sync = 3) # the frame len includes the length of the overlap
+		self.snk = blocks.vector_sink_c(vlen=L)
 		self.tb.connect(self.src, self.frame_gen, self.snk)
 		self.tb.run ()
 		# check data
-		ref = (0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,5,6,7,8,0,0,0,0,0,0,0,0)
+		ref = (0,0,0,0,0,0,0,0, 
+			   1,-1j,-1,1j,1,-1j,-1,1j,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   1,2,3,4,5,6,7,8,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0 )
 		data = self.snk.data()
 		self.assertComplexTuplesAlmostEqual(ref, data)
 
 	def test_002_t (self): # reverse
 		print "test 2 - reverse"
-		self.src = blocks.vector_source_c(range(1,49), vlen=2, repeat=False)
-		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=2, num_payload = 2, inverse=1, num_overlap = 4, num_sync = 2)
-		self.snk = blocks.vector_sink_c(vlen=2)
+		L = 8
+		input_data = (0,0,0,0,0,0,0,0, 
+			   1,-1j,-1,1j,1,-1j,-1,1j,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   1,2,3,4,5,6,7,8)
+		self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
+		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload = 1, inverse=1, num_overlap = 4, num_sync = 3)
+		self.snk = blocks.vector_sink_c(vlen=L)
 		self.tb.connect(self.src, self.frame_gen, self.snk)
 		self.tb.run()
 		# check data
 		data = self.snk.data()
-		ref = (21,22,23,24,45,46,47,48)
+		ref = (1,2,3,4,5,6,7,8)
 		self.assertComplexTuplesAlmostEqual(ref, data)
 
 	def test_003_t (self): # forward
 		print "test 3 - forward - many frames"
-		self.src = blocks.vector_source_c(range(1,101), vlen=2, repeat=False)
-		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=2, num_payload = 2, inverse=0, num_overlap = 4, num_sync = 2) # the frame len includes the length of the overlap
-		self.snk = blocks.vector_sink_c(vlen=2)
+		L=8
+		input_data = range(1,161)
+		self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
+		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload = 1, inverse=0, num_overlap = 4, num_sync = 3) # the frame len includes the length of the overlap
+		self.snk = blocks.vector_sink_c(vlen=L)
 		self.tb.connect(self.src, self.frame_gen, self.snk)
 		self.tb.run ()
 		# check data
 		data = self.snk.data()
-		self.assertEqual(len(data), 600)
-	
+		self.assertEqual(len(data), len(input_data)*12)
+
 	def test_004_t (self): # reverse
 		print "test 4 - reverse - many frames"
-		self.src = blocks.vector_source_c(range(1,601), vlen=2, repeat=False)
-		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=2, num_payload = 2, inverse=1, num_overlap = 4, num_sync = 2)
-		self.snk = blocks.vector_sink_c(vlen=2)
+		L = 8
+		K = 5
+		num_frames = 10
+		input_data = range(1,(K+11)*L*num_frames+1)
+		self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
+		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload = K, inverse=1, num_overlap = 4, num_sync = 3)
+		self.snk = blocks.vector_sink_c(vlen=L)
 		self.tb.connect(self.src, self.frame_gen, self.snk)
 		self.tb.run()
 		# check data
 		data = self.snk.data()
-		self.assertEqual(len(data), 100)
-
+		self.assertEqual(len(data), L*K*num_frames)
+"""	
 	def test_005_t (self): # forward
 		print "test 5 - forward - many long frames"
 		L=16
@@ -108,6 +139,6 @@ class qa_frame_generator_vcvc (gr_unittest.TestCase):
 		# check data
 		data = self.snk.data()
 		self.assertEqual(len(data), num_frames*L*K)			
-
+"""
 if __name__ == '__main__':
 	gr_unittest.run(qa_frame_generator_vcvc)

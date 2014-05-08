@@ -54,6 +54,10 @@ namespace gr {
 		if (d_inverse != 0 && d_inverse != 1)
 			throw std::runtime_error(std::string("inverse has to be either 0 or 1"));
 			
+		// the symbol length (number of subcarriers) must be a multiple of 8
+		if(d_sym_len % 8 != 0)
+			throw std::runtime_error(std::string("number of subcarriers must be a multiple of 8"));
+			
 		// at the moment, only an overlap of 4 is supported
 		if(d_num_overlap != 4)
 			throw std::runtime_error(std::string("overlap has to be 4"));
@@ -63,8 +67,8 @@ namespace gr {
 			throw std::runtime_error(std::string("number of payload symbols must be > 0"));
 			
 		// the number of sync symbols must be >= 0
-		if (d_num_sync < 0)
-			throw std::runtime_error(std::string("number of sync symbols must be > 0"));
+		if (d_num_sync != 3)
+			throw std::runtime_error(std::string("number of sync symbols must be 3 (using IAM-C)"));
 			
     	// the frame length has to be a multiple of 4 because of the periodicity of the beta matrix
     	// the frame structure: ||num_sync|num_overlap|payload|num_overlap||...
@@ -82,6 +86,30 @@ namespace gr {
     frame_generator_vcvc_impl::~frame_generator_vcvc_impl()
     {
     }
+	
+	void
+	frame_generator_vcvc_impl::insert_preamble(gr_complex *&start_of_frame)
+	{
+		// the preamble follows the IAM-C method as described in 
+		// "Preamble-based Channel Estimation in MIMO-OFDM/OQAM Systems (Kofidis, Katselis, 2011)"
+
+		// the core sequence that is repeated every 8 carriers
+		gr_complex core_seq[8] = { gr_complex(1,0), gr_complex(0,-1), gr_complex(-1,0),
+						gr_complex(0,1), gr_complex(1,0), gr_complex(0,-1),
+						gr_complex(-1,0), gr_complex(0,1) };
+								
+		// first symbol is zero
+		for(int i = 0; i < d_sym_len; i++)
+			*start_of_frame++ = 0;
+		
+		// the actual sync sequence on the 2nd symbol
+		for(int i = 0; i < d_sym_len; i++)
+			*start_of_frame++ = core_seq[i % 8];
+			
+		// 3rd symbol is also zero
+		for(int i = 0; i < d_sym_len; i++)
+			*start_of_frame++ = 0;			
+	}
 
     void
     frame_generator_vcvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
@@ -165,9 +193,10 @@ namespace gr {
 			// If we are at the start of the frame, insert placeholder symbols for a preamble
 			if(d_payload_sym_ctr == 0)
 			{
-				// set zeros
+				// insert preamble and num_overlap zero symbols
 				//memset((void*) out, 0, sizeof(gr_complex)*d_sym_len*(d_num_sync+d_num_overlap));
-				for(int i = 0; i < d_sym_len*(d_num_sync+d_num_overlap); i++)
+				insert_preamble(out);
+				for(int i = 0; i < d_sym_len*d_num_overlap; i++)
 					*out++ = 0;
 				// shift output pointer
 				//out += d_sym_len*(d_num_sync+d_num_overlap);
