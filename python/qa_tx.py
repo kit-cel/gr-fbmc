@@ -226,10 +226,10 @@ class qa_tx (gr_unittest.TestCase):
 		self.assertEqual(len(input_data), len(output_data) - self.num_frames*self.L*(2*self.num_overlap+self.num_sync))
 		
 	def test_009_t(self):
-		print "test 9 - symbol input - M=L - single frame - whole TXRX chain"
+		print "test 9 - symbol input - M=L - whole TXRX chain"
 
 		# random input signal
-		input_data = [i+1j*i for i in range(self.num_payload*self.num_frames*self.L)]
+		input_data = [sin(i)+1j*cos(i) for i in range(self.num_payload*self.num_frames*self.L)]
 		
 		# TX
 		self.src = blocks.vector_source_c(input_data, vlen=1)
@@ -244,54 +244,52 @@ class qa_tx (gr_unittest.TestCase):
 		
 		# check data
 		output_data = self.snk.data()	
-		diff = abs(asarray(input_data) - asarray(output_data))
-		print "max diff:", max(diff)
-		self.assertTrue(max(diff) < 0.1)
+		self.assertComplexTuplesAlmostEqual(output_data, input_data, 2)
 			
-"""		
+	
 	def test_011_t(self):
-		print "test 11 - symbol input - M<L - single frame"
+		print "test 11 - bit input - M<L - whole TXRX chain"
 		# configuration
-		M = 3
-		L = 8
-		num_payload = 1
-		num_sync = 3
-		num_overlap = 4
+		M = self.L-3
+		modulation = digital.constellation_qpsk()
+
 		# random input signal
-		input_data = range(1,1+num_payload*L*M)
+		input_data = map(int, random.randint(0, 4, M*self.num_frames*self.num_payload))
 		
 		# TX
-		self.src = blocks.vector_source_c(input_data, vlen=1)
-		self.s2p = fbmc.serial_to_parallel_cvc(len_in=M, vlen_out=L)
-		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload = num_payload, inverse=0, num_overlap = num_overlap, num_sync = num_sync)
-		self.oqam = fbmc.serialize_iq_vcvc(L)
-		self.betas = fbmc.apply_betas_vcvc(L=L, inverse=0)
+		self.src = blocks.vector_source_b(input_data, False)
+		self.b2s = digital.chunks_to_symbols_bc((modulation.points()), 1)
+		self.s2p = fbmc.serial_to_parallel_cvc(len_in=M, vlen_out=self.L)
+		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=self.L, num_payload = self.num_payload, inverse=0, num_overlap = self.num_overlap, num_sync = self.num_sync)
+		self.oqam = fbmc.serialize_iq_vcvc(self.L)
+		self.betas = fbmc.apply_betas_vcvc(L=self.L, inverse=0)
 		from gnuradio import fft # why does the import at the top not work??
-		self.inv_fft = fft.fft_vcc(L, False, (()), False, 1)
-		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=L)
-		self.output_commutator = fbmc.output_commutator_vcc(L)
+		self.inv_fft = fft.fft_vcc(self.L, False, (()), False, 1)
+		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=self.L)
+		self.output_commutator = fbmc.output_commutator_vcc(self.L)
 	
-		self.tb.connect(self.src, self.s2p, self.frame_gen, self.oqam, self.betas, self.inv_fft, self.ppfb, self.output_commutator)
+		self.tb.connect(self.src, self.b2s, self.s2p, self.frame_gen, self.oqam, self.betas, self.inv_fft, self.ppfb, self.output_commutator)
 			  
 		# RX
-		self.input_commutator = fbmc.input_commutator_cvc(L)
-		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=L)
-		self.inv_fft2 = fft.fft_vcc(L, False, (()), False, 1)
-		self.betas2 = fbmc.apply_betas_vcvc(L=L, inverse=1)
-		self.qam = fbmc.combine_iq_vcvc(L)
-		self.frame_gen2 = fbmc.frame_generator_vcvc(sym_len=L, num_payload = num_payload, inverse=1, num_overlap = num_overlap, num_sync = num_sync)
-		self.p2s = fbmc.parallel_to_serial_vcc(len_out=M, vlen_in=L)
-		self.snk = blocks.vector_sink_c(vlen=1)
+		self.input_commutator = fbmc.input_commutator_cvc(self.L)
+		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=self.L)
+		self.inv_fft2 = fft.fft_vcc(self.L, False, (()), False, 1)
+		self.betas2 = fbmc.apply_betas_vcvc(L=self.L, inverse=1)
+		self.qam = fbmc.combine_iq_vcvc(self.L)
+		self.frame_gen2 = fbmc.frame_generator_vcvc(sym_len=self.L, num_payload = self.num_payload, inverse=1, num_overlap = self.num_overlap, num_sync = self.num_sync)
+		self.p2s = fbmc.parallel_to_serial_vcc(len_out=M, vlen_in=self.L)
+		self.s2b = fbmc.symbols_to_bits_cb()
+		self.snk = blocks.vector_sink_b(vlen=1)
 		
-		self.tb.connect(self.output_commutator, self.input_commutator, self.ppfb2, self.inv_fft2, self.betas2, self.qam, self.frame_gen2, self.p2s, self.snk)
+		self.tb.connect(self.output_commutator, self.input_commutator, self.ppfb2, self.inv_fft2, self.betas2, self.qam, self.frame_gen2, self.p2s, self.s2b, self.snk)
 		
 		# run the flow graph
 		self.tb.run()
 		
 		# check data
 		output_data = self.snk.data()
-		self.assertComplexTuplesAlmostEqual(input_data, output_data, 1)	
-
+		self.assertComplexTuplesAlmostEqual(input_data, output_data)	
+"""
 	def test_003_t(self):
 		print "test 3 - symbol input - M=L - single long frame"
 		# configuration
