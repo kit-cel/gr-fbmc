@@ -54,9 +54,9 @@ namespace gr {
 		if (d_inverse != 0 && d_inverse != 1)
 			throw std::runtime_error(std::string("inverse has to be either 0 or 1"));
 			
-		// the symbol length (number of subcarriers) must be a multiple of 8
-		if(d_sym_len % 8 != 0)
-			throw std::runtime_error(std::string("number of subcarriers must be a multiple of 8"));
+		// the symbol length (number of subcarriers) must be a multiple of 4
+		if(d_sym_len % 4 != 0)
+			throw std::runtime_error(std::string("number of subcarriers must be a multiple of 4"));
 			
 		// at the moment, only an overlap of 4 is supported
 		if(d_num_overlap != 4)
@@ -68,7 +68,7 @@ namespace gr {
 			
 		// the number of sync symbols must be >= 0
 		if (d_num_sync != 3)
-			throw std::runtime_error(std::string("number of sync symbols must be 3 (using IAM-C)"));
+			throw std::runtime_error(std::string("number of sync symbols must be 3 (using IAM2)"));
 			
     	// the frame length has to be a multiple of 4 because of the periodicity of the beta matrix
     	// the frame structure: ||num_sync|num_overlap|payload|num_overlap||...
@@ -90,21 +90,22 @@ namespace gr {
 	void
 	frame_generator_vcvc_impl::insert_preamble(gr_complex *&start_of_frame)
 	{
-		// the preamble follows the IAM-C method as described in 
-		// "Preamble-based Channel Estimation in MIMO-OFDM/OQAM Systems (Kofidis, Katselis, 2011)"
+		// the preamble follows the IAM2 method as described in 
+		// "Channel estimation methods for preamble-based OFDM/OQAM modulations (Lele, Javaudin, Siohan)"
 
-		// the core sequence that is repeated every 8 carriers
-		gr_complex core_seq[8] = { gr_complex(1,0), gr_complex(0,-1), gr_complex(-1,0),
-						gr_complex(0,1), gr_complex(1,0), gr_complex(0,-1),
-						gr_complex(-1,0), gr_complex(0,1) };
 								
 		// first symbol is zero
 		for(int i = 0; i < d_sym_len; i++)
 			*start_of_frame++ = 0;
 		
-		// the actual sync sequence on the 2nd symbol
+		// the actual sync sequence on the 2nd symbol consists of the periodic continuation of [1 1 -1 -1]
 		for(int i = 0; i < d_sym_len; i++)
-			*start_of_frame++ = core_seq[i % 8];
+		{
+			if( i%4 == 0 || i%4 == 1 )
+				*start_of_frame++ = 1;
+			else
+				*start_of_frame++ = -1;
+		}
 			
 		// 3rd symbol is also zero
 		for(int i = 0; i < d_sym_len; i++)
