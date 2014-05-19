@@ -54,10 +54,6 @@ namespace gr {
 		if (d_inverse != 0 && d_inverse != 1)
 			throw std::runtime_error(std::string("inverse has to be either 0 or 1"));
 			
-		// the symbol length (number of subcarriers) must be a multiple of 4
-		if(d_sym_len % 4 != 0)
-			throw std::runtime_error(std::string("number of subcarriers must be a multiple of 4"));
-			
 		// at the moment, only an overlap of 4 is supported
 		if(d_num_overlap != 4)
 			throw std::runtime_error(std::string("overlap has to be 4"));
@@ -65,10 +61,6 @@ namespace gr {
 		// the number of payload symbols must be >= 1
 		if (d_num_payload < 1)
 			throw std::runtime_error(std::string("number of payload symbols must be > 0"));
-			
-		// the number of sync symbols must be >= 0
-		if (d_num_sync != 3)
-			throw std::runtime_error(std::string("number of sync symbols must be 3 (using IAM2)"));
 			
     	// the frame length has to be a multiple of 4 because of the periodicity of the beta matrix
     	// the frame structure: ||num_sync|num_overlap|payload|num_overlap||...
@@ -87,31 +79,6 @@ namespace gr {
     {
     }
 	
-	void
-	frame_generator_vcvc_impl::insert_preamble(gr_complex *&start_of_frame)
-	{
-		// the preamble follows the IAM2 method as described in 
-		// "Channel estimation methods for preamble-based OFDM/OQAM modulations (Lele, Javaudin, Siohan)"
-
-								
-		// first symbol is zero
-		for(int i = 0; i < d_sym_len; i++)
-			*start_of_frame++ = 0;
-		
-		// the actual sync sequence on the 2nd symbol consists of the periodic continuation of [1 1 -1 -1]
-		for(int i = 0; i < d_sym_len; i++)
-		{
-			if( i%4 == 0 || i%4 == 1 )
-				*start_of_frame++ = 1;
-			else
-				*start_of_frame++ = -1;
-		}
-			
-		// 3rd symbol is also zero
-		for(int i = 0; i < d_sym_len; i++)
-			*start_of_frame++ = 0;			
-	}
-
     void
     frame_generator_vcvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
@@ -196,8 +163,7 @@ namespace gr {
 			{
 				// insert preamble and num_overlap zero symbols
 				//memset((void*) out, 0, sizeof(gr_complex)*d_sym_len*(d_num_sync+d_num_overlap));
-				insert_preamble(out);
-				for(int i = 0; i < d_sym_len*d_num_overlap; i++)
+				for(int i = 0; i < d_sym_len*(d_num_overlap+d_num_sync); i++)
 					*out++ = 0;
 				// shift output pointer
 				//out += d_sym_len*(d_num_sync+d_num_overlap);

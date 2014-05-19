@@ -41,7 +41,7 @@ class qa_frame_generator_vcvc (gr_unittest.TestCase):
 		self.tb.run ()
 		# check data
 		ref = (0,0,0,0,0,0,0,0, 
-			   1,1,-1,-1,1,1,-1,-1,
+			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,

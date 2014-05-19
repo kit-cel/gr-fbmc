@@ -18,6 +18,7 @@
 #include "fbmc/combine_iq_vcvc.h"
 #include "fbmc/parallel_to_serial_vcc.h"
 #include "fbmc/symbols_to_bits_cb.h"
+#include "fbmc/preamble_insertion_vcvc.h"
 %}
 
 
@@ -44,3 +45,5 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, parallel_to_serial_vcc);
 %include "fbmc/symbols_to_bits_cb.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, symbols_to_bits_cb);
 
+%include "fbmc/preamble_insertion_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, preamble_insertion_vcvc);
