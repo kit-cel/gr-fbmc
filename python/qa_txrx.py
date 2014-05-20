@@ -47,6 +47,7 @@ class qa_tx (gr_unittest.TestCase):
 		# TX 
 		self.serial_to_parallel = fbmc.serial_to_parallel_cvc(self.L, self.L)
 		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=self.L, num_payload = self.num_payload, inverse=0, num_overlap = self.num_overlap, num_sync = self.num_sync)
+		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=self.L, frame_len = self.num_payload+self.num_sync+2*self.num_overlap, type="IAM2")
 		self.oqam = fbmc.serialize_iq_vcvc(self.L)
 		self.betas = fbmc.apply_betas_vcvc(L=self.L, inverse=0)
 		from gnuradio import fft # why does the import at the top not work??
@@ -261,6 +262,7 @@ class qa_tx (gr_unittest.TestCase):
 		self.b2s = digital.chunks_to_symbols_bc((modulation.points()), 1)
 		self.s2p = fbmc.serial_to_parallel_cvc(len_in=M, vlen_out=self.L)
 		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=self.L, num_payload = self.num_payload, inverse=0, num_overlap = self.num_overlap, num_sync = self.num_sync)
+		
 		self.oqam = fbmc.serialize_iq_vcvc(self.L)
 		self.betas = fbmc.apply_betas_vcvc(L=self.L, inverse=0)
 		from gnuradio import fft # why does the import at the top not work??
