@@ -32,10 +32,13 @@ namespace gr {
       int d_L; // num subcarriers
       int d_frame_len; // num symbols per frame
       std::string d_type; // characterizes equalization method
-      int d_ctr; // counts the symbols      
+      int d_ctr; // counts the symbols
+      int d_overlap; // onum overlapping symbols  
+      int d_num_equal_sym; // number of equal transmit (!) symbols visible at the receiver  
+      int d_num_preamble_sym; // total preamble length (without tailing 0 symbols)  
 
      public:
-      preamble_insertion_vcvc_impl(int L, int frame_len, std::string type);
+      preamble_insertion_vcvc_impl(int L, int frame_len, std::string type, int overlap);
       ~preamble_insertion_vcvc_impl();
 
       // Where all the action really happens
