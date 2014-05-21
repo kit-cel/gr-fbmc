@@ -21,6 +21,7 @@
 # Install public header files
 ########################################################################
 install(FILES
+    ../../lib/fbmc_config.h
     api.h
     apply_betas_vcvc.h
     serial_to_parallel_cvc.h

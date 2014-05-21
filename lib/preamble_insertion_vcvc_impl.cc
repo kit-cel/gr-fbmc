@@ -68,6 +68,7 @@ namespace gr {
 			throw std::runtime_error(std::string("Overlap must be 4"));
 		if(d_num_equal_sym < 2)
 			throw std::runtime_error(std::string("At least 2 identical symbols are required for a correlation"));
+		std::cerr << "NOTE: This block inserts the preamble symbols on all L subcarriers! Support for M<L is not yet implemented." << std::endl;
 	}
 
     /*
