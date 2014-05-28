@@ -22,6 +22,8 @@
 #define INCLUDED_FBMC_SYMBOLS_TO_BITS_CB_IMPL_H
 
 #include <fbmc/symbols_to_bits_cb.h>
+#include <gnuradio/digital/constellation.h>
+
 
 namespace gr {
   namespace fbmc {
