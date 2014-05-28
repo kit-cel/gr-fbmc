@@ -44,7 +44,7 @@ class qa_tx (gr_unittest.TestCase):
 		# TX 
 		self.serial_to_parallel = fbmc.serial_to_parallel_cvc(self.cfg.num_used_subcarriers(), self.cfg.num_total_subcarriers())
 		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=0, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())
-		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=self.cfg.num_total_subcarriers(), frame_len = self.cfg.num_payload_sym()+self.cfg.num_sync_sym()+2*self.cfg.num_overlap_sym(), type="IAM2", overlap=self.cfg.num_overlap_sym())
+		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=self.cfg.num_total_subcarriers(), frame_len = self.cfg.num_payload_sym()+self.cfg.num_sync_sym()+2*self.cfg.num_overlap_sym(), type=self.cfg.preamble(), overlap=self.cfg.num_overlap_sym())
 		self.oqam = fbmc.serialize_iq_vcvc(self.cfg.num_total_subcarriers())
 		self.betas = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=0)
 		from gnuradio import fft # why does the import at the top not work??

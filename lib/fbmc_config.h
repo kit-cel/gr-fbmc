@@ -22,9 +22,11 @@ namespace gr{
 				int num_payload_sym(){return d_num_payload_sym;}
 				int num_overlap_sym(){return d_num_overlap_sym;}
 				int num_sync_sym(){return d_num_sync_sym;}
+				std::string preamble(){return d_preamble;}
 				int num_preamble_sym(){return d_num_preamble_sym;}
 				int num_sym_frame(){return d_num_sym_frame;}
 				gr::digital::constellation_sptr constellation(){return d_const;}
+				std::string modulation(){return d_modulation;}
 				std::vector<gr_complex> constellation_points(){return d_const->points();}
 				std::vector<gr_complex> prototype_taps(){return d_prototype_taps;}
 

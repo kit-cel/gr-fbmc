@@ -65,7 +65,7 @@ class qa_preamble_insertion_vcvc (gr_unittest.TestCase):
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0 )
 		self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
-		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=L, frame_len = 15, type="IAM2", overlap=4) # the frame len includes the length of the overlap
+		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=L, frame_len = 15, type="IAM", overlap=4) # the frame len includes the length of the overlap
 		self.snk = blocks.vector_sink_c(vlen=L)
 		self.tb.connect(self.src, self.preamble_insertion, self.snk)
 		self.tb.run ()

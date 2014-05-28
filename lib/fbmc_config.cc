@@ -181,8 +181,8 @@ namespace gr{
 		bool
 		fbmc_config::check_calc_params()
 		{
-			if(d_num_total_subcarriers < d_num_used_subcarriers || d_num_total_subcarriers % 2 != 0)
-				throw std::runtime_error(std::string("Invalid number of total subcarriers"));
+			if(d_num_total_subcarriers < d_num_used_subcarriers || d_num_total_subcarriers % 4 != 0)
+				throw std::runtime_error(std::string("Invalid number of total subcarriers, has to be positive and an integer multiple of 4"));
 			else if(d_num_sym_frame % 4 != 0)
 				throw std::runtime_error(str(boost::format("Number of symbols per frame has to be a multiple of 4, but is %d") % d_num_sym_frame));		
 

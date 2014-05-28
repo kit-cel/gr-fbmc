@@ -58,14 +58,8 @@ namespace gr {
 		d_num_preamble_sym = d_num_equal_sym + d_overlap;
 		
 		// some asserts
-		if(d_type != "IAM2")
+		if(d_type != "IAM")
 			throw std::runtime_error(std::string("Only IAM2 is implemented and acceptable as type string"));
-		if(d_frame_len < d_num_equal_sym + d_overlap + 1 + d_overlap)
-			throw std::runtime_error(std::string("The frame can not be shorter than the preamble"));
-		if(d_L % 4 != 0)
-			throw std::runtime_error(std::string("Number of subcarriers must be a multiple of 4"));
-		if(d_overlap != 4)
-			throw std::runtime_error(std::string("Overlap must be 4"));
 		if(d_num_equal_sym < 2)
 			throw std::runtime_error(std::string("At least 2 identical symbols are required for a correlation"));
 		std::cerr << "NOTE: This block inserts the preamble symbols on all L subcarriers! Support for M<L is not yet implemented." << std::endl;
