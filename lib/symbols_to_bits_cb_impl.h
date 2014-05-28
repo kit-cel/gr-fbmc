@@ -22,7 +22,6 @@
 #define INCLUDED_FBMC_SYMBOLS_TO_BITS_CB_IMPL_H
 
 #include <fbmc/symbols_to_bits_cb.h>
-#include <gnuradio/digital/constellation.h>
 
 
 namespace gr {
@@ -34,7 +33,7 @@ namespace gr {
       gr::digital::constellation_sptr d_const; // constellation object
 
      public:
-      symbols_to_bits_cb_impl();
+      symbols_to_bits_cb_impl(gr::digital::constellation_sptr constellation);
       ~symbols_to_bits_cb_impl();
 
       // Where all the action really happens

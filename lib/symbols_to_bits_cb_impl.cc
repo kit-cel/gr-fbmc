@@ -29,21 +29,21 @@ namespace gr {
   namespace fbmc {
 
     symbols_to_bits_cb::sptr
-    symbols_to_bits_cb::make()
+    symbols_to_bits_cb::make(gr::digital::constellation_sptr constellation)
     {
       return gnuradio::get_initial_sptr
-        (new symbols_to_bits_cb_impl());
+        (new symbols_to_bits_cb_impl(constellation));
     }
 
     /*
      * The private constructor
      */
-    symbols_to_bits_cb_impl::symbols_to_bits_cb_impl()
+    symbols_to_bits_cb_impl::symbols_to_bits_cb_impl(gr::digital::constellation_sptr constellation)
       : gr::sync_block("symbols_to_bits_cb",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(char)))
     {
-        d_const = gr::digital::constellation_qpsk::make();
+      d_const = constellation;
     }
 
     /*

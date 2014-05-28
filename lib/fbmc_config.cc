@@ -1,6 +1,7 @@
 #include "fbmc_config.h"
 #include <cmath>
 #include <stdexcept>
+#include <boost/format.hpp>
 
 namespace gr{
 	namespace fbmc{
@@ -183,7 +184,7 @@ namespace gr{
 			if(d_num_total_subcarriers < d_num_used_subcarriers || d_num_total_subcarriers % 2 != 0)
 				throw std::runtime_error(std::string("Invalid number of total subcarriers"));
 			else if(d_num_sym_frame % 4 != 0)
-				throw std::runtime_error(std::string("Number of symbols per frame must be a multiple of 4"));
+				throw std::runtime_error(str(boost::format("Number of symbols per frame has to be a multiple of 4, but is %d") % d_num_sym_frame));		
 
 			return true;
 		}

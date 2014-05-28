@@ -47,7 +47,7 @@ namespace gr {
        * class. fbmc::symbols_to_bits_cb::make is the public interface for
        * creating new instances.
        */
-      static sptr make();
+      static sptr make(gr::digital::constellation_sptr constellation);
     };
 
   } // namespace fbmc

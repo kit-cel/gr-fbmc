@@ -27,6 +27,7 @@ class qa_symbols_to_bits_cb (gr_unittest.TestCase):
 
     def setUp (self):
         self.tb = gr.top_block ()
+        self.cfg = fbmc.fbmc_config(num_used_subcarriers=8, num_payload_sym=2, num_overlap_sym=4, modulation="QPSK", preamble="IAM")
 
     def tearDown (self):
         self.tb = None
@@ -35,7 +36,7 @@ class qa_symbols_to_bits_cb (gr_unittest.TestCase):
         # set up fg
         samples = (1+1j, 1-1j, -1-1j, -1+1j, .5 +1j*.5, .5 -1j*.5, -.5 +1j*.5, -.5 -1j*.5)
         self.src = blocks.vector_source_c(samples)
-        self.demod = fbmc.symbols_to_bits_cb()
+        self.demod = fbmc.symbols_to_bits_cb(self.cfg.constellation())
         self.snk = blocks.vector_sink_b()
         self.tb.connect(self.src, self.demod, self.snk)
         self.tb.run ()
@@ -49,7 +50,7 @@ class qa_symbols_to_bits_cb (gr_unittest.TestCase):
         n = 100000
         samples = [1 + 1j for i in range(n)]
         self.src = blocks.vector_source_c(samples)
-        self.demod = fbmc.symbols_to_bits_cb()
+        self.demod = fbmc.symbols_to_bits_cb(self.cfg.constellation())
         self.snk = blocks.vector_sink_b()
         self.tb.connect(self.src, self.demod, self.snk)
         self.tb.run ()
