@@ -33,6 +33,7 @@ class qa_tx (gr_unittest.TestCase):
 
 	def setUp (self):
 		self.tb = gr.top_block ()
+		self.cfg = fbmc.fbmc_config(num_used_subcarriers=16, num_payload_sym=18, num_overlap_sym=4, modulation="QPSK", preamble="IAM")
 		
 		# default configuration, can be overwritten in the test
 		self.L = 16
@@ -52,12 +53,12 @@ class qa_tx (gr_unittest.TestCase):
 		self.betas = fbmc.apply_betas_vcvc(L=self.L, inverse=0)
 		from gnuradio import fft # why does the import at the top not work??
 		self.inv_fft = fft.fft_vcc(self.L, False, (()), False, 1)
-		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=self.L)
+		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_used_subcarriers(), prototype_taps=self.cfg.prototype_taps())
 		self.output_commutator = fbmc.output_commutator_vcc(self.L)	
 		
 		# RX path
 		self.input_commutator = fbmc.input_commutator_cvc(self.L)
-		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=self.L)
+		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_used_subcarriers(), prototype_taps=self.cfg.prototype_taps())
 		self.inv_fft2 = fft.fft_vcc(self.L, False, (()), False, 1)
 		self.betas2 = fbmc.apply_betas_vcvc(L=self.L, inverse=1)
 		self.qam = fbmc.combine_iq_vcvc(self.L)
@@ -267,20 +268,20 @@ class qa_tx (gr_unittest.TestCase):
 		self.betas = fbmc.apply_betas_vcvc(L=self.L, inverse=0)
 		from gnuradio import fft # why does the import at the top not work??
 		self.inv_fft = fft.fft_vcc(self.L, False, (()), False, 1)
-		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=self.L)
+		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_used_subcarriers(), prototype_taps=self.cfg.prototype_taps())
 		self.output_commutator = fbmc.output_commutator_vcc(self.L)
 	
 		self.tb.connect(self.src, self.b2s, self.s2p, self.frame_gen, self.oqam, self.betas, self.inv_fft, self.ppfb, self.output_commutator)
 			  
 		# RX
 		self.input_commutator = fbmc.input_commutator_cvc(self.L)
-		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=self.L)
+		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_used_subcarriers(), prototype_taps=self.cfg.prototype_taps())
 		self.inv_fft2 = fft.fft_vcc(self.L, False, (()), False, 1)
 		self.betas2 = fbmc.apply_betas_vcvc(L=self.L, inverse=1)
 		self.qam = fbmc.combine_iq_vcvc(self.L)
 		self.frame_gen2 = fbmc.frame_generator_vcvc(sym_len=self.L, num_payload = self.num_payload, inverse=1, num_overlap = self.num_overlap, num_sync = self.num_sync)
 		self.p2s = fbmc.parallel_to_serial_vcc(len_out=M, vlen_in=self.L)
-		self.s2b = fbmc.symbols_to_bits_cb()
+		self.s2b = fbmc.symbols_to_bits_cb(self.cfg.constellation())
 		self.snk = blocks.vector_sink_b(vlen=1)
 		
 		self.tb.connect(self.output_commutator, self.input_commutator, self.ppfb2, self.inv_fft2, self.betas2, self.qam, self.frame_gen2, self.p2s, self.s2b, self.snk)
