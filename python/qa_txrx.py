@@ -29,41 +29,37 @@ from numpy import *
 class qa_tx (gr_unittest.TestCase):
 	
 	def get_frame_len(self):
-		return self.L*(self.num_payload + 2*self.num_overlap + self.num_sync)
+		return self.cfg.num_total_subcarriers()*self.cfg.num_sym_frame()
 
 	def setUp (self):
 		self.tb = gr.top_block ()
 		self.cfg = fbmc.fbmc_config(num_used_subcarriers=16, num_payload_sym=18, num_overlap_sym=4, modulation="QPSK", preamble="IAM")
 		
 		# default configuration, can be overwritten in the test
-		self.L = 16
-		self.num_payload = 18
-		self.num_overlap = 4
-		self.num_sync = self.num_overlap+2
 		self.num_frames = 100
 			
 		
 		# prepare all blocks needed for a full TXRX chain but connect only the needed ones
 		
 		# TX 
-		self.serial_to_parallel = fbmc.serial_to_parallel_cvc(self.L, self.L)
-		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=self.L, num_payload = self.num_payload, inverse=0, num_overlap = self.num_overlap, num_sync = self.num_sync)
-		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=self.L, frame_len = self.num_payload+self.num_sync+2*self.num_overlap, type="IAM2", overlap=self.num_overlap)
-		self.oqam = fbmc.serialize_iq_vcvc(self.L)
-		self.betas = fbmc.apply_betas_vcvc(L=self.L, inverse=0)
+		self.serial_to_parallel = fbmc.serial_to_parallel_cvc(self.cfg.num_used_subcarriers(), self.cfg.num_total_subcarriers())
+		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=0, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())
+		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=self.cfg.num_total_subcarriers(), frame_len = self.cfg.num_payload_sym()+self.cfg.num_sync_sym()+2*self.cfg.num_overlap_sym(), type="IAM2", overlap=self.cfg.num_overlap_sym())
+		self.oqam = fbmc.serialize_iq_vcvc(self.cfg.num_total_subcarriers())
+		self.betas = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=0)
 		from gnuradio import fft # why does the import at the top not work??
-		self.inv_fft = fft.fft_vcc(self.L, False, (()), False, 1)
+		self.inv_fft = fft.fft_vcc(self.cfg.num_total_subcarriers(), False, (()), False, 1)
 		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_used_subcarriers(), prototype_taps=self.cfg.prototype_taps())
-		self.output_commutator = fbmc.output_commutator_vcc(self.L)	
+		self.output_commutator = fbmc.output_commutator_vcc(self.cfg.num_total_subcarriers())	
 		
 		# RX path
-		self.input_commutator = fbmc.input_commutator_cvc(self.L)
+		self.input_commutator = fbmc.input_commutator_cvc(self.cfg.num_total_subcarriers())
 		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_used_subcarriers(), prototype_taps=self.cfg.prototype_taps())
-		self.inv_fft2 = fft.fft_vcc(self.L, False, (()), False, 1)
-		self.betas2 = fbmc.apply_betas_vcvc(L=self.L, inverse=1)
-		self.qam = fbmc.combine_iq_vcvc(self.L)
-		self.frame_gen2 = fbmc.frame_generator_vcvc(sym_len=self.L, num_payload = self.num_payload, inverse=1, num_overlap = self.num_overlap, num_sync = self.num_sync)		
-		self.parallel_to_serial = fbmc.parallel_to_serial_vcc(self.L, self.L)
+		self.inv_fft2 = fft.fft_vcc(self.cfg.num_total_subcarriers(), False, (()), False, 1)
+		self.betas2 = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=1)
+		self.qam = fbmc.combine_iq_vcvc(self.cfg.num_total_subcarriers())
+		self.frame_gen2 = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=1, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())		
+		self.parallel_to_serial = fbmc.parallel_to_serial_vcc(self.cfg.num_used_subcarriers(), self.cfg.num_total_subcarriers())
 				
 	def tearDown (self):
 		self.tb = None
@@ -73,28 +69,28 @@ class qa_tx (gr_unittest.TestCase):
 		print "test 1 - src to parallelization"
 		
 		# random input signal
-		input_data = [i+1j*i for i in range(self.num_payload*self.L)]		
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_total_subcarriers())]		
 		
 		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
 		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames)
-		self.snk = blocks.vector_sink_c(vlen=self.L)
+		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
 		
 		self.tb.connect(self.src, self.head, self.serial_to_parallel, self.snk)
 		self.tb.run()
 		
 		# check data
 		data = self.snk.data()
-		self.assertEqual(len(data), self.num_frames*self.num_payload*self.L)
+		self.assertEqual(len(data), self.num_frames*self.cfg.num_payload_sym()*self.cfg.num_total_subcarriers())
 	
 	def test_004_t(self):
 		print "test 4 - serializer and OQAM without frame generator inbetween"
 		
 		# random input signal
-		input_data = [i+1j*i for i in range(self.num_payload*self.L)]		
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_total_subcarriers())]		
 		
 		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
 		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames) 
-		self.snk = blocks.vector_sink_c(vlen=self.L)
+		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
 		
 		self.tb.connect(self.src, self.head, self.serial_to_parallel, self.oqam, self.snk)
 		self.tb.run()
@@ -106,11 +102,11 @@ class qa_tx (gr_unittest.TestCase):
 	def test_005_t(self):
 		print "test 5 - serializer, OQAM, betas"
 		# random input signal
-		input_data = [i+1j*i for i in range(self.num_payload*self.num_frames*self.L)]
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers())]
 		
 		# TX
 		self.src = blocks.vector_source_c(input_data, vlen=1)
-		self.snk = blocks.vector_sink_c(vlen=self.L)
+		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
 		self.tb.connect(self.src, self.serial_to_parallel, self.oqam, self.betas, self.snk)
 			  
 		# run the flow graph
@@ -124,11 +120,11 @@ class qa_tx (gr_unittest.TestCase):
 	def test_006_t(self):
 		print "test 6 - serializer, OQAM, betas, ifft"
 		# random input signal
-		input_data = [i+1j*i for i in range(self.num_payload*self.num_frames*self.L)]
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers())]
 		
 		# TX
 		self.src = blocks.vector_source_c(input_data, vlen=1)
-		self.snk = blocks.vector_sink_c(vlen=self.L)
+		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
 		self.tb.connect(self.src, self.serial_to_parallel, self.oqam, self.betas, self.inv_fft, self.snk)
 			  
 		# run the flow graph
@@ -142,11 +138,11 @@ class qa_tx (gr_unittest.TestCase):
 	def test_007_t(self):
 		print "test 7 - serializer, OQAM, betas, ifft, ppfb"
 		# random input signal
-		input_data = [i+1j*i for i in range(self.num_payload*self.num_frames*self.L)]
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers())]
 		
 		# TX
 		self.src = blocks.vector_source_c(input_data, vlen=1)
-		self.snk = blocks.vector_sink_c(vlen=self.L)
+		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
 		self.tb.connect(self.src, self.serial_to_parallel, self.oqam, self.betas, self.inv_fft, self.ppfb, self.snk)
 			  
 		# run the flow graph
@@ -160,7 +156,7 @@ class qa_tx (gr_unittest.TestCase):
 	def test_008_t(self):		
 		print "test 8 - serializer, OQAM, betas, ifft, ppfb, output commutator"
 		# random input signal
-		input_data = [i+1j*i for i in range(self.num_payload*self.num_frames*self.L)]
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers())]
 		
 		# TX
 		self.src = blocks.vector_source_c(input_data, vlen=1)
@@ -181,11 +177,11 @@ class qa_tx (gr_unittest.TestCase):
 		print "test 2 - src to frame generator"
 		
 		# random input signal
-		input_data = [i+1j*i for i in range(self.num_payload*self.L)]		
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_total_subcarriers())]		
 		
 		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
 		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames)
-		self.snk = blocks.vector_sink_c(vlen=self.L)
+		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
 		
 		self.tb.connect(self.src, self.head, self.serial_to_parallel, self.frame_gen, self.snk)
 		self.tb.run()
@@ -198,11 +194,11 @@ class qa_tx (gr_unittest.TestCase):
 		print "test 3 - src to serializer"
 		
 		# random input signal
-		input_data = [i+1j*i for i in range(self.num_payload*self.L)]		
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_total_subcarriers())]		
 		
 		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
 		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames) 
-		self.snk = blocks.vector_sink_c(vlen=self.L)
+		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
 		
 		self.tb.connect(self.src, self.head, self.serial_to_parallel, self.frame_gen, self.oqam, self.snk)
 		self.tb.run()
@@ -215,7 +211,7 @@ class qa_tx (gr_unittest.TestCase):
 		print "test 10 - complete tx chain (with frame generator)"
 		
 		
-		input_data = [i+1j*i for i in range(self.num_payload*self.num_frames*self.L)]
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers())]
 		self.src = blocks.vector_source_c(input_data, vlen=1)
 		self.snk = blocks.vector_sink_c(vlen=1)
 		
@@ -225,13 +221,13 @@ class qa_tx (gr_unittest.TestCase):
 		
 		# check
 		output_data = self.snk.data()
-		self.assertEqual(len(input_data), len(output_data) - self.num_frames*self.L*(2*self.num_overlap+self.num_sync))
+		self.assertEqual(len(input_data), len(output_data) - self.num_frames*self.cfg.num_total_subcarriers()*(2*self.cfg.num_overlap_sym()+self.cfg.num_sync_sym()))
 		
 	def test_009_t(self):
 		print "test 9 - symbol input - M=L - whole TXRX chain"
 
 		# random input signal
-		input_data = [sin(i)+1j*cos(i) for i in range(self.num_payload*self.num_frames*self.L)]
+		input_data = [sin(i)+1j*cos(i) for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers())]
 		
 		# TX
 		self.src = blocks.vector_source_c(input_data, vlen=1)
@@ -252,35 +248,34 @@ class qa_tx (gr_unittest.TestCase):
 	def test_011_t(self):
 		print "test 11 - bit input - M<L - whole TXRX chain"
 		# configuration
-		M = self.L-3
-		modulation = digital.constellation_qpsk()
+		self.cfg = fbmc.fbmc_config(num_used_subcarriers = 5, num_payload_sym = 18, modulation="QPSK", preamble="IAM")
 
 		# random input signal
-		input_data = map(int, random.randint(0, 4, M*self.num_frames*self.num_payload))
+		input_data = map(int, random.randint(0, 4, self.cfg.num_used_subcarriers()*self.num_frames*self.cfg.num_payload_sym()))
 		
 		# TX
 		self.src = blocks.vector_source_b(input_data, False)
-		self.b2s = digital.chunks_to_symbols_bc((modulation.points()), 1)
-		self.s2p = fbmc.serial_to_parallel_cvc(len_in=M, vlen_out=self.L)
-		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=self.L, num_payload = self.num_payload, inverse=0, num_overlap = self.num_overlap, num_sync = self.num_sync)
+		self.b2s = digital.chunks_to_symbols_bc((self.cfg.constellation_points()), 1)
+		self.s2p = fbmc.serial_to_parallel_cvc(len_in=self.cfg.num_used_subcarriers(), vlen_out=self.cfg.num_total_subcarriers())
+		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=0, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())
 		
-		self.oqam = fbmc.serialize_iq_vcvc(self.L)
-		self.betas = fbmc.apply_betas_vcvc(L=self.L, inverse=0)
+		self.oqam = fbmc.serialize_iq_vcvc(self.cfg.num_total_subcarriers())
+		self.betas = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=0)
 		from gnuradio import fft # why does the import at the top not work??
-		self.inv_fft = fft.fft_vcc(self.L, False, (()), False, 1)
-		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_used_subcarriers(), prototype_taps=self.cfg.prototype_taps())
-		self.output_commutator = fbmc.output_commutator_vcc(self.L)
+		self.inv_fft = fft.fft_vcc(self.cfg.num_total_subcarriers(), False, (()), False, 1)
+		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_total_subcarriers(), prototype_taps=self.cfg.prototype_taps())
+		self.output_commutator = fbmc.output_commutator_vcc(self.cfg.num_total_subcarriers())
 	
 		self.tb.connect(self.src, self.b2s, self.s2p, self.frame_gen, self.oqam, self.betas, self.inv_fft, self.ppfb, self.output_commutator)
 			  
 		# RX
-		self.input_commutator = fbmc.input_commutator_cvc(self.L)
-		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_used_subcarriers(), prototype_taps=self.cfg.prototype_taps())
-		self.inv_fft2 = fft.fft_vcc(self.L, False, (()), False, 1)
-		self.betas2 = fbmc.apply_betas_vcvc(L=self.L, inverse=1)
-		self.qam = fbmc.combine_iq_vcvc(self.L)
-		self.frame_gen2 = fbmc.frame_generator_vcvc(sym_len=self.L, num_payload = self.num_payload, inverse=1, num_overlap = self.num_overlap, num_sync = self.num_sync)
-		self.p2s = fbmc.parallel_to_serial_vcc(len_out=M, vlen_in=self.L)
+		self.input_commutator = fbmc.input_commutator_cvc(self.cfg.num_total_subcarriers())
+		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_total_subcarriers(), prototype_taps=self.cfg.prototype_taps())
+		self.inv_fft2 = fft.fft_vcc(self.cfg.num_total_subcarriers(), False, (()), False, 1)
+		self.betas2 = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=1)
+		self.qam = fbmc.combine_iq_vcvc(self.cfg.num_total_subcarriers())
+		self.frame_gen2 = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=1, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())
+		self.p2s = fbmc.parallel_to_serial_vcc(len_out=self.cfg.num_used_subcarriers(), vlen_in=self.cfg.num_total_subcarriers())
 		self.s2b = fbmc.symbols_to_bits_cb(self.cfg.constellation())
 		self.snk = blocks.vector_sink_b(vlen=1)
 		

@@ -20,7 +20,7 @@ namespace gr{
 				int num_used_subcarriers(){return d_num_used_subcarriers;}
 				int num_total_subcarriers(){return d_num_total_subcarriers;}
 				int num_payload_sym(){return d_num_payload_sym;}
-				int num_overlap(){return d_num_overlap_sym;}
+				int num_overlap_sym(){return d_num_overlap_sym;}
 				int num_sync_sym(){return d_num_sync_sym;}
 				int num_preamble_sym(){return d_num_preamble_sym;}
 				int num_sym_frame(){return d_num_sym_frame;}
