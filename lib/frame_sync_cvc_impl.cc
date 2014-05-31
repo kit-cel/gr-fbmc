@@ -51,7 +51,7 @@ namespace gr {
                 d_frame_found(false),
                 d_sym_ctr(0)
     {
-      d_buf = new boost::circular_buffer<gr_complex>(d_L);
+      d_buf = boost::circular_buffer<gr_complex>(d_L);
 
       if(d_threshold <= 0 || d_threshold >= 1)
         throw std::runtime_error(std::string("Threshold must be between (0,1)")); 
@@ -67,9 +67,7 @@ namespace gr {
      * Our virtual destructor.
      */
     frame_sync_cvc_impl::~frame_sync_cvc_impl()
-    {
-      delete d_buf;
-    }
+    {}
 
     void
     frame_sync_cvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
@@ -90,11 +88,15 @@ namespace gr {
       //volk_32fc_x2_conjugate_dot_prod_32fc(&xcorr, x1, x2, d_L);
       //volk_32fc_x2_conjugate_dot_prod_32fc(&acorr, a1, a1, 2*d_L);
       for(int i=0; i < d_L; i++)
+      {
         xcorr += x1[i]*conj(x2[i]);
+        //std::cout << "x1:" << x1[i] << "\tx2*:" << conj(x2[i]) << std::endl;
+      }
+        
       for(int i=0; i < 2*d_L; i++)
         acorr += a1[i]*conj(a1[i]);
 
-      std::cout << "xcorr: " << xcorr << ". acorr: " << acorr;
+      //std::cout << "xcorr: " << xcorr << ". acorr: " << acorr;
 
       // acorr is calculated over two symbols, so scale accordingly
       return 2*abs(xcorr/acorr);
@@ -116,11 +118,15 @@ namespace gr {
         int items_written = 0;
 
         // fill the buffer at startup and return
-        if(d_buf->size() < d_buf->capacity())
+        if(d_buf.size() < d_buf.capacity())
         {
           std::cout << "Startup, fill buffer and return." << std::endl;
-          while(d_buf->size() < d_buf->capacity()) 
-            d_buf->push_front(in[samples_consumed++]);  
+          while(d_buf.size() < d_buf.capacity()) 
+          {
+            //std::cout << "push to buf: " << in[samples_consumed] << std::endl;
+            d_buf.push_back(in[samples_consumed++]);  
+          }
+            
           consume_each(samples_consumed);
           return items_written;    
         }
@@ -150,7 +156,7 @@ namespace gr {
             if(res < d_threshold) // sync not valid anymore
             {
               d_frame_found = false;
-              d_buf->clear();
+              d_buf.clear();
               std::cout << ". Frame sync not valid anymore." << std::endl;
             }
             else
@@ -163,11 +169,15 @@ namespace gr {
           std::cout << "Looking for frame. ";
           // proceed by d_step_size samples and calculate correlation
           for(int i=0; i<d_step_size; i++)
-            d_buf->push_front(in[i]);          
+          {
+            //std::cout << "buf pushback: " << in[i] << std::endl;
+            d_buf.push_back (in[i]);    
+          }      
           samples_consumed += d_step_size;
 
           // start returning samples if frame start was found
-          float res = corr_coef(&d_buf->at(0), in+d_step_size, in+d_step_size);
+          d_buf.linearize();
+          float res = corr_coef(&d_buf[0], in+d_step_size, in+d_step_size);
           std::cout << "Corr: " << res;
           if(res > d_threshold)
           {
@@ -186,6 +196,8 @@ namespace gr {
         consume_each(samples_consumed);
         if(noutput_items < items_written)
           throw std::runtime_error(std::string("Output buffer too small"));
+
+        //std::cout << "consumed: " << samples_consumed << ". written: " << items_written << std::endl;
         return items_written;            
     }
 
