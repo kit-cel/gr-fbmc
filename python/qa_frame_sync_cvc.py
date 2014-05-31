@@ -22,6 +22,7 @@
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
+from numpy import *
 
 class qa_frame_sync_cvc (gr_unittest.TestCase):
 
@@ -33,9 +34,26 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
 
     def test_001_t (self):
         # set up fg
+        L = 128
+        step_size = 1
+        frame_len = 10
+        preamble="IAM"
+        threshold = 0.8
+        num_frames = 2
+
+        input_data = random.randn(frame_len*L*num_frames)
+
+        self.src = blocks.vector_source_c(input_data, vlen=1, repeat=False)
+        self.framesync = fbmc.frame_sync_cvc(L=L, frame_len=frame_len, preamble=preamble, step_size=step_size, threshold=threshold)
+        self.snk = blocks.vector_sink_c(vlen=L)
+
+        self.tb.connect(self.src, self.framesync, self.snk)
+
         self.tb.run ()
+
         # check data
+        data = self.snk.data()
 
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_frame_sync_cvc, "qa_frame_sync_cvc.xml")
+    gr_unittest.run(qa_frame_sync_cvc)

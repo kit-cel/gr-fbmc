@@ -51,13 +51,16 @@ namespace gr {
                 d_frame_found(false),
                 d_sym_ctr(0)
     {
-      buf = new boost::circular_buffer<gr_complex>(d_L);
+      d_buf = new boost::circular_buffer<gr_complex>(d_L);
 
       if(d_threshold <= 0 || d_threshold >= 1)
         throw std::runtime_error(std::string("Threshold must be between (0,1)")); 
 
       if(d_step_size > d_L)
         throw std::runtime_error(std::string("Step size must be smaller or equal to the symbol length"));
+
+      if(d_preamble != "IAM")
+        throw std::runtime_error(std::string("Only IAM is supported"));
     }
 
     /*
@@ -65,13 +68,36 @@ namespace gr {
      */
     frame_sync_cvc_impl::~frame_sync_cvc_impl()
     {
-      delete buf;
+      delete d_buf;
     }
 
     void
     frame_sync_cvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
         ninput_items_required[0] = 2*d_L+d_step_size;
+    }
+
+    float
+    frame_sync_cvc_impl::corr_coef(gr_complex *x1, gr_complex *x2, gr_complex *a1)
+    {
+      // NOTE: This calculates the dot product of two vectors and divides it by the average power such that the result lies in [0,1]
+
+      // results for auto- and crosscorrelation
+      gr_complex xcorr = 0;
+      gr_complex acorr = 0;
+
+      // the dot prods
+      //volk_32fc_x2_conjugate_dot_prod_32fc(&xcorr, x1, x2, d_L);
+      //volk_32fc_x2_conjugate_dot_prod_32fc(&acorr, a1, a1, 2*d_L);
+      for(int i=0; i < d_L; i++)
+        xcorr += x1[i]*conj(x2[i]);
+      for(int i=0; i < 2*d_L; i++)
+        acorr += a1[i]*conj(a1[i]);
+
+      std::cout << "xcorr: " << xcorr << ". acorr: " << acorr;
+
+      // acorr is calculated over two symbols, so scale accordingly
+      return 2*abs(xcorr/acorr);
     }
 
     int
@@ -83,17 +109,18 @@ namespace gr {
         if( ninput_items[0] < 2*d_L)
           throw std::runtime_error(std::string("Not enough input items"));
 
-        const gr_complex *in = (const gr_complex *) input_items[0];
+        gr_complex *in = (gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
 
         int samples_consumed = 0;
         int items_written = 0;
 
         // fill the buffer at startup and return
-        if(buf->size() < buf->capacity())
+        if(d_buf->size() < d_buf->capacity())
         {
-          while(buf->size() < buf->capacity()) 
-            buf->push_front(in[samples_consumed++]);  
+          std::cout << "Startup, fill buffer and return." << std::endl;
+          while(d_buf->size() < d_buf->capacity()) 
+            d_buf->push_front(in[samples_consumed++]);  
           consume_each(samples_consumed);
           return items_written;    
         }
@@ -108,6 +135,7 @@ namespace gr {
         // frame start has already been detected
         if(d_frame_found)
         {
+          std::cout << "Frame sync assumed valid, copy symbol to output." << std::endl;
           memcpy(out, in, d_L);
           d_sym_ctr++;
           samples_consumed += d_L;
@@ -115,37 +143,43 @@ namespace gr {
           
           if(d_sym_ctr > d_frame_len-1)// last symbol of the frame, check if the frame sync is still valid
           {
+            std::cout << "\tLast symbol in frame reached. ";
             d_sym_ctr = 0; // reset the counter
-            gr_complex acorr = 1;
-            gr_complex xcorr = 0;
-            volk_32fc_x2_conjugate_dot_prod_32fc(&xcorr, in, in+d_L, d_L);
-            volk_32fc_x2_conjugate_dot_prod_32fc(&acorr, in, in, d_L*2);
-            if(2*abs(xcorr/acorr) < d_threshold) // sync not valid anymore
+            float res = corr_coef(in, in+d_L, in);
+            std::cout << "Corr: " << res;
+            if(res < d_threshold) // sync not valid anymore
+            {
               d_frame_found = false;
+              d_buf->clear();
+              std::cout << ". Frame sync not valid anymore." << std::endl;
+            }
+            else
+              std::cout << ". Frame sync still valid.";
           }
         }
         // no frame has been detected, look for correlation peak between subsequent symbols
         else
         {
+          std::cout << "Looking for frame. ";
           // proceed by d_step_size samples and calculate correlation
           for(int i=0; i<d_step_size; i++)
-            buf->push_front(in[i]);          
+            d_buf->push_front(in[i]);          
           samples_consumed += d_step_size;
 
-          // perform correlation with VOLK
-          gr_complex acorr = 1;
-          gr_complex xcorr = 0;
-          volk_32fc_x2_conjugate_dot_prod_32fc(&xcorr, &buf->at(0), &in[d_step_size], d_L);
-          volk_32fc_x2_conjugate_dot_prod_32fc(&acorr, &in[d_step_size], &in[d_step_size], d_L*2);
           // start returning samples if frame start was found
-          if(2*abs(xcorr/acorr) > d_threshold)
+          float res = corr_coef(&d_buf->at(0), in+d_step_size, in+d_step_size);
+          std::cout << "Corr: " << res;
+          if(res > d_threshold)
           {
+            std::cout << ". Found start of frame." << std::endl;
             memcpy(out, in+d_step_size, d_L);
             d_frame_found = true;
             items_written = 1;
             d_sym_ctr++;
             samples_consumed += d_L;
           }
+          else
+            std::cout << ". No start of frame detected." << std::endl;
         }
 
         // inform the scheduler about what has been going on...
