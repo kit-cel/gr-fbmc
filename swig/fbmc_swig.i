@@ -21,6 +21,7 @@
 #include "fbmc/parallel_to_serial_vcc.h"
 #include "fbmc/symbols_to_bits_cb.h"
 #include "fbmc/preamble_insertion_vcvc.h"
+#include "fbmc/frame_sync_cvc.h"
 %}
 
 %include "../lib/fbmc_config.h"
@@ -50,3 +51,5 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, symbols_to_bits_cb);
 
 %include "fbmc/preamble_insertion_vcvc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, preamble_insertion_vcvc);
+%include "fbmc/frame_sync_cvc.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, frame_sync_cvc);

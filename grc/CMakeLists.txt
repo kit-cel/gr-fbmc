@@ -27,5 +27,6 @@ install(FILES
     fbmc_combine_iq_vcvc.xml
     fbmc_parallel_to_serial_vcc.xml
     fbmc_symbols_to_bits_cb.xml
-    fbmc_preamble_insertion_vcvc.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_preamble_insertion_vcvc.xml
+    fbmc_frame_sync_cvc.xml DESTINATION share/gnuradio/grc/blocks
 )

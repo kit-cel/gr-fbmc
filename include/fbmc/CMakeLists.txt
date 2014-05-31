@@ -33,5 +33,6 @@ install(FILES
     combine_iq_vcvc.h
     parallel_to_serial_vcc.h
     symbols_to_bits_cb.h
-    preamble_insertion_vcvc.h DESTINATION include/fbmc
+    preamble_insertion_vcvc.h
+    frame_sync_cvc.h DESTINATION include/fbmc
 )
