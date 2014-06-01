@@ -61,6 +61,9 @@ namespace gr {
 
       if(d_preamble != "IAM")
         throw std::runtime_error(std::string("Only IAM is supported"));
+
+      if(d_L < 32)
+        std::cerr << "Low number of subcarriers. Increase to make frame synchronization more reliable." << std::endl;
     }
 
     /*
@@ -85,18 +88,15 @@ namespace gr {
       gr_complex acorr = 0;
 
       // the dot prods
-      //volk_32fc_x2_conjugate_dot_prod_32fc(&xcorr, x1, x2, d_L);
-      //volk_32fc_x2_conjugate_dot_prod_32fc(&acorr, a1, a1, 2*d_L);
-      for(int i=0; i < d_L; i++)
-      {
-        xcorr += x1[i]*conj(x2[i]);
-        //std::cout << "x1:" << x1[i] << "\tx2*:" << conj(x2[i]) << std::endl;
-      }
-        
-      for(int i=0; i < 2*d_L; i++)
-        acorr += a1[i]*conj(a1[i]);
+      volk_32fc_x2_conjugate_dot_prod_32fc(&xcorr, x1, x2, d_L);
+      volk_32fc_x2_conjugate_dot_prod_32fc(&acorr, a1, a1, d_L*2);
 
-      //std::cout << "xcorr: " << xcorr << ". acorr: " << acorr;
+      /*for(int i=0; i < d_L; i++)
+        xcorr += x1[i]*conj(x2[i]);
+      for(int i=0; i < d_L*2; i++)
+        acorr += a1[i]*conj(acorr1[i]);*/
+
+      //std::cout << "xcorr: " << xcorr << ". acorr: " << acorr << std::endl;
 
       // acorr is calculated over two symbols, so scale accordingly
       return 2*abs(xcorr/acorr);
@@ -120,7 +120,7 @@ namespace gr {
         // fill the buffer at startup and return
         if(d_buf.size() < d_buf.capacity())
         {
-          std::cout << "Startup, fill buffer and return." << std::endl;
+          //std::cout << "Startup, fill buffer and return." << std::endl;
           while(d_buf.size() < d_buf.capacity()) 
           {
             //std::cout << "push to buf: " << in[samples_consumed] << std::endl;
@@ -141,7 +141,7 @@ namespace gr {
         // frame start has already been detected
         if(d_frame_found)
         {
-          std::cout << "Frame sync assumed valid, copy symbol to output." << std::endl;
+          //std::cout << "Frame sync assumed valid, copy symbol to output." << std::endl;
           memcpy(out, in, d_L);
           d_sym_ctr++;
           samples_consumed += d_L;
@@ -149,24 +149,24 @@ namespace gr {
           
           if(d_sym_ctr > d_frame_len-1)// last symbol of the frame, check if the frame sync is still valid
           {
-            std::cout << "\tLast symbol in frame reached. ";
+            //std::cout << "\tLast symbol in frame reached. ";
             d_sym_ctr = 0; // reset the counter
             float res = corr_coef(in, in+d_L, in);
-            std::cout << "Corr: " << res;
+            //std::cout << "Corr: " << res;
             if(res < d_threshold) // sync not valid anymore
             {
               d_frame_found = false;
               d_buf.clear();
-              std::cout << ". Frame sync not valid anymore." << std::endl;
+              std::cout << "frame_sync_cvc: Frame sync lost" << std::endl;
             }
-            else
-              std::cout << ". Frame sync still valid.";
+            //else
+              //std::cout << ". Frame sync still valid.";
           }
         }
         // no frame has been detected, look for correlation peak between subsequent symbols
         else
         {
-          std::cout << "Looking for frame. ";
+          //std::cout << "Looking for frame. ";
           // proceed by d_step_size samples and calculate correlation
           for(int i=0; i<d_step_size; i++)
           {
@@ -178,18 +178,18 @@ namespace gr {
           // start returning samples if frame start was found
           d_buf.linearize();
           float res = corr_coef(&d_buf[0], in+d_step_size, in+d_step_size);
-          std::cout << "Corr: " << res;
+          //std::cout << "Corr: " << res;
           if(res > d_threshold)
           {
-            std::cout << ". Found start of frame." << std::endl;
+            std::cout << "frame_sync_cvc: Found start of frame." << std::endl;
             memcpy(out, in+d_step_size, d_L);
             d_frame_found = true;
             items_written = 1;
             d_sym_ctr++;
             samples_consumed += d_L;
           }
-          else
-            std::cout << ". No start of frame detected." << std::endl;
+          //else
+          //  std::cout << ". No start of frame detected." << std::endl;
         }
 
         // inform the scheduler about what has been going on...

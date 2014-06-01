@@ -34,19 +34,20 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
 
     def test_001_t (self):
         # set up fg
-        L = 8
+        L = 32
         step_size = 1
-        frame_len = 5
+        frame_len = 3
         preamble="IAM"
         threshold = 0.8
-        num_frames = 2
+        num_frames = 1
 
         #create some input data between [-1,1]
-        symbol = random.randn(frame_len*L)
+        symbol = random.randn(L)
         noise1 = random.randn(frame_len*L)
         noise2 = random.randn(frame_len*L)
-        input_data = concatenate((noise1, symbol, symbol, noise2))
-        input_data /= max(abs(input_data))
+        input_data = concatenate((noise1, symbol, symbol, noise2, symbol, noise2, symbol, symbol, noise1))
+        
+        # with this input data, the block is supposed to find and lose symbol sync twice, not detecting the symbol in the middle because it's not repeated
 
         self.src = blocks.vector_source_c(input_data, vlen=1, repeat=False)
         self.framesync = fbmc.frame_sync_cvc(L=L, frame_len=frame_len, preamble=preamble, step_size=step_size, threshold=threshold)
