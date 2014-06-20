@@ -36,7 +36,6 @@ namespace gr{
 							std::string preamble = "IAM");
 
 				// public get methods
-				gr_complex blub;
 				int num_used_subcarriers(){return d_num_used_subcarriers;}
 				int num_total_subcarriers(){return d_num_total_subcarriers;}
 				int num_payload_sym(){return d_num_payload_sym;}

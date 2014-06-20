@@ -5,12 +5,12 @@
   <import>import fbmc</import>
   <make>fbmc.preamble_insertion_vcvc($L, $frame_len, $type, $overlap)</make>
   <param>
-    <name>L</name>
+    <name>Num subcarriers</name>
     <key>L</key>
     <type>int</type>
   </param>
   <param>
-    <name>Frame_len</name>
+    <name>Frame length</name>
     <key>frame_len</key>
     <type>int</type>
   </param>

@@ -1,38 +1,41 @@
-<?xml version="1.0"?>
 <block>
-  <name>frame_sync_cvc</name>
+  <name>Frame sync</name>
   <key>fbmc_frame_sync_cvc</key>
-  <category>fbmc</category>
+  <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.frame_sync_cvc($L)</make>
-  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
-       Sub-nodes:
-       * name
-       * key (makes the value accessible as $keyname, e.g. in the make node)
-       * type -->
+  <make>fbmc.frame_sync_cvc($L, $frame_len, $preamble, $step_size, $threshold)</make>
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Num subcarriers</name>
+    <key>L</key>
+    <type>int</type>
   </param>
-
-  <!-- Make one 'sink' node per input. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
+  <param>
+    <name>Frame length</name>
+    <key>frame_len</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Preamble</name>
+    <key>preamble</key>
+    <type>string</type>
+  </param>
+  <param>
+    <name>Step size</name>
+    <key>step_size</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Threshold</name>
+    <key>threshold</key>
+    <type>float</type>
+  </param>
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
   </sink>
-
-  <!-- Make one 'source' node per output. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$L</vlen>
   </source>
 </block>

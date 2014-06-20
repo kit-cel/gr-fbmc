@@ -1,9 +1,14 @@
 <block>
-  <name>4-QAM symbols to bits</name>
+  <name>Symbols to bits</name>
   <key>fbmc_symbols_to_bits_cb</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.symbols_to_bits_cb()</make>
+  <make>fbmc.symbols_to_bits_cb($constellation)</make>
+  <param>
+    <name>Constellation</name>
+    <key>constellation</key>
+    <type>raw</type>
+  </param>
   <sink>
     <name>in</name>
     <type>complex</type>
