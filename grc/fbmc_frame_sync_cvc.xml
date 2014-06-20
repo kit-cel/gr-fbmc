@@ -3,7 +3,7 @@
   <key>fbmc_frame_sync_cvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.frame_sync_cvc($L, $frame_len, $preamble, $step_size, $threshold)</make>
+  <make>fbmc.frame_sync_cvc($L, $frame_len, $overlap, $preamble, $step_size, $threshold)</make>
   <param>
     <name>Num subcarriers</name>
     <key>L</key>
@@ -12,6 +12,11 @@
   <param>
     <name>Frame length</name>
     <key>frame_len</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Overlap</name>
+    <key>overlap</key>
     <type>int</type>
   </param>
   <param>

@@ -61,14 +61,19 @@ namespace gr {
       if(d_preamble != "IAM")
         throw std::runtime_error(std::string("Only IAM is supported"));
 
-      if(d_overlap % 2 != 0 && d_overlap > 0)
+      if(d_overlap % 2 != 0 && d_overlap < 2)
         throw std::runtime_error(std::string("Overlap must be even and > 0!"));
 
       if(d_L < 32)
         std::cerr << "Low number of subcarriers. Increase to make frame synchronization more reliable." << std::endl;
 
-      d_buf = boost::circular_buffer<gr_complex>(d_L);
+      // this is always >= 1 due to the checks above and therefore contains at least the last symbol
       d_num_hist_sym = d_overlap/2;
+      // - set history to a length that always contains the start of the frame if identical symbols are detected
+      // - the sync symbols start out at position 0 in the transmitter and then "move" overlap/2*L due to the group
+      //   delay of the polyphase filter bank
+      // - +1 is needed because set_history(N) only keeps the last N-1 samples in the buffer
+      set_history(d_num_hist_sym*d_L+1);
     }
 
     /*
@@ -117,76 +122,51 @@ namespace gr {
         int samples_consumed = 0;
         int items_written = 0;
 
-        // fill the buffer at startup and return
-        if(d_buf.size() < d_buf.capacity())
-        {
-          //std::cout << "Startup, fill buffer and return." << std::endl;
-          while(d_buf.size() < d_buf.capacity()) 
-            d_buf.push_back(in[samples_consumed++]);  
-            
-          consume_each(samples_consumed);
-          return items_written;
-        }
-
         // there are 3 cases to distinguish:
         // 1. no frame found 
         // 2. frame found and sync is assumed to be valid, only return samples
         // 3. frame found, check if sync still valid
 
-        // IMPORTANT NOTE: the frame start corresponds to the 2 equal subsequent symbols, not the begin/end of the payload!
-
         // frame start has already been detected
         if(d_frame_found)
         {
           //std::cout << "Frame sync assumed valid, copy symbol to output." << std::endl;
-          memcpy(out, in, d_L);
+          memcpy(out, in+d_L*d_num_hist_sym, d_L);
           d_sym_ctr++;
           samples_consumed += d_L;
-          items_written = 1;
+          items_written += 1;
           
           if(d_sym_ctr > d_frame_len-1)// last symbol of the frame, check if the frame sync is still valid
           {
             //std::cout << "\tLast symbol in frame reached. ";
             d_sym_ctr = 0; // reset the counter
-            float res = corr_coef(in, in+d_L, in);
+            float res = corr_coef(in+d_L*d_num_hist_sym, in+d_L+d_L*d_num_hist_sym, in+d_L*d_num_hist_sym);
             //std::cout << "Corr: " << res;
             if(res < d_threshold) // sync not valid anymore
             {
               d_frame_found = false;
-              d_buf.clear();
               std::cout << "frame_sync_cvc: Frame sync lost" << std::endl;
             }
-            //else
-              //std::cout << ". Frame sync still valid.";
           }
         }
         // no frame has been detected, look for correlation peak between subsequent symbols
         else
         {
-          //std::cout << "Looking for frame. ";
-          // proceed by d_step_size samples and calculate correlation
-          for(int i=0; i<d_step_size; i++)
-          {
-            //std::cout << "buf pushback: " << in[i] << std::endl;
-            d_buf.push_back (in[i]);    
-          }      
-          samples_consumed += d_step_size;
-
           // start returning samples if frame start was found
-          d_buf.linearize();
-          float res = corr_coef(&d_buf[0], in+d_step_size, in+d_step_size);
+          float res = corr_coef(in+d_L*(d_num_hist_sym-1), in+d_L*d_num_hist_sym, in+d_L*(d_num_hist_sym-1));          
           //std::cout << "Corr: " << res;
           if(res > d_threshold)
           {
             std::cout << "frame_sync_cvc: Found start of frame." << std::endl;
-            memcpy(out, in+d_step_size, d_L);
+            // copy the history which contains the start of the frame as well as the first symbol
+            memcpy(out, in, d_L*(d_num_hist_sym+1));
             d_frame_found = true;
-            items_written = 1;
+            items_written += d_num_hist_sym+1;
             d_sym_ctr++;
             samples_consumed += d_L;
           }
-          //else
-          //  std::cout << ". No start of frame detected." << std::endl;
+          else
+            samples_consumed += d_step_size;
         }
 
         // inform the scheduler about what has been going on...

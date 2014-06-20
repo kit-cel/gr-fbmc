@@ -29,7 +29,7 @@ namespace gr {
   namespace fbmc {
 
     /*!
-     * \brief Searches for a preamble type specified by the 'preable' parameter and returns, if found, the aligned frame
+     * \brief Searches for a preamble type specified by the 'preamble' parameter and returns, if found, the aligned frame
      * \ingroup fbmc
      *
      */

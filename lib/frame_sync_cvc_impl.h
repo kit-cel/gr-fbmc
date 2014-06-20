@@ -41,7 +41,6 @@ namespace gr {
       std::vector<gr_complex> d_history; // keeps a history of past symbols
       bool d_frame_found; // flag indicating wheter a frame start has been found
       int d_sym_ctr; // number of symbols of the current frame that already have been written
-      boost::circular_buffer<gr_complex> d_buf; // buffer for the foregoing L samples
 
       float corr_coef(gr_complex *x1, gr_complex *x2, gr_complex *a1); // calculate a weighted correlation coefficient
 
