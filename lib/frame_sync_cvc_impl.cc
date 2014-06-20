@@ -30,40 +30,45 @@ namespace gr {
   namespace fbmc {
 
     frame_sync_cvc::sptr
-    frame_sync_cvc::make(int L, int frame_len, std::string preamble, int step_size, float threshold)
+    frame_sync_cvc::make(int L, int frame_len, int overlap, std::string preamble, int step_size, float threshold)
     {
       return gnuradio::get_initial_sptr
-        (new frame_sync_cvc_impl(L, frame_len, preamble, step_size, threshold));
+        (new frame_sync_cvc_impl(L, frame_len, overlap, preamble, step_size, threshold));
     }
 
     /*
      * The private constructor
      */
-    frame_sync_cvc_impl::frame_sync_cvc_impl(int L, int frame_len, std::string preamble, int step_size, float threshold)
+    frame_sync_cvc_impl::frame_sync_cvc_impl(int L, int frame_len, int overlap, std::string preamble, int step_size, float threshold)
       : gr::block("frame_sync_cvc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, L*sizeof(gr_complex))),
                 d_L(L),
                 d_frame_len(frame_len),
+                d_overlap(overlap),
                 d_preamble(preamble),
                 d_step_size(step_size),
                 d_threshold(threshold),
                 d_frame_found(false),
                 d_sym_ctr(0)
     {
-      d_buf = boost::circular_buffer<gr_complex>(d_L);
-
       if(d_threshold <= 0 || d_threshold >= 1)
         throw std::runtime_error(std::string("Threshold must be between (0,1)")); 
 
       if(d_step_size > d_L)
-        throw std::runtime_error(std::string("Step size must be smaller or equal to the symbol length"));
+        throw std::runtime_error(std::string("Step size must be smaller than or equal to the symbol length"));
 
       if(d_preamble != "IAM")
         throw std::runtime_error(std::string("Only IAM is supported"));
 
+      if(d_overlap % 2 != 0 && d_overlap > 0)
+        throw std::runtime_error(std::string("Overlap must be even and > 0!"));
+
       if(d_L < 32)
         std::cerr << "Low number of subcarriers. Increase to make frame synchronization more reliable." << std::endl;
+
+      d_buf = boost::circular_buffer<gr_complex>(d_L);
+      d_num_hist_sym = d_overlap/2;
     }
 
     /*
@@ -91,11 +96,6 @@ namespace gr {
       volk_32fc_x2_conjugate_dot_prod_32fc(&xcorr, x1, x2, d_L);
       volk_32fc_x2_conjugate_dot_prod_32fc(&acorr, a1, a1, d_L*2);
 
-      /*for(int i=0; i < d_L; i++)
-        xcorr += x1[i]*conj(x2[i]);
-      for(int i=0; i < d_L*2; i++)
-        acorr += a1[i]*conj(acorr1[i]);*/
-
       //std::cout << "xcorr: " << xcorr << ". acorr: " << acorr << std::endl;
 
       // acorr is calculated over two symbols, so scale accordingly
@@ -122,13 +122,10 @@ namespace gr {
         {
           //std::cout << "Startup, fill buffer and return." << std::endl;
           while(d_buf.size() < d_buf.capacity()) 
-          {
-            //std::cout << "push to buf: " << in[samples_consumed] << std::endl;
             d_buf.push_back(in[samples_consumed++]);  
-          }
             
           consume_each(samples_consumed);
-          return items_written;    
+          return items_written;
         }
 
         // there are 3 cases to distinguish:

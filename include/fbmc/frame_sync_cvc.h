@@ -29,7 +29,7 @@ namespace gr {
   namespace fbmc {
 
     /*!
-     * \brief Searches for a preamble type specified by the 'preable' parameter and returns, if found, the aligned payload symbols
+     * \brief Searches for a preamble type specified by the 'preable' parameter and returns, if found, the aligned frame
      * \ingroup fbmc
      *
      */
@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::frame_sync_cvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int L, int frame_len, std::string preamble, int step_size, float threshold);
+      static sptr make(int L, int frame_len, int overlap, std::string preamble, int step_size, float threshold);
     };
 
   } // namespace fbmc

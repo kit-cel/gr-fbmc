@@ -40,6 +40,7 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         preamble="IAM"
         threshold = 0.8
         num_frames = 1
+        overlap = 4
 
         #create some input data between [-1,1]
         symbol = random.randn(L)
@@ -50,7 +51,7 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         # with this input data, the block is supposed to find and lose symbol sync twice, not detecting the symbol in the middle because it's not repeated
 
         self.src = blocks.vector_source_c(input_data, vlen=1, repeat=False)
-        self.framesync = fbmc.frame_sync_cvc(L=L, frame_len=frame_len, preamble=preamble, step_size=step_size, threshold=threshold)
+        self.framesync = fbmc.frame_sync_cvc(L=L, frame_len=frame_len, overlap=overlap, preamble=preamble, step_size=step_size, threshold=threshold)
         self.snk = blocks.vector_sink_c(vlen=L)
 
         self.tb.connect(self.src, self.framesync, self.snk)
