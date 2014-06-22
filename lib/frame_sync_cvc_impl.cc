@@ -66,14 +66,6 @@ namespace gr {
 
       if(d_L < 32)
         std::cerr << "Low number of subcarriers. Increase to make frame synchronization more reliable." << std::endl;
-
-      // this is always >= 1 due to the checks above and therefore contains at least the last symbol
-      d_num_hist_sym = d_overlap/2;
-      // - set history to a length that always contains the start of the frame if identical symbols are detected
-      // - the sync symbols start out at position 0 in the transmitter and then "move" overlap/2*L due to the group
-      //   delay of the polyphase filter bank
-      // - +1 is needed because set_history(N) only keeps the last N-1 samples in the buffer
-      set_history(d_num_hist_sym*d_L+1);
     }
 
     /*
@@ -85,7 +77,7 @@ namespace gr {
     void
     frame_sync_cvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
-        ninput_items_required[0] = 2*d_L+d_step_size;
+        ninput_items_required[0] = std::max(2*d_L+d_step_size, (d_overlap/2+2)*d_L + d_step_size);
     }
 
     float
@@ -102,6 +94,7 @@ namespace gr {
       volk_32fc_x2_conjugate_dot_prod_32fc(&acorr, a1, a1, d_L*2);
 
       //std::cout << "xcorr: " << xcorr << ". acorr: " << acorr << std::endl;
+      std::cout << "calc corr between " << x1->real() << " and " << x2->real() << std::endl;
 
       // acorr is calculated over two symbols, so scale accordingly
       return 2*abs(xcorr/acorr);
@@ -119,54 +112,63 @@ namespace gr {
         gr_complex *in = (gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
 
+        std::cout << "\ncurrent input: " << in[0].real() << std::endl;
+        std::cout << "current input buffer: ";
+        for(int i = 0; i < ninput_items[0]; i++)
+          std::cout << in[i].real() << " ";
+        std::cout << std::endl;
+
         int samples_consumed = 0;
         int items_written = 0;
 
-        // there are 3 cases to distinguish:
-        // 1. no frame found 
-        // 2. frame found and sync is assumed to be valid, only return samples
-        // 3. frame found, check if sync still valid
+        // there are 4 cases to distinguish:
+        // 1. no frame found, return no samples
+        // 2. frame was already found and sync is assumed to be valid, only return samples
+        // 3. frame found, sync validity is about to expire (end of frame), check if sync still valiid
+        // 4. newly found frame, return all samples from the beginning of the frame
 
         // frame start has already been detected
         if(d_frame_found)
         {
           //std::cout << "Frame sync assumed valid, copy symbol to output." << std::endl;
-          memcpy(out, in+d_L*d_num_hist_sym, d_L);
+          memcpy(out, in, d_L*sizeof(gr_complex));
+          std::cout << "copied: ";
+          for(int i=0; i < d_L; i++)
+            std::cout << in[i].real() << " ";
+          std::cout << std::endl;
           d_sym_ctr++;
-          samples_consumed += d_L;
-          items_written += 1;
-          
-          if(d_sym_ctr > d_frame_len-1)// last symbol of the frame, check if the frame sync is still valid
+          samples_consumed = d_L;
+          items_written = 1;
+
+          // in the next call to work, the preamble is searched and should be found immediately
+          if(d_sym_ctr >= d_frame_len)
           {
-            //std::cout << "\tLast symbol in frame reached. ";
-            d_sym_ctr = 0; // reset the counter
-            float res = corr_coef(in+d_L*d_num_hist_sym, in+d_L+d_L*d_num_hist_sym, in+d_L*d_num_hist_sym);
-            //std::cout << "Corr: " << res;
-            if(res < d_threshold) // sync not valid anymore
-            {
-              d_frame_found = false;
-              std::cout << "frame_sync_cvc: Frame sync lost" << std::endl;
-            }
+            d_frame_found = false;
+            d_sym_ctr=0;
           }
         }
         // no frame has been detected, look for correlation peak between subsequent symbols
         else
         {
           // start returning samples if frame start was found
-          float res = corr_coef(in+d_L*(d_num_hist_sym-1), in+d_L*d_num_hist_sym, in+d_L*(d_num_hist_sym-1));          
+          float res = corr_coef(in+d_L*d_overlap/2, in+d_L*(d_overlap/2+1), in+d_L*d_overlap/2);          
           //std::cout << "Corr: " << res;
           if(res > d_threshold)
           {
             std::cout << "frame_sync_cvc: Found start of frame." << std::endl;
             // copy the history which contains the start of the frame as well as the first symbol
-            memcpy(out, in, d_L*(d_num_hist_sym+1));
+            memcpy(out, in, d_L*sizeof(gr_complex));
+            std::cout << "copied: ";
+            for(int i=0; i<d_L; i++)
+              std::cout << in[i].real() << " ";
+            std::cout << std::endl;
             d_frame_found = true;
-            items_written += d_num_hist_sym+1;
-            d_sym_ctr++;
-            samples_consumed += d_L;
+            items_written = 1;
+            d_sym_ctr = 1;
+            samples_consumed = d_L;
           }
           else
-            samples_consumed += d_step_size;
+            samples_consumed = d_step_size;
         }
 
         // inform the scheduler about what has been going on...
@@ -174,7 +176,8 @@ namespace gr {
         if(noutput_items < items_written)
           throw std::runtime_error(std::string("Output buffer too small"));
 
-        //std::cout << "consumed: " << samples_consumed << ". written: " << items_written << std::endl;
+        std::cout << "sym ctr: " << d_sym_ctr << std::endl;
+        std::cout << "consumed: " << samples_consumed << ". written: " << items_written << std::endl;
         return items_written;            
     }
 

@@ -37,31 +37,19 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         # set up fg
         L = 1
         step_size = 1
-        frame_len = 7
         preamble="IAM"
         threshold = 0.9
         num_frames = 1
         overlap = 4
 
-        #create some input data between [-1,1]
-        #pil_symbol = random.randn(L)
-        #payl_symbol = random.randn(L)
-        #sof_noise = random.randn(L*overlap/2)
-        #noise1 = random.randn(frame_len*L)
-        #noise2 = random.randn(frame_len*L)
-
         # very simple test data
-        pil_symbol = ones((L,1),dtype=complex64)
-        payl_symbol = ones((L,1),dtype=complex64)/2
-        sof_noise = zeros((L*overlap/2,1),dtype=complex64)
-
-        # this simulates a perfect frame
-        input_data = concatenate((sof_noise, pil_symbol, pil_symbol, sof_noise, payl_symbol))
-        print "input:", input_data
-        
-        input_data = (0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.5)
+        # this simulates a noisy beginning, 2 consecutive frames, some intermediate noise and again one frame
+        # the noise at the end is needed because the frame sync makes use of the forecast function  
+        frame = (0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.5)
+        noise1 = (0.1,0.2,0.3,0.1)
+        input_data = concatenate((noise1, frame, frame, noise1, frame, noise1))
         self.src = blocks.vector_source_c(input_data, vlen=1, repeat=False)
-        self.framesync = fbmc.frame_sync_cvc(L=L, frame_len=frame_len, overlap=overlap, preamble=preamble, step_size=step_size, threshold=threshold)
+        self.framesync = fbmc.frame_sync_cvc(L=L, frame_len=len(frame), overlap=overlap, preamble=preamble, step_size=step_size, threshold=threshold)
         self.snk = blocks.vector_sink_c(vlen=L)
 
         self.tb.connect(self.src, self.framesync, self.snk)
@@ -71,7 +59,38 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         # check data
         data = self.snk.data()
         print "data:", data
-        self.assertComplexTuplesAlmostEqual(data, input_data)
+        self.assertComplexTuplesAlmostEqual(data, concatenate((frame,frame,frame)))
+
+    def test_002_t (self):
+        # set up fg
+        L = 2
+        step_size = 1
+        preamble="IAM"
+        threshold = 0.9
+        num_frames = 1
+        overlap = 4
+
+        # very simple test data
+        pil_symbol = (1,2)
+        payl_symbol = (3,4)
+        sof_noise = (0.3,0.5,0.2,0.1)
+
+        # this is basically the same as test 1 but with 2 subcarriers instead of one
+        frame = concatenate((sof_noise, pil_symbol, pil_symbol, sof_noise, payl_symbol))
+        input_data = concatenate((sof_noise, frame, frame, sof_noise, frame, sof_noise, sof_noise, sof_noise))
+        
+        self.src = blocks.vector_source_c(input_data, vlen=1, repeat=False)
+        self.framesync = fbmc.frame_sync_cvc(L=L, frame_len=len(frame)/L, overlap=overlap, preamble=preamble, step_size=step_size, threshold=threshold)
+        self.snk = blocks.vector_sink_c(vlen=L)
+
+        self.tb.connect(self.src, self.framesync, self.snk)
+
+        self.tb.run ()
+
+        # check data
+        data = self.snk.data()
+        print "data:", real(data)
+        self.assertComplexTuplesAlmostEqual(data, concatenate((frame,frame,frame)))
 
 
 if __name__ == '__main__':
