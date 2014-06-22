@@ -42,7 +42,7 @@ namespace gr {
     frame_sync_cvc_impl::frame_sync_cvc_impl(int L, int frame_len, int overlap, std::string preamble, int step_size, float threshold)
       : gr::block("frame_sync_cvc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
-              gr::io_signature::make(1, 1, L*sizeof(gr_complex))),
+              gr::io_signature::make(1, 1, sizeof(gr_complex))),
                 d_L(L),
                 d_frame_len(frame_len),
                 d_overlap(overlap),
@@ -119,7 +119,7 @@ namespace gr {
         std::cout << std::endl;
 
         int samples_consumed = 0;
-        int items_written = 0;
+        int samples_returned = 0;
 
         // there are 4 cases to distinguish:
         // 1. no frame found, return no samples
@@ -138,7 +138,7 @@ namespace gr {
           std::cout << std::endl;
           d_sym_ctr++;
           samples_consumed = d_L;
-          items_written = 1;
+          samples_returned = d_L;
 
           // in the next call to work, the preamble is searched and should be found immediately
           if(d_sym_ctr >= d_frame_len)
@@ -163,7 +163,7 @@ namespace gr {
               std::cout << in[i].real() << " ";
             std::cout << std::endl;
             d_frame_found = true;
-            items_written = 1;
+            samples_returned = d_L;
             d_sym_ctr = 1;
             samples_consumed = d_L;
           }
@@ -173,12 +173,12 @@ namespace gr {
 
         // inform the scheduler about what has been going on...
         consume_each(samples_consumed);
-        if(noutput_items < items_written)
+        if(noutput_items < samples_returned)
           throw std::runtime_error(std::string("Output buffer too small"));
 
         std::cout << "sym ctr: " << d_sym_ctr << std::endl;
-        std::cout << "consumed: " << samples_consumed << ". written: " << items_written << std::endl;
-        return items_written;            
+        std::cout << "consumed: " << samples_consumed << ". written: " << samples_returned << std::endl;
+        return samples_returned;            
     }
 
   } /* namespace fbmc */

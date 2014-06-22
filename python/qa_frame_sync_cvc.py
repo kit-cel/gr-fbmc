@@ -50,7 +50,7 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         input_data = concatenate((noise1, frame, frame, noise1, frame, noise1))
         self.src = blocks.vector_source_c(input_data, vlen=1, repeat=False)
         self.framesync = fbmc.frame_sync_cvc(L=L, frame_len=len(frame), overlap=overlap, preamble=preamble, step_size=step_size, threshold=threshold)
-        self.snk = blocks.vector_sink_c(vlen=L)
+        self.snk = blocks.vector_sink_c()
 
         self.tb.connect(self.src, self.framesync, self.snk)
 
@@ -81,7 +81,7 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         
         self.src = blocks.vector_source_c(input_data, vlen=1, repeat=False)
         self.framesync = fbmc.frame_sync_cvc(L=L, frame_len=len(frame)/L, overlap=overlap, preamble=preamble, step_size=step_size, threshold=threshold)
-        self.snk = blocks.vector_sink_c(vlen=L)
+        self.snk = blocks.vector_sink_c()
 
         self.tb.connect(self.src, self.framesync, self.snk)
 
