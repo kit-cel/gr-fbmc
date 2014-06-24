@@ -38,7 +38,7 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         L = 1
         step_size = 1
         preamble="IAM"
-        threshold = 0.9
+        threshold = 0.95
         num_frames = 1
         overlap = 4
 
@@ -47,7 +47,7 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         # the noise at the end is needed because the frame sync makes use of the forecast function  
         frame = (0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.5)
         noise1 = (0.1,0.2,0.3,0.1)
-        input_data = concatenate((noise1, frame, frame, noise1, frame, noise1))
+        input_data = concatenate((noise1, frame, frame, frame, noise1, frame, noise1))
         self.src = blocks.vector_source_c(input_data, vlen=1, repeat=False)
         self.framesync = fbmc.frame_sync_cc(L=L, frame_len=len(frame), overlap=overlap, preamble=preamble, step_size=step_size, threshold=threshold)
         self.snk = blocks.vector_sink_c()
@@ -59,7 +59,7 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         # check data
         data = self.snk.data()
         print "data:", data
-        self.assertComplexTuplesAlmostEqual(data, concatenate((frame,frame,frame)))
+        self.assertComplexTuplesAlmostEqual(data, concatenate((frame,frame,frame,frame)))
 
     def test_002_t (self):
         # set up fg

@@ -86,7 +86,8 @@ namespace gr {
     void
     frame_sync_cc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
-        ninput_items_required[0] = std::max(2*d_L+d_step_size, (d_overlap/2+2)*d_L + d_step_size);
+        // this is a few samples more than we actually need
+        ninput_items_required[0] = std::max(2*d_L+d_step_size+d_num_hist_samp, (d_overlap/2+2)*d_L + d_step_size + d_num_hist_samp);
     }
 
     float
@@ -121,12 +122,6 @@ namespace gr {
         gr_complex *in = (gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
 
-        //std::cout << "\ncurrent input: " << in[0].real() << std::endl;
-        //std::cout << "current input buffer: ";
-        //for(int i = 0; i < ninput_items[0]; i++)
-        //  std::cout << in[i].real() << " ";
-        //std::cout << std::endl;
-
         int samples_consumed = 0;
         int samples_returned = 0;
 
@@ -149,15 +144,49 @@ namespace gr {
           {
             d_sync_valid = false;
             d_sym_ctr=0;
-            d_num_consec_frames++;
           }
         }
-        // no frame has been detected, look for correlation peak between subsequent symbols
-        else
+        else if(d_tracking) // tracking, also take immediate surroundings of the SOF into account to compensate for errors
         {
-          // start returning samples if frame start was found
-          float res = corr_coef(in+d_L*d_overlap/2+d_num_hist_samp, in+d_L*(d_overlap/2+1)+d_num_hist_samp, in+d_L*d_overlap/2+d_num_hist_samp);          
-          if(res > d_threshold)
+          // find the highest correlation value in an area around the estimated SOF
+          float corr = 0;
+          float max_corr = 0;
+          int index = -1;
+          for(int i=0; i < 2*d_num_hist_samp+1; i++)
+          {
+            corr = corr_coef(in+d_L*d_overlap/2+i, in+d_L*(d_overlap/2+1)+i, in+d_L*d_overlap/2+i);
+            //std::cout << "TRA i:" << i << " corr:" << corr << std::endl;
+            if( corr > max_corr )            
+            {
+              max_corr = corr;
+              index = i;
+            }
+            //std::cout << "TRA max i:" << index << " max corr:" << max_corr << std::endl;
+          }
+
+          d_num_consec_frames++;
+          samples_consumed = d_L+index-d_num_hist_samp;
+          if(max_corr > d_threshold) // SOF found
+          {
+            // copy the first symbol
+            memcpy(out, in+index, d_L*sizeof(gr_complex));
+            d_sym_ctr = 1;
+            d_sync_valid = true;            
+            samples_returned = d_L;
+          }
+          else // sync lost
+          {
+            std::cout << "frame_sync_cc: Synchronization lost after " << d_num_consec_frames << " consecutive frames, back to acquisition mode" << std::endl;
+            d_tracking = false;
+            samples_returned = 0;
+            d_num_consec_frames = 0;
+          }   
+        }
+        else // acquisition, proceed one sample at a time
+        {
+          float corr = corr_coef(in+d_L*d_overlap/2+d_num_hist_samp, in+d_L*(d_overlap/2+1)+d_num_hist_samp, in+d_L*d_overlap/2+d_num_hist_samp);    
+          //std::cout << "ACQ corr:" << corr << std::endl;      
+          if(corr > d_threshold)
           {
             // copy the first symbol
             memcpy(out, in+d_num_hist_samp, d_L*sizeof(gr_complex));
@@ -166,20 +195,11 @@ namespace gr {
             d_sym_ctr = 1;
             samples_consumed = d_L;
             if(!d_tracking)
-              std::cout << "frame_sync_cc: SOF detected" << std::endl;
+              std::cout << "frame_sync_cc: SOF detected, enter tracking mode" << std::endl;
             d_tracking = true;
           }
           else
-          {
-            samples_consumed = d_step_size;
-            //std::cout << "frame_sync_cc: No frame detected" << std::endl; 
-            if(d_tracking)
-            {
-              std::cout << "frame_sync_cc: Synchronization lost after " << d_num_consec_frames << " consecutive frames" << std::endl;
-              d_num_consec_frames = 0;
-            }
-            d_tracking = false;           
-          }
+            samples_consumed = d_step_size;   
         }
 
         // inform the scheduler about what has been going on...
@@ -187,8 +207,6 @@ namespace gr {
         if(noutput_items < samples_returned)
           throw std::runtime_error(std::string("Output buffer too small"));
 
-        //std::cout << "sym ctr: " << d_sym_ctr << std::endl;
-        //std::cout << "consumed: " << samples_consumed << ". written: " << samples_returned << std::endl;
         return samples_returned;            
     }
 
