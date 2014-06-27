@@ -49,7 +49,7 @@ namespace gr {
                 d_preamble(preamble),
                 d_step_size(step_size),
                 d_threshold(threshold),
-                d_num_hist_samp(1),
+                d_num_hist_samp(3),
                 d_sync_valid(false),
                 d_tracking(false),
                 d_num_consec_frames(0),
@@ -104,7 +104,13 @@ namespace gr {
       volk_32fc_x2_conjugate_dot_prod_32fc(&acorr, a1, a1, d_L*2);
 
       //std::cout << "xcorr: " << xcorr << ". acorr: " << acorr << std::endl;
-      //std::cout << "calc corr between " << x1->real() << " and " << x2->real() << std::endl;
+      // std::cout << "calc corr between ";
+      // for(int i=0; i < d_L; i++)
+      //   std::cout << x1[i].real() << " ";
+      // std::cout << " and ";
+      // for(int i=0; i < d_L; i++)
+      //   std::cout << x2[i].real() << " ";
+      // std::cout << std::endl;
 
       // acorr is calculated over two symbols, so scale accordingly
       return 2*abs(xcorr/acorr);
@@ -151,28 +157,30 @@ namespace gr {
           // find the highest correlation value in an area around the estimated SOF
           float corr = 0;
           float max_corr = 0;
-          int index = -1;
-          for(int i=0; i < 2*d_num_hist_samp+1; i++)
+          int shift = 0;
+          for(int i=-d_num_hist_samp; i < d_num_hist_samp+1; i++)
           {
-            corr = corr_coef(in+d_L*d_overlap/2+i, in+d_L*(d_overlap/2+1)+i, in+d_L*d_overlap/2+i);
+            corr = corr_coef(in+d_L*d_overlap/2+d_num_hist_samp+i, in+d_L*(d_overlap/2+1)+d_num_hist_samp+i, in+d_L*d_overlap/2+d_num_hist_samp+i);
             //std::cout << "TRA i:" << i << " corr:" << corr << std::endl;
             if( corr > max_corr )            
             {
               max_corr = corr;
-              index = i;
+              shift = i;
             }
-            //std::cout << "TRA max i:" << index << " max corr:" << max_corr << std::endl;
+            //std::cout << "TRA max i:" << shift << " max corr:" << max_corr << std::endl;
           }
 
           d_num_consec_frames++;
-          samples_consumed = d_L+index-d_num_hist_samp;
+          samples_consumed = d_L+shift;
           if(max_corr > d_threshold) // SOF found
           {
             // copy the first symbol
-            memcpy(out, in+index, d_L*sizeof(gr_complex));
+            memcpy(out, in+d_num_hist_samp+shift, d_L*sizeof(gr_complex));
             d_sym_ctr = 1;
             d_sync_valid = true;            
             samples_returned = d_L;
+            if(shift != 0)
+              std::cout << "Moved SOF boundary by " << shift << " sample(s)" << std::endl;
           }
           else // sync lost
           {

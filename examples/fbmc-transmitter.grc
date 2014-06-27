@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Mon Jun 23 18:12:33 2014</timestamp>
+  <timestamp>Tue Jun 24 14:05:48 2014</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -72,7 +72,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>250e3</value>
+      <value>500e3</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -828,49 +828,6 @@
     </param>
   </block>
   <block>
-    <key>variable_configuration</key>
-    <param>
-      <key>id</key>
-      <value>cfg</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>fbmc.fbmc_config()</value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>128</value>
-    </param>
-    <param>
-      <key>K</key>
-      <value>1002</value>
-    </param>
-    <param>
-      <key>overlap</key>
-      <value>4</value>
-    </param>
-    <param>
-      <key>mod</key>
-      <value>"QPSK"</value>
-    </param>
-    <param>
-      <key>preamble</key>
-      <value>"IAM"</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(579, 48)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>uhd_usrp_sink</key>
     <param>
       <key>id</key>
@@ -1539,6 +1496,49 @@
     <param>
       <key>_coordinate</key>
       <value>(788, 452)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_configuration</key>
+    <param>
+      <key>id</key>
+      <value>cfg</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>fbmc.fbmc_config()</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>128</value>
+    </param>
+    <param>
+      <key>K</key>
+      <value>222</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>mod</key>
+      <value>"QPSK"</value>
+    </param>
+    <param>
+      <key>preamble</key>
+      <value>"IAM"</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(579, 48)</value>
     </param>
     <param>
       <key>_rotation</key>

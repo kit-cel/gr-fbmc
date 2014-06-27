@@ -34,6 +34,7 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         self.tb = None
 
     def test_001_t (self):
+        print "test 1"
         # set up fg
         L = 1
         step_size = 1
@@ -58,10 +59,11 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
 
         # check data
         data = self.snk.data()
-        print "data:", data
+        #print "data:", data
         self.assertComplexTuplesAlmostEqual(data, concatenate((frame,frame,frame,frame)))
 
     def test_002_t (self):
+        print "test 2"
         # set up fg
         L = 2
         step_size = 1
@@ -89,9 +91,52 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
 
         # check data
         data = self.snk.data()
-        print "data:", real(data)
+        #print "data:", real(data)
         self.assertComplexTuplesAlmostEqual(data, concatenate((frame,frame,frame)))
 
+    def test_003_t (self):
+        # set up fg
+        print "test 3"
+        L = 32
+        step_size = 1
+        preamble = "IAM"
+        threshold = 0.999
+        num_frames = 200
+        overlap = 4
+        num_payload_symbols = 42
+
+        # test data
+
+        # make sure the frame synchronization works for many consecutive frames
+        # and returns the expected frames without early/late sync
+        pil_symbol = ones((num_frames,L*2))
+        noise0 = zeros((1, L/2*51)) # add some odd number of noise samples at the beginning
+        noise1 = random.randn(num_frames, L*overlap/2)/2
+        noise2 = random.randn(num_frames, L*overlap)/2
+        noise3 = random.randn(num_frames, L*overlap/2)/2
+        payload_symbols = random.randn(num_frames, L*num_payload_symbols)/2
+
+        input_data = noise0[0,:]
+        for i in range(num_frames):
+            input_data = concatenate((input_data, noise1[i,:], pil_symbol[i,:], noise2[i,:], payload_symbols[i,:], noise3[i,:]))
+        input_data = concatenate((input_data, noise0[0,:]))
+
+        self.src = blocks.vector_source_c(input_data, vlen=1, repeat=False)
+        self.framesync = fbmc.frame_sync_cc(L=L, frame_len=(num_payload_symbols+2*overlap+2), overlap=overlap, preamble=preamble, step_size=step_size, threshold=threshold)
+        self.snk = blocks.vector_sink_c()
+
+        self.tb.connect(self.src, self.framesync, self.snk)
+
+        self.tb.run ()
+
+        # check data
+        data = self.snk.data()
+        print size(data), num_frames*L*(num_payload_symbols+2*overlap+2)
+        #self.assertTrue(size(data) == num_frames*L*(num_payload_symbols+2*overlap+2))
+        input_data_nonoise = input_data[len(noise0[0,:]):len(noise0[0,:])+len(data)]
+        print "ref:", real(input_data_nonoise[:20])
+        print "rx:" , real(data[:20])
+        self.assertComplexTuplesAlmostEqual(data, input_data_nonoise, 4)
 
 if __name__ == '__main__':
     gr_unittest.run(qa_frame_sync_cvc)
