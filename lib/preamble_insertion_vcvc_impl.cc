@@ -77,30 +77,30 @@ namespace gr {
 			  gr_vector_const_void_star &input_items,
 			  gr_vector_void_star &output_items)
     {
-        const gr_complex *in = (const gr_complex *) input_items[0];
-        gr_complex *out = (gr_complex *) output_items[0];
+      const gr_complex *in = (const gr_complex *) input_items[0];
+      gr_complex *out = (gr_complex *) output_items[0];
 
-        if(d_ctr < d_num_equal_sym+d_overlap) // insert IAM2 pilot
-		{
-			// the sync sequence consists of the periodic continuation of [1 1 -1 -1]
-			for(int i = 0; i < d_L; i++)
-			{
-				if( i%4 == 0 || i%4 == 1 )
-					out[i] = 1;
-				else
-					out[i]= -1;
-			}			
-		}
-		else // just copy the input to the output
-		{
-			for(int i = 0; i < d_L; i++)
-				out[i] = in[i];
-		}
+      if(d_ctr < d_num_equal_sym+d_overlap) // insert IAM2 pilot
+  		{
+  			// the sync sequence consists of the periodic continuation of [1 1 -1 -1]
+  			for(int i = 0; i < d_L; i++)
+  			{
+  				if( i%4 == 0 || i%4 == 1 )
+  					out[i] = 1;
+  				else
+  					out[i]= -1;
+  			}			
+  		}
+  		else // just copy the input to the output
+  		{
+  			for(int i = 0; i < d_L; i++)
+  				out[i] = in[i];
+  		}
 		
-		d_ctr = (d_ctr + 1) % d_frame_len;
+		  d_ctr = (d_ctr + 1) % d_frame_len;
 
-        // Tell runtime system how many output items we produced.
-        return 1;
+      // Tell runtime system how many output items we produced.
+      return 1;
     }
 
   } /* namespace fbmc */
