@@ -49,7 +49,7 @@ namespace gr {
                 d_preamble(preamble),
                 d_step_size(step_size),
                 d_threshold(threshold),
-                d_num_hist_samp(3),
+                d_num_hist_samp(0),
                 d_sync_valid(false),
                 d_tracking(false),
                 d_num_consec_frames(0),
@@ -67,8 +67,8 @@ namespace gr {
       if(d_preamble != "IAM")
         throw std::runtime_error(std::string("Only IAM is supported"));
 
-      if(d_overlap % 2 != 0 && d_overlap < 2)
-        throw std::runtime_error(std::string("Overlap must be even and > 0!"));
+      if(d_overlap < 1)
+        throw std::runtime_error(std::string("Overlap must be > 0!"));
 
       if(d_L < 32)
         std::cerr << "Low number of subcarriers. Increase to make frame synchronization more reliable." << std::endl;
@@ -87,7 +87,7 @@ namespace gr {
     frame_sync_cc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
         // this is a few samples more than we actually need
-        ninput_items_required[0] = std::max(2*d_L+d_step_size+d_num_hist_samp, (d_overlap/2+2)*d_L + d_step_size + d_num_hist_samp);
+        ninput_items_required[0] = std::max(2*d_L+d_step_size+d_num_hist_samp, (d_overlap+2)*d_L + d_step_size + d_num_hist_samp);
     }
 
     float
@@ -100,17 +100,16 @@ namespace gr {
       gr_complex acorr = 0;
 
       // the dot prods
+      // std::cout << "compare:";
+      // for(int i=0; i<d_L; i++)
+      //   std::cout << x1[i] << " ";
+      // std::cout << " with ";
+      // for(int i=0; i<d_L; i++)
+      //   std::cout << x2[i] << " ";
+      // std::cout << std::endl;
+
       volk_32fc_x2_conjugate_dot_prod_32fc(&xcorr, x1, x2, d_L);
       volk_32fc_x2_conjugate_dot_prod_32fc(&acorr, a1, a1, d_L*2);
-
-      //std::cout << "xcorr: " << xcorr << ". acorr: " << acorr << std::endl;
-      // std::cout << "calc corr between ";
-      // for(int i=0; i < d_L; i++)
-      //   std::cout << x1[i].real() << " ";
-      // std::cout << " and ";
-      // for(int i=0; i < d_L; i++)
-      //   std::cout << x2[i].real() << " ";
-      // std::cout << std::endl;
 
       // acorr is calculated over two symbols, so scale accordingly
       return 2*abs(xcorr/acorr);
@@ -135,11 +134,12 @@ namespace gr {
         // 1. no frame found, return no samples
         // 2. frame was already found and sync is assumed to be valid, only return samples
         // 3. frame found, sync validity expired, perform correlation in the next run
-        // 4. newly found frame, return all samples from the beginning of the frame
+        // 4. newly found frame, start returning samples
 
         // frame start has already been detected
         if(d_sync_valid)
         {
+          // std::cout << "SYNC VALID" << std::endl;
           memcpy(out, in+d_num_hist_samp, d_L*sizeof(gr_complex));
           d_sym_ctr++;
           samples_consumed = d_L;
@@ -155,21 +155,23 @@ namespace gr {
         else if(d_tracking) // tracking, also take immediate surroundings of the SOF into account to compensate for errors
         {
           // find the highest correlation value in an area around the estimated SOF
+          // std::cout << "TRACKING" << std::endl;
           float corr = 0;
           float max_corr = 0;
           int shift = 0;
           for(int i=-d_num_hist_samp; i < d_num_hist_samp+1; i++)
           {
-            corr = corr_coef(in+d_L*d_overlap/2+d_num_hist_samp+i, in+d_L*(d_overlap/2+1)+d_num_hist_samp+i, in+d_L*d_overlap/2+d_num_hist_samp+i);
-            //std::cout << "TRA i:" << i << " corr:" << corr << std::endl;
+            corr = corr_coef(in+d_L*d_overlap+d_num_hist_samp+i, in+d_L*(d_overlap+1)+d_num_hist_samp+i, in+d_L*d_overlap+d_num_hist_samp+i);
+            // std::cout << "TRA i:" << i << " corr:" << corr << std::endl;
             if( corr > max_corr )            
             {
               max_corr = corr;
               shift = i;
             }
-            //std::cout << "TRA max i:" << shift << " max corr:" << max_corr << std::endl;
+            std::cout << "TRA max i:" << shift << " max corr:" << max_corr << std::endl;
           }
 
+          // std::cout << "#frame:" << d_num_consec_frames << std::endl;
           d_num_consec_frames++;
           samples_consumed = d_L+shift;
           if(max_corr > d_threshold) // SOF found
@@ -192,7 +194,8 @@ namespace gr {
         }
         else // acquisition, proceed one sample at a time
         {
-          float corr = corr_coef(in+d_L*d_overlap/2+d_num_hist_samp, in+d_L*(d_overlap/2+1)+d_num_hist_samp, in+d_L*d_overlap/2+d_num_hist_samp);    
+          // std::cout << "ACQUISITION" << std::endl;
+          float corr = corr_coef(in+d_L*d_overlap+d_num_hist_samp, in+d_L*(d_overlap+1)+d_num_hist_samp, in+d_L*d_overlap+d_num_hist_samp);    
           //std::cout << "ACQ corr:" << corr << std::endl;      
           if(corr > d_threshold)
           {
@@ -211,6 +214,7 @@ namespace gr {
         }
 
         // inform the scheduler about what has been going on...
+        // std::cout << "consumed:" << samples_consumed << ", returned:" << samples_returned << std::endl;
         consume_each(samples_consumed);
         if(noutput_items < samples_returned)
           throw std::runtime_error(std::string("Output buffer too small"));

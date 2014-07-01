@@ -103,7 +103,7 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         threshold = 0.999
         num_frames = 200
         overlap = 4
-        num_payload_symbols = 42
+        num_payload_symbols = 222
 
         # test data
 
@@ -117,6 +117,7 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         payload_symbols = random.randn(num_frames, L*num_payload_symbols)/2
 
         input_data = noise0[0,:]
+        input_data = []
         for i in range(num_frames):
             input_data = concatenate((input_data, noise1[i,:], pil_symbol[i,:], noise2[i,:], payload_symbols[i,:], noise3[i,:]))
         input_data = concatenate((input_data, noise0[0,:]))
@@ -133,9 +134,9 @@ class qa_frame_sync_cvc (gr_unittest.TestCase):
         data = self.snk.data()
         print size(data), num_frames*L*(num_payload_symbols+2*overlap+2)
         #self.assertTrue(size(data) == num_frames*L*(num_payload_symbols+2*overlap+2))
-        input_data_nonoise = input_data[len(noise0[0,:]):len(noise0[0,:])+len(data)]
-        print "ref:", real(input_data_nonoise[:20])
-        print "rx:" , real(data[:20])
+        input_data_nonoise = input_data[:len(data)]
+        #print "ref:", real(input_data_nonoise[:20])
+        #print "rx:" , real(data[:20])
         self.assertComplexTuplesAlmostEqual(data, input_data_nonoise, 4)
 
 if __name__ == '__main__':
