@@ -36,13 +36,19 @@ namespace gr {
       int d_step_size; // number of samples to proceed with every step
       float d_threshold; // threshold for the correlation
 
-      int d_num_hist_samp; // number of symbols that have to be kept in history to be able to return a whole frame when the start was found
       bool d_tracking; // flag indicating whether the sync is in tracking (true) or acquisition mode (false)
       bool d_sync_valid; // flag indicating whether a the current sync is still vlid
       int d_num_consec_frames; // number of consecutive frames detected
       int d_sym_ctr; // number of symbols of the current frame that already have been written
 
-      float corr_coef(gr_complex *x1, gr_complex *x2, gr_complex *a1); // calculate a weighted correlation coefficient
+      gr_complex d_ref_pil; // reference pilot for phase correction (only the angle matters)
+      float d_f_off; // estimated frequency offset
+      float d_phi_off; // estimated phase offset, updated in every step to avoid phase discontinuities
+
+      gr_complex corr_coef(gr_complex *x1, gr_complex *x2, gr_complex *a1); // calculate a weighted correlation coefficient
+      float estimate_f_off(gr_complex corr_val){ return -1.0/(2*M_PI*d_L)*arg(corr_val); } // estimate frequency offset
+      float estimate_phi_off(gr_complex* rx_pil){ return arg(*rx_pil/d_ref_pil); } // estimate phase offset
+      void correct_offsets(gr_complex* buf, float f_off, float phi_prev); // correct phase and frequency offset, start with defined phase offset to avoid discontiuities between symbols
 
      public:
       frame_sync_cc_impl(int L, int frame_len, int overlap, std::string preamble, int step_size, float threshold);

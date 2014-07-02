@@ -49,11 +49,13 @@ namespace gr {
                 d_preamble(preamble),
                 d_step_size(step_size),
                 d_threshold(threshold),
-                d_num_hist_samp(0),
                 d_sync_valid(false),
                 d_tracking(false),
                 d_num_consec_frames(0),
-                d_sym_ctr(0)
+                d_sym_ctr(0),
+                d_ref_pil(gr_complex(1,1)),
+                d_f_off(0),
+                d_phi_off(0)
     {
       if(d_step_size != 1)
         throw std::runtime_error(std::string("Step size must be 1 at the moment because there is no sensible use implemented yet"));
@@ -74,7 +76,6 @@ namespace gr {
         std::cerr << "Low number of subcarriers. Increase to make frame synchronization more reliable." << std::endl;
 
       set_min_noutput_items(d_L); // that's what is returned with each call to work
-      set_history(d_num_hist_samp+1); // The first current sample is counted to the history, so add 1
     }
 
     /*
@@ -87,10 +88,10 @@ namespace gr {
     frame_sync_cc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
         // this is a few samples more than we actually need
-        ninput_items_required[0] = std::max(2*d_L+d_step_size+d_num_hist_samp, (d_overlap+2)*d_L + d_step_size + d_num_hist_samp);
+        ninput_items_required[0] = std::max(2*d_L+d_step_size, (d_overlap+2)*d_L + d_step_size);
     }
 
-    float
+    gr_complex
     frame_sync_cc_impl::corr_coef(gr_complex *x1, gr_complex *x2, gr_complex *a1)
     {
       // NOTE: This calculates the dot product of two vectors and divides it by the average power such that the result lies in [0,1]
@@ -112,7 +113,14 @@ namespace gr {
       volk_32fc_x2_conjugate_dot_prod_32fc(&acorr, a1, a1, d_L*2);
 
       // acorr is calculated over two symbols, so scale accordingly
-      return 2*abs(xcorr/acorr);
+      return gr_complex(2,0)*xcorr/acorr;
+    }
+
+    void
+    frame_sync_cc_impl::correct_offsets(gr_complex* buf, float f_off, float phi_prev)
+    {
+      for(int i=0; i<d_L; i++)
+        buf[i] *= exp(gr_complex(0,1)*gr_complex(2*M_PI*f_off*i + phi_prev, 0));
     }
 
     int
@@ -136,11 +144,15 @@ namespace gr {
         // 3. frame found, sync validity expired, perform correlation in the next run
         // 4. newly found frame, start returning samples
 
+        // NOTE: handle phase offset because the starting point is not the start of the frame but somewhat later
+
         // frame start has already been detected
         if(d_sync_valid)
         {
           // std::cout << "SYNC VALID" << std::endl;
-          memcpy(out, in+d_num_hist_samp, d_L*sizeof(gr_complex));
+          correct_offsets(in, d_f_off, d_phi_off);
+          d_phi_off = fmod(d_phi_off + 2*M_PI*d_f_off*d_L, 2*M_PI);
+          memcpy(out, in, d_L*sizeof(gr_complex));
           d_sym_ctr++;
           samples_consumed = d_L;
           samples_returned = d_L;
@@ -152,37 +164,33 @@ namespace gr {
             d_sym_ctr=0;
           }
         }
-        else if(d_tracking) // tracking, also take immediate surroundings of the SOF into account to compensate for errors
+        else if(d_tracking) // tracking
         {
-          // find the highest correlation value in an area around the estimated SOF
           // std::cout << "TRACKING" << std::endl;
-          float corr = 0;
-          float max_corr = 0;
-          int shift = 0;
-          for(int i=-d_num_hist_samp; i < d_num_hist_samp+1; i++)
-          {
-            corr = corr_coef(in+d_L*d_overlap+d_num_hist_samp+i, in+d_L*(d_overlap+1)+d_num_hist_samp+i, in+d_L*d_overlap+d_num_hist_samp+i);
-            // std::cout << "TRA i:" << i << " corr:" << corr << std::endl;
-            if( corr > max_corr )            
-            {
-              max_corr = corr;
-              shift = i;
-            }
-            std::cout << "TRA max i:" << shift << " max corr:" << max_corr << std::endl;
-          }
 
+          correct_offsets(in, d_f_off, d_phi_off); // correct last known offsets, assume starting phase 0 for each new frame
+          gr_complex corr = corr_coef(in+d_L*d_overlap, in+d_L*(d_overlap+1), in+d_L*d_overlap);
+          // std::cout << "TRA i:" << i << " corr:" << corr << std::endl;
+          
           // std::cout << "#frame:" << d_num_consec_frames << std::endl;
           d_num_consec_frames++;
-          samples_consumed = d_L+shift;
-          if(max_corr > d_threshold) // SOF found
+          samples_consumed = d_L;
+          if(abs(corr) > d_threshold) // SOF found
           {
+            // estimate and correct remaining frequency and phase offsets
+            float rem_f_off = estimate_f_off(corr);
+            float rem_phi_off = estimate_phi_off(in+d_L*d_overlap); 
+            d_f_off += rem_f_off;
+            d_phi_off = fmod(d_phi_off + rem_phi_off, 2*M_PI);
+            std::cout << "TRA foff:" << d_f_off << ", phioff:" << d_phi_off << std::endl;
+            correct_offsets(in, rem_f_off, rem_phi_off);
+            d_phi_off = fmod(2*M_PI*d_f_off*d_L, 2*M_PI);
+
             // copy the first symbol
-            memcpy(out, in+d_num_hist_samp+shift, d_L*sizeof(gr_complex));
+            memcpy(out, in, d_L*sizeof(gr_complex));
             d_sym_ctr = 1;
             d_sync_valid = true;            
             samples_returned = d_L;
-            if(shift != 0)
-              std::cout << "Moved SOF boundary by " << shift << " sample(s)" << std::endl;
           }
           else // sync lost
           {
@@ -195,12 +203,20 @@ namespace gr {
         else // acquisition, proceed one sample at a time
         {
           // std::cout << "ACQUISITION" << std::endl;
-          float corr = corr_coef(in+d_L*d_overlap+d_num_hist_samp, in+d_L*(d_overlap+1)+d_num_hist_samp, in+d_L*d_overlap+d_num_hist_samp);    
+          gr_complex corr = corr_coef(in+d_L*d_overlap, in+d_L*(d_overlap+1), in+d_L*d_overlap);    
           //std::cout << "ACQ corr:" << corr << std::endl;      
-          if(corr > d_threshold)
+          if(abs(corr) > d_threshold)
           {
+            // estimate and correct offsets
+            d_f_off = estimate_f_off(corr);
+            d_phi_off = estimate_phi_off(in+d_L*d_overlap);
+            std::cout << "ACQ foff:" << d_f_off << ", phioff:" << d_phi_off << std::endl;
+            correct_offsets(in, d_f_off, d_phi_off);
+            d_phi_off = fmod(2*M_PI*d_f_off*d_L, 2*M_PI);
+            std::cout << "ACQ updated phioff:" << d_phi_off << std::endl;
+
             // copy the first symbol
-            memcpy(out, in+d_num_hist_samp, d_L*sizeof(gr_complex));
+            memcpy(out, in, d_L*sizeof(gr_complex));
             d_sync_valid = true;
             samples_returned = d_L;
             d_sym_ctr = 1;
