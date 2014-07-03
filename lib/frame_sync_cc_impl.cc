@@ -88,8 +88,22 @@ namespace gr {
     frame_sync_cc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
         // this is a few samples more than we actually need
-        ninput_items_required[0] = std::max(2*d_L+d_step_size, (d_overlap+2)*d_L + d_step_size);
+        ninput_items_required[0] = (d_overlap+2)*d_L + d_step_size;
     }
+
+    float 
+    frame_sync_cc_impl::estimate_f_off(gr_complex corr_val)
+    { 
+      //std::cout << "corr:" << corr_val << ", f_off:" << 1.0/(2*M_PI*d_L)*arg(-corr_val) << std::endl;
+      return 1.0/(2*M_PI*d_L)*arg(-corr_val); 
+    }
+
+    float 
+    frame_sync_cc_impl::estimate_phi_off(gr_complex* rx_pil)
+    { 
+      //std::cout << "phi_off:" << arg(*rx_pil/d_ref_pil) << std::endl;
+      return arg(*rx_pil/d_ref_pil); 
+    } 
 
     gr_complex
     frame_sync_cc_impl::corr_coef(gr_complex *x1, gr_complex *x2, gr_complex *a1)
@@ -120,7 +134,7 @@ namespace gr {
     frame_sync_cc_impl::correct_offsets(gr_complex* buf, float f_off, float phi_prev)
     {
       for(int i=0; i<d_L; i++)
-        buf[i] *= exp(gr_complex(0,1)*gr_complex(2*M_PI*f_off*i + phi_prev, 0));
+        buf[i] *= exp(gr_complex(0,1)*gr_complex(-2*M_PI*f_off*i - phi_prev, 0));
     }
 
     int
@@ -129,6 +143,7 @@ namespace gr {
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items)
     {
+        std::cout << "call to work()" << std::endl;
         if( ninput_items[0] < 2*d_L)
           throw std::runtime_error(std::string("Not enough input items"));
 

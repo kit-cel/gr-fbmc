@@ -46,8 +46,8 @@ namespace gr {
       float d_phi_off; // estimated phase offset, updated in every step to avoid phase discontinuities
 
       gr_complex corr_coef(gr_complex *x1, gr_complex *x2, gr_complex *a1); // calculate a weighted correlation coefficient
-      float estimate_f_off(gr_complex corr_val){ return -1.0/(2*M_PI*d_L)*arg(corr_val); } // estimate frequency offset
-      float estimate_phi_off(gr_complex* rx_pil){ return arg(*rx_pil/d_ref_pil); } // estimate phase offset
+      float estimate_f_off(gr_complex corr_val); // estimate frequency offset
+      float estimate_phi_off(gr_complex* rx_pil); // estimate phase offset
       void correct_offsets(gr_complex* buf, float f_off, float phi_prev); // correct phase and frequency offset, start with defined phase offset to avoid discontiuities between symbols
 
      public:
