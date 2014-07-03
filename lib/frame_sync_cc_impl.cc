@@ -143,7 +143,6 @@ namespace gr {
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items)
     {
-        std::cout << "call to work()" << std::endl;
         if( ninput_items[0] < 2*d_L)
           throw std::runtime_error(std::string("Not enough input items"));
 
@@ -183,7 +182,7 @@ namespace gr {
         {
           // std::cout << "TRACKING" << std::endl;
 
-          correct_offsets(in, d_f_off, d_phi_off); // correct last known offsets, assume starting phase 0 for each new frame
+          //correct_offsets(in, d_f_off, 0); // correct last known offsets, assume starting phase 0 for each new frame
           gr_complex corr = corr_coef(in+d_L*d_overlap, in+d_L*(d_overlap+1), in+d_L*d_overlap);
           // std::cout << "TRA i:" << i << " corr:" << corr << std::endl;
           
@@ -193,13 +192,16 @@ namespace gr {
           if(abs(corr) > d_threshold) // SOF found
           {
             // estimate and correct remaining frequency and phase offsets
-            float rem_f_off = estimate_f_off(corr);
-            float rem_phi_off = estimate_phi_off(in+d_L*d_overlap); 
-            d_f_off += rem_f_off;
-            d_phi_off = fmod(d_phi_off + rem_phi_off, 2*M_PI);
+            //float rem_f_off = estimate_f_off(corr);
+            //float rem_phi_off = estimate_phi_off(in+d_L*d_overlap); 
+            //d_f_off += rem_f_off;
+            //d_phi_off = fmod(d_phi_off + rem_phi_off, 2*M_PI);
+            d_f_off = estimate_f_off(corr);
+            d_phi_off = estimate_phi_off(in+d_L*d_overlap) - 2*M_PI*d_f_off*d_L*d_overlap; // the estimated phase offset has to be turned back by the phase increment  caused by the frequency offset
             std::cout << "TRA foff:" << d_f_off << ", phioff:" << d_phi_off << std::endl;
-            correct_offsets(in, rem_f_off, rem_phi_off);
-            d_phi_off = fmod(2*M_PI*d_f_off*d_L, 2*M_PI);
+            //correct_offsets(in, rem_f_off, rem_phi_off);
+            correct_offsets(in, d_f_off, d_phi_off);
+            d_phi_off = fmod(d_phi_off + 2*M_PI*d_f_off*d_L, 2*M_PI);
 
             // copy the first symbol
             memcpy(out, in, d_L*sizeof(gr_complex));
@@ -224,7 +226,7 @@ namespace gr {
           {
             // estimate and correct offsets
             d_f_off = estimate_f_off(corr);
-            d_phi_off = estimate_phi_off(in+d_L*d_overlap);
+            d_phi_off = estimate_phi_off(in+d_L*d_overlap) - 2*M_PI*d_f_off*d_L*d_overlap;
             std::cout << "ACQ foff:" << d_f_off << ", phioff:" << d_phi_off << std::endl;
             correct_offsets(in, d_f_off, d_phi_off);
             d_phi_off = fmod(2*M_PI*d_f_off*d_L, 2*M_PI);

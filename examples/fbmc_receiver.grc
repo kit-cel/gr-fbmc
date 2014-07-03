@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Fri Jun 27 16:12:01 2014</timestamp>
+  <timestamp>Thu Jul  3 18:25:23 2014</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -64,29 +64,6 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>input_oversampling</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>4</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(527, 16)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>id</key>
       <value>samp_rate</value>
     </param>
     <param>
@@ -100,6 +77,29 @@
     <param>
       <key>_coordinate</key>
       <value>(429, 15)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>id</key>
+      <value>input_oversampling</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(527, 16)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1413,49 +1413,6 @@
     </param>
   </block>
   <block>
-    <key>variable_configuration</key>
-    <param>
-      <key>id</key>
-      <value>cfg</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>fbmc.fbmc_config()</value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>32</value>
-    </param>
-    <param>
-      <key>K</key>
-      <value>22</value>
-    </param>
-    <param>
-      <key>overlap</key>
-      <value>4</value>
-    </param>
-    <param>
-      <key>mod</key>
-      <value>"QPSK"</value>
-    </param>
-    <param>
-      <key>preamble</key>
-      <value>"IAM"</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(679, 13)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>fbmc_symbols_to_bits_cb</key>
     <param>
       <key>id</key>
@@ -1544,8 +1501,8 @@
       <value>"/home/felixwunsch/src/gr-fbmc/rx_out.wav"</value>
     </param>
     <param>
-      <key>bits_per_byte</key>
-      <value>log2(len(cfg.constellation_points()))</value>
+      <key>bps</key>
+      <value>1</value>
     </param>
     <param>
       <key>affinity</key>
@@ -1577,6 +1534,88 @@
     <param>
       <key>_coordinate</key>
       <value>(969, 36)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_configuration</key>
+    <param>
+      <key>id</key>
+      <value>cfg_old</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>fbmc.fbmc_config()</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>32</value>
+    </param>
+    <param>
+      <key>K</key>
+      <value>22</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>mod</key>
+      <value>"QPSK"</value>
+    </param>
+    <param>
+      <key>preamble</key>
+      <value>"IAM"</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(679, 13)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_configuration_new</key>
+    <param>
+      <key>id</key>
+      <value>cfg</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>32</value>
+    </param>
+    <param>
+      <key>K</key>
+      <value>22</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>mod</key>
+      <value>"QPSK"</value>
+    </param>
+    <param>
+      <key>preamble</key>
+      <value>"IAM"</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(892, 114)</value>
     </param>
     <param>
       <key>_rotation</key>
