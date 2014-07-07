@@ -95,7 +95,7 @@ namespace gr {
     frame_sync_cc_impl::estimate_f_off(gr_complex corr_val)
     { 
       //std::cout << "corr:" << corr_val << ", f_off:" << 1.0/(2*M_PI*d_L)*arg(-corr_val) << std::endl;
-      return 1.0/(2*M_PI*d_L)*arg(-corr_val); 
+      return -1.0/(2*M_PI*d_L)*arg(-corr_val); 
     }
 
     float 
@@ -197,8 +197,8 @@ namespace gr {
             //d_f_off += rem_f_off;
             //d_phi_off = fmod(d_phi_off + rem_phi_off, 2*M_PI);
             d_f_off = estimate_f_off(corr);
-            d_phi_off = estimate_phi_off(in+d_L*d_overlap) - 2*M_PI*d_f_off*d_L*d_overlap; // the estimated phase offset has to be turned back by the phase increment  caused by the frequency offset
-            std::cout << "TRA foff:" << d_f_off << ", phioff:" << d_phi_off << std::endl;
+            d_phi_off = fmod(estimate_phi_off(in+d_L*d_overlap) - 2*M_PI*d_f_off*d_L*d_overlap, 2*M_PI); // the estimated phase offset has to be turned back by the phase increment caused by the frequency offset
+            //std::cout << "TRA foff(*250e3):" << d_f_off*250e3 << ", phioff:" << d_phi_off << std::endl;
             //correct_offsets(in, rem_f_off, rem_phi_off);
             correct_offsets(in, d_f_off, d_phi_off);
             d_phi_off = fmod(d_phi_off + 2*M_PI*d_f_off*d_L, 2*M_PI);
@@ -226,11 +226,11 @@ namespace gr {
           {
             // estimate and correct offsets
             d_f_off = estimate_f_off(corr);
-            d_phi_off = estimate_phi_off(in+d_L*d_overlap) - 2*M_PI*d_f_off*d_L*d_overlap;
-            std::cout << "ACQ foff:" << d_f_off << ", phioff:" << d_phi_off << std::endl;
+            d_phi_off = fmod(estimate_phi_off(in+d_L*d_overlap) - 2*M_PI*d_f_off*d_L*d_overlap, 2*M_PI);
+            std::cout << "ACQ foff(*250e3):" << d_f_off*250e3 << ", phioff:" << d_phi_off << std::endl;
             correct_offsets(in, d_f_off, d_phi_off);
-            d_phi_off = fmod(2*M_PI*d_f_off*d_L, 2*M_PI);
-            std::cout << "ACQ updated phioff:" << d_phi_off << std::endl;
+            d_phi_off = fmod(d_phi_off+2*M_PI*d_f_off*d_L, 2*M_PI);
+            //std::cout << "ACQ updated phioff:" << d_phi_off << std::endl;
 
             // copy the first symbol
             memcpy(out, in, d_L*sizeof(gr_complex));
