@@ -48,6 +48,7 @@ namespace gr{
 				std::string modulation(){return d_modulation;}
 				std::vector<gr_complex> constellation_points(){return d_const->points();}
 				std::vector<gr_complex> prototype_taps(){return d_prototype_taps;}
+				std::vector<int> channel_map(){return d_channel_map;}
 
 			private:
 				bool check_user_args(); // checks constructor parameters for validity
@@ -66,6 +67,7 @@ namespace gr{
 				std::vector<gr_complex> d_prototype_taps; // prototype taps for pulse shaping
 				std::valarray<float> d_b[15]; // keeps a table of coefficients needed for the IOTA pulse generation
 				int d_group_delay; // group delay introduced by the filter bank
+				std::vector<int> d_channel_map; // a vector of 0s and 1s denoting the used carriers
 
 				void gen_prototype_filter(); // calculates the taps for the prototype filter (IOTA)
 				std::valarray<float> gauss(std::valarray<float> x, float alpha); // calculates a gauss pulse

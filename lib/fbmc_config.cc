@@ -22,6 +22,8 @@
 #include <cmath>
 #include <stdexcept>
 #include <boost/format.hpp>
+#include <numeric>
+#include <iostream>
 
 namespace gr{
 	namespace fbmc{
@@ -42,6 +44,9 @@ namespace gr{
 			// calculate all the variables defined by the c'tor parameters
 			d_num_total_subcarriers = int(std::pow(2, std::ceil(log2(d_num_used_subcarriers))));
 
+			if(d_num_used_subcarriers >= d_num_total_subcarriers)
+				throw std::runtime_error(std::string("Number of used subcarriers must be 1 < M < L-1 because of the omitted DC carrier"));
+
 			int num_ident_sym = 2; // number of identical symbols at the reciever that can be used for timing synchronization
 			d_num_sync_sym= num_ident_sym + d_num_overlap_sym; // num_overlap_sym is needed to settle the filters
 			d_num_preamble_sym = d_num_sync_sym + d_num_overlap_sym; // another num_overlap_sym is needed to clear the filter registers	
@@ -53,6 +58,16 @@ namespace gr{
 			d_num_sym_frame = d_num_preamble_sym + d_num_payload_sym + d_num_overlap_sym; // total symbols per frame	
 
 			d_const = gr::digital::constellation_qpsk::make();
+
+			// generate (DC free) channel map
+			d_channel_map.assign(d_num_total_subcarriers, 0); // preset the vector to all zeros
+			int num_used_usb = d_num_used_subcarriers/2 + (d_num_used_subcarriers%2); // add one if the M is odd
+			int num_used_lsb = d_num_used_subcarriers/2;
+			std::cout << d_num_used_subcarriers << " " << num_used_usb << " " << num_used_lsb << std::endl;
+			for(int i = 0; i < num_used_usb; i++)
+				d_channel_map[1+i] = 1;
+			for(int i = 0; i < num_used_lsb; i++)
+				d_channel_map[d_num_total_subcarriers-1-i] = 1;
 
 			// check calulated parameters for validity
 			check_calc_params();	
@@ -185,7 +200,7 @@ namespace gr{
 		fbmc_config::check_user_args()
 		{
 			if(d_num_used_subcarriers < 1) 
-				throw std::runtime_error(std::string("Need at least 1 used subcarrier"));
+				throw std::runtime_error(std::string("Number of used subcarriers must be > 1"));
 			else if(d_num_payload_sym < 1)
 				throw std::runtime_error(std::string("Need at least 1 payload symbol"));
 			else if(d_num_overlap_sym != 4)
@@ -204,8 +219,12 @@ namespace gr{
 			if(d_num_total_subcarriers < d_num_used_subcarriers || d_num_total_subcarriers % 4 != 0)
 				throw std::runtime_error(std::string("Invalid number of total subcarriers, has to be positive and an integer multiple of 4"));
 			else if(d_num_sym_frame % 4 != 0)
-				throw std::runtime_error(str(boost::format("Number of symbols per frame has to be a multiple of 4, but is %d") % d_num_sym_frame));		
-
+				throw std::runtime_error(str(boost::format("Number of symbols per frame has to be a multiple of 4, but is %d") % d_num_sym_frame));
+			else if(std::accumulate(d_channel_map.begin(), d_channel_map.end(), 0) != d_num_used_subcarriers || d_channel_map.size() != d_num_total_subcarriers)
+			{
+				std::cout << std::accumulate(d_channel_map.begin(), d_channel_map.end(), 0) << " " << d_channel_map.size() << std::endl;
+				throw std::runtime_error(std::string("Channel map does not match the number of total/used subcarriers!"));
+			}
 			return true;
 		}
 	}
