@@ -53,6 +53,7 @@ namespace gr{
 			private:
 				bool check_user_args(); // checks constructor parameters for validity
 				bool check_calc_params(); // check the calculated params for validity
+				void print_info(); // print a short summary of the parameters
 
 				int d_num_used_subcarriers; // between 0.5 ... 1 * d_num_total_subcarriers
 				int d_num_total_subcarriers; // power of 2

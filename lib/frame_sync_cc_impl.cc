@@ -243,7 +243,10 @@ namespace gr {
             d_tracking = true;
           }
           else
-            samples_consumed = d_step_size;   
+          {
+            samples_consumed = d_step_size; 
+          }
+              
         }
 
         // inform the scheduler about what has been going on...

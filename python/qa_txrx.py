@@ -50,13 +50,13 @@ class qa_tx (gr_unittest.TestCase):
 		self.betas = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=0)
 		from gnuradio import fft # why does the import at the top not work??
 		self.inv_fft = fft.fft_vcc(self.cfg.num_total_subcarriers(), False, (()), False, 1)
-		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_used_subcarriers(), prototype_taps=self.cfg.prototype_taps())
+		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_total_subcarriers(), prototype_taps=self.cfg.prototype_taps())
 		self.output_commutator = fbmc.output_commutator_vcc(self.cfg.num_total_subcarriers())	
 		
 		# RX path
 		self.frame_sync = fbmc.frame_sync_cc(self.cfg.num_used_subcarriers(), self.cfg.num_sym_frame(), self.cfg.num_overlap_sym(), "IAM", 1, 0.999)
 		self.input_commutator = fbmc.input_commutator_cvc(self.cfg.num_total_subcarriers())
-		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_used_subcarriers(), prototype_taps=self.cfg.prototype_taps())
+		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_total_subcarriers(), prototype_taps=self.cfg.prototype_taps())
 		self.inv_fft2 = fft.fft_vcc(self.cfg.num_total_subcarriers(), False, (()), False, 1)
 		self.betas2 = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=1)
 		self.qam = fbmc.combine_iq_vcvc(self.cfg.num_total_subcarriers())
@@ -72,7 +72,7 @@ class qa_tx (gr_unittest.TestCase):
 		print "test 1 - src to parallelization"
 		
 		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_total_subcarriers())]		
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_used_subcarriers())]		
 		
 		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
 		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames)
@@ -89,7 +89,7 @@ class qa_tx (gr_unittest.TestCase):
 		print "test 4 - serializer and OQAM without frame generator inbetween"
 		
 		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_total_subcarriers())]		
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_used_subcarriers())]		
 		
 		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
 		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames) 
@@ -100,12 +100,12 @@ class qa_tx (gr_unittest.TestCase):
 		
 		# check data
 		data = self.snk.data()
-		self.assertEqual(len(data), self.num_frames*len(input_data)*2)	
+		self.assertEqual(len(data), self.num_frames*self.cfg.num_total_subcarriers()*self.cfg.num_payload_sym()*2)	
 		
 	def test_005_t(self):
 		print "test 5 - serializer, OQAM, betas"
 		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers())]
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_used_subcarriers())]
 		
 		# TX
 		self.src = blocks.vector_source_c(input_data, vlen=1)
@@ -118,12 +118,12 @@ class qa_tx (gr_unittest.TestCase):
 		# check data
 		output_data = self.snk.data()	
 
-		self.assertEqual(len(input_data)*2, len(output_data))	
+		self.assertEqual(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers()*2, len(output_data))	
 		
 	def test_006_t(self):
 		print "test 6 - serializer, OQAM, betas, ifft"
 		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers())]
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_used_subcarriers())]
 		
 		# TX
 		self.src = blocks.vector_source_c(input_data, vlen=1)
@@ -136,12 +136,12 @@ class qa_tx (gr_unittest.TestCase):
 		# check data
 		output_data = self.snk.data()	
 
-		self.assertEqual(len(input_data)*2, len(output_data))				
+		self.assertEqual(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers()*2, len(output_data))				
 		
 	def test_007_t(self):
 		print "test 7 - serializer, OQAM, betas, ifft, ppfb"
 		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers())]
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_used_subcarriers())]
 		
 		# TX
 		self.src = blocks.vector_source_c(input_data, vlen=1)
@@ -154,12 +154,12 @@ class qa_tx (gr_unittest.TestCase):
 		# check data
 		output_data = self.snk.data()	
 
-		self.assertEqual(len(input_data)*2, len(output_data))	
+		self.assertEqual(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers()*2, len(output_data))	
 		
 	def test_008_t(self):		
 		print "test 8 - serializer, OQAM, betas, ifft, ppfb, output commutator"
 		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers())]
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_used_subcarriers())]
 		
 		# TX
 		self.src = blocks.vector_source_c(input_data, vlen=1)
@@ -172,7 +172,7 @@ class qa_tx (gr_unittest.TestCase):
 		# check data
 		output_data = self.snk.data()	
 
-		self.assertEqual(len(input_data), len(output_data))			
+		self.assertEqual(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers(), len(output_data))			
 		
 	
 	
@@ -180,7 +180,7 @@ class qa_tx (gr_unittest.TestCase):
 		print "test 2 - src to frame generator"
 		
 		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_total_subcarriers())]		
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_used_subcarriers())]		
 		
 		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
 		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames)
@@ -197,7 +197,7 @@ class qa_tx (gr_unittest.TestCase):
 		print "test 3 - src to serializer"
 		
 		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_total_subcarriers())]		
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_used_subcarriers())]		
 		
 		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
 		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames) 
@@ -214,7 +214,7 @@ class qa_tx (gr_unittest.TestCase):
 		print "test 10 - complete tx chain (with frame generator)"
 		
 		
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers())]
+		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_used_subcarriers())]
 		self.src = blocks.vector_source_c(input_data, vlen=1)
 		self.snk = blocks.vector_sink_c(vlen=1)
 		
@@ -224,13 +224,13 @@ class qa_tx (gr_unittest.TestCase):
 		
 		# check
 		output_data = self.snk.data()
-		self.assertEqual(len(input_data), len(output_data) - self.num_frames*self.cfg.num_total_subcarriers()*(2*self.cfg.num_overlap_sym()+self.cfg.num_sync_sym()))
+		self.assertEqual(len(output_data),self.num_frames*self.get_frame_len())
 		
 	def test_009_t(self):
 		print "test 9 - symbol input - M=L - whole TXRX chain"
 
 		# random input signal
-		input_data = [sin(i)+1j*cos(i) for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers())]
+		input_data = [sin(i)+1j*cos(i) for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_used_subcarriers())]
 		
 		# TX
 		self.src = blocks.vector_source_c(input_data, vlen=1)

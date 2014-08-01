@@ -45,7 +45,17 @@ namespace gr{
 			d_num_total_subcarriers = int(std::pow(2, std::ceil(log2(d_num_used_subcarriers))));
 
 			if(d_num_used_subcarriers >= d_num_total_subcarriers)
-				throw std::runtime_error(std::string("Number of used subcarriers must be 1 < M < L-1 because of the omitted DC carrier"));
+			{
+				std::cerr << "WARNING: Invalid number of used subcarriers" << std::endl;
+				d_num_used_subcarriers = d_num_total_subcarriers-1;
+			}
+
+			int num_used_adjusted = d_num_used_subcarriers - d_num_used_subcarriers%4; // make sure it's modulo 4 so that the betas fit nicely
+			if(num_used_adjusted != d_num_used_subcarriers)
+			{
+				std::cerr << "WARNING: Number of used subcarriers has been changed to " << num_used_adjusted << std::endl;
+				d_num_used_subcarriers = num_used_adjusted;
+			}
 
 			int num_ident_sym = 2; // number of identical symbols at the reciever that can be used for timing synchronization
 			d_num_sync_sym= num_ident_sym + d_num_overlap_sym; // num_overlap_sym is needed to settle the filters
@@ -59,11 +69,10 @@ namespace gr{
 
 			d_const = gr::digital::constellation_qpsk::make();
 
-			// generate (DC free) channel map
+			// generate (DC free) channel map centered around zero, if the number of used channels is odd, add the one to the USB
 			d_channel_map.assign(d_num_total_subcarriers, 0); // preset the vector to all zeros
 			int num_used_usb = d_num_used_subcarriers/2 + (d_num_used_subcarriers%2); // add one if the M is odd
 			int num_used_lsb = d_num_used_subcarriers/2;
-			std::cout << d_num_used_subcarriers << " " << num_used_usb << " " << num_used_lsb << std::endl;
 			for(int i = 0; i < num_used_usb; i++)
 				d_channel_map[1+i] = 1;
 			for(int i = 0; i < num_used_lsb; i++)
@@ -71,6 +80,9 @@ namespace gr{
 
 			// check calulated parameters for validity
 			check_calc_params();	
+
+			// print a short summary of the parameters to stdout
+			print_info();
 		}
 
 	    void
@@ -226,6 +238,23 @@ namespace gr{
 				throw std::runtime_error(std::string("Channel map does not match the number of total/used subcarriers!"));
 			}
 			return true;
+		}
+		void
+		fbmc_config::print_info()
+		{
+			std::cout << "**********************************************************" << std::endl;
+			std::cout << "******************* FBMC parameters *********************" << std::endl;
+			std::cout << "**********************************************************" << std::endl;
+			std::cout << "Number of subcarriers:\t\t\t" << d_num_total_subcarriers << std::endl;
+			std::cout << "Number of used subcarriers:\t" << d_num_used_subcarriers << std::endl;
+			std::cout << "Number of symbols per frame:\t" << d_num_sym_frame << std::endl;
+			std::cout << "\t-> payload symbols:\t\t\t" << d_num_payload_sym << std::endl;
+			std::cout << "\t-> preamble symbols:\t\t" << d_num_preamble_sym << std::endl;
+			std::cout << "\t-> overlap guard symbols:\t" << d_num_overlap_sym << std::endl;
+			std::cout << "Modulation:\t\t\t\t\t\t" << modulation() << std::endl;
+			std::cout << "Preamble type:\t\t\t\t\t" << preamble() << std::endl;
+			std::cout << "Bits per frame:\t\t\t\t\t" << d_num_payload_sym*log2(constellation_points().size()) << std::endl;
+			std::cout << "**********************************************************" << std::endl << std::endl;
 		}
 	}
 }
