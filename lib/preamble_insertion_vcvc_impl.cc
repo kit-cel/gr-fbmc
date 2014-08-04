@@ -29,16 +29,16 @@ namespace gr {
   namespace fbmc {
 
     preamble_insertion_vcvc::sptr
-    preamble_insertion_vcvc::make(int L, int frame_len, std::string type, int overlap)
+    preamble_insertion_vcvc::make(int L, int frame_len, std::string type, int overlap, std::vector<int> channel_map)
     {
       return gnuradio::get_initial_sptr
-        (new preamble_insertion_vcvc_impl(L, frame_len, type, overlap));
+        (new preamble_insertion_vcvc_impl(L, frame_len, type, overlap, channel_map));
     }
 
     /*
      * The private constructor
      */
-    preamble_insertion_vcvc_impl::preamble_insertion_vcvc_impl(int L, int frame_len, std::string type, int overlap)
+    preamble_insertion_vcvc_impl::preamble_insertion_vcvc_impl(int L, int frame_len, std::string type, int overlap, std::vector<int> channel_map)
       : gr::sync_block("preamble_insertion_vcvc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)*L),
               gr::io_signature::make(1, 1, sizeof(gr_complex)*L)),
@@ -47,7 +47,8 @@ namespace gr {
               d_type(type), 
               d_ctr(0),
               d_overlap(overlap),
-              d_num_equal_sym(2)
+              d_num_equal_sym(2),
+              d_channel_map(channel_map)
     {
 		// the preamble follows roughly the IAM2 method as described in 
 		// "Channel estimation methods for preamble-based OFDM/OQAM modulations (Lele, Javaudin, Siohan)"
@@ -56,13 +57,14 @@ namespace gr {
 		// to also allow timing synchronization and carrier frequency offset correction
 		
 		d_num_preamble_sym = d_num_equal_sym + d_overlap;
+    d_channel_map[0] = 1; // DC carrier is used for the preamble, so activate it
 		
 		// some asserts
 		if(d_type != "IAM")
 			throw std::runtime_error(std::string("Only IAM2 is implemented and acceptable as type string"));
-		if(d_num_equal_sym < 2)
+		else if(d_num_equal_sym < 2)
 			throw std::runtime_error(std::string("At least 2 identical symbols are required for a correlation"));
-		std::cerr << "NOTE: This block inserts the preamble symbols on all L subcarriers! Support for M<L is not yet implemented." << std::endl;
+		std::cerr << "IMPORTANT: This block (preamble_insertion_vcvc) assumes the channel map to be contiguous and centered around DC (possibly omitting DC) to work properly." << std::endl;
 	}
 
     /*
@@ -89,7 +91,14 @@ namespace gr {
   					out[i] = 1;
   				else
   					out[i]= -1;
-  			}			
+  			}		
+        // deactivate undesired pilot channels outside the channel map
+        // TODO: Do this in one run	
+        for(int i = 0; i < d_L; i++)
+        {
+          if(d_channel_map[i]==0)
+            out[i]=0;
+        }
   		}
   		else // just copy the input to the output
   		{

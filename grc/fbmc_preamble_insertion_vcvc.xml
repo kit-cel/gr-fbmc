@@ -3,14 +3,14 @@
   <key>fbmc_preamble_insertion_vcvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.preamble_insertion_vcvc($L, $frame_len, $type, $overlap)</make>
+  <make>fbmc.preamble_insertion_vcvc($L, $frame_len, $type, $overlap, $channel_map)</make>
   <param>
-    <name>Num subcarriers</name>
+    <name>Num total carriers</name>
     <key>L</key>
     <type>int</type>
   </param>
   <param>
-    <name>Frame length</name>
+    <name>Sym per frame</name>
     <key>frame_len</key>
     <type>int</type>
   </param>
@@ -23,6 +23,11 @@
     <name>Overlap</name>
     <key>overlap</key>
     <type>int</type>
+  </param>
+  <param>
+    <name>Channel map</name>
+    <key>channel_map</key>
+    <type>int_vector</type>
   </param>
   <sink>
     <name>in</name>

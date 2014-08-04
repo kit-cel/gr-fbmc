@@ -36,9 +36,10 @@ namespace gr {
       int d_overlap; // onum overlapping symbols  
       int d_num_equal_sym; // number of equal transmit (!) symbols visible at the receiver  
       int d_num_preamble_sym; // total preamble length (without tailing 0 symbols)  
+      std::vector<int> d_channel_map; // channel occupation
 
      public:
-      preamble_insertion_vcvc_impl(int L, int frame_len, std::string type, int overlap);
+      preamble_insertion_vcvc_impl(int L, int frame_len, std::string type, int overlap, std::vector<int> channel_map);
       ~preamble_insertion_vcvc_impl();
 
       // Where all the action really happens
