@@ -29,25 +29,28 @@ namespace gr {
   namespace fbmc {
 
     parallel_to_serial_vcc::sptr
-    parallel_to_serial_vcc::make(int len_out, int vlen_in)
+    parallel_to_serial_vcc::make(int len_out, int vlen_in, std::vector<int> channel_map)
     {
       return gnuradio::get_initial_sptr
-        (new parallel_to_serial_vcc_impl(len_out, vlen_in));
+        (new parallel_to_serial_vcc_impl(len_out, vlen_in, channel_map));
     }
 
     /*
      * The private constructor
      */
-    parallel_to_serial_vcc_impl::parallel_to_serial_vcc_impl(int len_out, int vlen_in)
+    parallel_to_serial_vcc_impl::parallel_to_serial_vcc_impl(int len_out, int vlen_in, std::vector<int> channel_map)
       : gr::sync_interpolator("parallel_to_serial_vcc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)*vlen_in),
               gr::io_signature::make(1, 1, sizeof(gr_complex)), len_out),
               d_len_out(len_out),
-              d_vlen_in(vlen_in)
+              d_vlen_in(vlen_in),
+              d_channel_map(channel_map)
     {
         // validity checks
         if(d_vlen_in < 1 || d_len_out < 1 || d_len_out > d_vlen_in)
             throw std::runtime_error("Invalid parameters!");
+        else if(d_channel_map.size() != d_vlen_in)
+            throw std::runtime_error("Channel map size does not match the input vector length");
     }
 
     /*
@@ -62,11 +65,17 @@ namespace gr {
 			  gr_vector_const_void_star &input_items,
 			  gr_vector_void_star &output_items)
     {
-        const gr_complex *in = (const gr_complex *) input_items[0];
+        gr_complex *in = (gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
 
         // Extract d_len_out samples out of the input vector, discard the rest (should be zeros anyway)
-        memcpy((void*) out, (void*) in, sizeof(gr_complex)*d_len_out);
+        for(int i=0; i<d_vlen_in; i++)
+        {
+          if(d_channel_map[i] == 0)
+            in++;
+          else
+            *out++ = *in++;
+        }
 
         // Tell runtime system how many output items we produced.
         //std::cout << "parallel to serial returned: " << d_len_out << std::endl;

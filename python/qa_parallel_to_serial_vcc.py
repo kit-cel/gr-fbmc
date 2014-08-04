@@ -34,19 +34,19 @@ class qa_parallel_to_serial_vcc (gr_unittest.TestCase):
     def test_001_t (self):
         # set up fg
         self.src = blocks.vector_source_c(range(10), vlen=5)
-        self.p2s = fbmc.parallel_to_serial_vcc(3,5)
+        self.p2s = fbmc.parallel_to_serial_vcc(3,5, (0,1,1,0,1))
         self.snk = blocks.vector_sink_c()
         self.tb.connect(self.src, self.p2s, self.snk)
         self.tb.run ()
         # check data
-        ref = (0,1,2,5,6,7)
+        ref = (1,2,4,6,7,9)
         data = self.snk.data()
         self.assertComplexTuplesAlmostEqual(ref, data)
         
     def test_002_t (self):
         # set up fg
         self.src = blocks.vector_source_c(range(10), vlen=5)
-        self.p2s = fbmc.parallel_to_serial_vcc(5,5)
+        self.p2s = fbmc.parallel_to_serial_vcc(5,5, (1,1,1,1,1))
         self.snk = blocks.vector_sink_c()
         self.tb.connect(self.src, self.p2s, self.snk)
         self.tb.run ()

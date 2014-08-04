@@ -31,9 +31,10 @@ namespace gr {
      private:
     	int d_len_in; // number of input samples
     	int d_vlen_out; // length of output vector
+      std::vector<int> d_channel_map; // subcarrier occupation
 
      public:
-      serial_to_parallel_cvc_impl(int len_in, int vlen_out);
+      serial_to_parallel_cvc_impl(int len_in, int vlen_out, std::vector<int> channel_map);
       ~serial_to_parallel_cvc_impl();
 
       // Where all the action really happens

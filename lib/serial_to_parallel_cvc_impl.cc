@@ -29,23 +29,27 @@ namespace gr {
   namespace fbmc {
 
     serial_to_parallel_cvc::sptr
-    serial_to_parallel_cvc::make(int len_in, int vlen_out)
+    serial_to_parallel_cvc::make(int len_in, int vlen_out, std::vector<int> channel_map)
     {
       return gnuradio::get_initial_sptr
-        (new serial_to_parallel_cvc_impl(len_in, vlen_out));
+        (new serial_to_parallel_cvc_impl(len_in, vlen_out, channel_map));
     }
 
     /*
      * The private constructor
      */
-    serial_to_parallel_cvc_impl::serial_to_parallel_cvc_impl(int len_in, int vlen_out)
+    serial_to_parallel_cvc_impl::serial_to_parallel_cvc_impl(int len_in, int vlen_out, std::vector<int> channel_map)
       : gr::sync_decimator("serial_to_parallel_cvc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(gr_complex)*vlen_out), len_in),
               d_len_in(len_in),
-              d_vlen_out(vlen_out)
+              d_vlen_out(vlen_out),
+              d_channel_map(channel_map)
     {
-    	assert(d_len_in <= d_vlen_out);
+    	if(d_len_in > d_vlen_out)
+        throw std::runtime_error(std::string("Output vector length must at least be equal to the input length"));
+      else if(d_channel_map.size() != d_vlen_out)
+        throw std::runtime_error(std::string("Channel map does not match the output vector length"));
     }
 
     /*
@@ -60,13 +64,17 @@ namespace gr {
 			  gr_vector_const_void_star &input_items,
 			  gr_vector_void_star &output_items)
     {
-        const gr_complex *in = (const gr_complex *) input_items[0];
+        gr_complex *in = (gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
 
-        // convert sample stream to vector and pad if necessary
-        memcpy((void*) out, (void*) in, d_len_in*sizeof(gr_complex));
-        if(d_len_in < d_vlen_out)
-        	memset((void*) (out+d_len_in), 0, (d_vlen_out-d_len_in)*sizeof(gr_complex));
+        // convert sample stream to vector, use channel map
+        for(int i=0; i < d_vlen_out; i++)
+        {
+          if(d_channel_map[i] == 0)
+            *out++ = gr_complex(0,0);
+          else
+            *out++ = *in++;
+        }
 
         // Tell runtime system how many output items we produced.
         return 1;

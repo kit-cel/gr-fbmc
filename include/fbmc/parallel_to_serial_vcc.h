@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::parallel_to_serial_vcc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int len_out, int vlen_in);
+      static sptr make(int len_out, int vlen_in, std::vector<int> channel_map);
     };
 
   } // namespace fbmc

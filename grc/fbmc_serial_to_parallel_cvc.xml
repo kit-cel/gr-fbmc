@@ -1,18 +1,23 @@
 <block>
-  <name>Serial to parallel with padding</name>
+  <name>Channel mapper</name>
   <key>fbmc_serial_to_parallel_cvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.serial_to_parallel_cvc($len_in, $vlen_out)</make>
+  <make>fbmc.serial_to_parallel_cvc($len_in, $vlen_out, $channel_map)</make>
   <param>
-    <name>Input stream length</name>
+    <name>Num used carriers</name>
     <key>len_in</key>
     <type>int</type>
   </param>
   <param>
-    <name>Output vector length</name>
+    <name>Num total carriers</name>
     <key>vlen_out</key>
     <type>int</type>
+  </param>
+  <param>
+    <name>Channel map</name>
+    <key>channel_map</key>
+    <type>int_vector</type>
   </param>
   <sink>
     <name>in</name>

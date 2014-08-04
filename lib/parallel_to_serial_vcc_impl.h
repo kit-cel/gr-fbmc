@@ -31,9 +31,10 @@ namespace gr {
      private:
       int d_len_out; // number of samples extracted from each vector
       int d_vlen_in; // length of input vector
+      std::vector<int> d_channel_map; // channel occupancy
 
      public:
-      parallel_to_serial_vcc_impl(int len_out, int vlen_in);
+      parallel_to_serial_vcc_impl(int len_out, int vlen_in, std::vector<int> channel_map);
       ~parallel_to_serial_vcc_impl();
 
       // Where all the action really happens

@@ -43,7 +43,7 @@ class qa_tx (gr_unittest.TestCase):
 		
 		# TX 
 		self.b2s = digital.chunks_to_symbols_bc(self.cfg.constellation_points(), 1)
-		self.serial_to_parallel = fbmc.serial_to_parallel_cvc(self.cfg.num_used_subcarriers(), self.cfg.num_total_subcarriers())
+		self.serial_to_parallel = fbmc.serial_to_parallel_cvc(self.cfg.num_used_subcarriers(), self.cfg.num_total_subcarriers(), self.cfg.channel_map())
 		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=0, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())
 		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=self.cfg.num_total_subcarriers(), frame_len = self.cfg.num_payload_sym()+self.cfg.num_sync_sym()+2*self.cfg.num_overlap_sym(), type=self.cfg.preamble(), overlap=self.cfg.num_overlap_sym())
 		self.oqam = fbmc.serialize_iq_vcvc(self.cfg.num_total_subcarriers())
@@ -61,7 +61,7 @@ class qa_tx (gr_unittest.TestCase):
 		self.betas2 = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=1)
 		self.qam = fbmc.combine_iq_vcvc(self.cfg.num_total_subcarriers())
 		self.frame_gen2 = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=1, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())		
-		self.parallel_to_serial = fbmc.parallel_to_serial_vcc(self.cfg.num_used_subcarriers(), self.cfg.num_total_subcarriers())
+		self.parallel_to_serial = fbmc.parallel_to_serial_vcc(self.cfg.num_used_subcarriers(), self.cfg.num_total_subcarriers(), self.cfg.channel_map())
 		self.s2b = fbmc.symbols_to_bits_cb(self.cfg.constellation())
 				
 	def tearDown (self):
@@ -259,7 +259,7 @@ class qa_tx (gr_unittest.TestCase):
 		# TX
 		self.src = blocks.vector_source_b(input_data, False)
 		self.b2s = digital.chunks_to_symbols_bc((self.cfg.constellation_points()), 1)
-		self.s2p = fbmc.serial_to_parallel_cvc(len_in=self.cfg.num_used_subcarriers(), vlen_out=self.cfg.num_total_subcarriers())
+		self.s2p = fbmc.serial_to_parallel_cvc(len_in=self.cfg.num_used_subcarriers(), vlen_out=self.cfg.num_total_subcarriers(), channel_map=self.cfg.channel_map())
 		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=0, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())
 		
 		self.oqam = fbmc.serialize_iq_vcvc(self.cfg.num_total_subcarriers())
@@ -278,7 +278,7 @@ class qa_tx (gr_unittest.TestCase):
 		self.betas2 = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=1)
 		self.qam = fbmc.combine_iq_vcvc(self.cfg.num_total_subcarriers())
 		self.frame_gen2 = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=1, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())
-		self.p2s = fbmc.parallel_to_serial_vcc(len_out=self.cfg.num_used_subcarriers(), vlen_in=self.cfg.num_total_subcarriers())
+		self.p2s = fbmc.parallel_to_serial_vcc(len_out=self.cfg.num_used_subcarriers(), vlen_in=self.cfg.num_total_subcarriers(), channel_map=self.cfg.channel_map())
 		self.s2b = fbmc.symbols_to_bits_cb(self.cfg.constellation())
 		self.snk = blocks.vector_sink_b(vlen=1)
 		

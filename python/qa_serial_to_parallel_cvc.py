@@ -33,12 +33,12 @@ class qa_serial_to_parallel_cvc (gr_unittest.TestCase):
 
 	def test_001_t (self):
 		self.src = blocks.vector_source_c(range(1,10))
-		self.s2p = fbmc.serial_to_parallel_cvc(3,5)
+		self.s2p = fbmc.serial_to_parallel_cvc(3,5, (0,1,1,0,1))
 		self.snk = blocks.vector_sink_c(vlen=5)
 		self.tb.connect(self.src, self.s2p, self.snk)
 		self.tb.run ()
 		# check data
-		ref = (1,2,3,0,0,4,5,6,0,0,7,8,9,0,0)
+		ref = (0,1,2,0,3,0,4,5,0,6,0,7,8,0,9)
 		data = self.snk.data()
 		self.assertComplexTuplesAlmostEqual(ref, data)
 		
@@ -46,7 +46,7 @@ class qa_serial_to_parallel_cvc (gr_unittest.TestCase):
 		n = 100000
 		input_data = range(n)
 		self.src = blocks.vector_source_c(input_data)
-		self.s2p = fbmc.serial_to_parallel_cvc(10,16)
+		self.s2p = fbmc.serial_to_parallel_cvc(10,16,(1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0))
 		self.snk = blocks.vector_sink_c(vlen=16)
 		self.tb.connect(self.src, self.s2p, self.snk)
 		self.tb.run ()
