@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 
 <block>
-	<name>FBMC configuration new</name>
+	<name>FBMC configuration</name>
 	<key>variable_configuration_new</key>
 	<category>FBMC</category>
 	<import>import fbmc</import>
-	<var_make>self.$(id) = $(id) = fbmc.fbmc_config(num_used_subcarriers=$M, num_payload_sym=$K, num_overlap_sym=$overlap, modulation=$mod, preamble=$preamble)</var_make>
-	<var_value>fbmc.fbmc_config(num_used_subcarriers=$M, num_payload_sym=$K, num_overlap_sym=$overlap, modulation=$mod, preamble=$preamble)</var_value>
+	<var_make>self.$(id) = $(id) = fbmc.fbmc_config(num_used_subcarriers=$M, num_payload_sym=$K, num_overlap_sym=$overlap, modulation=$mod, preamble=$preamble, samp_rate=$sample_rate)</var_make>
+	<var_value>fbmc.fbmc_config(num_used_subcarriers=$M, num_payload_sym=$K, num_overlap_sym=$overlap, modulation=$mod, preamble=$preamble, samp_rate=$sample_rate)</var_value>
 	<make></make>
 	<param>
 		<name>Num used subcarriers</name>
@@ -34,5 +34,11 @@
 		<key>preamble</key>
 		<value>"IAM"</value>
 		<type>string</type>
+	</param>
+	<param>
+		<name>Sample rate</name>
+		<key>sample_rate</key>
+		<value>1</value>
+		<type>int</type>
 	</param>
 </block>

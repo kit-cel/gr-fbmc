@@ -33,7 +33,7 @@ class qa_tx (gr_unittest.TestCase):
 
 	def setUp (self):
 		self.tb = gr.top_block ()
-		self.cfg = fbmc.fbmc_config(num_used_subcarriers=16, num_payload_sym=18, num_overlap_sym=4, modulation="QPSK", preamble="IAM")
+		self.cfg = fbmc.fbmc_config(num_used_subcarriers=16, num_payload_sym=18, num_overlap_sym=4, modulation="QPSK", preamble="IAM", samp_rate=250000)
 		
 		# default configuration, can be overwritten in the test
 		self.num_frames = 100

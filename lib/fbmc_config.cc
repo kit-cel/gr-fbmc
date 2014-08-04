@@ -31,12 +31,14 @@ namespace gr{
 								int num_payload_sym, 
 								int num_overlap_sym, 
 								std::string modulation, 
-								std::string preamble):
+								std::string preamble,
+								int samp_rate):
 							d_num_used_subcarriers(num_used_subcarriers),
 							d_num_payload_sym(num_payload_sym),
 							d_num_overlap_sym(num_overlap_sym),
 							d_modulation(modulation),
-							d_preamble(preamble)						
+							d_preamble(preamble),
+							d_samp_rate(samp_rate)						
 		{
 			// user parameter validity check
 			check_user_args();
@@ -221,6 +223,8 @@ namespace gr{
 				throw std::runtime_error(std::string("Only IAM is implemented as preamble"));
 			else if(d_modulation != "QPSK")
 				throw std::runtime_error(std::string("Only QPSK is implemented as modulation"));
+			else if(d_samp_rate <= 0)
+				throw std::runtime_error(std::string("Invalid sample rate"));
 
 			return true;
 		}
@@ -245,15 +249,22 @@ namespace gr{
 			std::cout << "**********************************************************" << std::endl;
 			std::cout << "******************* FBMC parameters *********************" << std::endl;
 			std::cout << "**********************************************************" << std::endl;
-			std::cout << "Number of subcarriers:\t\t\t" << d_num_total_subcarriers << std::endl;
+			std::cout << "FFT length:\t\t\t\t\t\t" << d_num_total_subcarriers << std::endl;
+			std::cout << "Subcarrier spacing (kHz):\t\t" << float(d_samp_rate)/d_num_total_subcarriers/1000 << std::endl;
 			std::cout << "Number of used subcarriers:\t" << d_num_used_subcarriers << std::endl;
+			std::cout << "Occupied bandwidth (kHz):\t\t" << float(d_samp_rate)/d_num_total_subcarriers*d_num_used_subcarriers/1000 << std::endl;
 			std::cout << "Number of symbols per frame:\t" << d_num_sym_frame << std::endl;
 			std::cout << "\t-> payload symbols:\t\t\t" << d_num_payload_sym << std::endl;
 			std::cout << "\t-> preamble symbols:\t\t" << d_num_preamble_sym << std::endl;
 			std::cout << "\t-> overlap guard symbols:\t" << d_num_overlap_sym << std::endl;
+			float tsym = float(d_num_total_subcarriers)/d_samp_rate;
+			std::cout << "Symbol duration (ms):\t\t\t" << tsym*1000 << std::endl;
+			std::cout << "Frame duration (ms):\t\t\t\t" << tsym*1000*d_num_sym_frame << std::endl;
 			std::cout << "Modulation:\t\t\t\t\t\t" << modulation() << std::endl;
 			std::cout << "Preamble type:\t\t\t\t\t" << preamble() << std::endl;
-			std::cout << "Bits per frame:\t\t\t\t\t" << d_num_payload_sym*log2(constellation_points().size()) << std::endl;
+			int payl_bits_frame = d_num_payload_sym*log2(constellation_points().size());
+			std::cout << "Bits per frame:\t\t\t\t\t" << payl_bits_frame << std::endl;
+			std::cout << "Payload bit rate (bps):\t\t\t" << float(payl_bits_frame) / (tsym*d_num_sym_frame) << std::endl;
 			std::cout << "**********************************************************" << std::endl << std::endl;
 		}
 	}
