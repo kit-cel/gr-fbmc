@@ -250,7 +250,8 @@ namespace gr{
 			std::cout << "******************* FBMC parameters *********************" << std::endl;
 			std::cout << "**********************************************************" << std::endl;
 			std::cout << "FFT length:\t\t\t\t\t\t" << d_num_total_subcarriers << std::endl;
-			std::cout << "Subcarrier spacing (kHz):\t\t" << float(d_samp_rate)/d_num_total_subcarriers/1000 << std::endl;
+			float subc_spac = float(d_samp_rate)/d_num_total_subcarriers/1000;
+			std::cout << "Subcarrier spacing (kHz):\t\t" << subc_spac << std::endl;
 			std::cout << "Number of used subcarriers:\t" << d_num_used_subcarriers << std::endl;
 			std::cout << "Occupied bandwidth (kHz):\t\t" << float(d_samp_rate)/d_num_total_subcarriers*d_num_used_subcarriers/1000 << std::endl;
 			std::cout << "Number of symbols per frame:\t" << d_num_sym_frame << std::endl;
@@ -262,9 +263,11 @@ namespace gr{
 			std::cout << "Frame duration (ms):\t\t\t\t" << tsym*1000*d_num_sym_frame << std::endl;
 			std::cout << "Modulation:\t\t\t\t\t\t" << modulation() << std::endl;
 			std::cout << "Preamble type:\t\t\t\t\t" << preamble() << std::endl;
-			int payl_bits_frame = d_num_payload_sym*log2(constellation_points().size());
+			int payl_bits_frame = d_num_payload_sym*log2(constellation_points().size())*d_num_used_subcarriers;
 			std::cout << "Bits per frame:\t\t\t\t\t" << payl_bits_frame << std::endl;
-			std::cout << "Payload bit rate (bps):\t\t\t" << float(payl_bits_frame) / (tsym*d_num_sym_frame) << std::endl;
+			float payl_bit_rate = float(payl_bits_frame) / (tsym*d_num_sym_frame);
+			std::cout << "Payload bit rate (kbps):\t\t\t" << payl_bit_rate/1000 << std::endl;
+			std::cout << "Spectral efficiency (b/Hz):\t\t" << payl_bit_rate/(d_num_used_subcarriers*subc_spac*1000) << std::endl;
 			std::cout << "**********************************************************" << std::endl << std::endl;
 		}
 	}
