@@ -80,6 +80,9 @@ namespace gr{
 			for(int i = 0; i < num_used_lsb; i++)
 				d_channel_map[d_num_total_subcarriers-1-i] = 1;
 
+			// generate PRBS
+			gen_prbs(d_num_used_subcarriers);
+
 			// check calulated parameters for validity
 			check_calc_params();	
 
@@ -269,6 +272,24 @@ namespace gr{
 			std::cout << "Payload bit rate (kbps):\t\t\t" << payl_bit_rate/1000 << std::endl;
 			std::cout << "Spectral efficiency (b/Hz):\t\t" << payl_bit_rate/(d_num_used_subcarriers*subc_spac*1000) << std::endl;
 			std::cout << "**********************************************************" << std::endl << std::endl;
+		}
+
+		void fbmc_config::gen_prbs(int length)
+		{
+			if(length > pow(2,16)-1)
+				throw std::runtime_error("Max length of PN sequence exceeded");
+		    uint16_t start_state = 0xACE1u;  /* Any nonzero start start will work. */
+		    uint16_t lfsr = start_state;
+		    unsigned bit;
+		    unsigned period = 0;
+		 
+		    for(int i = 0; i < length; i++)
+		    {
+		        /* taps: 16 14 13 11; feedback polynomial: x^16 + x^14 + x^13 + x^11 + 1 */
+		        bit  = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5) ) & 1;
+		        lfsr =  (lfsr >> 1) | (bit << 15);
+		        d_prbs.push_back(lfsr & 0x1);
+		    }
 		}
 	}
 }
