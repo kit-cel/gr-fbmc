@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::preamble_insertion_vcvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int L, int frame_len, std::string type, int overlap, std::vector<int> channel_map);
+      static sptr make(int L, int frame_len, int overlap, std::vector<int> channel_map, std::vector<gr_complex> prbs);
     };
 
   } // namespace fbmc

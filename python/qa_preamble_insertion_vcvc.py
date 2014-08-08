@@ -45,7 +45,7 @@ class qa_preamble_insertion_vcvc (gr_unittest.TestCase):
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
-					   1,2,3,4,5,6,7,8,
+					   10,20,30,40,50,60,70,80,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
@@ -60,24 +60,19 @@ class qa_preamble_insertion_vcvc (gr_unittest.TestCase):
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
-					   1,2,3,4,5,6,7,8,
+					   10,20,30,40,50,60,70,80,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0 )
 		self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
-		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=L, frame_len = 15, type="IAM", overlap=4, channel_map=[1 for x in range(L)]) # the frame len includes the length of the overlap
+		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=L, frame_len = 15, overlap=4, channel_map=[1 for x in range(L)], prbs=range(1,L,L)) # the frame len includes the length of the overlap
 		self.snk = blocks.vector_sink_c(vlen=L)
 		self.tb.connect(self.src, self.preamble_insertion, self.snk)
 		self.tb.run ()
 		# check data
 
-		ref = (1,1,-1,-1,1,1,-1,-1, 
-			   1,1,-1,-1,1,1,-1,-1,
-			   1,1,-1,-1,1,1,-1,-1,
-			   1,1,-1,-1,1,1,-1,-1, 
-			   1,1,-1,-1,1,1,-1,-1,
-			   1,1,-1,-1,1,1,-1,-1,
+		ref = (1,2,3,4,5,6,7,8, 
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
@@ -87,22 +82,29 @@ class qa_preamble_insertion_vcvc (gr_unittest.TestCase):
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
-			   1,1,-1,-1,1,1,-1,-1, 
-			   1,1,-1,-1,1,1,-1,-1,
-			   1,1,-1,-1,1,1,-1,-1,
-			   1,1,-1,-1,1,1,-1,-1, 
-			   1,1,-1,-1,1,1,-1,-1,
-			   1,1,-1,-1,1,1,-1,-1,
+			   10,20,30,40,50,60,70,80,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   1,2,3,4,5,6,7,8, 
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   1,2,3,4,5,6,7,8,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   10,20,30,40,50,60,70,80,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0 )
 		data = self.snk.data()
+		for i in range(len(data)):
+			print data[i]
 		self.assertComplexTuplesAlmostEqual(ref, data)
 
 	def test_002_t (self):
@@ -118,7 +120,7 @@ class qa_preamble_insertion_vcvc (gr_unittest.TestCase):
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
-					   1,2,3,4,5,6,7,8,
+					   10,20,30,40,50,60,70,80,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
@@ -133,45 +135,45 @@ class qa_preamble_insertion_vcvc (gr_unittest.TestCase):
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
-					   1,2,3,4,5,6,7,8,
+					   10,20,30,40,50,60,70,80,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0,0 )
 
-		ref = (1,1,-1,0,0,1,-1,-1, 
-			   1,1,-1,0,0,1,-1,-1,
-			   1,1,-1,0,0,1,-1,-1,
-			   1,1,-1,0,0,1,-1,-1, 
-			   1,1,-1,0,0,1,-1,-1,
-			   1,1,-1,0,0,1,-1,-1,
+		ref = (1,2,3,0,0,4,5,6, 
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
-			   1,2,3,4,5,6,7,8,
+			   1,2,3,0,0,4,5,6,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
-			   1,1,-1,0,0,1,-1,-1, 
-			   1,1,-1,0,0,1,-1,-1,
-			   1,1,-1,0,0,1,-1,-1,
-			   1,1,-1,0,0,1,-1,-1, 
-			   1,1,-1,0,0,1,-1,-1,
-			   1,1,-1,0,0,1,-1,-1,
+			   10,20,30,40,50,60,70,80,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
-			   1,2,3,4,5,6,7,8,
+			   1,2,3,0,0,4,5,6, 
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   1,2,3,0,0,4,5,6,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   0,0,0,0,0,0,0,0,
+			   10,20,30,40,50,60,70,80,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0,
 			   0,0,0,0,0,0,0,0 )
 		
 		self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
-		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=L, frame_len = 15, type="IAM", overlap=4, channel_map=(0,1,1,0,0,1,1,1)) # the frame len includes the length of the overlap
+		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=L, frame_len = 15, overlap=4, channel_map=(0,1,1,0,0,1,1,1), prbs=(1,2,3,4,5)) # the frame len includes the length of the overlap
 		self.snk = blocks.vector_sink_c(vlen=L)
 		self.tb.connect(self.src, self.preamble_insertion, self.snk)
 		self.tb.run ()

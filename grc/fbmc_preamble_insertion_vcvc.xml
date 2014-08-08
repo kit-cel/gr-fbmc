@@ -3,7 +3,7 @@
   <key>fbmc_preamble_insertion_vcvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.preamble_insertion_vcvc($L, $frame_len, $type, $overlap, $channel_map)</make>
+  <make>fbmc.preamble_insertion_vcvc($L, $frame_len, $overlap, $channel_map, $prbs)</make>
   <param>
     <name>Num total carriers</name>
     <key>L</key>
@@ -15,11 +15,6 @@
     <type>int</type>
   </param>
   <param>
-    <name>Type</name>
-    <key>type</key>
-    <type>string</type>
-  </param>
-  <param>
     <name>Overlap</name>
     <key>overlap</key>
     <type>int</type>
@@ -28,6 +23,11 @@
     <name>Channel map</name>
     <key>channel_map</key>
     <type>int_vector</type>
+  </param>
+  <param>
+    <name>PRBS</name>
+    <key>prbs</key>
+    <type>complex_vector</type>
   </param>
   <sink>
     <name>in</name>

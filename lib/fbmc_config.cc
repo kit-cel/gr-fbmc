@@ -59,8 +59,7 @@ namespace gr{
 				d_num_used_subcarriers = num_used_adjusted;
 			}
 
-			int num_ident_sym = 2; // number of identical symbols at the reciever that can be used for timing synchronization
-			d_num_sync_sym= num_ident_sym + d_num_overlap_sym; // num_overlap_sym is needed to settle the filters
+			d_num_sync_sym = d_num_overlap_sym + 2; // num_overlap_sym is needed to settle the filters
 			d_num_preamble_sym = d_num_sync_sym + d_num_overlap_sym; // another num_overlap_sym is needed to clear the filter registers	
 
 	    	// generate the prototype filter taps
@@ -265,7 +264,7 @@ namespace gr{
 			std::cout << "Symbol duration (ms):\t\t\t" << tsym*1000 << std::endl;
 			std::cout << "Frame duration (ms):\t\t\t\t" << tsym*1000*d_num_sym_frame << std::endl;
 			std::cout << "Modulation:\t\t\t\t\t\t" << modulation() << std::endl;
-			std::cout << "Preamble type:\t\t\t\t\t" << preamble() << std::endl;
+			std::cout << "Filterbank group delay:\t\t" << (d_prototype_taps.size()-1)/2 << std::endl;
 			int payl_bits_frame = d_num_payload_sym*log2(constellation_points().size())*d_num_used_subcarriers;
 			std::cout << "Bits per frame:\t\t\t\t\t" << payl_bits_frame << std::endl;
 			float payl_bit_rate = float(payl_bits_frame) / (tsym*d_num_sym_frame);
@@ -277,18 +276,20 @@ namespace gr{
 		void fbmc_config::gen_prbs(int length)
 		{
 			if(length > pow(2,16)-1)
-				throw std::runtime_error("Max length of PN sequence exceeded");
+				throw std::runtime_error("Max length 2**16-1 of PN sequence exceeded");
 		    uint16_t start_state = 0xACE1u;  /* Any nonzero start start will work. */
 		    uint16_t lfsr = start_state;
 		    unsigned bit;
 		    unsigned period = 0;
+		    float output;
 		 
 		    for(int i = 0; i < length; i++)
 		    {
 		        /* taps: 16 14 13 11; feedback polynomial: x^16 + x^14 + x^13 + x^11 + 1 */
 		        bit  = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5) ) & 1;
 		        lfsr =  (lfsr >> 1) | (bit << 15);
-		        d_prbs.push_back(lfsr & 0x1);
+		        output = ((lfsr % 2) - 0.5)*2; // map bits to -1/1
+		        d_prbs.push_back(gr_complex(output,0));
 		    }
 		}
 	}

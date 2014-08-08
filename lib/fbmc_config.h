@@ -42,7 +42,6 @@ namespace gr{
 				int num_payload_sym(){return d_num_payload_sym;}
 				int num_overlap_sym(){return d_num_overlap_sym;}
 				int num_sync_sym(){return d_num_sync_sym;}
-				std::string preamble(){return d_preamble;}
 				int num_preamble_sym(){return d_num_preamble_sym;}
 				int num_sym_frame(){return d_num_sym_frame;}
 				gr::digital::constellation_sptr constellation(){return d_const;}
@@ -51,7 +50,7 @@ namespace gr{
 				std::vector<gr_complex> prototype_taps(){return d_prototype_taps;}
 				std::vector<int> channel_map(){return d_channel_map;}
 				int samp_rate(){return d_samp_rate;}
-				std::vector<char> prbs(){return d_prbs;};
+				std::vector<gr_complex> prbs(){return d_prbs;};
 
 			private:
 				bool check_user_args(); // checks constructor parameters for validity
@@ -73,13 +72,13 @@ namespace gr{
 				int d_group_delay; // group delay introduced by the filter bank
 				std::vector<int> d_channel_map; // a vector of 0s and 1s denoting the used carriers
 				int d_samp_rate; // sample rate as of the transmitter output
-				std::vector<char> d_prbs; // pseudo random bit sequence used for synchronization and equalization
+				std::vector<gr_complex> d_prbs; // pseudo random bit sequence used for synchronization and equalization
 
 				void gen_prototype_filter(); // calculates the taps for the prototype filter (IOTA)
 				std::valarray<float> gauss(std::valarray<float> x, float alpha); // calculates a gauss pulse
 				float d(int k, float alpha, float v0, int K); // coefficients for IOTA calculation
 				void gen_prbs(int length); // generates PRBS of given length
-				// frame structure:
+				// IAM frame structure:
 				// ... || d_num_sync_sym | d_num_overlap | d_num_payload_sym | d_num_overlap || ...
 				//      |<-     d_num_preamble_sym     ->|
 				//      |<-                        d_num_frame_sym                         ->|
