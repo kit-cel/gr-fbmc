@@ -24,6 +24,7 @@
 #include <boost/format.hpp>
 #include <numeric>
 #include <iostream>
+#include <fftw3.h>
 
 namespace gr{
 	namespace fbmc{
@@ -80,7 +81,7 @@ namespace gr{
 				d_channel_map[d_num_total_subcarriers-1-i] = 1;
 
 			// generate PRBS
-			gen_prbs(d_num_used_subcarriers);
+			gen_prbs();
 
 			// check calulated parameters for validity
 			check_calc_params();	
@@ -273,9 +274,9 @@ namespace gr{
 			std::cout << "**********************************************************" << std::endl << std::endl;
 		}
 
-		void fbmc_config::gen_prbs(int length)
+		void fbmc_config::gen_prbs()
 		{
-			if(length > pow(2,16)-1)
+			if(d_num_used_subcarriers > pow(2,16)-1)
 				throw std::runtime_error("Max length 2**16-1 of PN sequence exceeded");
 		    uint16_t start_state = 0xACE1u;  /* Any nonzero start start will work. */
 		    uint16_t lfsr = start_state;
@@ -283,7 +284,7 @@ namespace gr{
 		    unsigned period = 0;
 		    float output;
 		 
-		    for(int i = 0; i < length; i++)
+		    for(int i = 0; i < d_num_used_subcarriers; i++)
 		    {
 		        /* taps: 16 14 13 11; feedback polynomial: x^16 + x^14 + x^13 + x^11 + 1 */
 		        bit  = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5) ) & 1;
@@ -291,6 +292,36 @@ namespace gr{
 		        output = ((lfsr % 2) - 0.5)*2; // map bits to -1/1
 		        d_prbs.push_back(gr_complex(output,0));
 		    }
+
+		    if(d_channel_map.size() != d_num_total_subcarriers)
+		    	throw std::runtime_error("Channel map too small");
+
+		    d_preamble_sym = std::vector<gr_complex>(d_num_total_subcarriers);
+		    for(int i = 0; i < d_num_total_subcarriers; i++)
+		    {
+		    	int n=0;
+		    	if(d_channel_map[i]!=0)
+		    		d_preamble_sym[i] = gr_complex(0,0);
+		    	else
+		    	{
+		    		d_preamble_sym[i] = d_prbs[n];
+		    		n++;
+		    	}		    		
+		    }
+
+		    fftwf_complex* buffer = (fftwf_complex*) fftwf_malloc(sizeof(fftw_complex) * d_num_total_subcarriers);
+		
+			// Check datatype
+			if(sizeof(gr_complex)!=sizeof(fftw_complex)) std::runtime_error("sizeof(gr_complex)!=sizeof(fftw_complex)");
+			
+			// Setup and execute FFT
+			fftwf_plan fft_plan = fftwf_plan_dft_1d(d_num_total_subcarriers, buffer, buffer, FFTW_FORWARD, FFTW_ESTIMATE);
+			memcpy(buffer, &d_preamble_sym[0], d_num_total_subcarriers*sizeof(gr_complex));
+			fftwf_execute(fft_plan);
+			memcpy(&d_preamble_sym[0], buffer, d_num_total_subcarriers*sizeof(gr_complex));
+
+			fftwf_destroy_plan(fft_plan);
+			fftwf_free(buffer);
 		}
 	}
 }

@@ -46,7 +46,7 @@ if(NOT fbmc_sources)
 endif(NOT fbmc_sources)
 
 add_library(gnuradio-fbmc SHARED ${fbmc_sources})
-target_link_libraries(gnuradio-fbmc ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES})
+target_link_libraries(gnuradio-fbmc ${Boost_LIBRARIES} ${GNURADIO_ALL_LIBRARIES} ${FFTW3F_LIBRARIES})
 set_target_properties(gnuradio-fbmc PROPERTIES DEFINE_SYMBOL "gnuradio_fbmc_EXPORTS")
 
 if(APPLE)

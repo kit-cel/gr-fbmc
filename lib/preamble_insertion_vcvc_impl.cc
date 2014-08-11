@@ -29,26 +29,25 @@ namespace gr {
   namespace fbmc {
 
     preamble_insertion_vcvc::sptr
-    preamble_insertion_vcvc::make(int L, int frame_len, int overlap, std::vector<int> channel_map, std::vector<gr_complex> prbs)
+    preamble_insertion_vcvc::make(int frame_len, std::vector<gr_complex> preamble_sym)
     {
       return gnuradio::get_initial_sptr
-        (new preamble_insertion_vcvc_impl(L, frame_len, overlap, channel_map, prbs));
+        (new preamble_insertion_vcvc_impl(frame_len, preamble_sym));
     }
 
     /*
      * The private constructor
      */
-    preamble_insertion_vcvc_impl::preamble_insertion_vcvc_impl(int L, int frame_len, int overlap, std::vector<int> channel_map, std::vector<gr_complex> prbs)
+    preamble_insertion_vcvc_impl::preamble_insertion_vcvc_impl(int frame_len, std::vector<gr_complex> preamble_sym)
       : gr::sync_block("preamble_insertion_vcvc",
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*L),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*L)),
-              d_L(L),
+              gr::io_signature::make(1, 1, sizeof(gr_complex)*preamble_sym.size()),
+              gr::io_signature::make(1, 1, sizeof(gr_complex)*preamble_sym.size())),
               d_frame_len(frame_len),
               d_ctr(0),
-              d_overlap(overlap),
-              d_channel_map(channel_map),
-              d_prbs(prbs)
-    {}
+              d_preamble_sym(preamble_sym)
+    {
+      d_L = d_preamble_sym.size();
+    }
 
     /*
      * Our virtual destructor.
@@ -64,18 +63,8 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
-      if(d_ctr == 0 || d_ctr == d_overlap) // insert PRBS
-  		{
-  			// insert PRBS
-  			int n=0;
-        for(int i=0; i<d_L; i++)
-        {
-          if(d_channel_map[i]!=0)
-            out[i] = d_prbs[n++];
-          else
-            out[i] = gr_complex(0,0);
-        }
-  		}
+      if(d_ctr == 0) // insert preamble symbols
+    	  memcpy(out, &d_preamble_sym[0], sizeof(gr_complex)*d_L);
   		else // just copy the input to the output
   		  memcpy(out, in, sizeof(gr_complex)*d_L);
 		

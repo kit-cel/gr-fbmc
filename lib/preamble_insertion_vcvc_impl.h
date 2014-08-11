@@ -32,13 +32,10 @@ namespace gr {
       int d_L; // num subcarriers
       int d_frame_len; // num symbols per frame
       int d_ctr; // counts the symbols
-      int d_overlap; // onum overlapping symbols  
-      int d_num_preamble_sym; // total preamble length (without tailing 0 symbols)  
-      std::vector<int> d_channel_map; // channel occupation
-      std::vector<gr_complex> d_prbs; // PN sequence
+      std::vector<gr_complex> d_preamble_sym; // preamble symbol
 
      public:
-      preamble_insertion_vcvc_impl(int L, int frame_len, int overlap, std::vector<int> channel_map, std::vector<gr_complex> prbs);
+      preamble_insertion_vcvc_impl(int frame_len, std::vector<gr_complex> preamble_sym);
       ~preamble_insertion_vcvc_impl();
 
       // Where all the action really happens
