@@ -30,33 +30,34 @@ namespace gr {
   namespace fbmc {
 
     frame_sync_cc::sptr
-    frame_sync_cc::make(int L, int frame_len, int overlap, std::string preamble, int step_size, float threshold)
+    frame_sync_cc::make(int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold)
     {
       return gnuradio::get_initial_sptr
-        (new frame_sync_cc_impl(L, frame_len, overlap, preamble, step_size, threshold));
+        (new frame_sync_cc_impl(frame_len, preamble_sym, step_size, threshold));
     }
 
     /*
      * The private constructor
      */
-    frame_sync_cc_impl::frame_sync_cc_impl(int L, int frame_len, int overlap, std::string preamble, int step_size, float threshold)
+    frame_sync_cc_impl::frame_sync_cc_impl(int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold)
       : gr::block("frame_sync_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
-                d_L(L),
+                d_L(preamble_sym.size()),
                 d_frame_len(frame_len),
-                d_overlap(overlap),
-                d_preamble(preamble),
+                d_preamble_sym(preamble_sym),
                 d_step_size(step_size),
                 d_threshold(threshold),
                 d_sync_valid(false),
                 d_tracking(false),
                 d_num_consec_frames(0),
                 d_sym_ctr(0),
-                d_ref_pil(gr_complex(1,1)),
                 d_f_off(0),
                 d_phi_off(0)
     {
+      dbg_fp = fopen("corr_vals.bin", "wb");
+      dbg_fp2 = fopen("time_vals.bin", "wb");
+
       if(d_step_size != 1)
         throw std::runtime_error(std::string("Step size must be 1 at the moment because there is no sensible use implemented yet"));
 
@@ -65,12 +66,6 @@ namespace gr {
 
       if(d_step_size > d_L)
         throw std::runtime_error(std::string("Step size must be smaller than or equal to the symbol length"));
-
-      if(d_preamble != "IAM")
-        throw std::runtime_error(std::string("Only IAM is supported"));
-
-      if(d_overlap < 1)
-        throw std::runtime_error(std::string("Overlap must be > 0!"));
 
       if(d_L < 32)
         std::cerr << "Low number of subcarriers. Increase to make frame synchronization more reliable." << std::endl;
@@ -82,13 +77,16 @@ namespace gr {
      * Our virtual destructor.
      */
     frame_sync_cc_impl::~frame_sync_cc_impl()
-    {}
+    {
+      fclose(dbg_fp);
+      fclose(dbg_fp2);
+    }
 
     void
     frame_sync_cc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
         // this is a few samples more than we actually need
-        ninput_items_required[0] = (d_overlap+2)*d_L + d_step_size;
+        ninput_items_required[0] = 2*d_L + d_step_size;
     }
 
     float 
@@ -102,7 +100,7 @@ namespace gr {
     frame_sync_cc_impl::estimate_phi_off(gr_complex* rx_pil)
     { 
       //std::cout << "phi_off:" << arg(*rx_pil/d_ref_pil) << std::endl;
-      return arg(*rx_pil/d_ref_pil); 
+      return arg(*rx_pil); 
     } 
 
     gr_complex
@@ -158,91 +156,97 @@ namespace gr {
         // 3. frame found, sync validity expired, perform correlation in the next run
         // 4. newly found frame, start returning samples
 
-        // NOTE: handle phase offset because the starting point is not the start of the frame but somewhat later
+        if(!d_tracking) // acquisition
+        {
+          // perform a fixed lag correlation of the next two consecutive symbols
+          gr_complex corr_res = corr_coef(in, in+d_L, in);
+          fwrite(&corr_res, sizeof(gr_complex), 1, dbg_fp);
+          fwrite(in, sizeof(gr_complex), 1, dbg_fp2);
+          samples_consumed = 1;
 
+        }
         // frame start has already been detected
-        if(d_sync_valid)
-        {
-          // std::cout << "SYNC VALID" << std::endl;
-          correct_offsets(in, d_f_off, d_phi_off);
-          d_phi_off = fmod(d_phi_off + 2*M_PI*d_f_off*d_L, 2*M_PI);
-          memcpy(out, in, d_L*sizeof(gr_complex));
-          d_sym_ctr++;
-          samples_consumed = d_L;
-          samples_returned = d_L;
+        //if(d_sync_valid)
+        //{
+        //   // std::cout << "SYNC VALID" << std::endl;
+        //   correct_offsets(in, d_f_off, d_phi_off);
+        //   d_phi_off = fmod(d_phi_off + 2*M_PI*d_f_off*d_L, 2*M_PI);
+        //   memcpy(out, in, d_L*sizeof(gr_complex));
+        //   d_sym_ctr++;
+        //   samples_consumed = d_L;
+        //   samples_returned = d_L;
 
-          // in the next call to work, the preamble is searched and should be found immediately
-          if(d_sym_ctr >= d_frame_len)
-          {
-            d_sync_valid = false;
-            d_sym_ctr=0;
-          }
-        }
-        else if(d_tracking) // tracking
-        {
-          // std::cout << "TRACKING" << std::endl;
+        //   // in the next call to work, the preamble is searched and should be found immediately
+        //   if(d_sym_ctr >= d_frame_len)
+        //   {
+        //     d_sync_valid = false;
+        //     d_sym_ctr=0;
+        //   }
+        // }
+        // else if(d_tracking) // tracking
+        // {
+        //   // std::cout << "TRACKING" << std::endl;
 
-          //correct_offsets(in, d_f_off, 0); // correct last known offsets, assume starting phase 0 for each new frame
-          gr_complex corr = corr_coef(in+d_L*d_overlap, in+d_L*(d_overlap+1), in+d_L*d_overlap);
-          // std::cout << "TRA i:" << i << " corr:" << corr << std::endl;
+        //   gr_complex corr = corr_coef(in, &d_preamble_sym[0], in+d_L*d_overlap);
+        //   // std::cout << "TRA i:" << i << " corr:" << corr << std::endl;
           
-          // std::cout << "#frame:" << d_num_consec_frames << std::endl;
-          d_num_consec_frames++;
-          samples_consumed = d_L;
-          if(abs(corr) > d_threshold) // SOF found
-          {
-            // estimate and correct frequency and phase offsets
-            d_f_off = estimate_f_off(corr);
-            d_phi_off = fmod(estimate_phi_off(in+d_L*d_overlap) - 2*M_PI*d_f_off*d_L*d_overlap, 2*M_PI); // the estimated phase offset has to be turned back by the phase increment caused by the frequency offset
-            //std::cout << "TRA foff(*250e3):" << d_f_off*250e3 << ", phioff:" << d_phi_off << std::endl;
-            correct_offsets(in, d_f_off, d_phi_off);
-            d_phi_off = fmod(d_phi_off + 2*M_PI*d_f_off*d_L, 2*M_PI);
+        //   // std::cout << "#frame:" << d_num_consec_frames << std::endl;
+        //   d_num_consec_frames++;
+        //   samples_consumed = d_L;
+        //   if(abs(corr) > d_threshold) // SOF found
+        //   {
+        //     // estimate and correct frequency and phase offsets
+        //     //d_f_off = estimate_f_off(corr);
+        //     //d_phi_off = fmod(estimate_phi_off(in+d_L*d_overlap) - 2*M_PI*d_f_off*d_L*d_overlap, 2*M_PI); // the estimated phase offset has to be turned back by the phase increment caused by the frequency offset
+        //     //std::cout << "TRA foff(*250e3):" << d_f_off*250e3 << ", phioff:" << d_phi_off << std::endl;
+        //     //correct_offsets(in, d_f_off, d_phi_off);
+        //     //d_phi_off = fmod(d_phi_off + 2*M_PI*d_f_off*d_L, 2*M_PI);
 
-            // copy the first symbol
-            memcpy(out, in, d_L*sizeof(gr_complex));
-            d_sym_ctr = 1;
-            d_sync_valid = true;            
-            samples_returned = d_L;
-          }
-          else // sync lost
-          {
-            std::cout << "frame_sync_cc: Synchronization lost after " << d_num_consec_frames << " consecutive frames, back to acquisition mode" << std::endl;
-            d_tracking = false;
-            samples_returned = 0;
-            d_num_consec_frames = 0;
-          }   
-        }
-        else // acquisition, proceed one sample at a time
-        {
+        //     // copy the first symbol
+        //     //memcpy(out, in, d_L*sizeof(gr_complex));
+        //     //d_sym_ctr = 1;
+        //     //d_sync_valid = true;            
+        //     //samples_returned = d_L;
+        //   }
+        //   else // sync lost
+        //   {
+        //     // std::cout << "frame_sync_cc: Synchronization lost after " << d_num_consec_frames << " consecutive frames, back to acquisition mode" << std::endl;
+        //     // d_tracking = false;
+        //     // samples_returned = 0;
+        //     // d_num_consec_frames = 0;
+        //   }   
+        // }
+        // else // acquisition, proceed one sample at a time
+        // {
           // std::cout << "ACQUISITION" << std::endl;
-          gr_complex corr = corr_coef(in+d_L*d_overlap, in+d_L*(d_overlap+1), in+d_L*d_overlap);    
-          //std::cout << "ACQ corr:" << corr << std::endl;      
-          if(abs(corr) > d_threshold)
-          {
-            // estimate and correct offsets
-            d_f_off = estimate_f_off(corr);
-            d_phi_off = fmod(estimate_phi_off(in+d_L*d_overlap) - 2*M_PI*d_f_off*d_L*d_overlap, 2*M_PI);
-            std::cout << "ACQ foff(*250e3):" << d_f_off*250e3 << ", phioff:" << d_phi_off << std::endl;
-            correct_offsets(in, d_f_off, d_phi_off);
-            d_phi_off = fmod(d_phi_off+2*M_PI*d_f_off*d_L, 2*M_PI);
-            //std::cout << "ACQ updated phioff:" << d_phi_off << std::endl;
+          // gr_complex corr = corr_coef(in+d_L*d_overlap, in+d_L*(d_overlap+1), in+d_L*d_overlap);    
+          // //std::cout << "ACQ corr:" << corr << std::endl;      
+          // if(abs(corr) > d_threshold)
+          // {
+          //   // estimate and correct offsets
+          //   d_f_off = estimate_f_off(corr);
+          //   d_phi_off = fmod(estimate_phi_off(in+d_L*d_overlap) - 2*M_PI*d_f_off*d_L*d_overlap, 2*M_PI);
+          //   std::cout << "ACQ foff(*250e3):" << d_f_off*250e3 << ", phioff:" << d_phi_off << std::endl;
+          //   correct_offsets(in, d_f_off, d_phi_off);
+          //   d_phi_off = fmod(d_phi_off+2*M_PI*d_f_off*d_L, 2*M_PI);
+          //   //std::cout << "ACQ updated phioff:" << d_phi_off << std::endl;
 
-            // copy the first symbol
-            memcpy(out, in, d_L*sizeof(gr_complex));
-            d_sync_valid = true;
-            samples_returned = d_L;
-            d_sym_ctr = 1;
-            samples_consumed = d_L;
-            if(!d_tracking)
-              std::cout << "frame_sync_cc: SOF detected, enter tracking mode" << std::endl;
-            d_tracking = true;
-          }
-          else
-          {
-            samples_consumed = d_step_size; 
-          }
+          //   // copy the first symbol
+          //   memcpy(out, in, d_L*sizeof(gr_complex));
+          //   d_sync_valid = true;
+          //   samples_returned = d_L;
+          //   d_sym_ctr = 1;
+          //   samples_consumed = d_L;
+          //   if(!d_tracking)
+          //     std::cout << "frame_sync_cc: SOF detected, enter tracking mode" << std::endl;
+          //   d_tracking = true;
+          // }
+          // else
+          // {
+          //   samples_consumed = d_step_size; 
+          // }
               
-        }
+        //}
 
         // inform the scheduler about what has been going on...
         //std::cout << "consumed:" << samples_consumed << ", returned:" << samples_returned << std::endl;

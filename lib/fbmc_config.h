@@ -51,6 +51,7 @@ namespace gr{
 				std::vector<int> channel_map(){return d_channel_map;}
 				int samp_rate(){return d_samp_rate;}
 				std::vector<gr_complex> prbs(){return d_prbs;};
+				std::vector<gr_complex> preamble_sym(){return d_preamble_sym;}
 
 			private:
 				bool check_user_args(); // checks constructor parameters for validity
@@ -77,7 +78,7 @@ namespace gr{
 				void gen_prototype_filter(); // calculates the taps for the prototype filter (IOTA)
 				std::valarray<float> gauss(std::valarray<float> x, float alpha); // calculates a gauss pulse
 				float d(int k, float alpha, float v0, int K); // coefficients for IOTA calculation
-				void gen_prbs(); // generates PRBS of given length
+				void gen_preamble_sym(); // generates preamble symbol
 				// IAM frame structure:
 				// ... || d_num_sync_sym | d_num_overlap | d_num_payload_sym | d_num_overlap || ...
 				//      |<-     d_num_preamble_sym     ->|

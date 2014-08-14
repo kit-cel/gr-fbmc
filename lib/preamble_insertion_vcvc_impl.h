@@ -22,6 +22,7 @@
 #define INCLUDED_FBMC_PREAMBLE_INSERTION_VCVC_IMPL_H
 
 #include <fbmc/preamble_insertion_vcvc.h>
+#include <cstdio>
 
 namespace gr {
   namespace fbmc {
@@ -33,6 +34,7 @@ namespace gr {
       int d_frame_len; // num symbols per frame
       int d_ctr; // counts the symbols
       std::vector<gr_complex> d_preamble_sym; // preamble symbol
+      FILE* dbg_fp;
 
      public:
       preamble_insertion_vcvc_impl(int frame_len, std::vector<gr_complex> preamble_sym);

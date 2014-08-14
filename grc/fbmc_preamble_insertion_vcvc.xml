@@ -3,25 +3,25 @@
   <key>fbmc_preamble_insertion_vcvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.preamble_insertion_vcvc($frame_len, $preamble)</make>
+  <make>fbmc.preamble_insertion_vcvc($frame_len, $preamble_sym)</make>
   <param>
-    <name>Sym per frame</name>
+    <name>Frame_len</name>
     <key>frame_len</key>
     <type>int</type>
   </param>
   <param>
-    <name>Preamble</name>
-    <key>preamble</key>
+    <name>Preamble_sym</name>
+    <key>preamble_sym</key>
     <type>complex_vector</type>
   </param>
   <sink>
     <name>in</name>
     <type>complex</type>
-    <vlen>$L</vlen>
+    <vlen>len($preamble_sym)</vlen>
   </sink>
   <source>
     <name>out</name>
     <type>complex</type>
-    <vlen>$L</vlen>
+    <vlen>len($preamble_sym)</vlen>
   </source>
 </block>

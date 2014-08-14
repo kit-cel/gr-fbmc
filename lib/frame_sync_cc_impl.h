@@ -23,7 +23,8 @@
 
 #include <fbmc/frame_sync_cc.h>
 #include <boost/circular_buffer.hpp>
-
+#include <cstdio>
+ 
 namespace gr {
   namespace fbmc {
 
@@ -31,8 +32,7 @@ namespace gr {
      private:
       int d_L; // number of subcarriers
       int d_frame_len; // number of symbols per frame (including preamble)
-      int d_overlap; // number of overlapping symbols
-      std::string d_preamble; // preamble type
+      std::vector<gr_complex> d_preamble_sym; // reference preamble symbol
       int d_step_size; // number of samples to proceed with every step
       float d_threshold; // threshold for the correlation
 
@@ -41,7 +41,6 @@ namespace gr {
       int d_num_consec_frames; // number of consecutive frames detected
       int d_sym_ctr; // number of symbols of the current frame that already have been written
 
-      gr_complex d_ref_pil; // reference pilot for phase correction (only the angle matters)
       float d_f_off; // estimated frequency offset
       float d_phi_off; // estimated phase offset, updated in every step to avoid phase discontinuities
 
@@ -50,8 +49,11 @@ namespace gr {
       float estimate_phi_off(gr_complex* rx_pil); // estimate phase offset
       void correct_offsets(gr_complex* buf, float f_off, float phi_prev); // correct phase and frequency offset, start with defined phase offset to avoid discontiuities between symbols
 
+      FILE* dbg_fp;
+      FILE* dbg_fp2;
+
      public:
-      frame_sync_cc_impl(int L, int frame_len, int overlap, std::string preamble, int step_size, float threshold);
+      frame_sync_cc_impl(int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold);
       ~frame_sync_cc_impl();
 
       // Where all the action really happens
