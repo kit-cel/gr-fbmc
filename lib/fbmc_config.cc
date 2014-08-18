@@ -80,8 +80,11 @@ namespace gr{
 			for(int i = 0; i < num_used_lsb; i++)
 				d_channel_map[d_num_total_subcarriers-1-i] = 1;
 
-			// generate PRBS
+			// generate frequency domain preamble for insertion into the tx frame
 			gen_preamble_sym();
+
+			// generate time domain preamble for correlation in the receiver
+			gen_ref_preamble_sym();
 
 			// check calulated parameters for validity
 			check_calc_params();	
@@ -274,7 +277,8 @@ namespace gr{
 			std::cout << "**********************************************************" << std::endl << std::endl;
 		}
 
-		void fbmc_config::gen_preamble_sym()
+		void 
+		fbmc_config::gen_preamble_sym()
 		{
 			if(d_num_used_subcarriers > pow(2,16)-1)
 				throw std::runtime_error("Max length 2**16-1 of PN sequence exceeded");
@@ -284,19 +288,19 @@ namespace gr{
 		    unsigned period = 0;
 		    float output;
 		 
-		    for(int i = 0; i < d_num_total_subcarriers; i++)
+		    for(int i = 0; i < 2*d_num_total_subcarriers; i++)
 		    {
 		        /* taps: 16 14 13 11; feedback polynomial: x^16 + x^14 + x^13 + x^11 + 1 */
 		        bit  = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5) ) & 1;
 		        lfsr =  (lfsr >> 1) | (bit << 15);
 		        output = ((lfsr % 2) - 0.5)*2; // map bits to -1/1
-		        d_prbs.push_back(gr_complex(output,0));
+		        d_prbs.push_back(output);
 		    }
 
 		    if(d_channel_map.size() != d_num_total_subcarriers)
 		    	throw std::runtime_error("Channel map too small");
 
-		    d_preamble_sym = std::vector<gr_complex>(d_num_total_subcarriers);
+		    d_preamble_sym = std::vector<gr_complex>(4*d_num_total_subcarriers, gr_complex(0,0));
 		    int n=0;
 		    for(int i = 0; i < d_num_total_subcarriers; i++)
 		    {		    	
@@ -304,24 +308,91 @@ namespace gr{
 		    		d_preamble_sym[i] = gr_complex(0,0);
 		    	else
 		    	{
-		    		d_preamble_sym[i] = d_prbs[n];
+		    		d_preamble_sym[i] = gr_complex(1.0/sqrt(2)*d_prbs[n],0);
 		    		n++;
-		    	}		    		
+		    	}		 
+		    	d_preamble_sym[i+2*d_num_total_subcarriers] = d_preamble_sym[i];		
 		    }
+		}
 
-		 //    fftwf_complex* buffer = (fftwf_complex*) fftwf_malloc(sizeof(fftw_complex) * d_num_total_subcarriers);
+		void
+		fbmc_config::gen_ref_preamble_sym()
+		{
+
+			// to convert the frequency domain preamble into time domain, an IFFT and a filter operation is needed
+			int nsym = d_preamble_sym.size()/d_num_total_subcarriers;
+		    fftwf_complex* buffer = (fftwf_complex*) fftwf_malloc(sizeof(fftw_complex)*d_num_total_subcarriers);
+		    std::vector<gr_complex> preamble_sym_fft(d_preamble_sym.size(), gr_complex(0,0));
 		
-			// // Check datatype
-			// if(sizeof(gr_complex)!=sizeof(fftw_complex)) std::runtime_error("sizeof(gr_complex)!=sizeof(fftw_complex)");
+			// Check datatype
+			if(sizeof(gr_complex)!=sizeof(fftw_complex)) std::runtime_error("sizeof(gr_complex)!=sizeof(fftw_complex)");
 			
-			// // Setup and execute FFT
-			// fftwf_plan fft_plan = fftwf_plan_dft_1d(d_num_total_subcarriers, buffer, buffer, FFTW_FORWARD, FFTW_ESTIMATE);
-			// memcpy(buffer, &d_preamble_sym[0], d_num_total_subcarriers*sizeof(gr_complex));
-			// fftwf_execute(fft_plan);
-			// memcpy(&d_preamble_sym[0], buffer, d_num_total_subcarriers*sizeof(gr_complex));
+			// Setup and execute FFT
+			fftwf_plan fft_plan = fftwf_plan_dft_1d(d_num_total_subcarriers, buffer, buffer, FFTW_BACKWARD, FFTW_ESTIMATE);
+			for(int i = 0; i < nsym; i++)
+			{
+				memcpy(buffer, &d_preamble_sym[0]+i*d_num_total_subcarriers, d_num_total_subcarriers*sizeof(gr_complex));
+				fftwf_execute(fft_plan);
+				memcpy(&preamble_sym_fft[0]+i*d_num_total_subcarriers, buffer, d_num_total_subcarriers*sizeof(gr_complex));				
+			}
 
-			// fftwf_destroy_plan(fft_plan);
-			// fftwf_free(buffer);
+			fftwf_destroy_plan(fft_plan);
+			fftwf_free(buffer);
+
+			// filter with prototype filters of the filter bank
+			std::vector<gr_complex> taps(d_prototype_taps.size(), gr_complex(0,0));
+			for(int i = -d_num_total_subcarriers/2; i < d_num_total_subcarriers/2-1; i++)
+			{
+				for(int n = 0; n < d_prototype_taps.size(); n++)
+				{
+					taps[n] += d_prototype_taps[n]*exp(gr_complex(0,2*M_PI*i*n/d_num_total_subcarriers))	;
+				}
+			}
+
+			FILE* dbg_fp2 = fopen("taps_vals.bin", "wb");
+			fwrite(&taps[0], sizeof(gr_complex), taps.size(), dbg_fp2);
+			fclose(dbg_fp2);
+
+			int diff = preamble_sym_fft.size() - taps.size();
+			if(diff > 0) // preamble is longer than the filter impulse response, pad the preamble
+			{
+				for(int i = 0; i < diff; i++)
+					preamble_sym_fft.push_back(0);
+			}
+			else if(diff < 0) // more taps than the preamble length, pad impulse response
+			{
+				for(int i = 0; i < -diff; i++)
+					taps.push_back(0);
+			}
+
+			std::vector<gr_complex> filtered_preamble_sym(2*taps.size()-1, gr_complex(0,0));
+
+			// 1st half
+			for(int i = 0; i<=taps.size()-1; i++)
+			{
+				for(int j = 0; j <= i; j++)
+					filtered_preamble_sym[i] += taps[j]*preamble_sym_fft[i-j];
+			} 
+			// 2nd half
+			for(int i = 2; i <= taps.size(); i++)
+			{
+				for(int j = 0; j <= taps.size() - i; j++)
+					filtered_preamble_sym[taps.size() + i - 2] += taps[j+1+i-2]*preamble_sym_fft[taps.size()-j-1];
+			}
+
+
+			// add the first and second half of one symbol, thus shortening the sequence by a factor of 2 (--> output commutator)
+			d_ref_preamble_sym.clear();
+			d_ref_preamble_sym.resize(filtered_preamble_sym.size()/2, gr_complex(0,0));
+			for(int i = 0; i < filtered_preamble_sym.size()/d_num_total_subcarriers; i++)
+			{
+				for(int n = 0; n < d_num_total_subcarriers/2; n++)
+					d_ref_preamble_sym[n+i*d_num_total_subcarriers/2] = filtered_preamble_sym[n+i*d_num_total_subcarriers] + filtered_preamble_sym[n+i*d_num_total_subcarriers + d_num_total_subcarriers/2];
+			}
+
+			FILE* dbg_fp = fopen("ref_vals.bin", "wb");
+			fwrite(&d_ref_preamble_sym[0], sizeof(gr_complex), d_ref_preamble_sym.size(), dbg_fp);
+			fclose(dbg_fp);
 		}
 	}
 }

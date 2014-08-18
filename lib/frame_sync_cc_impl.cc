@@ -30,20 +30,20 @@ namespace gr {
   namespace fbmc {
 
     frame_sync_cc::sptr
-    frame_sync_cc::make(int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold)
+    frame_sync_cc::make(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold)
     {
       return gnuradio::get_initial_sptr
-        (new frame_sync_cc_impl(frame_len, preamble_sym, step_size, threshold));
+        (new frame_sync_cc_impl(L, frame_len, preamble_sym, step_size, threshold));
     }
 
     /*
      * The private constructor
      */
-    frame_sync_cc_impl::frame_sync_cc_impl(int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold)
+    frame_sync_cc_impl::frame_sync_cc_impl(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold)
       : gr::block("frame_sync_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
-                d_L(preamble_sym.size()),
+                d_L(L),
                 d_frame_len(frame_len),
                 d_preamble_sym(preamble_sym),
                 d_step_size(step_size),

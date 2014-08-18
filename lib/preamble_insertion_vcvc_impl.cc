@@ -29,24 +29,26 @@ namespace gr {
   namespace fbmc {
 
     preamble_insertion_vcvc::sptr
-    preamble_insertion_vcvc::make(int frame_len, std::vector<gr_complex> preamble_sym)
+    preamble_insertion_vcvc::make(int L, int frame_len, std::vector<gr_complex> preamble_sym)
     {
       return gnuradio::get_initial_sptr
-        (new preamble_insertion_vcvc_impl(frame_len, preamble_sym));
+        (new preamble_insertion_vcvc_impl(L, frame_len, preamble_sym));
     }
 
     /*
      * The private constructor
      */
-    preamble_insertion_vcvc_impl::preamble_insertion_vcvc_impl(int frame_len, std::vector<gr_complex> preamble_sym)
+    preamble_insertion_vcvc_impl::preamble_insertion_vcvc_impl(int L, int frame_len, std::vector<gr_complex> preamble_sym)
       : gr::sync_block("preamble_insertion_vcvc",
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*preamble_sym.size()),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*preamble_sym.size())),
-              d_frame_len(frame_len),
+              gr::io_signature::make(1, 1, sizeof(gr_complex)*L),
+              gr::io_signature::make(1, 1, sizeof(gr_complex)*L)),
+              d_L(L),
+              d_frame_len(frame_len*2), // frame_len as given relates to the pre-OQAM symbol rate
               d_ctr(0),
               d_preamble_sym(preamble_sym)
     {
-      d_L = d_preamble_sym.size();
+      if((d_preamble_sym.size() % d_L) != 0)
+        throw std::runtime_error("Preamble size must be an integer multiple of the number of subcarriers");        
       dbg_fp = fopen("freq_vals.bin", "wb");
     }
 
@@ -66,12 +68,12 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
-      if(d_ctr == 0 || d_ctr == 1) // insert preamble symbol twice
-    	  memcpy(out, &d_preamble_sym[0], sizeof(gr_complex)*d_L);
+      if(d_ctr < 4) // insert preamble symbol twice
+    	  memcpy(out, &d_preamble_sym[0]+d_ctr*d_L, sizeof(gr_complex)*d_L);
   		else // just copy the input to the output
   		  memcpy(out, in, sizeof(gr_complex)*d_L);
 		
-		  d_ctr = (d_ctr + 1) % d_frame_len;
+		  d_ctr = (d_ctr + 1) % d_frame_len; // this counts OQAM symbols which have double the rate of the (complex) input data
 
       fwrite(out, d_L, sizeof(gr_complex), dbg_fp);
 

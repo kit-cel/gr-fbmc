@@ -50,7 +50,7 @@ namespace gr{
 				std::vector<gr_complex> prototype_taps(){return d_prototype_taps;}
 				std::vector<int> channel_map(){return d_channel_map;}
 				int samp_rate(){return d_samp_rate;}
-				std::vector<gr_complex> prbs(){return d_prbs;};
+				std::vector<int> prbs(){return d_prbs;};
 				std::vector<gr_complex> preamble_sym(){return d_preamble_sym;}
 
 			private:
@@ -73,12 +73,14 @@ namespace gr{
 				int d_group_delay; // group delay introduced by the filter bank
 				std::vector<int> d_channel_map; // a vector of 0s and 1s denoting the used carriers
 				int d_samp_rate; // sample rate as of the transmitter output
-				std::vector<gr_complex> d_prbs; // pseudo random bit sequence used for synchronization and equalization
-				std::vector<gr_complex> d_preamble_sym; // preamble symbol values
+				std::vector<int> d_prbs; // pseudo random bit sequence used for synchronization and equalization
+				std::vector<gr_complex> d_preamble_sym; // preamble symbol values (frequency domain)
+				std::vector<gr_complex> d_ref_preamble_sym; // reference preamble symbol values (time domain)
 				void gen_prototype_filter(); // calculates the taps for the prototype filter (IOTA)
 				std::valarray<float> gauss(std::valarray<float> x, float alpha); // calculates a gauss pulse
 				float d(int k, float alpha, float v0, int K); // coefficients for IOTA calculation
-				void gen_preamble_sym(); // generates preamble symbol
+				void gen_preamble_sym(); // generates preamble symbol (frequency domain)
+				void gen_ref_preamble_sym(); // generate reference preamble symbol (time domain)
 				// IAM frame structure:
 				// ... || d_num_sync_sym | d_num_overlap | d_num_payload_sym | d_num_overlap || ...
 				//      |<-     d_num_preamble_sym     ->|

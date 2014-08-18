@@ -53,7 +53,7 @@ namespace gr {
       FILE* dbg_fp2;
 
      public:
-      frame_sync_cc_impl(int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold);
+      frame_sync_cc_impl(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold);
       ~frame_sync_cc_impl();
 
       // Where all the action really happens

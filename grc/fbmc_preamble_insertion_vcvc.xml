@@ -3,9 +3,14 @@
   <key>fbmc_preamble_insertion_vcvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.preamble_insertion_vcvc($frame_len, $preamble_sym)</make>
+  <make>fbmc.preamble_insertion_vcvc($L, $frame_len, $preamble_sym)</make>
   <param>
-    <name>Frame_len</name>
+    <name>Num total subcarriers</name>
+    <key>L</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Frame length</name>
     <key>frame_len</key>
     <type>int</type>
   </param>
@@ -17,11 +22,11 @@
   <sink>
     <name>in</name>
     <type>complex</type>
-    <vlen>len($preamble_sym)</vlen>
+    <vlen>$L</vlen>
   </sink>
   <source>
     <name>out</name>
     <type>complex</type>
-    <vlen>len($preamble_sym)</vlen>
+    <vlen>$L</vlen>
   </source>
 </block>

@@ -37,7 +37,7 @@ namespace gr {
       FILE* dbg_fp;
 
      public:
-      preamble_insertion_vcvc_impl(int frame_len, std::vector<gr_complex> preamble_sym);
+      preamble_insertion_vcvc_impl(int L, int frame_len, std::vector<gr_complex> preamble_sym);
       ~preamble_insertion_vcvc_impl();
 
       // Where all the action really happens

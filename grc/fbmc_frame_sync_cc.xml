@@ -3,7 +3,12 @@
   <key>fbmc_frame_sync_cc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.frame_sync_cc($frame_len, $preamble_sym, $step_size, $threshold)</make>
+  <make>fbmc.frame_sync_cc($L, $frame_len, $preamble_sym, $step_size, $threshold)</make>
+  <param>
+    <name>Num total subcarriers</name>
+    <key>L</key>
+    <type>int</type>
+  </param>
   <param>
     <name>Frame length</name>
     <key>frame_len</key>
