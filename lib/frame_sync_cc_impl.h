@@ -33,6 +33,7 @@ namespace gr {
       int d_L; // number of subcarriers
       int d_frame_len; // number of symbols per frame (including preamble)
       std::vector<gr_complex> d_preamble_sym; // reference preamble symbol
+      gr_complex d_preamble_energy; // energy of the preamble signal
       int d_step_size; // number of samples to proceed with every step
       float d_threshold; // threshold for the correlation
 
@@ -44,13 +45,15 @@ namespace gr {
       float d_f_off; // estimated frequency offset
       float d_phi_off; // estimated phase offset, updated in every step to avoid phase discontinuities
 
-      gr_complex corr_coef(gr_complex *x1, gr_complex *x2, gr_complex *a1); // calculate a weighted correlation coefficient
+      gr_complex fixed_lag_corr(gr_complex *x1, gr_complex *x2, gr_complex *a1); // fixed lag correlation
+      gr_complex ref_corr(gr_complex *x); // reference correlation
       float estimate_f_off(gr_complex corr_val); // estimate frequency offset
       float estimate_phi_off(gr_complex* rx_pil); // estimate phase offset
       void correct_offsets(gr_complex* buf, float f_off, float phi_prev); // correct phase and frequency offset, start with defined phase offset to avoid discontiuities between symbols
 
       FILE* dbg_fp;
       FILE* dbg_fp2;
+      FILE* dbg_fp3;
 
      public:
       frame_sync_cc_impl(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold);

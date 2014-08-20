@@ -25,6 +25,8 @@
 #include <numeric>
 #include <iostream>
 #include <fftw3.h>
+#include <boost/circular_buffer.hpp>
+
 
 namespace gr{
 	namespace fbmc{
@@ -308,7 +310,7 @@ namespace gr{
 		    		d_preamble_sym[i] = gr_complex(0,0);
 		    	else
 		    	{
-		    		d_preamble_sym[i] = gr_complex(1.0/sqrt(2)*d_prbs[n],0);
+		    		d_preamble_sym[i] = gr_complex(1.0/sqrt(2)*d_prbs[n],1.0/sqrt(2)*d_prbs[n+d_num_total_subcarriers]);
 		    		n++;
 		    	}		 
 		    	d_preamble_sym[i+2*d_num_total_subcarriers] = d_preamble_sym[i];		
@@ -322,7 +324,7 @@ namespace gr{
 			// to convert the frequency domain preamble into time domain, an IFFT and a filter operation is needed
 			int nsym = d_preamble_sym.size()/d_num_total_subcarriers;
 		    fftwf_complex* buffer = (fftwf_complex*) fftwf_malloc(sizeof(fftw_complex)*d_num_total_subcarriers);
-		    std::vector<gr_complex> preamble_sym_fft(d_preamble_sym.size(), gr_complex(0,0));
+		    std::vector<gr_complex> preamble_sym_fft(d_preamble_sym.size()+d_num_total_subcarriers*d_num_overlap_sym, gr_complex(0,0));
 		
 			// Check datatype
 			if(sizeof(gr_complex)!=sizeof(fftw_complex)) std::runtime_error("sizeof(gr_complex)!=sizeof(fftw_complex)");
@@ -339,47 +341,62 @@ namespace gr{
 			fftwf_destroy_plan(fft_plan);
 			fftwf_free(buffer);
 
-			// filter with prototype filters of the filter bank
-			std::vector<gr_complex> taps(d_prototype_taps.size(), gr_complex(0,0));
-			for(int i = -d_num_total_subcarriers/2; i < d_num_total_subcarriers/2-1; i++)
-			{
-				for(int n = 0; n < d_prototype_taps.size(); n++)
-				{
-					taps[n] += d_prototype_taps[n]*exp(gr_complex(0,2*M_PI*i*n/d_num_total_subcarriers))	;
-				}
-			}
+			FILE* fft_fp = fopen("post_fft.bin", "wb");
+			fwrite(&preamble_sym_fft[0], sizeof(gr_complex), preamble_sym_fft.size(), fft_fp);
+			fclose(fft_fp);
 
-			FILE* dbg_fp2 = fopen("taps_vals.bin", "wb");
-			fwrite(&taps[0], sizeof(gr_complex), taps.size(), dbg_fp2);
-			fclose(dbg_fp2);
+			// set up polyphase filterbank
+			// pad the prototype to an integer multiple length of L
+			std::vector<gr_complex> prototype_taps = d_prototype_taps;
+	    	while(prototype_taps.size() % d_num_total_subcarriers != 0)
+	    		prototype_taps.push_back(gr_complex(0,0));
 
-			int diff = preamble_sym_fft.size() - taps.size();
-			if(diff > 0) // preamble is longer than the filter impulse response, pad the preamble
-			{
-				for(int i = 0; i < diff; i++)
-					preamble_sym_fft.push_back(0);
-			}
-			else if(diff < 0) // more taps than the preamble length, pad impulse response
-			{
-				for(int i = 0; i < -diff; i++)
-					taps.push_back(0);
-			}
+	    	// prepare the filter branches
+	    	int num_branch_taps = prototype_taps.size()/d_num_total_subcarriers*2; // calculate number of taps per branch filter
+	    	gr_complex** branch_taps = new gr_complex*[d_num_total_subcarriers];
+	    	boost::circular_buffer<gr_complex>* branch_states = new boost::circular_buffer<gr_complex>[d_num_total_subcarriers];
 
-			std::vector<gr_complex> filtered_preamble_sym(2*taps.size()-1, gr_complex(0,0));
+	    	for(int l = 0; l < d_num_total_subcarriers; l++)
+	    	{
+	    		// write the upsampled prototype coefficients into the branch filter
+	    		branch_taps[l] = new gr_complex[num_branch_taps];
+	    		memset((void*) branch_taps[l], 0, num_branch_taps*sizeof(gr_complex));
+	    		int offset = 0;
+	    		if(l >= d_num_total_subcarriers/2)
+	    			offset = 1;
+	    		for(int n = 0; n < num_branch_taps; n++)
+	    			if( (n+offset) % 2) // tap is zero due to oversampling
+	    				branch_taps[l][n] = 0;
+	    			else
+	    				branch_taps[l][n] = prototype_taps[l+(n/2)*d_num_total_subcarriers];
 
-			// 1st half
-			for(int i = 0; i<=taps.size()-1; i++)
-			{
-				for(int j = 0; j <= i; j++)
-					filtered_preamble_sym[i] += taps[j]*preamble_sym_fft[i-j];
-			} 
-			// 2nd half
-			for(int i = 2; i <= taps.size(); i++)
-			{
-				for(int j = 0; j <= taps.size() - i; j++)
-					filtered_preamble_sym[taps.size() + i - 2] += taps[j+1+i-2]*preamble_sym_fft[taps.size()-j-1];
-			}
+	    		// set size of state registers and initialize them with zeros
+	    		branch_states[l].set_capacity(num_branch_taps); // this includes the new sample in each iteration
+	    		for(int i = 0; i < num_branch_taps; i++)
+	    			branch_states[l].push_front(gr_complex(0,0));
+	    	}
+	    	// set up buffer for filtered output
+	    	std::vector<gr_complex> filtered_preamble_sym(preamble_sym_fft.size(), gr_complex(0,0));
 
+	    	// perform the filtering
+	    	for(int i = 0; i < preamble_sym_fft.size()/d_num_total_subcarriers; i++)
+	    	{
+	    		for(int l = 0; l < d_num_total_subcarriers; l++)
+	    		{
+	    			branch_states[l].push_front(preamble_sym_fft[i*d_num_total_subcarriers+l]);
+	    			for(int n = 0; n < num_branch_taps; n++)
+	    			{
+	    				filtered_preamble_sym[i*d_num_total_subcarriers+l] += branch_states[l][n] * branch_taps[l][n];
+	    			}
+	    		}
+	    	}
+
+	    	delete[] branch_taps;
+	    	delete[] branch_states;	  
+
+			FILE* post_fb = fopen("post_fb.bin", "wb");
+			fwrite(&filtered_preamble_sym[0], sizeof(gr_complex), filtered_preamble_sym.size(), post_fb);
+			fclose(post_fb);
 
 			// add the first and second half of one symbol, thus shortening the sequence by a factor of 2 (--> output commutator)
 			d_ref_preamble_sym.clear();
@@ -390,7 +407,7 @@ namespace gr{
 					d_ref_preamble_sym[n+i*d_num_total_subcarriers/2] = filtered_preamble_sym[n+i*d_num_total_subcarriers] + filtered_preamble_sym[n+i*d_num_total_subcarriers + d_num_total_subcarriers/2];
 			}
 
-			FILE* dbg_fp = fopen("ref_vals.bin", "wb");
+			FILE* dbg_fp = fopen("post_oc.bin", "wb");
 			fwrite(&d_ref_preamble_sym[0], sizeof(gr_complex), d_ref_preamble_sym.size(), dbg_fp);
 			fclose(dbg_fp);
 		}

@@ -55,8 +55,9 @@ namespace gr {
                 d_f_off(0),
                 d_phi_off(0)
     {
-      dbg_fp = fopen("corr_vals.bin", "wb");
-      dbg_fp2 = fopen("time_vals.bin", "wb");
+      dbg_fp = fopen("fs_lc.bin", "wb");
+      dbg_fp2 = fopen("fs_in.bin", "wb");
+      dbg_fp3 = fopen("fs_rc.bin", "wb");
 
       if(d_step_size != 1)
         throw std::runtime_error(std::string("Step size must be 1 at the moment because there is no sensible use implemented yet"));
@@ -70,6 +71,9 @@ namespace gr {
       if(d_L < 32)
         std::cerr << "Low number of subcarriers. Increase to make frame synchronization more reliable." << std::endl;
 
+      volk_32fc_x2_conjugate_dot_prod_32fc(&d_preamble_energy, &d_preamble_sym[0], &d_preamble_sym[0], d_preamble_sym.size());
+      d_preamble_energy = abs(d_preamble_energy);
+
       set_min_noutput_items(d_L); // that's what is returned with each call to work
     }
 
@@ -80,13 +84,14 @@ namespace gr {
     {
       fclose(dbg_fp);
       fclose(dbg_fp2);
+      fclose(dbg_fp3);
     }
 
     void
     frame_sync_cc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
         // this is a few samples more than we actually need
-        ninput_items_required[0] = 2*d_L + d_step_size;
+        ninput_items_required[0] = std::max(2*d_L + d_step_size, int(d_preamble_sym.size()) + d_step_size);
     }
 
     float 
@@ -104,7 +109,7 @@ namespace gr {
     } 
 
     gr_complex
-    frame_sync_cc_impl::corr_coef(gr_complex *x1, gr_complex *x2, gr_complex *a1)
+    frame_sync_cc_impl::fixed_lag_corr(gr_complex *x1, gr_complex *x2, gr_complex *a1)
     {
       // NOTE: This calculates the dot product of two vectors and divides it by the average power such that the result lies in [0,1]
 
@@ -126,6 +131,16 @@ namespace gr {
 
       // acorr is calculated over two symbols, so scale accordingly
       return gr_complex(2,0)*xcorr/acorr;
+    }
+
+    gr_complex
+    frame_sync_cc_impl::ref_corr(gr_complex *x)
+    {
+      gr_complex corr = 0;
+      gr_complex sig_energy = 0;
+      volk_32fc_x2_conjugate_dot_prod_32fc(&corr, x, &d_preamble_sym[0], d_preamble_sym.size());
+      volk_32fc_x2_conjugate_dot_prod_32fc(&sig_energy, x, x, d_preamble_sym.size());
+      return corr/(d_preamble_energy*sig_energy);
     }
 
     void
@@ -159,8 +174,10 @@ namespace gr {
         if(!d_tracking) // acquisition
         {
           // perform a fixed lag correlation of the next two consecutive symbols
-          gr_complex corr_res = corr_coef(in, in+d_L, in);
-          fwrite(&corr_res, sizeof(gr_complex), 1, dbg_fp);
+          gr_complex lagged_corr_res = fixed_lag_corr(in, in+d_L, in);
+          gr_complex ref_corr_res = ref_corr(in);
+          fwrite(&lagged_corr_res, sizeof(gr_complex), 1, dbg_fp);
+          fwrite(&ref_corr_res, sizeof(gr_complex), 1, dbg_fp3);
           fwrite(in, sizeof(gr_complex), 1, dbg_fp2);
           samples_consumed = 1;
 
