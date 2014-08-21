@@ -165,6 +165,19 @@ namespace gr {
         int samples_consumed = 0;
         int samples_returned = 0;
 
+        /* Acquisition algorithm:
+        * Step 1: Perform correlation of two subsequent symbols about 2 symbols in advance. 
+        *         The peak itself is too broad for a SOF detection but the phase around the maximum is very stable and can therefore be used for CFO correction
+        *         This is needed as first step because the frequency offset degrades the correlation to the reference symbol severely.
+        * Step 2: Perform correlation with reference symbol on the frequency corrected input signal to obtain the exact location of the peak and therefore the SOF
+        *
+        * Tracking algorithm:
+        * Assume the synchronization to be valid for a whole frame. 
+        * At the (expected) beginning of each frame perform a fixed lag correlation to update the frequency and phase offset.
+        * Then correlate with the reference symbol and confirm the validity of the expected SOF
+        */
+
+
         // there are 4 cases to distinguish:
         // 1. no frame found, return no samples
         // 2. frame was already found and sync is assumed to be valid, only return samples
