@@ -52,6 +52,7 @@ namespace gr{
 				int samp_rate(){return d_samp_rate;}
 				std::vector<int> prbs(){return d_prbs;};
 				std::vector<gr_complex> preamble_sym(){return d_preamble_sym;}
+				std::vector<gr_complex> time_domain_preamble_sym(){return d_ref_preamble_sym;}
 
 			private:
 				bool check_user_args(); // checks constructor parameters for validity

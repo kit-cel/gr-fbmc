@@ -140,7 +140,7 @@ namespace gr {
       gr_complex sig_energy = 0;
       volk_32fc_x2_conjugate_dot_prod_32fc(&corr, x, &d_preamble_sym[0], d_preamble_sym.size());
       volk_32fc_x2_conjugate_dot_prod_32fc(&sig_energy, x, x, d_preamble_sym.size());
-      return corr/(d_preamble_energy*sig_energy);
+      return corr/sqrt(d_preamble_energy*sig_energy);
     }
 
     void
