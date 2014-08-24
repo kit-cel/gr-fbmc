@@ -50,7 +50,7 @@ namespace gr {
       boost::circular_buffer<gr_complex> d_pretracking_buf; // buffer for incoming samplesl during pretracking
 
       float d_f_off; // estimated frequency offset
-      float d_phi_off; // estimated phase offset, updated in every step to avoid phase discontinuities
+      float d_phi; // phase; updated in every step to avoid phase discontinuities
 
       gr_complex fixed_lag_corr(gr_complex *x); // fixed lag correlation
       gr_complex ref_corr(gr_complex *x); // reference correlation

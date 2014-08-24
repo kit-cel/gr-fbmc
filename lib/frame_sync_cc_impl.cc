@@ -55,7 +55,7 @@ namespace gr {
                 d_pretracking_window(2*L),
                 d_pretracking_ctr(0),
                 d_f_off(0),
-                d_phi_off(0)
+                d_phi(0)
     {
       dbg_fp = fopen("fs_lc.bin", "wb");
       dbg_fp2 = fopen("fs_in.bin", "wb");
@@ -157,7 +157,7 @@ namespace gr {
       int samples_consumed = 0;
       int samples_returned = 0;
 
-      std::cout << "ctw, state: " << print_state() << std::endl;
+      //std::cout << "ctw, state: " << print_state() << std::endl;
 
       /* Acquisition algorithm:
       * Step 1: Perform correlation of two subsequent symbols about 2 symbols in advance. This is very robust against frequency offsets.
@@ -181,13 +181,14 @@ namespace gr {
           d_state = FRAME_SYNC_PRETRACKING;
           d_pretracking_ctr = 0;
           
-          d_f_off = estimate_cfo(res);              
+          d_f_off = estimate_cfo(res);     
+          std::cout << "-- cfo=" << d_f_off*250e3 << " Hz" << std::endl;         
           for(int i=0; i < d_preamble_sym.size(); i++)
             in[i] *= exp(gr_complex(0,-2*M_PI*d_f_off*i));
-          d_phi_off = fmod(-2*M_PI*d_f_off*d_preamble_sym.size(), 2*M_PI);        
-          d_pretracking_buf.assign(in, in+d_preamble_sym.size());
+          d_phi = fmod(-2*M_PI*d_f_off*d_preamble_sym.size(), 2*M_PI);        
+          d_pretracking_buf.assign(in, in+d_pretracking_buf.size());
           
-          samples_consumed = d_preamble_sym.size();
+          samples_consumed = d_pretracking_buf.size();
           samples_returned = 0;
         }
         else
@@ -203,23 +204,24 @@ namespace gr {
         gr_complex res = ref_corr(&d_pretracking_buf[0]);
         if(abs(res) > d_threshold)
         {
-          std::cout << "PRETRACK->TRACK after successful reference correlation" << std::endl;
+          std::cout << "PRETRACK->TRACK after successful reference correlation, trial #" << d_pretracking_ctr << std::endl;
           d_state = FRAME_SYNC_TRACKING;
 
           for(int i=0; i < d_pretracking_buf.size(); i++)
             d_pretracking_buf[i] *= exp(gr_complex(0,-arg(res)));
-          d_phi_off += -arg(res);
+          d_phi += -arg(res);
+          std::cout << "--phi=" << arg(res) << " rad" << std::endl;
           memcpy(out, &d_pretracking_buf[0], d_pretracking_buf.size()*sizeof(gr_complex));
           
           d_sample_ctr = d_pretracking_buf.size();
 
           samples_consumed = 0;
-          samples_returned = d_preamble_sym.size();
+          samples_returned = d_pretracking_buf.size();
         }
         else
         {
-          in[0] *= exp(gr_complex(0,d_phi_off));
-          d_phi_off = fmod(d_phi_off-2*M_PI*d_f_off*1, 2*M_PI);
+          in[0] *= exp(gr_complex(0,d_phi));
+          d_phi = fmod(d_phi-2*M_PI*d_f_off*1, 2*M_PI);
           d_pretracking_buf.push_back(in[0]);
           d_pretracking_ctr++;
           if(d_pretracking_ctr > d_pretracking_window)
@@ -239,8 +241,10 @@ namespace gr {
         samples_to_return = std::min(samples_to_return, noutput_items);
 
         for(int i=0; i < samples_to_return; i++)
-          in[i] *= exp(gr_complex(0,-2*M_PI*d_f_off*i + d_phi_off));
-        d_phi_off = fmod(d_phi_off - 2*M_PI*d_f_off*samples_to_return, 2*M_PI);
+          in[i] *= exp(gr_complex(0,-2*M_PI*d_f_off*i + d_phi));
+        d_phi = fmod(d_phi - 2*M_PI*d_f_off*samples_to_return, 2*M_PI);
+
+        memcpy(out, in, sizeof(gr_complex)*samples_to_return);
 
         d_sample_ctr += samples_to_return;
         if(d_sample_ctr == d_frame_len)
@@ -259,11 +263,12 @@ namespace gr {
         if( abs(res) > d_threshold )
         {
           d_f_off = estimate_cfo(res);
+          std::cout << "-- cfo=" << d_f_off*250e3 << " Hz" << std::endl;
 
-          d_pretracking_buf.assign(in, in+d_preamble_sym.size());
+          d_pretracking_buf.assign(in, in+d_pretracking_buf.size());
           for(int i=0; i < d_pretracking_buf.size(); i++)
             d_pretracking_buf[i] *= exp(gr_complex(0,-2*M_PI*d_f_off*i));
-          d_phi_off = -2*M_PI*d_f_off*d_pretracking_buf.size();
+          d_phi = -2*M_PI*d_f_off*d_pretracking_buf.size();
 
           if(!d_pretracking_buf.is_linearized())
             d_pretracking_buf.linearize();
@@ -276,7 +281,8 @@ namespace gr {
 
             for(int i=0; i < d_pretracking_buf.size(); i++)
               d_pretracking_buf[i] *= exp(gr_complex(0,-arg(res)));
-            d_phi_off += -arg(res);
+            d_phi += -arg(res);
+            std::cout << "--phi=" << arg(res) << " rad" << std::endl;
 
             memcpy(out, &d_pretracking_buf[0], sizeof(gr_complex)*d_pretracking_buf.size());
             d_sample_ctr = d_pretracking_buf.size();
