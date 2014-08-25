@@ -49,12 +49,14 @@ namespace gr {
       int d_pretracking_ctr; // counter for determining the position in the pretracking window
       boost::circular_buffer<gr_complex> d_pretracking_buf; // buffer for incoming samplesl during pretracking
 
-      float d_f_off; // estimated frequency offset
+      float d_cfo; // estimated carrier frequency offset
+      boost::circular_buffer<float> d_cfo_hist; // CFO history used for reducing estimation variance
       float d_phi; // phase; updated in every step to avoid phase discontinuities
 
       gr_complex fixed_lag_corr(gr_complex *x); // fixed lag correlation
       gr_complex ref_corr(gr_complex *x); // reference correlation
       float estimate_cfo(gr_complex corr_val); // estimate carrier frequency offset
+      float avg_cfo(float cfo); // returns a averaged estimate of the CFO by using earlier estimations
       std::string print_state();
 
       FILE* dbg_fp;

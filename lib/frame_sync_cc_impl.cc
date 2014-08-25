@@ -26,6 +26,8 @@
 #include "frame_sync_cc_impl.h"
 #include <volk/volk.h>
 
+#include <numeric> // for std::accumulate
+
 namespace gr {
   namespace fbmc {
 
@@ -54,11 +56,11 @@ namespace gr {
                 d_sample_ctr(0),
                 d_pretracking_window(2*L),
                 d_pretracking_ctr(0),
-                d_f_off(0),
+                d_cfo(0),
                 d_phi(0)
     {
-      dbg_fp = fopen("fs_lc.bin", "wb");
-      dbg_fp2 = fopen("fs_in.bin", "wb");
+      dbg_fp = fopen("fs_lc_ref.bin", "wb");
+      dbg_fp2 = fopen("fs_in_ref.bin", "wb");
       dbg_fp3 = fopen("fs_rc.bin", "wb");
 
       if(d_threshold <= 0 || d_threshold >= 1)
@@ -75,6 +77,9 @@ namespace gr {
 
       d_pretracking_buf.clear();
       d_pretracking_buf.resize(d_preamble_sym.size(), 0);
+
+      d_cfo_hist = boost::circular_buffer<float>(100); // 100 is just an arbitrary value...
+      std::cout << "cfo hist size:" << d_cfo_hist.size() << ", max_size: " << d_cfo_hist.max_size() << ", capacity: " << d_cfo_hist.capacity() << std::endl;
 
       set_min_noutput_items(d_pretracking_buf.size()); // that's what can be returned with each call to work
     }
@@ -101,6 +106,18 @@ namespace gr {
     { 
       //std::cout << "corr:" << corr_val << ", f_off:" << 1.0/(2*M_PI*d_L)*arg(-corr_val) << std::endl;
       return -1.0/(2*M_PI*d_L)*arg(corr_val); 
+    }
+
+    float 
+    frame_sync_cc_impl::avg_cfo(float cfo)
+    {
+      d_cfo_hist.push_front(cfo);
+      float cfo_sum = 0;
+      for(int i=0; i<d_cfo_hist.size(); i++)
+        cfo_sum += d_cfo_hist[i];
+      float cfo_avg = cfo_sum/d_cfo_hist.size();
+      std::cout << "cfo in: " << cfo << ", cb size: " << d_cfo_hist.size() << ", cfo avg: " << cfo_avg << std::endl;
+      return cfo_avg;
     }
 
     gr_complex
@@ -172,145 +189,153 @@ namespace gr {
       * Then correlate with the reference symbol for the phase offset and confirm the validity of the expected SOF
       */
 
-      if(d_state == FRAME_SYNC_ACQUISITION)
-      {
-        gr_complex res = fixed_lag_corr(in+d_fixed_lag_lookahead);
-        if(abs(res) > d_threshold)
-        {
-          std::cout << "ACQ->PRETRACK after successful fixed lag correlation" << std::endl;
-          d_state = FRAME_SYNC_PRETRACKING;
-          d_pretracking_ctr = 0;
+      gr_complex res = fixed_lag_corr(in+d_fixed_lag_lookahead);
+      samples_consumed = 1;
+      fwrite(&res, sizeof(gr_complex), 1, dbg_fp);
+      fwrite(in, sizeof(gr_complex), 1, dbg_fp2);
+
+      // if(d_state == FRAME_SYNC_ACQUISITION)
+      // {
+      //   gr_complex res = fixed_lag_corr(in+d_fixed_lag_lookahead);
+      //   if(abs(res) > d_threshold)
+      //   {
+      //     std::cout << "ACQ->PRETRACK after successful fixed lag correlation" << std::endl;
+      //     d_state = FRAME_SYNC_PRETRACKING;
+      //     d_pretracking_ctr = 0;
           
-          d_f_off = estimate_cfo(res);     
-          std::cout << "-- cfo=" << d_f_off*250e3 << " Hz" << std::endl;         
-          for(int i=0; i < d_preamble_sym.size(); i++)
-            in[i] *= exp(gr_complex(0,-2*M_PI*d_f_off*i));
-          d_phi = fmod(-2*M_PI*d_f_off*d_preamble_sym.size(), 2*M_PI);        
-          d_pretracking_buf.assign(in, in+d_pretracking_buf.size());
+      //     float cfo = estimate_cfo(res); 
+      //     d_cfo_hist.clear(); // this resets the frequency offset averaging    
+      //     d_cfo = avg_cfo(cfo);
+      //     std::cout << "-- cfo=" << d_cfo*500e3 << " Hz" << std::endl;         
+      //     for(int i=0; i < d_preamble_sym.size(); i++)
+      //       in[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i));
+      //     d_phi = fmod(-2*M_PI*d_cfo*d_preamble_sym.size(), 2*M_PI);        
+      //     d_pretracking_buf.assign(in, in+d_pretracking_buf.size());
           
-          samples_consumed = d_pretracking_buf.size();
-          samples_returned = 0;
-        }
-        else
-        {
-          samples_consumed = d_step_size;
-          samples_returned = 0;
-        }
-      }
-      else if(d_state == FRAME_SYNC_PRETRACKING)
-      {
-        if(!d_pretracking_buf.is_linearized())
-          d_pretracking_buf.linearize();
-        gr_complex res = ref_corr(&d_pretracking_buf[0]);
-        if(abs(res) > d_threshold)
-        {
-          std::cout << "PRETRACK->TRACK after successful reference correlation, trial #" << d_pretracking_ctr << std::endl;
-          d_state = FRAME_SYNC_TRACKING;
+      //     samples_consumed = d_pretracking_buf.size();
+      //     samples_returned = 0;
+      //   }
+      //   else
+      //   {
+      //     samples_consumed = d_step_size;
+      //     samples_returned = 0;
+      //   }
+      // }
+      // else if(d_state == FRAME_SYNC_PRETRACKING)
+      // {
+      //   if(!d_pretracking_buf.is_linearized())
+      //     d_pretracking_buf.linearize();
+      //   gr_complex res = ref_corr(&d_pretracking_buf[0]);
+      //   if(abs(res) > d_threshold)
+      //   {
+      //     std::cout << "PRETRACK->TRACK after successful reference correlation, trial #" << d_pretracking_ctr << std::endl;
+      //     d_state = FRAME_SYNC_TRACKING;
 
-          for(int i=0; i < d_pretracking_buf.size(); i++)
-            d_pretracking_buf[i] *= exp(gr_complex(0,-arg(res)));
-          d_phi += -arg(res);
-          std::cout << "--phi=" << arg(res) << " rad" << std::endl;
-          memcpy(out, &d_pretracking_buf[0], d_pretracking_buf.size()*sizeof(gr_complex));
+      //     for(int i=0; i < d_pretracking_buf.size(); i++)
+      //       d_pretracking_buf[i] *= exp(gr_complex(0,-arg(res)));
+      //     d_phi += -arg(res);
+      //     std::cout << "--phi=" << arg(res) << " rad" << std::endl;
+      //     memcpy(out, &d_pretracking_buf[0], d_pretracking_buf.size()*sizeof(gr_complex));
           
-          d_sample_ctr = d_pretracking_buf.size();
+      //     d_sample_ctr = d_pretracking_buf.size();
 
-          samples_consumed = 0;
-          samples_returned = d_pretracking_buf.size();
-        }
-        else
-        {
-          in[0] *= exp(gr_complex(0,d_phi));
-          d_phi = fmod(d_phi-2*M_PI*d_f_off*1, 2*M_PI);
-          d_pretracking_buf.push_back(in[0]);
-          d_pretracking_ctr++;
-          if(d_pretracking_ctr > d_pretracking_window)
-          {
-             d_state = FRAME_SYNC_ACQUISITION;
-             std::cout << "PRETRACK->ACQ after " << d_pretracking_ctr << " reference correlation trials" << std::endl;           
-          }
+      //     samples_consumed = 0;
+      //     samples_returned = d_pretracking_buf.size();
+      //   }
+      //   else
+      //   {
+      //     in[0] *= exp(gr_complex(0,d_phi));
+      //     d_phi = fmod(d_phi-2*M_PI*d_cfo*1, 2*M_PI);
+      //     d_pretracking_buf.push_back(in[0]);
+      //     d_pretracking_ctr++;
+      //     if(d_pretracking_ctr > d_pretracking_window)
+      //     {
+      //        d_state = FRAME_SYNC_ACQUISITION;
+      //        std::cout << "PRETRACK->ACQ after " << d_pretracking_ctr << " reference correlation trials" << std::endl;           
+      //     }
 
-          samples_consumed = 1;
-          samples_returned = 0;
-        }
-      }
-      else if(d_state == FRAME_SYNC_TRACKING)
-      {
-        int samples_until_eof = d_frame_len - d_sample_ctr;
-        int samples_to_return = std::min(samples_until_eof, ninput_items[0]);
-        samples_to_return = std::min(samples_to_return, noutput_items);
+      //     samples_consumed = 1;
+      //     samples_returned = 0;
+      //   }
+      // }
+      // else if(d_state == FRAME_SYNC_TRACKING)
+      // {
+      //   int samples_until_eof = d_frame_len - d_sample_ctr;
+      //   int samples_to_return = std::min(samples_until_eof, ninput_items[0]);
+      //   samples_to_return = std::min(samples_to_return, noutput_items);
 
-        for(int i=0; i < samples_to_return; i++)
-          in[i] *= exp(gr_complex(0,-2*M_PI*d_f_off*i + d_phi));
-        d_phi = fmod(d_phi - 2*M_PI*d_f_off*samples_to_return, 2*M_PI);
+      //   for(int i=0; i < samples_to_return; i++)
+      //     in[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i + d_phi));
+      //   d_phi = fmod(d_phi - 2*M_PI*d_cfo*samples_to_return, 2*M_PI);
 
-        memcpy(out, in, sizeof(gr_complex)*samples_to_return);
+      //   memcpy(out, in, sizeof(gr_complex)*samples_to_return);
 
-        d_sample_ctr += samples_to_return;
-        if(d_sample_ctr == d_frame_len)
-        {
-          d_state = FRAME_SYNC_VALIDATION;
-          std::cout << "TRACK->VAL after a complete frame" << std::endl;          
-        }
+      //   d_sample_ctr += samples_to_return;
+      //   if(d_sample_ctr == d_frame_len)
+      //   {
+      //     d_state = FRAME_SYNC_VALIDATION;
+      //     std::cout << "TRACK->VAL after a complete frame" << std::endl;          
+      //   }
 
-        samples_consumed = samples_to_return;
-        samples_returned = samples_to_return;
-      }
-      else if(d_state == FRAME_SYNC_VALIDATION)
-      {
-        d_sample_ctr = 0;
-        gr_complex res = fixed_lag_corr(in+d_fixed_lag_lookahead);
-        if( abs(res) > d_threshold )
-        {
-          d_f_off = estimate_cfo(res);
-          std::cout << "-- cfo=" << d_f_off*250e3 << " Hz" << std::endl;
+      //   samples_consumed = samples_to_return;
+      //   samples_returned = samples_to_return;
+      // }
+      // else if(d_state == FRAME_SYNC_VALIDATION)
+      // {
+      //   d_sample_ctr = 0;
+      //   gr_complex res = fixed_lag_corr(in+d_fixed_lag_lookahead);
+      //   if( abs(res) > d_threshold )
+      //   {
+      //     float cfo = estimate_cfo(res);
+      //     d_cfo = avg_cfo(cfo);
+      //     std::cout << "-- cfo=" << d_cfo*500e3 << " Hz" << std::endl;
 
-          d_pretracking_buf.assign(in, in+d_pretracking_buf.size());
-          for(int i=0; i < d_pretracking_buf.size(); i++)
-            d_pretracking_buf[i] *= exp(gr_complex(0,-2*M_PI*d_f_off*i));
-          d_phi = -2*M_PI*d_f_off*d_pretracking_buf.size();
+      //     d_pretracking_buf.assign(in, in+d_pretracking_buf.size());
+      //     for(int i=0; i < d_pretracking_buf.size(); i++)
+      //       d_pretracking_buf[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i));
+      //     d_phi = -2*M_PI*d_cfo*d_pretracking_buf.size();
 
-          if(!d_pretracking_buf.is_linearized())
-            d_pretracking_buf.linearize();
+      //     if(!d_pretracking_buf.is_linearized())
+      //       d_pretracking_buf.linearize();
           
-          res = ref_corr(&d_pretracking_buf[0]);
-          if(abs(res) > d_threshold)
-          {
-            std::cout << "VAL->TRACK after successfull fixed lag and reference correlation" << std::endl;
-            d_state = FRAME_SYNC_TRACKING;
+      //     res = ref_corr(&d_pretracking_buf[0]);
+      //     if(abs(res) > d_threshold)
+      //     {
+      //       std::cout << "VAL->TRACK after successfull fixed lag and reference correlation" << std::endl;
+      //       d_state = FRAME_SYNC_TRACKING;
 
-            for(int i=0; i < d_pretracking_buf.size(); i++)
-              d_pretracking_buf[i] *= exp(gr_complex(0,-arg(res)));
-            d_phi += -arg(res);
-            std::cout << "--phi=" << arg(res) << " rad" << std::endl;
+      //       for(int i=0; i < d_pretracking_buf.size(); i++)
+      //         d_pretracking_buf[i] *= exp(gr_complex(0,-arg(res)));
+      //       d_phi += -arg(res);
+      //       std::cout << "--phi=" << arg(res) << " rad" << std::endl;
 
-            memcpy(out, &d_pretracking_buf[0], sizeof(gr_complex)*d_pretracking_buf.size());
-            d_sample_ctr = d_pretracking_buf.size();
+      //       memcpy(out, &d_pretracking_buf[0], sizeof(gr_complex)*d_pretracking_buf.size());
+      //       d_sample_ctr = d_pretracking_buf.size();
 
-            samples_consumed = d_preamble_sym.size();
-            samples_returned = d_preamble_sym.size();
-          }
-          else
-          {
-            std::cout << "VAL->ACQ after unsuccessful reference correlation" << std::endl;
-            d_state = FRAME_SYNC_ACQUISITION;
+      //       samples_consumed = d_preamble_sym.size();
+      //       samples_returned = d_preamble_sym.size();
+      //     }
+      //     else
+      //     {
+      //       std::cout << "VAL->ACQ after unsuccessful reference correlation" << std::endl;
+      //       d_state = FRAME_SYNC_ACQUISITION;
 
-            samples_consumed = 1;
-            samples_returned = 0;
-          }
-        }
-        else
-        {
-          std::cout << "VAL->ACQ after unsuccessful fixed lag correlation" << std::endl;
-          d_state = FRAME_SYNC_ACQUISITION;
+      //       samples_consumed = 1;
+      //       samples_returned = 0;
+      //     }
+      //   }
+      //   else
+      //   {
+      //     std::cout << "VAL->ACQ after unsuccessful fixed lag correlation" << std::endl;
+      //     d_state = FRAME_SYNC_ACQUISITION;
 
-          samples_consumed = 1;
-          samples_returned = 0;
-        }
+      //     samples_consumed = 1;
+      //     samples_returned = 0;
+      //   }
 
-      }
-      else
-        throw std::runtime_error("frame synchronization: invalid state");
+      // }
+      // else
+      //   throw std::runtime_error("frame synchronization: invalid state");
 
 
       // inform the scheduler about what has been going on...
