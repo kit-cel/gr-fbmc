@@ -28,8 +28,8 @@
 namespace gr {
   namespace fbmc {
 
-    unsigned const FRAME_SYNC_ACQUISITION = 0;
-    unsigned const FRAME_SYNC_PRETRACKING = 1;
+    unsigned const FRAME_SYNC_PRESENCE_DETECTION = 0;
+    unsigned const FRAME_SYNC_ACQUISITION = 1;
     unsigned const FRAME_SYNC_TRACKING = 2;
     unsigned const FRAME_SYNC_VALIDATION = 3;
 
