@@ -43,7 +43,7 @@ namespace gr {
               gr::io_signature::make(1, 1, sizeof(gr_complex)*L),
               gr::io_signature::make(1, 1, sizeof(gr_complex)*L)),
               d_L(L),
-              d_frame_len(frame_len*2), // frame_len as given relates to the pre-OQAM symbol rate
+              d_frame_len(frame_len), // frame_len as given relates to the pre-OQAM symbol rate
               d_ctr(0),
               d_preamble_sym(preamble_sym)
     {
