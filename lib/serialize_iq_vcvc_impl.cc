@@ -40,11 +40,12 @@ namespace gr {
      */
     serialize_iq_vcvc_impl::serialize_iq_vcvc_impl(int L)
       : gr::sync_interpolator("serialize_iq_vcvc",
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*L),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*L), 2),
+              gr::io_signature::make(1, 1, sizeof(gr_complex)),
+              gr::io_signature::make(1, 1, sizeof(gr_complex)), 2),
               d_L(L)
     {
     	assert(d_L > 0);
+      set_output_multiple(2*L);
     }
 
     /*
@@ -62,8 +63,8 @@ namespace gr {
         const gr_complex *in = (const gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
         
-        if(noutput_items < 2)
-			throw std::runtime_error("noutput items too small");
+        if(noutput_items < 2*d_L)
+			   throw std::runtime_error("noutput items too small");
 
         // Split the complex numbers into real and imaginary part
         for(int i = 0 ; i < d_L; i++)
@@ -73,7 +74,7 @@ namespace gr {
         }
 
         // Tell runtime system how many output items we produced.
-        return 2;
+        return 2*d_L;
     }
 
   } /* namespace fbmc */

@@ -40,10 +40,12 @@ namespace gr {
      */
     combine_iq_vcvc_impl::combine_iq_vcvc_impl(int L)
       : gr::sync_decimator("combine_iq_vcvc",
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*L),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*L), 2),
+              gr::io_signature::make(1, 1, sizeof(gr_complex)),
+              gr::io_signature::make(1, 1, sizeof(gr_complex)), 2),
               d_L(L)
-    {}
+    {
+      set_output_multiple(L);
+    }
 
     /*
      * Our virtual destructor.
@@ -60,11 +62,14 @@ namespace gr {
         const gr_complex *in = (const gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
 
+        if(noutput_items < d_L)
+          throw std::runtime_error("Output buffer too small");
+
         for(int l = 0; l < d_L; l++)
             out[l] = gr_complex(in[l].real(), in[l+d_L].real());
 
         // Tell runtime system how many output items we produced.
-        return 1;
+        return d_L;
     }
 
   } /* namespace fbmc */

@@ -12,11 +12,9 @@
   <sink>
     <name>in</name>
     <type>complex</type>
-    <vlen>$L</vlen>
   </sink>
   <source>
     <name>out</name>
     <type>complex</type>
-    <vlen>$L</vlen>
   </source>
 </block>
