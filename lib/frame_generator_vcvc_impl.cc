@@ -55,8 +55,8 @@ namespace gr {
 			throw std::runtime_error(std::string("inverse has to be either 0 or 1"));
 			
 		// at the moment, only an overlap of 4 is supported
-		if(d_num_overlap != 4)
-			throw std::runtime_error(std::string("overlap has to be 4"));
+		//if(d_num_overlap != 4)
+		//	throw std::runtime_error(std::string("overlap has to be 4"));
 			
 		// the number of payload symbols must be >= 1
 		if (d_num_payload < 1)
