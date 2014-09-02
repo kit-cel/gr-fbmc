@@ -64,7 +64,8 @@ namespace gr {
 			
     	// the frame length has to be a multiple of 4 because of the periodicity of the beta matrix
     	// the frame structure: ||num_sync|num_overlap|payload|num_overlap||...
-    	d_num_frame = d_num_payload + d_num_overlap + d_num_sync + d_num_overlap;
+    	d_num_frame = d_num_payload + d_num_sync + d_num_overlap;
+    	std::cout << "frame len: " << d_num_frame << std::endl;
     	if(d_num_frame % 4 != 0)
     		throw std::runtime_error(std::string("frame length must be a a multiple of 4 because of the periodicity beta matrix"));
 		
@@ -114,7 +115,7 @@ namespace gr {
 			// remove zero symbols and overlap symbols if we are at the start of a frame
 			if(d_payload_sym_ctr == 0)
 			{
-				int num_sym_to_drop = 2*d_num_overlap + d_num_sync; // this includes the whole preamble and the payload overlap
+				int num_sym_to_drop = d_num_overlap + d_num_sync; // this includes the whole preamble and the payload overlap
 				if(d_dropped_sym_ctr < num_sym_to_drop) // there are still zero/sync symbols to drop
 				{
 					// drop the incoming symbol by doing nothing
@@ -163,12 +164,12 @@ namespace gr {
 			{
 				// insert preamble and num_overlap zero symbols
 				//memset((void*) out, 0, sizeof(gr_complex)*d_sym_len*(d_num_sync+d_num_overlap));
-				for(int i = 0; i < d_sym_len*(d_num_overlap+d_num_sync); i++)
+				for(int i = 0; i < d_sym_len*d_num_sync; i++)
 					*out++ = 0;
 				// shift output pointer
 				//out += d_sym_len*(d_num_sync+d_num_overlap);
 				// increase output items
-				noutput_items += (d_num_sync + d_num_overlap);
+				noutput_items += d_num_sync;
 				//std::cout << "start of frame, insert zeros" << std::endl;
 			}
 			
@@ -197,6 +198,7 @@ namespace gr {
 				d_payload_sym_ctr = 0; 
 				//std::cout << "end of frame, insert zeros" << std::endl;
 			}
+			//std::cout << "payload sym ctr: " << d_payload_sym_ctr << "/" << d_num_payload << std::endl;
 		}
 
         // Tell runtime system how many output items we produced.

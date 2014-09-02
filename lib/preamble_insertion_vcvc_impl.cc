@@ -68,12 +68,12 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
-      if(d_ctr < 4) // insert preamble symbol twice
+      if(d_ctr < d_preamble_sym.size()/d_L) // insert preamble symbol twice
     	  memcpy(out, &d_preamble_sym[0]+d_ctr*d_L, sizeof(gr_complex)*d_L);
   		else // just copy the input to the output
   		  memcpy(out, in, sizeof(gr_complex)*d_L);
 		
-		  d_ctr = (d_ctr + 1) % d_frame_len; // this counts OQAM symbols which have double the rate of the (complex) input data
+		  d_ctr = (d_ctr + 1) % d_frame_len; 
 
       fwrite(out, d_L, sizeof(gr_complex), dbg_fp);
 

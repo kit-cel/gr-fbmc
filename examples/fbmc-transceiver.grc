@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <flow_graph>
-  <timestamp>Tue Sep  2 14:52:54 2014</timestamp>
+  <timestamp>Tue Sep  2 17:04:11 2014</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -273,65 +273,6 @@
     <param>
       <key>_rotation</key>
       <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>fft_vxx</key>
-    <param>
-      <key>id</key>
-      <value>fft_vxx_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>fft_size</key>
-      <value>cfg.num_total_subcarriers()</value>
-    </param>
-    <param>
-      <key>forward</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>window</key>
-      <value>()</value>
-    </param>
-    <param>
-      <key>shift</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>nthreads</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(151, 345)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
     </param>
   </block>
   <block>
@@ -1471,49 +1412,6 @@
     </param>
   </block>
   <block>
-    <key>fbmc_apply_betas_vcvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_apply_betas_vcvc_1_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>L</key>
-      <value>cfg.num_total_subcarriers()</value>
-    </param>
-    <param>
-      <key>inverse</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(731, 369)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
     <key>variable_chooser</key>
     <param>
       <key>id</key>
@@ -2149,92 +2047,6 @@
     </param>
   </block>
   <block>
-    <key>fbmc_input_commutator_cvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_input_commutator_cvc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>L</key>
-      <value>cfg.num_total_subcarriers()</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(288, 1118)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_file_sink</key>
-    <param>
-      <key>id</key>
-      <value>blocks_file_sink_1</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>file</key>
-      <value>pre_betas.bin</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>64</value>
-    </param>
-    <param>
-      <key>unbuffered</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>append</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(860, 453)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>blocks_throttle</key>
     <param>
       <key>id</key>
@@ -2426,88 +2238,10 @@
     </param>
   </block>
   <block>
-    <key>fbmc_frame_sync_cc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_frame_sync_cc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>L</key>
-      <value>cfg.num_total_subcarriers()</value>
-    </param>
-    <param>
-      <key>frame_len</key>
-      <value>cfg.num_sym_frame()+12</value>
-    </param>
-    <param>
-      <key>preamble_sym</key>
-      <value>cfg.time_domain_preamble_sym()</value>
-    </param>
-    <param>
-      <key>step_size</key>
-      <value>max(cfg.num_total_subcarriers()/10,1)</value>
-    </param>
-    <param>
-      <key>threshold</key>
-      <value>0.95</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(59, 1086)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>virtual_source</key>
-    <param>
-      <key>id</key>
-      <value>virtual_source_3</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>stream_id</key>
-      <value>tx_signal</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(82, 915)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>blocks_file_sink</key>
     <param>
       <key>id</key>
-      <value>blocks_file_sink_3</value>
+      <value>blocks_file_sink_1_0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -2515,7 +2249,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>rx.bin</value>
+      <value>wpre.bin</value>
     </param>
     <param>
       <key>type</key>
@@ -2543,7 +2277,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(357, 981)</value>
+      <value>(578, 518)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2554,7 +2288,7 @@
     <key>blocks_file_sink</key>
     <param>
       <key>id</key>
-      <value>blocks_file_sink_3_0</value>
+      <value>blocks_file_sink_1_0_0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -2562,7 +2296,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>postbetas.bin</value>
+      <value>frames.bin</value>
     </param>
     <param>
       <key>type</key>
@@ -2590,11 +2324,262 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(874, 959)</value>
+      <value>(1040, 454)</value>
     </param>
     <param>
       <key>_rotation</key>
       <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_configuration_new</key>
+    <param>
+      <key>id</key>
+      <value>cfg</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>34</value>
+    </param>
+    <param>
+      <key>K</key>
+      <value>64</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>mod</key>
+      <value>"QPSK"</value>
+    </param>
+    <param>
+      <key>preamble</key>
+      <value>"IAM"</value>
+    </param>
+    <param>
+      <key>sample_rate</key>
+      <value>int(samp_rate)</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(253, 87)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_apply_betas_vcvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_apply_betas_vcvc_1_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>inverse</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(731, 369)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>fft_vxx</key>
+    <param>
+      <key>id</key>
+      <value>fft_vxx_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>fft_size</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>forward</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>window</key>
+      <value>()</value>
+    </param>
+    <param>
+      <key>shift</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>nthreads</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(151, 345)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_preamble_insertion_vcvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_preamble_insertion_vcvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>cfg.num_sym_frame()</value>
+    </param>
+    <param>
+      <key>preamble_sym</key>
+      <value>cfg.preamble_sym()</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(420, 361)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_frame_generator_vcvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_frame_generator_vcvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>sym_len</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>num_payload</key>
+      <value>cfg.num_payload_sym()</value>
+    </param>
+    <param>
+      <key>inverse</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>num_overlap</key>
+      <value>cfg.num_overlap_sym()</value>
+    </param>
+    <param>
+      <key>num_sync</key>
+      <value>cfg.num_sync_sym()</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1056, 345)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
     </param>
   </block>
   <block>
@@ -2641,81 +2626,34 @@
     </param>
   </block>
   <block>
-    <key>variable_configuration_new</key>
+    <key>blocks_file_sink</key>
     <param>
       <key>id</key>
-      <value>cfg</value>
+      <value>blocks_file_sink_3</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
-      <key>M</key>
-      <value>34</value>
+      <key>file</key>
+      <value>prefg.bin</value>
     </param>
     <param>
-      <key>K</key>
-      <value>66</value>
+      <key>type</key>
+      <value>complex</value>
     </param>
     <param>
-      <key>overlap</key>
-      <value>4</value>
+      <key>vlen</key>
+      <value>64</value>
     </param>
     <param>
-      <key>mod</key>
-      <value>"QPSK"</value>
-    </param>
-    <param>
-      <key>preamble</key>
-      <value>"IAM"</value>
-    </param>
-    <param>
-      <key>sample_rate</key>
-      <value>int(samp_rate)</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(253, 89)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>fbmc_frame_generator_vcvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_frame_generator_vcvc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
+      <key>unbuffered</key>
       <value>True</value>
     </param>
     <param>
-      <key>sym_len</key>
-      <value>cfg.num_total_subcarriers()</value>
-    </param>
-    <param>
-      <key>num_payload</key>
-      <value>cfg.num_payload_sym()*2</value>
-    </param>
-    <param>
-      <key>inverse</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>num_overlap</key>
-      <value>cfg.num_overlap_sym()*2</value>
-    </param>
-    <param>
-      <key>num_sync</key>
-      <value>cfg.num_sync_sym()*2</value>
+      <key>append</key>
+      <value>False</value>
     </param>
     <param>
       <key>alias</key>
@@ -2726,20 +2664,12 @@
       <value></value>
     </param>
     <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
       <key>_coordinate</key>
-      <value>(1056, 344)</value>
+      <value>(1131, 1358)</value>
     </param>
     <param>
       <key>_rotation</key>
-      <value>180</value>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -2758,7 +2688,7 @@
     </param>
     <param>
       <key>num_payload</key>
-      <value>cfg.num_payload_sym()*2</value>
+      <value>cfg.num_payload_sym()</value>
     </param>
     <param>
       <key>inverse</key>
@@ -2766,11 +2696,11 @@
     </param>
     <param>
       <key>num_overlap</key>
-      <value>cfg.num_overlap_sym()*2</value>
+      <value>cfg.num_overlap_sym()</value>
     </param>
     <param>
       <key>num_sync</key>
-      <value>cfg.num_sync_sym()*2</value>
+      <value>cfg.num_sync_sym()</value>
     </param>
     <param>
       <key>alias</key>
@@ -2795,6 +2725,53 @@
     <param>
       <key>_rotation</key>
       <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_file_sink</key>
+    <param>
+      <key>id</key>
+      <value>blocks_file_sink_3_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>file</key>
+      <value>postfg.bin</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>64</value>
+    </param>
+    <param>
+      <key>unbuffered</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>append</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(874, 959)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -2900,7 +2877,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(63, 235)</value>
+      <value>(63, 236)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2908,14 +2885,14 @@
     </param>
   </block>
   <block>
-    <key>fbmc_preamble_insertion_vcvc</key>
+    <key>fbmc_frame_sync_cc</key>
     <param>
       <key>id</key>
-      <value>fbmc_preamble_insertion_vcvc_0</value>
+      <value>fbmc_frame_sync_cc_0</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>L</key>
@@ -2923,11 +2900,19 @@
     </param>
     <param>
       <key>frame_len</key>
-      <value>cfg.num_sym_frame()*2</value>
+      <value>cfg.num_sym_frame()</value>
     </param>
     <param>
       <key>preamble_sym</key>
-      <value>cfg.preamble_sym()</value>
+      <value>cfg.time_domain_preamble_sym()</value>
+    </param>
+    <param>
+      <key>step_size</key>
+      <value>max(cfg.num_total_subcarriers()/10,1)</value>
+    </param>
+    <param>
+      <key>threshold</key>
+      <value>0.95</value>
     </param>
     <param>
       <key>alias</key>
@@ -2947,11 +2932,120 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(419, 361)</value>
+      <value>(59, 1086)</value>
     </param>
     <param>
       <key>_rotation</key>
-      <value>180</value>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>virtual_source</key>
+    <param>
+      <key>id</key>
+      <value>virtual_source_3</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>stream_id</key>
+      <value>tx_signal</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(82, 915)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_input_commutator_cvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_input_commutator_cvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(288, 1118)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_skiphead</key>
+    <param>
+      <key>id</key>
+      <value>blocks_skiphead_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>num_items</key>
+      <value>128</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(298, 1051)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
     </param>
   </block>
   <connection>
@@ -3207,32 +3301,50 @@
     <sink_key>1</sink_key>
   </connection>
   <connection>
-    <source_block_id>virtual_source_3</source_block_id>
-    <sink_block_id>fbmc_input_commutator_cvc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fbmc_frame_generator_vcvc_0</source_block_id>
-    <sink_block_id>blocks_file_sink_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>blocks_vector_source_x_0</source_block_id>
     <sink_block_id>blocks_throttle_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>virtual_source_3</source_block_id>
-    <sink_block_id>blocks_file_sink_3</sink_block_id>
+    <source_block_id>fbmc_output_commutator_vcc_0</source_block_id>
+    <sink_block_id>blocks_file_sink_1_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_frame_generator_vcvc_0</source_block_id>
+    <sink_block_id>blocks_file_sink_1_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>fbmc_apply_betas_vcvc_1</source_block_id>
+    <sink_block_id>blocks_file_sink_3</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_frame_generator_vcvc_1</source_block_id>
     <sink_block_id>blocks_file_sink_3_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>virtual_source_3</source_block_id>
+    <sink_block_id>fbmc_frame_sync_cc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>virtual_source_3</source_block_id>
+    <sink_block_id>blocks_skiphead_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_skiphead_0</source_block_id>
+    <sink_block_id>fbmc_input_commutator_cvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

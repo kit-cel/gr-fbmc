@@ -62,14 +62,9 @@ namespace gr{
 				d_num_used_subcarriers = num_used_adjusted;
 			}
 
-			d_num_sync_sym = d_num_overlap_sym + 2; // num_overlap_sym is needed to settle the filters
-			d_num_preamble_sym = d_num_sync_sym + d_num_overlap_sym; // another num_overlap_sym is needed to clear the filter registers	
-
 	    	// generate the prototype filter taps
 	    	gen_prototype_filter();
 	    	d_group_delay = (d_prototype_taps.size()-1)/2;
-
-			d_num_sym_frame = d_num_preamble_sym + d_num_payload_sym + d_num_overlap_sym; // total symbols per frame	
 
 			d_const = gr::digital::constellation_qpsk::make();
 
@@ -87,6 +82,9 @@ namespace gr{
 
 			// generate time domain preamble for correlation in the receiver
 			gen_ref_preamble_sym();
+			d_num_preamble_sym = d_preamble_sym.size()/d_num_total_subcarriers; // another num_overlap_sym is needed to clear the filter registers	
+			d_num_sync_sym = d_num_overlap_sym + d_preamble_sym.size()/d_num_total_subcarriers; // num_overlap_sym is needed to settle the filters
+			d_num_sym_frame = d_num_sync_sym + d_num_payload_sym + d_num_overlap_sym; // total symbols per frame	
 
 			// check calulated parameters for validity
 			check_calc_params();	
@@ -242,8 +240,8 @@ namespace gr{
 		{
 			if(d_num_total_subcarriers < d_num_used_subcarriers || d_num_total_subcarriers % 4 != 0)
 				throw std::runtime_error(std::string("Invalid number of total subcarriers, has to be positive and an integer multiple of 4"));
-			else if(d_num_sym_frame % 4 != 0)
-				throw std::runtime_error(str(boost::format("Number of symbols per frame has to be a multiple of 4, but is %d") % d_num_sym_frame));
+			//else if(d_num_sym_frame % 4 != 0)
+			//	throw std::runtime_error(str(boost::format("Number of symbols per frame has to be a multiple of 4, but is %d") % d_num_sym_frame));
 			else if(std::accumulate(d_channel_map.begin(), d_channel_map.end(), 0) != d_num_used_subcarriers || d_channel_map.size() != d_num_total_subcarriers)
 			{
 				std::cout << std::accumulate(d_channel_map.begin(), d_channel_map.end(), 0) << " " << d_channel_map.size() << std::endl;
