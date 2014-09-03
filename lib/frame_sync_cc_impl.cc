@@ -46,8 +46,8 @@ namespace gr {
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
                 d_L(L),
-                d_frame_len(frame_len*L),
-                d_fixed_lag_lookahead(1.5*L),
+                d_frame_len(frame_len*L/2), // frame sync 'sees' half the rate compared to the rest of the FG
+                d_fixed_lag_lookahead(3*L/2), // shift the correlation peak to the beginning of the frame
                 d_preamble_sym(preamble_sym),
                 d_step_size(step_size),
                 d_threshold(threshold),
