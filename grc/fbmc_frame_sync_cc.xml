@@ -3,7 +3,7 @@
   <key>fbmc_frame_sync_cc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.frame_sync_cc($L, $frame_len, $preamble_sym, $step_size, $threshold)</make>
+  <make>fbmc.frame_sync_cc($L, $frame_len, $preamble_sym, $step_size, $threshold, $overlap)</make>
   <param>
     <name>Num total subcarriers</name>
     <key>L</key>
@@ -28,6 +28,11 @@
     <name>Threshold</name>
     <key>threshold</key>
     <type>float</type>
+  </param>
+  <param>
+    <name>Overlap</name>
+    <key>overlap</key>
+    <type>int</type>
   </param>
   <sink>
     <name>in</name>

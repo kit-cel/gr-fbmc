@@ -42,6 +42,7 @@ namespace gr {
       gr_complex d_preamble_energy; // energy of the preamble signal
       int d_step_size; // number of samples to proceed with every step
       float d_threshold; // threshold for the correlation
+      int d_overlap; // number of overlapping symbols (PAM rate)
       unsigned int d_state; // synchronization state
       int d_num_consec_frames; // number of consecutive frames detected
       int d_sample_ctr; // number of samples of the current frame that already have been written
@@ -64,7 +65,7 @@ namespace gr {
       FILE* dbg_fp3;
 
      public:
-      frame_sync_cc_impl(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold);
+      frame_sync_cc_impl(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold, int overlap);
       ~frame_sync_cc_impl();
 
       // Where all the action really happens

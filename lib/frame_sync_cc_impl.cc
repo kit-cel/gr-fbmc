@@ -32,16 +32,16 @@ namespace gr {
   namespace fbmc {
 
     frame_sync_cc::sptr
-    frame_sync_cc::make(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold)
+    frame_sync_cc::make(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold, int overlap)
     {
       return gnuradio::get_initial_sptr
-        (new frame_sync_cc_impl(L, frame_len, preamble_sym, step_size, threshold));
+        (new frame_sync_cc_impl(L, frame_len, preamble_sym, step_size, threshold, overlap));
     }
 
     /*
      * The private constructor
      */
-    frame_sync_cc_impl::frame_sync_cc_impl(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold)
+    frame_sync_cc_impl::frame_sync_cc_impl(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold, int overlap)
       : gr::block("frame_sync_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
@@ -51,6 +51,7 @@ namespace gr {
                 d_preamble_sym(preamble_sym),
                 d_step_size(step_size),
                 d_threshold(threshold),
+                d_overlap(overlap),
                 d_state(FRAME_SYNC_PRESENCE_DETECTION),
                 d_num_consec_frames(0),
                 d_sample_ctr(0),
@@ -72,6 +73,9 @@ namespace gr {
       if(d_L < 32)
         std::cerr << "Low number of subcarriers. Increase to make frame synchronization more reliable." << std::endl;
 
+      if(d_overlap != 4)
+        throw std::runtime_error("Overlap must be four or else segmentation faults may occur");
+
       volk_32fc_x2_conjugate_dot_prod_32fc(&d_preamble_energy, &d_preamble_sym[0], &d_preamble_sym[0], d_preamble_sym.size());
       d_preamble_energy = abs(d_preamble_energy);
 
@@ -79,9 +83,7 @@ namespace gr {
       d_pretracking_buf.resize(std::max(d_L*2,int(d_preamble_sym.size())), 0);
 
       d_cfo_hist = boost::circular_buffer<float>(10); // 10 is just an arbitrary value...
-      std::cout << "cfo hist size:" << d_cfo_hist.size() << ", max_size: " << d_cfo_hist.max_size() << ", capacity: " << d_cfo_hist.capacity() << std::endl;
-
-      set_min_noutput_items(std::max(d_L,int(d_pretracking_buf.size()))); // that's what can be returned with each call to work
+      set_min_noutput_items(std::max(d_L,d_overlap/2*d_L + int(d_pretracking_buf.size()))); // that's what can be returned with each call to work
     }
 
     /*
@@ -333,7 +335,7 @@ namespace gr {
           res = ref_corr(&d_pretracking_buf[0]);
           if(abs(res) > d_threshold)
           {
-            std::cout << "VAL->TRACK after successful fixed lag and reference correlation" << std::endl;
+            // std::cout << "VAL->TRACK after successful fixed lag and reference correlation" << std::endl;
             d_state = FRAME_SYNC_TRACKING;
 
             for(int i=0; i < d_pretracking_buf.size(); i++)
@@ -341,11 +343,13 @@ namespace gr {
             d_phi = fmod(d_phi + arg(res), 2*M_PI);
             std::cout << "--phi=" << arg(res) << " rad" << std::endl;
 
-            memcpy(out, &d_pretracking_buf[0], sizeof(gr_complex)*d_pretracking_buf.size());
+            // repeat the beginning of the new frame to allow the sync to move the frame boundaries by a few samples without causing interference
+            memcpy(out, &d_pretracking_buf[0], sizeof(gr_complex)*d_overlap/2*d_L);
+            memcpy(out+d_overlap/2*d_L, &d_pretracking_buf[0], sizeof(gr_complex)*d_pretracking_buf.size());
             d_sample_ctr = d_pretracking_buf.size();
 
             samples_consumed = d_preamble_sym.size();
-            samples_returned = d_preamble_sym.size();
+            samples_returned = d_preamble_sym.size()+d_L*d_overlap/2;
           }
           else
           {

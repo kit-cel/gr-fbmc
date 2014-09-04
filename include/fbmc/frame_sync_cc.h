@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::frame_sync_cc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold);
+      static sptr make(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold, int overlap);
     };
 
   } // namespace fbmc
