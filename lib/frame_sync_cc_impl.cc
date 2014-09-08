@@ -207,7 +207,7 @@ namespace gr {
         gr_complex res = fixed_lag_corr(in+d_fixed_lag_lookahead);
         if(abs(res) > d_threshold)
         {
-          std::cout << "DET->ACQ after successful fixed lag correlation" << std::endl;
+          // std::cout << "DET->ACQ after successful fixed lag correlation:" << nitems_read(0) << std::endl;
           d_state = FRAME_SYNC_ACQUISITION;
           d_pretracking_ctr = 0;
           
@@ -226,6 +226,7 @@ namespace gr {
         }
         else
         {
+          // std::cout << "DET->DET: " << nitems_read(0) << std::endl;
           samples_consumed = d_step_size;
           samples_returned = 0;
         }
@@ -248,10 +249,10 @@ namespace gr {
 
           if(abs(res_rc) > d_threshold)
           {
-            std::cout << "ACQ->TRACK after successful reference correlation" << std::endl;
+            // std::cout << "ACQ->TRACK after successful reference correlation: "  << nitems_read(0) << std::endl;
             d_state = FRAME_SYNC_TRACKING;
             d_phi = arg(res_rc);
-            std::cout << "cfo*250e3=" << d_cfo*250e3 << ", phi=" << d_phi << std::endl;
+            // std::cout << "cfo*250e3=" << d_cfo*250e3 << ", phi=" << d_phi << std::endl;
 
             d_cfo_hist.clear();
             d_cfo = avg_cfo(d_cfo);
@@ -270,7 +271,7 @@ namespace gr {
             d_pretracking_ctr++;
             if(d_pretracking_ctr >= d_pretracking_window)
             {
-              std::cout << "ACQ->DET after " << d_pretracking_window << " unsuccessful trials" << std::endl;
+              // std::cout << "ACQ->DET after " << d_pretracking_window << " unsuccessful trials: " << nitems_read(0) << std::endl;
               d_state = FRAME_SYNC_PRESENCE_DETECTION;
             }      
 
@@ -283,7 +284,7 @@ namespace gr {
           d_pretracking_ctr++;
           if(d_pretracking_ctr >= d_pretracking_window)
           {
-            std::cout << "ACQ->DET after " << d_pretracking_window << " unsuccessful trials" << std::endl;
+            // std::cout << "ACQ->DET after " << d_pretracking_window << " unsuccessful trials: " << nitems_read(0) << std::endl;
             d_state = FRAME_SYNC_PRESENCE_DETECTION;
           }
 
@@ -304,14 +305,18 @@ namespace gr {
         memcpy(out, in, sizeof(gr_complex)*samples_to_return);
 
         d_sample_ctr += samples_to_return;
-        if(d_sample_ctr == d_frame_len)
-        {
-          d_state = FRAME_SYNC_VALIDATION;
-          std::cout << "TRACK->VAL after a complete frame" << std::endl;          
-        } 
 
         samples_consumed = samples_to_return;
         samples_returned = samples_to_return;
+
+        if(d_sample_ctr == d_frame_len)
+        {
+          d_state = FRAME_SYNC_VALIDATION;
+          // std::cout << "TRACK->VAL after a complete frame: " << nitems_read(0) << std::endl;   
+          // copy zeros as buffer inbetween the frames
+          //memset(out+samples_to_return, 0, sizeof(gr_complex)*d_overlap/2*d_L);      
+          //samples_returned += d_overlap/2*d_L; 
+        } 
       }
       else if(d_state == FRAME_SYNC_VALIDATION)
       {
@@ -322,7 +327,7 @@ namespace gr {
           //float cfo = estimate_cfo(res);
           //d_cfo = avg_cfo(cfo);
           d_cfo = avg_cfo(estimate_cfo(res));
-          std::cout << "-- cfo*250e3=" << d_cfo*250e3 << std::endl;
+          // std::cout << "-- cfo*250e3=" << d_cfo*250e3 << std::endl;
 
           d_pretracking_buf.assign(in, in+d_pretracking_buf.size());
           for(int i=0; i < d_pretracking_buf.size(); i++)
@@ -341,19 +346,21 @@ namespace gr {
             for(int i=0; i < d_pretracking_buf.size(); i++)
               d_pretracking_buf[i] *= exp(gr_complex(0,-arg(res)));
             d_phi = fmod(d_phi + arg(res), 2*M_PI);
-            std::cout << "--phi=" << arg(res) << " rad" << std::endl;
+            // std::cout << "--phi=" << arg(res) << " rad" << std::endl;
 
             // repeat the beginning of the new frame to allow the sync to move the frame boundaries by a few samples without causing interference
-            memcpy(out, &d_pretracking_buf[0], sizeof(gr_complex)*d_overlap/2*d_L);
-            memcpy(out+d_overlap/2*d_L, &d_pretracking_buf[0], sizeof(gr_complex)*d_pretracking_buf.size());
+            // memcpy(out, &d_pretracking_buf[0], sizeof(gr_complex)*d_overlap/2*d_L);
+            // memcpy(out+d_overlap/2*d_L, &d_pretracking_buf[0], sizeof(gr_complex)*d_pretracking_buf.size());
+            memcpy(out, &d_pretracking_buf[0], sizeof(gr_complex)*d_pretracking_buf.size());
             d_sample_ctr = d_pretracking_buf.size();
 
             samples_consumed = d_preamble_sym.size();
-            samples_returned = d_preamble_sym.size()+d_L*d_overlap/2;
+            samples_returned = d_preamble_sym.size();
+            // samples_returned = d_preamble_sym.size()+d_L*d_overlap/2;
           }
           else
           {
-            std::cout << "VAL->DET after unsuccessful reference correlation" << std::endl;
+            // std::cout << "VAL->DET after unsuccessful reference correlation: " << nitems_read(0) << std::endl;
             d_state = FRAME_SYNC_PRESENCE_DETECTION;
 
             samples_consumed = 1;
@@ -362,7 +369,7 @@ namespace gr {
         }
         else
         {
-          std::cout << "VAL->DET after unsuccessful fixed lag correlation" << std::endl;
+          // std::cout << "VAL->DET after unsuccessful fixed lag correlation: " << nitems_read(0) << std::endl;
           d_state = FRAME_SYNC_PRESENCE_DETECTION;
 
           samples_consumed = 1;

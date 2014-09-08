@@ -114,7 +114,7 @@ namespace gr {
 			// remove zero symbols and overlap symbols if we are at the start of a frame
 			if(d_payload_sym_ctr == 0)
 			{
-				int num_sym_to_drop = 2*d_num_overlap + d_num_sync; // this includes the whole preamble, the extra symbols for the filter bank 'reset' and the payload overlap
+				int num_sym_to_drop = d_num_overlap + d_num_sync; // this includes the whole preamble and the payload overlap
 				if(d_dropped_sym_ctr < num_sym_to_drop) // there are still zero/sync symbols to drop
 				{
 					// drop the incoming symbol by doing nothing
