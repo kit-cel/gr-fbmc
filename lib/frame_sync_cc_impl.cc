@@ -83,7 +83,7 @@ namespace gr {
       d_pretracking_buf.resize(std::max(d_L*2,int(d_preamble_sym.size())), 0);
 
       d_cfo_hist = boost::circular_buffer<float>(10); // 10 is just an arbitrary value...
-      set_min_noutput_items(std::max(d_L,d_overlap/2*d_L + int(d_pretracking_buf.size()))); // that's what can be returned with each call to work
+      set_min_noutput_items(std::max(d_L, d_overlap*d_L + int(d_pretracking_buf.size()))); // that's what can be returned with each call to work
     }
 
     /*
@@ -211,16 +211,6 @@ namespace gr {
           d_state = FRAME_SYNC_ACQUISITION;
           d_pretracking_ctr = 0;
           
-          //float cfo = estimate_cfo(res); 
-          //d_cfo_hist.clear(); // this resets the frequency offset averaging    
-          //d_cfo = avg_cfo(cfo);
-          //d_cfo = estimate_cfo();
-          //std::cout << "-- cfo=" << d_cfo*500e3 << " Hz" << std::endl;         
-          //for(int i=0; i < d_preamble_sym.size(); i++)
-          //  in[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i));
-          //d_phi = fmod(-2*M_PI*d_cfo*d_preamble_sym.size(), 2*M_PI);        
-          //d_pretracking_buf.assign(in, in+d_preamble_sym.size());
-          
           samples_consumed = 0;
           samples_returned = 0;
         }
@@ -314,8 +304,8 @@ namespace gr {
           d_state = FRAME_SYNC_VALIDATION;
           // std::cout << "TRACK->VAL after a complete frame: " << nitems_read(0) << std::endl;   
           // copy zeros as buffer inbetween the frames
-          //memset(out+samples_to_return, 0, sizeof(gr_complex)*d_overlap/2*d_L);      
-          //samples_returned += d_overlap/2*d_L; 
+          memset(out+samples_to_return, 0, sizeof(gr_complex)*d_overlap/2*d_L);      
+          samples_returned += d_overlap/2*d_L; 
         } 
       }
       else if(d_state == FRAME_SYNC_VALIDATION)
