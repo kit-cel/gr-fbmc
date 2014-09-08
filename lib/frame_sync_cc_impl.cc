@@ -83,7 +83,7 @@ namespace gr {
       d_pretracking_buf.resize(std::max(d_L*2,int(d_preamble_sym.size())), 0);
 
       d_cfo_hist = boost::circular_buffer<float>(10); // 10 is just an arbitrary value...
-      set_min_noutput_items(std::max(d_L, d_overlap*d_L + int(d_pretracking_buf.size()))); // that's what can be returned with each call to work
+      set_min_noutput_items(d_frame_len); // that's what can be returned with each call to work
     }
 
     /*

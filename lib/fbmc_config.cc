@@ -255,25 +255,25 @@ namespace gr{
 			std::cout << "**********************************************************" << std::endl;
 			std::cout << "******************* FBMC parameters *********************" << std::endl;
 			std::cout << "**********************************************************" << std::endl;
-			std::cout << "FFT length:\t\t\t\t\t\t" << d_num_total_subcarriers << std::endl;
+			std::cout << "FFT length:\t" << d_num_total_subcarriers << std::endl;
 			float subc_spac = float(d_samp_rate)/d_num_total_subcarriers/1000;
-			std::cout << "Subcarrier spacing (kHz):\t\t" << subc_spac << std::endl;
+			std::cout << "Subcarrier spacing (kHz):\t" << subc_spac << std::endl;
 			std::cout << "Number of used subcarriers:\t" << d_num_used_subcarriers << std::endl;
-			std::cout << "Occupied bandwidth (kHz):\t\t" << float(d_samp_rate)/d_num_total_subcarriers*d_num_used_subcarriers/1000 << std::endl;
+			std::cout << "Occupied bandwidth (kHz):\t" << float(d_samp_rate)/d_num_total_subcarriers*d_num_used_subcarriers/1000 << std::endl;
 			std::cout << "Number of symbols per frame:\t" << d_num_sym_frame << std::endl;
-			std::cout << "\t-> payload symbols:\t\t\t" << d_num_payload_sym << std::endl;
-			std::cout << "\t-> preamble symbols:\t\t" << d_num_preamble_sym << std::endl;
+			std::cout << "\t-> payload symbols:\t" << d_num_payload_sym << std::endl;
+			std::cout << "\t-> sync symbols:\t" << d_num_sync_sym << std::endl;
 			std::cout << "\t-> overlap guard symbols:\t" << d_num_overlap_sym << std::endl;
 			float tsym = float(d_num_total_subcarriers)/d_samp_rate;
-			std::cout << "Symbol duration (ms):\t\t\t" << tsym*1000 << std::endl;
-			std::cout << "Frame duration (ms):\t\t\t\t" << tsym*1000*d_num_sym_frame << std::endl;
-			std::cout << "Modulation:\t\t\t\t\t\t" << modulation() << std::endl;
-			std::cout << "Filterbank group delay:\t\t" << (d_prototype_taps.size()-1)/2 << std::endl;
-			int payl_bits_frame = d_num_payload_sym*log2(constellation_points().size())*d_num_used_subcarriers;
-			std::cout << "Bits per frame:\t\t\t\t\t" << payl_bits_frame << std::endl;
+			std::cout << "Symbol duration (ms):\t" << tsym*1000 << std::endl;
+			std::cout << "Frame duration (ms):\t" << tsym*1000*d_num_sym_frame << std::endl;
+			std::cout << "Modulation:\t" << modulation() << std::endl;
+			std::cout << "Filterbank group delay:\t" << (d_prototype_taps.size()-1)/2 << std::endl;
+			int payl_bits_frame = d_num_payload_sym*d_num_used_subcarriers;
+			std::cout << "Bits per frame:\t" << payl_bits_frame << std::endl;
 			float payl_bit_rate = float(payl_bits_frame) / (tsym*d_num_sym_frame);
-			std::cout << "Payload bit rate (kbps):\t\t\t" << payl_bit_rate/1000 << std::endl;
-			std::cout << "Spectral efficiency (b/Hz):\t\t" << payl_bit_rate/(d_num_used_subcarriers*subc_spac*1000) << std::endl;
+			std::cout << "Payload bit rate (kbps):\t" << payl_bit_rate/1000 << std::endl;
+			std::cout << "Spectral efficiency (b/Hz):\t" << payl_bit_rate/(d_num_used_subcarriers*subc_spac*1000) << std::endl;
 			std::cout << "**********************************************************" << std::endl << std::endl;
 		}
 
