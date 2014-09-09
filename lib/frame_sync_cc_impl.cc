@@ -222,8 +222,8 @@ namespace gr {
         {
           d_cfo = estimate_cfo(res_flc);
 
-          d_buf.assign(in, in+d_buf.size());
-          for(int i=0; i < d_buf.size(); i++)
+          d_buf.assign(in, in+d_preamble_sym.size());
+          for(int i=0; i < d_preamble_sym.size(); i++)
             d_buf[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i));
 
           if(!d_buf.is_linearized())
@@ -239,15 +239,15 @@ namespace gr {
 
             d_cfo_hist.clear();
             d_cfo = avg_cfo(d_cfo);
-            for(int i=0; i<d_buf.size(); i++)
+            for(int i=0; i<d_preamble_sym.size(); i++)
               d_buf[i] *= exp(gr_complex(0,-d_phi));
-            d_phi += fmod(2*M_PI*d_cfo*d_buf.size(), 2*M_PI);
+            d_phi += fmod(2*M_PI*d_cfo*d_preamble_sym.size(), 2*M_PI);
 
-            memcpy(out, &d_buf[0], sizeof(gr_complex)*d_buf.size());
-            d_sample_ctr = d_buf.size();
+            memcpy(out, &d_buf[0], sizeof(gr_complex)*d_preamble_sym.size());
+            d_sample_ctr = d_preamble_sym.size();
 
-            samples_consumed = d_buf.size();
-            samples_returned = d_buf.size();
+            samples_consumed = d_preamble_sym.size();
+            samples_returned = d_preamble_sym.size();
           }
           else
           {
@@ -311,10 +311,10 @@ namespace gr {
           d_cfo = avg_cfo(estimate_cfo(res));
           // std::cout << "-- cfo*250e3=" << d_cfo*250e3 << std::endl;
 
-          d_buf.assign(in, in+d_buf.size());
-          for(int i=0; i < d_buf.size(); i++)
+          d_buf.assign(in, in+d_preamble_sym.size());
+          for(int i=0; i < d_preamble_sym.size(); i++)
             d_buf[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i));
-          d_phi = 2*M_PI*d_cfo*d_buf.size();
+          d_phi = 2*M_PI*d_cfo*d_preamble_sym.size();
 
           if(!d_buf.is_linearized())
             d_buf.linearize();
@@ -325,17 +325,16 @@ namespace gr {
             // std::cout << "VAL->TRACK after successful fixed lag and reference correlation" << std::endl;
             d_state = FRAME_SYNC_TRACKING;
 
-            for(int i=0; i < d_buf.size(); i++)
+            for(int i=0; i < d_preamble_sym.size(); i++)
               d_buf[i] *= exp(gr_complex(0,-arg(res)));
             d_phi = fmod(d_phi + arg(res), 2*M_PI);
             // std::cout << "--phi=" << arg(res) << " rad" << std::endl;
 
-            memcpy(out, &d_buf[0], sizeof(gr_complex)*d_buf.size());
-            d_sample_ctr = d_buf.size();
+            memcpy(out, &d_buf[0], sizeof(gr_complex)*d_preamble_sym.size());
+            d_sample_ctr = d_preamble_sym.size();
 
             samples_consumed = d_preamble_sym.size();
             samples_returned = d_preamble_sym.size();
-            // samples_returned = d_preamble_sym.size()+d_L*d_overlap/2;
           }
           else
           {
