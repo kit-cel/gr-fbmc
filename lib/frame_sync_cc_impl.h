@@ -37,7 +37,7 @@ namespace gr {
      private:
       int d_L; // number of subcarriers
       int d_frame_len; // number of samples per frame (including preamble)
-      int d_fixed_lag_lookahead; // lookahead for fixed lag correlation
+      int d_fixed_lag_lookahead; // lookahead for fixed lag correlation to achieve a synchronous peak for fixed lag and reference correlation
       std::vector<gr_complex> d_preamble_sym; // reference preamble symbol
       gr_complex d_preamble_energy; // energy of the preamble signal
       int d_step_size; // number of samples to proceed with every step
@@ -46,9 +46,10 @@ namespace gr {
       unsigned int d_state; // synchronization state
       int d_num_consec_frames; // number of consecutive frames detected
       int d_sample_ctr; // number of samples of the current frame that already have been written
-      int d_pretracking_window; // time window for which the pretracking is performed before going back to acquisition
-      int d_pretracking_ctr; // counter for determining the position in the pretracking window
-      boost::circular_buffer<gr_complex> d_pretracking_buf; // buffer for incoming samplesl during pretracking
+      int d_acq_win_len; // time window for which the acquisition is performed before going back to presence detection
+      int d_acq_ctr; // counter for determining the position in the acquisition window
+      boost::circular_buffer<gr_complex> d_buf; // buffer for incoming samples during acquisition
+      int d_track_win_len; // time window in samples in which the start of frame may be corrected
 
       float d_cfo; // estimated carrier frequency offset
       boost::circular_buffer<float> d_cfo_hist; // CFO history used for reducing estimation variance

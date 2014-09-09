@@ -55,10 +55,11 @@ namespace gr {
                 d_state(FRAME_SYNC_PRESENCE_DETECTION),
                 d_num_consec_frames(0),
                 d_sample_ctr(0),
-                d_pretracking_window(10*L),
-                d_pretracking_ctr(0),
+                d_acq_win_len(10*L),
+                d_acq_ctr(0),
                 d_cfo(0),
-                d_phi(0)
+                d_phi(0),
+                d_track_win_len(5)
     {
       dbg_fp = fopen("fs_lc.bin", "wb");
       dbg_fp2 = fopen("fs_in.bin", "wb");
@@ -74,13 +75,13 @@ namespace gr {
         std::cerr << "Low number of subcarriers. Increase to make frame synchronization more reliable." << std::endl;
 
       if(d_overlap != 4)
-        throw std::runtime_error("Overlap must be four or else segmentation faults may occur");
+        throw std::runtime_error("Overlap must be four or else undefined (because untested) behavior may occur");
 
       volk_32fc_x2_conjugate_dot_prod_32fc(&d_preamble_energy, &d_preamble_sym[0], &d_preamble_sym[0], d_preamble_sym.size());
       d_preamble_energy = abs(d_preamble_energy);
 
-      d_pretracking_buf.clear();
-      d_pretracking_buf.resize(std::max(d_L*2,int(d_preamble_sym.size())), 0);
+      d_buf.clear();
+      d_buf.resize(d_preamble_sym.size(), 0);
 
       d_cfo_hist = boost::circular_buffer<float>(10); // 10 is just an arbitrary value...
       set_min_noutput_items(d_frame_len); // that's what can be returned with each call to work
@@ -100,7 +101,8 @@ namespace gr {
     frame_sync_cc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
         // this is a few samples more than we actually need
-        ninput_items_required[0] = std::max(2*d_L + d_fixed_lag_lookahead + d_step_size, int(d_preamble_sym.size()) + d_step_size);
+        // TODO: make this aware of the sync states and give the minimum values
+        ninput_items_required[0] = std::max(2*d_L + d_fixed_lag_lookahead + d_step_size, int(d_preamble_sym.size()) + d_step_size + d_track_win_len);
     }
 
     float 
@@ -193,15 +195,6 @@ namespace gr {
       * Then correlate with the reference symbol for the phase offset and confirm the validity of the expected SOF
       */
 
-      // gr_complex res_flc = fixed_lag_corr(in+d_fixed_lag_lookahead);
-      // d_pretracking_buf.assign(in, in+d_preamble_sym.size());
-      // d_pretracking_buf.linearize();
-      // gr_complex res_rc = ref_corr(&d_pretracking_buf[0]);
-      // samples_consumed = 1;
-      // fwrite(&res_flc, sizeof(gr_complex), 1, dbg_fp);
-      // fwrite(&res_rc, sizeof(gr_complex), 1, dbg_fp3);
-      // fwrite(in, sizeof(gr_complex), 1, dbg_fp2);
-
       if(d_state == FRAME_SYNC_PRESENCE_DETECTION)
       {
         gr_complex res = fixed_lag_corr(in+d_fixed_lag_lookahead);
@@ -209,7 +202,7 @@ namespace gr {
         {
           // std::cout << "DET->ACQ after successful fixed lag correlation:" << nitems_read(0) << std::endl;
           d_state = FRAME_SYNC_ACQUISITION;
-          d_pretracking_ctr = 0;
+          d_acq_ctr = 0;
           
           samples_consumed = 0;
           samples_returned = 0;
@@ -229,13 +222,13 @@ namespace gr {
         {
           d_cfo = estimate_cfo(res_flc);
 
-          d_pretracking_buf.assign(in, in+d_pretracking_buf.size());
-          for(int i=0; i < d_pretracking_buf.size(); i++)
-            d_pretracking_buf[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i));
+          d_buf.assign(in, in+d_buf.size());
+          for(int i=0; i < d_buf.size(); i++)
+            d_buf[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i));
 
-          if(!d_pretracking_buf.is_linearized())
-            d_pretracking_buf.linearize();
-          gr_complex res_rc = ref_corr(&d_pretracking_buf[0]);
+          if(!d_buf.is_linearized())
+            d_buf.linearize();
+          gr_complex res_rc = ref_corr(&d_buf[0]);
 
           if(abs(res_rc) > d_threshold)
           {
@@ -246,22 +239,22 @@ namespace gr {
 
             d_cfo_hist.clear();
             d_cfo = avg_cfo(d_cfo);
-            for(int i=0; i<d_pretracking_buf.size(); i++)
-              d_pretracking_buf[i] *= exp(gr_complex(0,-d_phi));
-            d_phi += fmod(2*M_PI*d_cfo*d_pretracking_buf.size(), 2*M_PI);
+            for(int i=0; i<d_buf.size(); i++)
+              d_buf[i] *= exp(gr_complex(0,-d_phi));
+            d_phi += fmod(2*M_PI*d_cfo*d_buf.size(), 2*M_PI);
 
-            memcpy(out, &d_pretracking_buf[0], sizeof(gr_complex)*d_pretracking_buf.size());
-            d_sample_ctr = d_pretracking_buf.size();
+            memcpy(out, &d_buf[0], sizeof(gr_complex)*d_buf.size());
+            d_sample_ctr = d_buf.size();
 
-            samples_consumed = d_pretracking_buf.size();
-            samples_returned = d_pretracking_buf.size();
+            samples_consumed = d_buf.size();
+            samples_returned = d_buf.size();
           }
           else
           {
-            d_pretracking_ctr++;
-            if(d_pretracking_ctr >= d_pretracking_window)
+            d_acq_ctr++;
+            if(d_acq_ctr >= d_acq_win_len)
             {
-              // std::cout << "ACQ->DET after " << d_pretracking_window << " unsuccessful trials: " << nitems_read(0) << std::endl;
+              // std::cout << "ACQ->DET after " << d_acq_win_len << " unsuccessful trials: " << nitems_read(0) << std::endl;
               d_state = FRAME_SYNC_PRESENCE_DETECTION;
             }      
 
@@ -271,10 +264,10 @@ namespace gr {
         }
         else
         {
-          d_pretracking_ctr++;
-          if(d_pretracking_ctr >= d_pretracking_window)
+          d_acq_ctr++;
+          if(d_acq_ctr >= d_acq_win_len)
           {
-            // std::cout << "ACQ->DET after " << d_pretracking_window << " unsuccessful trials: " << nitems_read(0) << std::endl;
+            // std::cout << "ACQ->DET after " << d_acq_win_len << " unsuccessful trials: " << nitems_read(0) << std::endl;
             d_state = FRAME_SYNC_PRESENCE_DETECTION;
           }
 
@@ -315,34 +308,30 @@ namespace gr {
         if( abs(res) > d_threshold )
         {
           //float cfo = estimate_cfo(res);
-          //d_cfo = avg_cfo(cfo);
           d_cfo = avg_cfo(estimate_cfo(res));
           // std::cout << "-- cfo*250e3=" << d_cfo*250e3 << std::endl;
 
-          d_pretracking_buf.assign(in, in+d_pretracking_buf.size());
-          for(int i=0; i < d_pretracking_buf.size(); i++)
-            d_pretracking_buf[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i));
-          d_phi = 2*M_PI*d_cfo*d_pretracking_buf.size();
+          d_buf.assign(in, in+d_buf.size());
+          for(int i=0; i < d_buf.size(); i++)
+            d_buf[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i));
+          d_phi = 2*M_PI*d_cfo*d_buf.size();
 
-          if(!d_pretracking_buf.is_linearized())
-            d_pretracking_buf.linearize();
+          if(!d_buf.is_linearized())
+            d_buf.linearize();
           
-          res = ref_corr(&d_pretracking_buf[0]);
+          res = ref_corr(&d_buf[0]);
           if(abs(res) > d_threshold)
           {
             // std::cout << "VAL->TRACK after successful fixed lag and reference correlation" << std::endl;
             d_state = FRAME_SYNC_TRACKING;
 
-            for(int i=0; i < d_pretracking_buf.size(); i++)
-              d_pretracking_buf[i] *= exp(gr_complex(0,-arg(res)));
+            for(int i=0; i < d_buf.size(); i++)
+              d_buf[i] *= exp(gr_complex(0,-arg(res)));
             d_phi = fmod(d_phi + arg(res), 2*M_PI);
             // std::cout << "--phi=" << arg(res) << " rad" << std::endl;
 
-            // repeat the beginning of the new frame to allow the sync to move the frame boundaries by a few samples without causing interference
-            // memcpy(out, &d_pretracking_buf[0], sizeof(gr_complex)*d_overlap/2*d_L);
-            // memcpy(out+d_overlap/2*d_L, &d_pretracking_buf[0], sizeof(gr_complex)*d_pretracking_buf.size());
-            memcpy(out, &d_pretracking_buf[0], sizeof(gr_complex)*d_pretracking_buf.size());
-            d_sample_ctr = d_pretracking_buf.size();
+            memcpy(out, &d_buf[0], sizeof(gr_complex)*d_buf.size());
+            d_sample_ctr = d_buf.size();
 
             samples_consumed = d_preamble_sym.size();
             samples_returned = d_preamble_sym.size();
