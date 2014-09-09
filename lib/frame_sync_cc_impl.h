@@ -49,7 +49,12 @@ namespace gr {
       int d_acq_win_len; // time window for which the acquisition is performed before going back to presence detection
       int d_acq_ctr; // counter for determining the position in the acquisition window
       boost::circular_buffer<gr_complex> d_buf; // buffer for incoming samples during acquisition
+
       int d_track_win_len; // time window in samples in which the start of frame may be corrected
+      std::vector<gr_complex> d_track_buf; // buffer for unmodified input samples used for the tracking/validation algorithm
+      std::vector< std::vector<gr_complex> > d_track_fcorr; // frequency corrected input buffers
+      std::vector<gr_complex> d_track_fl_res; // results of fixed lag correlations
+      std::vector<gr_complex> d_track_ref_res; // results of reference correlations
 
       float d_cfo; // estimated carrier frequency offset
       boost::circular_buffer<float> d_cfo_hist; // CFO history used for reducing estimation variance
