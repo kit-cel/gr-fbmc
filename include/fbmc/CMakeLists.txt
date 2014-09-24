@@ -34,5 +34,6 @@ install(FILES
     parallel_to_serial_vcc.h
     symbols_to_bits_cb.h
     preamble_insertion_vcvc.h
-    frame_sync_cc.h DESTINATION include/fbmc
+    frame_sync_cc.h
+    coarse_cfo_correction.h DESTINATION include/fbmc
 )

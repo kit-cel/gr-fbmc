@@ -54,3 +54,4 @@ GR_ADD_TEST(qa_parallel_to_serial_vcc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURC
 GR_ADD_TEST(qa_symbols_to_bits_cb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_symbols_to_bits_cb.py)
 GR_ADD_TEST(qa_preamble_insertion_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_preamble_insertion_vcvc.py)
 GR_ADD_TEST(qa_frame_sync_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_frame_sync_cc.py)
+GR_ADD_TEST(qa_coarse_cfo_correction ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_coarse_cfo_correction.py)

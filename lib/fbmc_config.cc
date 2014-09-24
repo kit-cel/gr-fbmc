@@ -323,9 +323,6 @@ namespace gr{
 			int nsym = d_preamble_sym.size()/d_num_total_subcarriers;
 		    fftwf_complex* buffer = (fftwf_complex*) fftwf_malloc(sizeof(fftw_complex)*d_num_total_subcarriers);
 		    std::vector<gr_complex> preamble_sym_fft(d_preamble_sym.size()+d_num_total_subcarriers*d_num_overlap_sym, gr_complex(0,0));
-		
-			// Check datatype
-			if(sizeof(gr_complex)!=sizeof(fftw_complex)) std::runtime_error("sizeof(gr_complex)!=sizeof(fftw_complex)");
 			
 			// Setup and execute FFT
 			fftwf_plan fft_plan = fftwf_plan_dft_1d(d_num_total_subcarriers, buffer, buffer, FFTW_BACKWARD, FFTW_ESTIMATE);

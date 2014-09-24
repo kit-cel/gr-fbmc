@@ -22,6 +22,7 @@
 #include "fbmc/symbols_to_bits_cb.h"
 #include "fbmc/preamble_insertion_vcvc.h"
 #include "fbmc/frame_sync_cc.h"
+#include "fbmc/coarse_cfo_correction.h"
 %}
 
 %include "../lib/fbmc_config.h"
@@ -53,3 +54,5 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, symbols_to_bits_cb);
 GR_SWIG_BLOCK_MAGIC2(fbmc, preamble_insertion_vcvc);
 %include "fbmc/frame_sync_cc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, frame_sync_cc);
+%include "fbmc/coarse_cfo_correction.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, coarse_cfo_correction);

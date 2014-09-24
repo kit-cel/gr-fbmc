@@ -37,7 +37,8 @@ list(APPEND fbmc_sources
     parallel_to_serial_vcc_impl.cc
     symbols_to_bits_cb_impl.cc
     preamble_insertion_vcvc_impl.cc
-    frame_sync_cc_impl.cc )
+    frame_sync_cc_impl.cc
+    coarse_cfo_correction_impl.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)
