@@ -49,6 +49,7 @@ namespace gr {
       int d_acq_win_len; // time window for which the acquisition is performed before going back to presence detection
       int d_acq_ctr; // counter for determining the position in the acquisition window
       boost::circular_buffer<gr_complex> d_buf; // buffer for incoming samples during acquisition
+      boost::circular_buffer<gr_complex> d_eof_buf; // buffer for the end of the frame that is duplicated 
 
       int d_track_win_len; // time window in samples in which the start of frame may be corrected
       std::vector<gr_complex> d_track_buf; // buffer for unmodified input samples used for the tracking/validation algorithm

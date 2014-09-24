@@ -96,6 +96,8 @@ namespace gr {
         d_track_ref_res.push_back(0);
       }
 
+      d_eof_buf = boost::circular_buffer<gr_complex>(d_overlap/2*d_L, 0);
+
       d_cfo_hist = boost::circular_buffer<float>(10); // 10 is just an arbitrary value...
       set_output_multiple(d_preamble_sym.size()+d_L); // that's what can be returned with each call to work
     }
@@ -312,31 +314,35 @@ namespace gr {
       {
         int samples_until_eof = d_frame_len - d_sample_ctr;
         int samples_to_return = std::min(samples_until_eof, d_L);
-        
+       
+        // TODO: this is simple but costly because for long frames many samples are just shifted through this buffer without being used
+        for(int i=0; i<samples_to_return; i++)
+          d_eof_buf.push_back(in[i]);
+
         d_sample_ctr += samples_to_return;
+
         if(d_sample_ctr == d_frame_len)
         {
           d_state = FRAME_SYNC_VALIDATION;
           std::cout << "TRACK->VAL after a complete frame: " << nitems_read(0) << std::endl;   
-          // copy zeros as buffer inbetween the frames
-          memset(out+samples_to_return, 0, sizeof(gr_complex)*d_overlap/2*d_L);      
+          // duplicate end of the frame as buffer inbetween the frames
+          //memset(out+samples_to_return, 0, sizeof(gr_complex)*d_overlap/2*d_L);  
+          d_eof_buf.linearize();
+          memcpy(out+samples_to_return, &d_eof_buf[0], sizeof(gr_complex)*d_overlap/2*d_L);    
           samples_returned = d_overlap/2*d_L; 
 
           // copy the beginning of the next frame into the tracking buffer for later processing
           d_track_buf.assign(in+samples_to_return - (d_track_win_len-1)/2, in+samples_to_return + d_preamble_sym.size()+d_track_win_len);
           fwrite(&d_track_buf[0], sizeof(gr_complex), d_track_buf.size(), dbg_fp);
-          // std::cout << "copied << " << d_track_buf.size() << "\n";
-          // std::cout << "pre size: " << d_preamble_sym.size() << std::endl;
         }
 
         samples_consumed = samples_to_return;
         samples_returned += samples_to_return;
 
-        for(int i=0; i < samples_to_return; i++)
-          in[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i - d_phi));
-        d_phi = fmod(d_phi + 2*M_PI*d_cfo*samples_to_return, 2*M_PI);
-
-        memcpy(out, in, sizeof(gr_complex)*samples_to_return);
+        memcpy(out, in, sizeof(gr_complex)*samples_returned);
+        for(int i=0; i < samples_returned; i++)
+          out[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i - d_phi));
+        d_phi = fmod(d_phi + 2*M_PI*d_cfo*samples_returned, 2*M_PI);       
       }
       else if(d_state == FRAME_SYNC_VALIDATION)
       {
