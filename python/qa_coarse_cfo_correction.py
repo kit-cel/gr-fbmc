@@ -26,7 +26,9 @@ import fbmc_swig as fbmc
 class qa_coarse_cfo_correction (gr_unittest.TestCase):
 
     def setUp (self):
+    	self.cfg = fbmc.fbmc_config(num_used_subcarriers=8, num_payload_sym=18, num_overlap_sym=4, modulation="QPSK", preamble="IAM")
         self.tb = gr.top_block ()
+        self.cfo = fbmc.coarse_cfo_correction(self.cfg.channel_map())
 
     def tearDown (self):
         self.tb = None

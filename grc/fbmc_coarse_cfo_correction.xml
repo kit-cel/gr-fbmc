@@ -1,38 +1,20 @@
-<?xml version="1.0"?>
 <block>
-  <name>coarse_cfo_correction</name>
+  <name>Coarse CFO correction</name>
   <key>fbmc_coarse_cfo_correction</key>
-  <category>fbmc</category>
+  <category>FBMC</category>
   <import>import fbmc</import>
   <make>fbmc.coarse_cfo_correction($channel_map)</make>
-  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
-       Sub-nodes:
-       * name
-       * key (makes the value accessible as $keyname, e.g. in the make node)
-       * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Channel_map</name>
+    <key>channel_map</key>
+    <type>int_vector</type>
   </param>
-
-  <!-- Make one 'sink' node per input. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
   </sink>
-
-  <!-- Make one 'source' node per output. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
   </source>
 </block>
