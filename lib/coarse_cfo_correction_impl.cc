@@ -49,7 +49,7 @@ namespace gr {
       d_channel_map.assign(&channel_map[0], &channel_map[0]+channel_map.size());
 
       // set up FFTW parameters
-      d_interp_fac = 8; // 2 is the theoretical minimum
+      d_interp_fac = 16; // 2 is the theoretical minimum
       d_nfft = d_interp_fac*d_L;
       d_buf = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex)*d_nfft);
       d_buf_abs.assign(d_nfft, 0);
@@ -59,7 +59,13 @@ namespace gr {
       d_delta = 2; // increasing this value makes the estimation better but reduces the lock range
       generate_filter_windows();
 
+      d_snr_min = 10;
+
+      d_phi = 0;
+
       set_output_multiple(d_nfft);
+
+      dbg_fp = fopen("cfo_est.bin", "wb");
     }
 
     /*
@@ -67,6 +73,8 @@ namespace gr {
      */
     coarse_cfo_correction_impl::~coarse_cfo_correction_impl()
     {
+      fclose(dbg_fp);
+
       fftwf_free(d_buf);
       fftwf_destroy_plan(d_plan);
     }
@@ -74,13 +82,13 @@ namespace gr {
     void
     coarse_cfo_correction_impl::generate_filter_windows()
     {
-      int upper_edge = 0; // highest used carrier
-      int lower_edge = 0; // lowest used carrier
+      d_highest_carrier = 0; // highest used carrier
+      d_lowest_carrier = 0; // lowest used carrier
       for(int i=1; i<d_L; i++)
       {
         if(d_channel_map[i] == 0)
         {
-          upper_edge = i-1;
+          d_highest_carrier = i-1;
           break;
         }
       }
@@ -88,13 +96,13 @@ namespace gr {
       {
         if(d_channel_map[i] != 0)
         {
-          lower_edge = i;
+          d_lowest_carrier = i;
           break;
         }
       }
-      if(upper_edge == 0 || lower_edge == 0 || std::accumulate(d_channel_map.begin(), d_channel_map.end(), 0) != upper_edge + (d_L - lower_edge))
+      if(d_highest_carrier == 0 || d_lowest_carrier == 0 || std::accumulate(d_channel_map.begin(), d_channel_map.end(), 0) != d_highest_carrier + (d_L - d_lowest_carrier))
       {
-        //std::cout << "upper: " << upper_edge << ", lower: " << lower_edge << ", accumulate: " << std::accumulate(d_channel_map.begin(), d_channel_map.end(), 0) << " != " << upper_edge + (d_L - lower_edge) << std::endl;
+        //std::cout << "upper: " << d_highest_carrier << ", lower: " << d_lowest_carrier << ", accumulate: " << std::accumulate(d_channel_map.begin(), d_channel_map.end(), 0) << " != " << d_highest_carrier + (d_L - d_lowest_carrier) << std::endl;
         throw std::runtime_error("Channel map is assumed to be DC free and to have no empty carriers in the side bands");
       }
 
@@ -103,13 +111,13 @@ namespace gr {
       boost::circular_buffer<int> proto_lower_filter(d_nfft, 0);
       for(int i=-d_delta*d_interp_fac; i<d_delta*d_interp_fac; i++)
       {
-        proto_upper_filter[upper_edge*d_interp_fac + i] = 1;
-        proto_lower_filter[lower_edge*d_interp_fac + i] = 1;
+        proto_upper_filter[d_highest_carrier*d_interp_fac + i] = 1;
+        proto_lower_filter[d_lowest_carrier*d_interp_fac + i] = 1;
       }
 
       // calculate the maximum shift indices so that the pass bands dont wrap around the edges of the spectrum
-      int n_shifts_up = (d_L-1-upper_edge)*d_interp_fac;
-      int n_shifts_down = (lower_edge-d_L/2)*d_interp_fac;
+      int n_shifts_up = (d_L-1-d_highest_carrier)*d_interp_fac;
+      int n_shifts_down = (d_lowest_carrier-d_L/2)*d_interp_fac;
       d_shifts.clear();
       for(int i=-n_shifts_down; i<=n_shifts_up; i++)
         d_shifts.push_back(i);
@@ -137,6 +145,9 @@ namespace gr {
         tmp_upper_filter.rotate(tmp_upper_filter.end()-1);
         tmp_lower_filter.rotate(tmp_lower_filter.end()-1);
       }
+
+      d_e_u.assign(d_shifts.size(), 0);
+      d_e_l.assign(d_shifts.size(), 0);
     }
 
     int
@@ -144,12 +155,11 @@ namespace gr {
     {
       // calculate energy difference between the two bandpass filters
       d_energy_diff.assign(d_shifts.size(), -1);
-      float e_upper, e_lower;
       for(int i=0; i<d_shifts.size(); i++)
       {
-        volk_32f_x2_dot_prod_32f(&e_upper, &d_buf_abs[0], &d_w_u[i][0], d_nfft);
-        volk_32f_x2_dot_prod_32f(&e_lower, &d_buf_abs[0], &d_w_l[i][0], d_nfft);
-        d_energy_diff[i] = abs(e_upper-e_lower);
+        volk_32f_x2_dot_prod_32f(&d_e_u[i], &d_buf_abs[0], &d_w_u[i][0], d_nfft);
+        volk_32f_x2_dot_prod_32f(&d_e_l[i], &d_buf_abs[0], &d_w_l[i][0], d_nfft);
+        d_energy_diff[i] = abs(d_e_u[i]-d_e_l[i]);
       }
 
       // find the minimum
@@ -168,11 +178,44 @@ namespace gr {
     }
 
     bool
-    coarse_cfo_correction_impl::check_signal_presence()
+    coarse_cfo_correction_impl::check_signal_presence(int shift)
     {
-      std::cout << "signal presence check not implemented" << std::endl;
-      // use d_buf_abs and the calculated shift to compare the energy in the band vs the out-of-band noise
-      return false;
+      // compare in-band and out-of-band power density 
+      float e_sig = 0;
+      float e_noise = 0;
+      int ctr_s = 0;
+      int ctr_n = 0;
+      for(int i=0; i<d_L; i++) // sum up all used/unused carriers
+      {
+        if(d_channel_map[i]!=0)
+        {
+          for(int k=0; k<d_interp_fac; k++)
+          {
+            ctr_s++;
+            e_sig += d_buf_abs[(i*d_interp_fac+k+shift+d_nfft) % d_nfft];
+          }
+        }
+        else
+        {
+          for(int k=0; k<d_interp_fac; k++)
+          {
+            ctr_n++;
+            e_noise += d_buf_abs[(i*d_interp_fac+k+shift+d_nfft) % d_nfft];
+          }
+        }
+      }
+
+      e_sig /= ctr_s;
+      e_noise /= ctr_n;
+      d_snr_est = 10*log10(e_sig/e_noise);
+      fwrite(&d_snr_est, sizeof(float), 1, dbg_fp);
+
+      //std::cout << "measured SNR: " << e_sig << "/" << e_noise << "=" << e_sig/e_noise << "=" << d_snr_est << " dB" << std::endl;
+
+      if(d_snr_est > d_snr_min)
+        return true;
+      else
+        return false;
     }
 
     void
@@ -198,16 +241,25 @@ namespace gr {
           memcpy(d_buf, in, sizeof(gr_complex)*d_nfft);
           fftwf_execute(d_plan);
           for(int i=0; i<d_nfft; i++)
-            d_buf_abs[i] = abs(gr_complex(d_buf[i][0], d_buf[i][1]));
+            d_buf_abs[i] = std::pow(abs(gr_complex(d_buf[i][0], d_buf[i][1])),2.0);            
+          //fwrite(&d_buf_abs[0], sizeof(float), d_buf_abs.size(), dbg_fp);
 
           int opt_shift = find_optimal_shift();
-          d_signal_found = check_signal_presence();
+          d_signal_found = check_signal_presence(opt_shift);
+          if(!d_signal_found)
+          {
+            //std::cout << "No signal detected!\n";
+            return 0;
+          }
+            
           d_cfo = 1.0*opt_shift/d_nfft;
-          std::cout << "calculated coarse CFO: " << d_cfo*250e3 << " Hz. Shift: " << opt_shift << std::endl;
+          std::cout << "Signal detected! calculated coarse CFO: " << d_cfo*250e3 << " Hz. Shift: " << opt_shift << std::endl;
         }
 
         for(int i=0; i<d_nfft; i++)
-          out[i] = in[i]*exp(gr_complex(0,-1*2*M_PI*d_cfo*i));
+          out[i] = in[i]*exp(gr_complex(0,-1*2*M_PI*d_cfo*i+d_phi));
+        d_phi += -1*2*M_PI*d_cfo*d_nfft;
+        d_phi = fmod(d_phi, 2*M_PI);
 
         // Tell runtime system how many output items we produced.
         return d_nfft;

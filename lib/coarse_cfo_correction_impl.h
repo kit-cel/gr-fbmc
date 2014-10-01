@@ -24,6 +24,7 @@
 #include <fbmc/coarse_cfo_correction.h>
 #include <fftw3.h>
 #include <boost/circular_buffer.hpp>
+#include <cstdio>
 
 
 namespace gr {
@@ -43,9 +44,14 @@ namespace gr {
       int d_delta; // number of carriers/noncarriers to take into account for the filter window
       std::vector< std::vector<float> > d_w_u; // upper BP with all possible shifts
       std::vector< std::vector<float> > d_w_l; // lower BP with all possible shifts
+      std::vector<float> d_e_u; // energy in upper window
+      std::vector<float> d_e_l; // energy in lower window
+      int d_highest_carrier;
+      int d_lowest_carrier;
       std::vector<int> d_shifts; // vector of shift indices
       std::vector<float> d_energy_diff;
-      float d_min_snr; // minimal SNR expected by the presence detection (linear)
+      float d_snr_min; // minimal SNR expected by the presence detection (dB)
+      float d_snr_est; // estimated SNR (dB)
       float d_cfo; // estimated carrier frequency offset
       float d_phi; // continuous phase
 
@@ -53,7 +59,9 @@ namespace gr {
 
       void generate_filter_windows();
       int find_optimal_shift();
-      bool check_signal_presence();
+      bool check_signal_presence(int shift);
+
+      FILE* dbg_fp;
 
      public:
       coarse_cfo_correction_impl(std::vector<int> channel_map);
