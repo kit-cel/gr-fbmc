@@ -27,12 +27,12 @@
 	</param>	<param>
 		<name>Modulation type</name>
 		<key>mod</key>
-		<value>"QPSK"</value>
+		<value>QPSK</value>
 		<type>string</type>
 	</param>	<param>
 		<name>Preamble type</name>
 		<key>preamble</key>
-		<value>"IAM"</value>
+		<value>IAM</value>
 		<type>string</type>
 	</param>
 	<param>
