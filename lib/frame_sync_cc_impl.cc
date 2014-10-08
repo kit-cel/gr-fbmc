@@ -98,7 +98,7 @@ namespace gr {
 
       d_eof_buf = boost::circular_buffer<gr_complex>(d_overlap/2*d_L, 0);
 
-      d_cfo_hist = boost::circular_buffer<float>(10); // 10 is just an arbitrary value...
+      d_cfo_hist = boost::circular_buffer<float>(1); // 10 is just an arbitrary value...
       set_output_multiple(d_preamble_sym.size()+d_L); // that's what can be returned with each call to work
     }
 
@@ -159,7 +159,7 @@ namespace gr {
     }
 
     gr_complex
-    frame_sync_cc_impl::fixed_lag_corr(gr_complex *x)
+    frame_sync_cc_impl::fixed_lag_corr(const gr_complex *x)
     {
       // results for auto- and crosscorrelation
       gr_complex xcorr = 0;
@@ -173,7 +173,7 @@ namespace gr {
     }
 
     gr_complex
-    frame_sync_cc_impl::ref_corr(gr_complex *x)
+    frame_sync_cc_impl::ref_corr(const gr_complex *x)
     {
       gr_complex corr = 0;
       gr_complex sig_energy = 0;
@@ -207,7 +207,7 @@ namespace gr {
       if( ninput_items[0] < 2*d_L)
         throw std::runtime_error(std::string("Not enough input items"));
 
-      gr_complex *in = (gr_complex *) input_items[0];
+      const gr_complex *in = (gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
       int samples_consumed = 0;
@@ -274,6 +274,7 @@ namespace gr {
 
             d_cfo_hist.clear();
             d_cfo = avg_cfo(d_cfo);
+            std::cout << "fractional CFO*250e3: " << d_cfo*250e3 << "Hz" << std::endl;
             for(int i=0; i<d_preamble_sym.size(); i++)
               d_buf[i] *= exp(gr_complex(0,-d_phi));
             d_phi += fmod(2*M_PI*d_cfo*d_preamble_sym.size(), 2*M_PI);
@@ -346,14 +347,12 @@ namespace gr {
       }
       else if(d_state == FRAME_SYNC_VALIDATION)
       {
-        // std::cout << "calc correlations\n";
         // reset the frame sample counter
         d_sample_ctr = 0;
 
         // calculate the different correlations
         for(int i = 0; i < d_track_win_len; i++)
         {
-          // std::cout << "fixed lag\n";
           d_track_fl_res[i] = fixed_lag_corr(&d_track_buf[i]+d_fixed_lag_lookahead);
           if(abs(d_track_fl_res[i]) > d_threshold)
           {
@@ -361,12 +360,8 @@ namespace gr {
             // std::cout << "correct cfo\n";
             for(int k = 0; k < d_preamble_sym.size(); k++)
             {
-              // std::cout << "i/k: " << i << "/" << k << std::endl;
-              // std::cout << "fcorr size: " << d_track_fcorr[i].size() << std::endl;
-              // std::cout << "trackbuf size: " << d_track_buf.size() << std::endl;
               d_track_fcorr[i][k] = d_track_buf[i+k]*exp(gr_complex(0,-2*M_PI*cfo*k));
             }
-            // std::cout << "ref corr\n";
             d_track_ref_res[i] = ref_corr(&d_track_fcorr[i][0]);
             // std::cout << i << ": " << abs(d_track_fl_res[i]) << "/" << abs(d_track_ref_res[i]) << std::endl;
           }

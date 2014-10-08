@@ -64,7 +64,6 @@ namespace gr {
 			
     	// the frame length has to be a multiple of 4 because of the periodicity of the beta matrix
     	d_num_frame = d_num_payload + d_num_sync + 2*d_num_overlap;
-    	std::cout << "frame len: " << d_num_frame << std::endl;
     	if(d_num_frame % 4 != 0)
     		throw std::runtime_error(std::string("frame length must be a a multiple of 4 because of the periodicity beta matrix"));
 		

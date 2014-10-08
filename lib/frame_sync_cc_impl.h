@@ -61,8 +61,8 @@ namespace gr {
       boost::circular_buffer<float> d_cfo_hist; // CFO history used for reducing estimation variance
       float d_phi; // phase; updated in every step to avoid phase discontinuities
 
-      gr_complex fixed_lag_corr(gr_complex *x); // fixed lag correlation
-      gr_complex ref_corr(gr_complex *x); // reference correlation
+      gr_complex fixed_lag_corr(const gr_complex *x); // fixed lag correlation
+      gr_complex ref_corr(const gr_complex *x); // reference correlation
       float estimate_cfo(gr_complex corr_val); // estimate carrier frequency offset
       float avg_cfo(float cfo); // returns a averaged estimate of the CFO by using earlier estimations
       std::string print_state();

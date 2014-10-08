@@ -51,6 +51,8 @@ namespace gr {
       // set up FFTW parameters
       d_interp_fac = 16; // 2 is the theoretical minimum
       d_nfft = d_interp_fac*d_L;
+      if(d_nfft < 1)
+        throw std::runtime_error("FFT length must be > 0");
       d_buf = (fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex)*d_nfft);
       d_buf_abs.assign(d_nfft, 0);
       d_plan = fftwf_plan_dft_1d(d_nfft, d_buf, d_buf, FFTW_FORWARD, FFTW_ESTIMATE);
@@ -65,7 +67,7 @@ namespace gr {
 
       set_output_multiple(d_nfft);
 
-      dbg_fp = fopen("cfo_est.bin", "wb");
+      dbg_fp = fopen("cmplx_sin.bin", "wb");
     }
 
     /*
@@ -210,8 +212,10 @@ namespace gr {
       d_snr_est = 10*log10(e_sig/e_noise);
       fwrite(&d_snr_est, sizeof(float), 1, dbg_fp);
 
-      //std::cout << "measured SNR: " << e_sig << "/" << e_noise << "=" << e_sig/e_noise << "=" << d_snr_est << " dB" << std::endl;
+      std::cout << "measured SNR: " << e_sig << "/" << e_noise << "=" << e_sig/e_noise << "=" << d_snr_est << " dB" << std::endl;
 
+      std::cout << "DBG: presence detection always returns true" << std::endl;
+      return true;
       if(d_snr_est > d_snr_min)
         return true;
       else
@@ -233,7 +237,11 @@ namespace gr {
         const gr_complex *in = (const gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
 
-        consume_each (d_nfft);
+        if(ninput_items[0]<d_nfft)
+          throw std::runtime_error("got less items than required in forecast");
+
+        if(noutput_items<d_nfft)
+          throw std::runtime_error("output buffer too small");
 
         if(!d_signal_found)
         {
@@ -247,7 +255,7 @@ namespace gr {
           int opt_shift = find_optimal_shift();
           d_signal_found = check_signal_presence(opt_shift);
           if(!d_signal_found)
-          {
+          { 
             //std::cout << "No signal detected!\n";
             return 0;
           }
@@ -257,11 +265,13 @@ namespace gr {
         }
 
         for(int i=0; i<d_nfft; i++)
-          out[i] = in[i]*exp(gr_complex(0,-1*2*M_PI*d_cfo*i+d_phi));
+          out[i] = in[i]*gr_complex(1,0);//exp(gr_complex(0,-1*2*M_PI*d_cfo*i+d_phi));
+
         d_phi += -1*2*M_PI*d_cfo*d_nfft;
         d_phi = fmod(d_phi, 2*M_PI);
 
-        // Tell runtime system how many output items we produced.
+        // Tell runtime system how many output items we produced and consumed.
+        consume_each (d_nfft);
         return d_nfft;
     }
 

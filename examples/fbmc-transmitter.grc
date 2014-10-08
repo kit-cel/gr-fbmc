@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='ASCII'?>
 <?grc format='1' created='3.7.6'?>
 <flow_graph>
-  <timestamp>Tue Sep 30 11:04:01 2014</timestamp>
+  <timestamp>Mon Oct  6 16:10:24 2014</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -1114,53 +1114,6 @@
     </param>
   </block>
   <block>
-    <key>variable_configuration_new</key>
-    <param>
-      <key>id</key>
-      <value>cfg</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>34</value>
-    </param>
-    <param>
-      <key>K</key>
-      <value>12</value>
-    </param>
-    <param>
-      <key>overlap</key>
-      <value>4</value>
-    </param>
-    <param>
-      <key>mod</key>
-      <value>"QPSK"</value>
-    </param>
-    <param>
-      <key>preamble</key>
-      <value>"IAM"</value>
-    </param>
-    <param>
-      <key>sample_rate</key>
-      <value>int(samp_rate)</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(168, 11)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>uhd_usrp_sink</key>
     <param>
       <key>id</key>
@@ -1990,6 +1943,53 @@
     <param>
       <key>_coordinate</key>
       <value>(184, 307)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_configuration_new</key>
+    <param>
+      <key>id</key>
+      <value>cfg</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>34</value>
+    </param>
+    <param>
+      <key>K</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>mod</key>
+      <value>"QPSK"</value>
+    </param>
+    <param>
+      <key>preamble</key>
+      <value>"IAM"</value>
+    </param>
+    <param>
+      <key>sample_rate</key>
+      <value>int(samp_rate)</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(168, 11)</value>
     </param>
     <param>
       <key>_rotation</key>
