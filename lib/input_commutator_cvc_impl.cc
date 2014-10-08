@@ -78,7 +78,7 @@ namespace gr {
         gr_complex *in = (gr_complex *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
         
-        consume_each(d_L);
+
 
         // write input into internal buffer with an offset of L/2-1 samples
         // the offset is needed to generate type-III polyphase components
@@ -100,7 +100,8 @@ namespace gr {
         // shift the L leftmost samples out of the buffer
         d_buf = d_buf.shift(d_L); 
 
-        // Tell runtime system how many output items we produced.
+        // Tell runtime system how many output items we produced and consumed.
+        consume_each(d_L);
         return 2;
     }
 

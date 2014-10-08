@@ -67,7 +67,7 @@ namespace gr {
 
       set_output_multiple(d_nfft);
 
-      dbg_fp = fopen("cmplx_sin.bin", "wb");
+      dbg_fp = fopen("snr_est.bin", "wb");
     }
 
     /*
@@ -212,10 +212,10 @@ namespace gr {
       d_snr_est = 10*log10(e_sig/e_noise);
       fwrite(&d_snr_est, sizeof(float), 1, dbg_fp);
 
-      std::cout << "measured SNR: " << e_sig << "/" << e_noise << "=" << e_sig/e_noise << "=" << d_snr_est << " dB" << std::endl;
+      std::cout << "shift: " << shift << ", measured SNR: " << e_sig << "/" << e_noise << "=" << e_sig/e_noise << "=" << d_snr_est << " dB" << std::endl;
 
-      std::cout << "DBG: presence detection always returns true" << std::endl;
-      return true;
+      std::cout << "DBG: presence detection always returns false" << std::endl;
+      return false;
       if(d_snr_est > d_snr_min)
         return true;
       else

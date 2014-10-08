@@ -102,9 +102,6 @@ namespace gr {
         //std::cout << "enter frame generator " << d_inverse << std::endl;
         // The general frame structure is: || sync | zeros(overlap) | payload | zeros(overlap) || ...
 
-        // Tell runtime system how many input items we consumed on
-        // each input stream.
-        consume_each (1);
         noutput_items = 0; // add to this variable whenever symbols are inserted
 		
 		// check if we are inserting or removing zero/sync symbols
@@ -199,8 +196,8 @@ namespace gr {
 			//std::cout << "payload sym ctr: " << d_payload_sym_ctr << "/" << d_num_payload << std::endl;
 		}
 
-        // Tell runtime system how many output items we produced.
-        //std::cout << "frame_generator_vcvc " << d_inverse << " returned: " << noutput_items << std::endl;
+        // Tell runtime system how many output items we produced and consumed.
+        consume_each (1);
         return noutput_items;
     }
 
