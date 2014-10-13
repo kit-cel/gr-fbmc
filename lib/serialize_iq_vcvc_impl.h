@@ -30,6 +30,11 @@ namespace gr {
     {
      private:
       int d_L; // input/output vector length
+      float* d_zeros;
+      float* d_inphase;
+      float* d_quadrature;
+
+      void serialize_vector(gr_complex* out, const gr_complex* in, int num);
 
      public:
       serialize_iq_vcvc_impl(int L);

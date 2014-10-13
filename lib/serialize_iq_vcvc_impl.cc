@@ -25,58 +25,70 @@
 #include <gnuradio/io_signature.h>
 #include "serialize_iq_vcvc_impl.h"
 
+#include <volk/volk.h>
+
 namespace gr {
-  namespace fbmc {
+namespace fbmc {
 
-    serialize_iq_vcvc::sptr
-    serialize_iq_vcvc::make(int L)
-    {
-      return gnuradio::get_initial_sptr
-        (new serialize_iq_vcvc_impl(L));
+serialize_iq_vcvc::sptr serialize_iq_vcvc::make(int L) {
+    return gnuradio::get_initial_sptr(new serialize_iq_vcvc_impl(L));
+}
+
+/*
+ * The private constructor
+ */
+serialize_iq_vcvc_impl::serialize_iq_vcvc_impl(int L) :
+        gr::sync_interpolator("serialize_iq_vcvc",
+                gr::io_signature::make(1, 1, sizeof(gr_complex)),
+                gr::io_signature::make(1, 1, sizeof(gr_complex)), 2), d_L(L) {
+    assert(d_L > 0);
+    set_output_multiple(2 * L);
+    d_inphase = (float*) volk_malloc(sizeof(float) * d_L, volk_get_alignment());
+    d_quadrature = (float*) volk_malloc(sizeof(float) * d_L, volk_get_alignment());
+    d_zeros = (float*) volk_malloc(sizeof(float) * d_L, volk_get_alignment());
+    for(int i = 0 ; i < d_L; i++){
+        d_zeros[i] = 0.0f;
+    }
+}
+
+/*
+ * Our virtual destructor.
+ */
+serialize_iq_vcvc_impl::~serialize_iq_vcvc_impl() {
+    volk_free(d_zeros);
+    volk_free(d_inphase);
+    volk_free(d_quadrature);
+}
+
+int
+serialize_iq_vcvc_impl::work(int noutput_items,
+        gr_vector_const_void_star &input_items,
+        gr_vector_void_star &output_items) {
+    const gr_complex *in = (const gr_complex *) input_items[0];
+    gr_complex *out = (gr_complex *) output_items[0];
+
+    if (noutput_items < 2 * d_L)
+        throw std::runtime_error("noutput items too small");
+
+    int num_vectors = noutput_items / (2 * d_L);
+    for(int i = 0; i < num_vectors; i++){
+        serialize_vector(out, in, d_L);
+        out += 2 * d_L;
+        in += d_L;
     }
 
-    /*
-     * The private constructor
-     */
-    serialize_iq_vcvc_impl::serialize_iq_vcvc_impl(int L)
-      : gr::sync_interpolator("serialize_iq_vcvc",
-              gr::io_signature::make(1, 1, sizeof(gr_complex)),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)), 2),
-              d_L(L)
-    {
-    	assert(d_L > 0);
-      set_output_multiple(2*L);
-    }
+    // Tell runtime system how many output items we produced.
+    return 2 * d_L;
+}
 
-    /*
-     * Our virtual destructor.
-     */
-    serialize_iq_vcvc_impl::~serialize_iq_vcvc_impl()
-    {
-    }
+void
+serialize_iq_vcvc_impl::serialize_vector(gr_complex* out, const gr_complex* in, int num)
+{
+    volk_32fc_deinterleave_32f_x2_u(d_inphase, d_quadrature, in, num);
+    volk_32f_x2_interleave_32fc(out, d_inphase, d_zeros, num);
+    volk_32f_x2_interleave_32fc(out + d_L, d_quadrature, d_zeros, num);
+}
 
-    int
-    serialize_iq_vcvc_impl::work(int noutput_items,
-			  gr_vector_const_void_star &input_items,
-			  gr_vector_void_star &output_items)
-    {
-        const gr_complex *in = (const gr_complex *) input_items[0];
-        gr_complex *out = (gr_complex *) output_items[0];
-        
-        if(noutput_items < 2*d_L)
-			   throw std::runtime_error("noutput items too small");
-
-        // Split the complex numbers into real and imaginary part
-        for(int i = 0 ; i < d_L; i++)
-        {
-        	out[i] = in[i].real();
-        	out[i+d_L] = in[i].imag();
-        }
-
-        // Tell runtime system how many output items we produced.
-        return 2*d_L;
-    }
-
-  } /* namespace fbmc */
+} /* namespace fbmc */
 } /* namespace gr */
 
