@@ -30,6 +30,11 @@ namespace gr {
     {
      private:
       int d_L; // input vector length
+      float* d_inphase;
+      float* d_quadrature;
+      float* d_dump;
+
+      void combine_vectors(gr_complex* out, const gr_complex* in, int num);
 
      public:
       combine_iq_vcvc_impl(int L);

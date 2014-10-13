@@ -78,7 +78,7 @@ serialize_iq_vcvc_impl::work(int noutput_items,
     }
 
     // Tell runtime system how many output items we produced.
-    return 2 * d_L;
+    return num_vectors * 2 * d_L;
 }
 
 void

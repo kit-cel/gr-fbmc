@@ -22,6 +22,7 @@
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
+import fbmc_test_functions as ft
 
 
 class qa_serialize_iq_vcvc(gr_unittest.TestCase):
@@ -34,8 +35,8 @@ class qa_serialize_iq_vcvc(gr_unittest.TestCase):
     def test_001_t(self):
         L = 8
         multiple = 10
-        d = self.generate_vector(L)
-        res = self.serialize_vector(d)
+        d = ft.generate_vector(L)
+        res = ft.serialize_vector(d)
         in_data = []
         out_data = []
         for i in range(multiple):
@@ -68,17 +69,6 @@ class qa_serialize_iq_vcvc(gr_unittest.TestCase):
         data = self.snk.data()
         # check data
         self.assertTrue(len(data), n * 2)
-
-    def generate_vector(self, L):
-        d = [complex(i, i + L) for i in range(0, L)]
-        return d
-
-    def serialize_vector(self, d):
-        L = int(len(d))
-        di = [complex(d[i].real, 0) for i in range(L)]
-        dq = [complex(d[i].imag, 0) for i in range(L)]
-        di.extend(dq)
-        return di
 
 
 if __name__ == '__main__':
