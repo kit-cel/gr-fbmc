@@ -19,6 +19,8 @@
 # Boston, MA 02110-1301, USA.
 #
 
+from operator import add
+
 
 def generate_vector(L):
     d = [complex(i, i + L) for i in range(0, L)]
@@ -61,15 +63,18 @@ def unmap_from_channel(d, inlen, outlen, channel_map):
     return v
 
 
+def commutate_output(d, L):
+    assert(len(d) == L)
+    assert(L % 2 == 0)
+    Ld2 = int(L / 2)
+    return map(add, d[0:Ld2], d[Ld2:])
+
+
 def main():
     print "fbmc_test_functions"
-    d = range(1, 4)
+    d = range(0, 4)
     print d
-    channel_map = [1, 0, 1, 0, 1]
-    v = map_to_channel(d, 3, 5, channel_map)
-
-    du = unmap_from_channel(v, 5, 3, channel_map)
-    print du
+    commutate_output(d, len(d))
 
 if __name__ == '__main__':
     main()

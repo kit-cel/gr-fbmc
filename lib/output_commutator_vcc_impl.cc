@@ -25,52 +25,59 @@
 #include <gnuradio/io_signature.h>
 #include "output_commutator_vcc_impl.h"
 
+#include <volk/volk.h>
+
 namespace gr {
-  namespace fbmc {
+namespace fbmc {
 
-    output_commutator_vcc::sptr
-    output_commutator_vcc::make(int L)
-    {
-      return gnuradio::get_initial_sptr
-        (new output_commutator_vcc_impl(L));
+output_commutator_vcc::sptr output_commutator_vcc::make(int L) {
+    return gnuradio::get_initial_sptr(new output_commutator_vcc_impl(L));
+}
+
+/*
+ * The private constructor
+ */
+output_commutator_vcc_impl::output_commutator_vcc_impl(int L) :
+        gr::sync_interpolator("output_commutator_vcc",
+                gr::io_signature::make(1, 1, sizeof(gr_complex) * L),
+                gr::io_signature::make(1, 1, sizeof(gr_complex)), L / 2),
+                d_L(L)
+{
+    if (d_L % 2 != 0) {
+        throw std::runtime_error("vector length must be even");
     }
 
-    /*
-     * The private constructor
-     */
-    output_commutator_vcc_impl::output_commutator_vcc_impl(int L)
-      : gr::sync_interpolator("output_commutator_vcc",
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*L),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)), L/2),
-              d_L(L)
-    {
-    	assert(d_L % 2 == 0); // vector length must be even
+}
+
+/*
+ * Our virtual destructor.
+ */
+output_commutator_vcc_impl::~output_commutator_vcc_impl() {
+}
+
+int output_commutator_vcc_impl::work(int noutput_items,
+        gr_vector_const_void_star &input_items,
+        gr_vector_void_star &output_items) {
+    const gr_complex *in = (const gr_complex *) input_items[0];
+    gr_complex *out = (gr_complex *) output_items[0];
+
+    int nout = noutput_items / (d_L / 2);
+    for(int i = 0; i < nout; i++){
+        commutate_one_symbol(out, in);
+        out += (d_L / 2);
+        in += d_L;
     }
 
-    /*
-     * Our virtual destructor.
-     */
-    output_commutator_vcc_impl::~output_commutator_vcc_impl()
-    {
-    }
+    // Tell runtime system how many output items we produced.
+    return nout * d_L / 2;
+}
 
-    int
-    output_commutator_vcc_impl::work(int noutput_items,
-			  gr_vector_const_void_star &input_items,
-			  gr_vector_void_star &output_items)
-    {
-        const gr_complex *in = (const gr_complex *) input_items[0];
-        gr_complex *out = (gr_complex *) output_items[0];
+void inline output_commutator_vcc_impl::commutate_one_symbol(gr_complex* out,
+        const gr_complex* in) {
+    // Add first and second half and write the result to the output buffer
+    volk_32f_x2_add_32f_a((float*) out,(float*) in,(float*) (in + (d_L / 2)), d_L);
+}
 
-        // Add first and second half and write the result to the output buffer
-        for(int l = 0; l < d_L/2; l++)
-        	out[l] = in[l] + in[l+d_L/2];
-
-        // Tell runtime system how many output items we produced.
-        //std::cout << "output commutator returned: " << d_L/2 << std::endl;
-        return d_L/2;
-    }
-
-  } /* namespace fbmc */
+} /* namespace fbmc */
 } /* namespace gr */
 

@@ -30,6 +30,7 @@ namespace gr {
     {
      private:
       int d_L; // input vector length
+    void inline commutate_one_symbol(gr_complex* out, const gr_complex* in);
 
      public:
       output_commutator_vcc_impl(int L);
