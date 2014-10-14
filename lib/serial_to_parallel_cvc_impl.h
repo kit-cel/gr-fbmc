@@ -32,6 +32,7 @@ namespace gr {
     	int d_len_in; // number of input samples
     	int d_vlen_out; // length of output vector
       std::vector<int> d_channel_map; // subcarrier occupation
+      inline void map_one_symbol(gr_complex* out, const gr_complex* in);
 
      public:
       serial_to_parallel_cvc_impl(int len_in, int vlen_out, std::vector<int> channel_map);

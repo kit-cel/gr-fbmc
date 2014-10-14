@@ -66,6 +66,19 @@ int serial_to_parallel_cvc_impl::work(int noutput_items,
     gr_complex *in = (gr_complex *) input_items[0];
     gr_complex *out = (gr_complex *) output_items[0];
 
+    for(int i = 0; i < noutput_items; i++){
+        map_one_symbol(out, in);
+        in += d_len_in;
+        out += d_vlen_out;
+    }
+
+    // Tell runtime system how many output items we produced.
+    return noutput_items;
+}
+
+inline void
+serial_to_parallel_cvc_impl::map_one_symbol(gr_complex* out, const gr_complex* in)
+{
     // convert sample stream to vector, use channel map
     for (int i = 0; i < d_vlen_out; i++) {
         if (d_channel_map[i] == 0)
@@ -73,9 +86,6 @@ int serial_to_parallel_cvc_impl::work(int noutput_items,
         else
             *out++ = *in++;
     }
-
-    // Tell runtime system how many output items we produced.
-    return 1;
 }
 
 } /* namespace fbmc */

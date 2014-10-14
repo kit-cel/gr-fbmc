@@ -22,38 +22,49 @@
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
+import fbmc_test_functions as ft
 
-class qa_parallel_to_serial_vcc (gr_unittest.TestCase):
 
-    def setUp (self):
-        self.tb = gr.top_block ()
+class qa_parallel_to_serial_vcc(gr_unittest.TestCase):
+    def setUp(self):
+        self.tb = gr.top_block()
 
-    def tearDown (self):
+    def tearDown(self):
         self.tb = None
 
-    def test_001_t (self):
+    def test_001_t(self):
+        inlen = 5
+        outlen = 3
+        channel_map = (0, 1, 1, 0, 1)
+        ref = range(1, 4)
+        d = ft.map_to_channel(ref, outlen, inlen, channel_map)
+        multiple = 100
+        d *= multiple
+        ref *= multiple
+
         # set up fg
-        self.src = blocks.vector_source_c(range(10), vlen=5)
-        self.p2s = fbmc.parallel_to_serial_vcc(3,5, (0,1,1,0,1))
+        self.src = blocks.vector_source_c(d, vlen=inlen)
+        self.p2s = fbmc.parallel_to_serial_vcc(outlen, inlen, channel_map)
         self.snk = blocks.vector_sink_c()
         self.tb.connect(self.src, self.p2s, self.snk)
-        self.tb.run ()
+        self.tb.run()
+
         # check data
-        ref = (1,2,4,6,7,9)
         data = self.snk.data()
         self.assertComplexTuplesAlmostEqual(ref, data)
-        
-    def test_002_t (self):
+
+    def test_002_t(self):
         # set up fg
         self.src = blocks.vector_source_c(range(10), vlen=5)
-        self.p2s = fbmc.parallel_to_serial_vcc(5,5, (1,1,1,1,1))
+        self.p2s = fbmc.parallel_to_serial_vcc(5, 5, (1, 1, 1, 1, 1))
         self.snk = blocks.vector_sink_c()
         self.tb.connect(self.src, self.p2s, self.snk)
-        self.tb.run ()
+        self.tb.run()
         # check data
         ref = range(10)
         data = self.snk.data()
-        self.assertComplexTuplesAlmostEqual(ref, data)		
+        self.assertComplexTuplesAlmostEqual(ref, data)
+
 
 if __name__ == '__main__':
     gr_unittest.run(qa_parallel_to_serial_vcc)

@@ -31,3 +31,45 @@ def serialize_vector(d):
     dq = [complex(d[i].imag, 0) for i in range(L)]
     di.extend(dq)
     return di
+
+
+def map_to_channel(d, inlen, outlen, channel_map):
+    assert(len(d) == inlen)
+    assert(len(channel_map) == outlen)
+    v = range(outlen)
+    num = 0
+    for i in range(outlen):
+        if channel_map[i] == 1:
+            v[i] = d[num]
+            num += 1
+        else:
+            v[i] = complex(0, 0)
+    return v
+
+
+def unmap_from_channel(d, inlen, outlen, channel_map):
+    assert(len(d) == inlen)
+    assert(len(channel_map) == inlen)
+    assert(len([i for i in channel_map if i == 1]) == outlen)
+
+    num = 0
+    v = range(outlen)
+    for i in range(inlen):
+        if channel_map[i] == 1:
+            v[num] = d[i]
+            num += 1
+    return v
+
+
+def main():
+    print "fbmc_test_functions"
+    d = range(1, 4)
+    print d
+    channel_map = [1, 0, 1, 0, 1]
+    v = map_to_channel(d, 3, 5, channel_map)
+
+    du = unmap_from_channel(v, 5, 3, channel_map)
+    print du
+
+if __name__ == '__main__':
+    main()

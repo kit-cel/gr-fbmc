@@ -22,37 +22,48 @@
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
+import fbmc_test_functions as ft
 
-class qa_serial_to_parallel_cvc (gr_unittest.TestCase):
 
-	def setUp (self):
-		self.tb = gr.top_block ()
+class qa_serial_to_parallel_cvc(gr_unittest.TestCase):
+    def setUp(self):
+        self.tb = gr.top_block()
 
-	def tearDown (self):
-		self.tb = None
+    def tearDown(self):
+        self.tb = None
 
-	def test_001_t (self):
-		self.src = blocks.vector_source_c(range(1,10))
-		self.s2p = fbmc.serial_to_parallel_cvc(3,5, (0,1,1,0,1))
-		self.snk = blocks.vector_sink_c(vlen=5)
-		self.tb.connect(self.src, self.s2p, self.snk)
-		self.tb.run ()
-		# check data
-		ref = (0,1,2,0,3,0,4,5,0,6,0,7,8,0,9)
-		data = self.snk.data()
-		self.assertComplexTuplesAlmostEqual(ref, data)
-		
-	def test_002_t (self):
-		n = 100000
-		input_data = range(n)
-		self.src = blocks.vector_source_c(input_data)
-		self.s2p = fbmc.serial_to_parallel_cvc(10,16,(1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0))
-		self.snk = blocks.vector_sink_c(vlen=16)
-		self.tb.connect(self.src, self.s2p, self.snk)
-		self.tb.run ()
-		# check data
-		data = self.snk.data()
-		self.assertEqual(n*16/10, len(data))        
+    def test_001_t(self):
+        inlen = 3
+        outlen = 5
+        channel_map = (0, 1, 1, 0, 1)
+        d = range(1, inlen + 1)
+        ref = ft.map_to_channel(d, inlen, outlen, channel_map)
+        multiple = 100
+        d *= multiple
+        ref *= multiple
+
+        self.src = blocks.vector_source_c(d)
+        self.s2p = fbmc.serial_to_parallel_cvc(inlen, outlen, channel_map)
+        self.snk = blocks.vector_sink_c(vlen=outlen)
+        self.tb.connect(self.src, self.s2p, self.snk)
+        self.tb.run()
+        # check data
+
+        data = self.snk.data()
+        self.assertComplexTuplesAlmostEqual(ref, data)
+
+    def test_002_t(self):
+        n = 100000
+        input_data = range(n)
+        self.src = blocks.vector_source_c(input_data)
+        self.s2p = fbmc.serial_to_parallel_cvc(10, 16, (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0))
+        self.snk = blocks.vector_sink_c(vlen=16)
+        self.tb.connect(self.src, self.s2p, self.snk)
+        self.tb.run()
+        # check data
+        data = self.snk.data()
+        self.assertEqual(n * 16 / 10, len(data))
+
 
 if __name__ == '__main__':
-	gr_unittest.run(qa_serial_to_parallel_cvc)
+    gr_unittest.run(qa_serial_to_parallel_cvc)

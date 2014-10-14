@@ -31,7 +31,6 @@ namespace gr {
     {
      private:
       int d_L; // output vector length
-      int d_ctr; // counter pointing to the next position in the output vector
       std::valarray<gr_complex> d_buf; // buffer for samples between calls to work()
 
      public:
