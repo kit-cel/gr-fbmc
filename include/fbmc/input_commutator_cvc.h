@@ -18,7 +18,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #ifndef INCLUDED_FBMC_INPUT_COMMUTATOR_CVC_H
 #define INCLUDED_FBMC_INPUT_COMMUTATOR_CVC_H
 
@@ -34,9 +33,9 @@ namespace gr {
      * \ingroup fbmc
      *
      */
-    class FBMC_API input_commutator_cvc : virtual public gr::block
+    class FBMC_API input_commutator_cvc : virtual public gr::sync_decimator
     {
-     public:
+    public:
       typedef boost::shared_ptr<input_commutator_cvc> sptr;
 
       /*!
@@ -47,7 +46,8 @@ namespace gr {
        * class. fbmc::input_commutator_cvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int L);
+      static sptr
+      make(int L);
     };
 
   } // namespace fbmc

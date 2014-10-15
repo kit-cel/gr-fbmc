@@ -23,6 +23,7 @@ from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
 from numpy import *
+import fbmc_test_functions as ft
 
 
 class qa_input_commutator_cvc(gr_unittest.TestCase):
@@ -47,38 +48,56 @@ class qa_input_commutator_cvc(gr_unittest.TestCase):
 
         self.assertComplexTuplesAlmostEqual(data, ref)
 
-    # def test_002_t(self):
-    #     # prepare reference data
-    #     n = 16
-    #     L = 8
-    #     input_stream = arange(n)
-    #     input_matrix = flipud(r_[zeros(L / 2 - 1), input_stream[:-(L / 2 - 1)]].reshape((L / 2, -1), order='F'))
-    #     input_matrix = r_[input_matrix, input_matrix]
-    #     ref_output = input_matrix.transpose().reshape((n * 2, 1))
-    #
-    #     self.src = blocks.vector_source_c(range(n), vlen=1)
-    #     self.comm = fbmc.input_commutator_cvc(L)
-    #     self.snk = blocks.vector_sink_c(vlen=L)
-    #     self.tb.connect(self.src, self.comm, self.snk)
-    #     self.tb.run()
-    #     # check data
-    #     data = self.snk.data()
-    #     self.assertComplexTuplesAlmostEqual(data, ref_output)
-    #
-    #     def test_003_t(self):
-    #         # test input commutator for large vector lengths
-    #         L = 16
-    #         n = L * 1000
-    #         input_stream = arange(n)
-    #         self.src = blocks.vector_source_c(range(n), vlen=1)
-    #
-    #     self.comm = fbmc.input_commutator_cvc(L)
-    #     self.snk = blocks.vector_sink_c(vlen=L)
-    #     self.tb.connect(self.src, self.comm, self.snk)
-    #     self.tb.run()
-    #     # check data
-    #     data = self.snk.data()
-    #     self.assertTrue(n, len(data))
+    def test_002_large_dataset(self):
+        L = 12
+        multiple = 1000
+        d = range(1, L * multiple + 1)
+        ref = ft.commutate_input_stream(d, L)
+
+        # set up fg
+        self.src = blocks.vector_source_c(d, vlen=1)
+        self.comm = fbmc.input_commutator_cvc(L)
+        self.snk = blocks.vector_sink_c(vlen=L)
+        self.tb.connect(self.src, self.comm, self.snk)
+        self.tb.run()
+
+        # check data
+        data = self.snk.data()
+        self.assertTrue(len(ref), len(data))
+        self.assertComplexTuplesAlmostEqual(data, ref)
+
+    def test_003_t(self):
+        # prepare reference data
+        n = 16
+        L = 8
+        input_stream = arange(n)
+        input_matrix = flipud(r_[zeros(L / 2 - 1), input_stream[:-(L / 2 - 1)]].reshape((L / 2, -1), order='F'))
+        input_matrix = r_[input_matrix, input_matrix]
+        ref_output = input_matrix.transpose().reshape((n * 2, 1))
+
+        self.src = blocks.vector_source_c(range(n), vlen=1)
+        self.comm = fbmc.input_commutator_cvc(L)
+        self.snk = blocks.vector_sink_c(vlen=L)
+        self.tb.connect(self.src, self.comm, self.snk)
+        self.tb.run()
+        # check data
+        data = self.snk.data()
+        self.assertComplexTuplesAlmostEqual(data, ref_output)
+
+    def test_004_t(self):
+        # test input commutator for large vector lengths
+        L = 16
+        n = L * 1000
+        input_stream = arange(n)
+        self.src = blocks.vector_source_c(range(n), vlen=1)
+
+        self.comm = fbmc.input_commutator_cvc(L)
+        self.snk = blocks.vector_sink_c(vlen=L)
+        self.tb.connect(self.src, self.comm, self.snk)
+        self.tb.run()
+        # check data
+        data = self.snk.data()
+        self.assertTrue(n, len(data))
 
 
 if __name__ == '__main__':

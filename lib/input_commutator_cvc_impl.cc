@@ -26,121 +26,89 @@
 #include "input_commutator_cvc_impl.h"
 
 namespace gr {
-namespace fbmc {
+  namespace fbmc {
 
-input_commutator_cvc::sptr input_commutator_cvc::make(int L) {
-    return gnuradio::get_initial_sptr(new input_commutator_cvc_impl(L));
-}
-
-/*
- * The private constructor
- */
-input_commutator_cvc_impl::input_commutator_cvc_impl(int L) :
-        gr::block("input_commutator_cvc",
-                gr::io_signature::make(1, 1, sizeof(gr_complex)),
-                gr::io_signature::make(1, 1, sizeof(gr_complex) * L)),
-                d_L(L)
-{
-    if (d_L < 2 || d_L % 2 != 0){
-        throw std::runtime_error("L has to be even and >= 2!");
+    input_commutator_cvc::sptr
+    input_commutator_cvc::make(int L)
+    {
+      return gnuradio::get_initial_sptr(new input_commutator_cvc_impl(L));
     }
-    // history is needed to generate type-III polyphase components
-    set_history(L / 2);
-    set_output_multiple(2);
-}
 
-/*
- * Our virtual destructor.
- */
-input_commutator_cvc_impl::~input_commutator_cvc_impl() {
-}
+    /*
+     * The private constructor
+     */
+    input_commutator_cvc_impl::input_commutator_cvc_impl(int L) :
+        gr::sync_decimator("input_commutator_cvc",
+                           gr::io_signature::make(1, 1, sizeof(gr_complex)),
+                           gr::io_signature::make(1, 1, sizeof(gr_complex) * L),
+                           L / 2), d_L(L)
+    {
+      if(d_L < 2 || d_L % 2 != 0){
+        throw std::runtime_error("L has to be even and >= 2!");
+      }
 
-void input_commutator_cvc_impl::forecast(int noutput_items,
-        gr_vector_int &ninput_items_required) {
-    ninput_items_required[0] = d_L;
-}
+      // history is needed to generate type-III polyphase components
+      set_history(L / 2);
+      set_output_multiple(2);
+    }
 
-int input_commutator_cvc_impl::general_work(int noutput_items,
-        gr_vector_int &ninput_items, gr_vector_const_void_star &input_items,
-        gr_vector_void_star &output_items) {
-    gr_complex *in = (gr_complex *) input_items[0];
-    gr_complex *out = (gr_complex *) output_items[0];
+    /*
+     * Our virtual destructor.
+     */
+    input_commutator_cvc_impl::~input_commutator_cvc_impl()
+    {
+    }
 
-    std::cout << "work call with: " << noutput_items << " items" << std::endl;
+    int
+    input_commutator_cvc_impl::work(int noutput_items,
+                                    gr_vector_const_void_star &input_items,
+                                    gr_vector_void_star &output_items)
+    {
+      gr_complex *in = (gr_complex *) input_items[0];
+      gr_complex *out = (gr_complex *) output_items[0];
 
-//    for(int i = 0; i < 10; i++){
-//        std::cout << in[i] << ", ";
-//    }
-//    std::cout << std::endl;
-
-    // one call to work produces 2 output vectors
-    // the second half of each vector is equal to the first half
-    // history() - 1 == (L / 2) -1 which is the necessary offset.
-    int output_symbols = 1; noutput_items / 2;
-    for(int i = 0; i < output_symbols; i++){
+      // one call to work produces 2 output vectors
+      // the second half of each vector is equal to the first half
+      // history() - 1 == (L / 2) -1 which is the necessary offset.
+      int output_symbols = noutput_items / 2;
+      for(int i = 0; i < output_symbols; i++){
         produce_to_out_vectors(out, in, history() - 1, d_L);
         in += d_L;
         out += 2 * d_L;
+      }
+
+      // Tell runtime system how many output items we produced and consumed.
+      return 2 * output_symbols;
     }
 
-
-
-    // Tell runtime system how many output items we produced and consumed.
-    consume_each(d_L);
-    return 2;
-}
-
-void inline
-input_commutator_cvc_impl::copy_to_internal_buffer(std::valarray<gr_complex>& buf, const gr_complex* in, int offset, int num)
-{
-    memcpy((void*) &buf[offset], (void*) in, num*sizeof(gr_complex));
-}
-
-void inline
-input_commutator_cvc_impl::produce_to_out_vectors(gr_complex* out, const gr_complex* in, int offset, int num)
-{
-    int half = num / 2;
-    for (int k = 0; k < 2; k++) {
+    void inline
+    input_commutator_cvc_impl::produce_to_out_vectors(gr_complex* out,
+                                                      const gr_complex* in,
+                                                      int offset, int num)
+    {
+      int half = num / 2;
+      for(int k = 0; k < 2; k++){
         produce_one_symbol(out + k * num, in + k * half, half);
+      }
     }
-}
 
-void inline
-input_commutator_cvc_impl::produce_one_symbol(gr_complex* out, const gr_complex* in, int num)
-{
-    reverse_for_polyphase_filter(out, in, num);
-    memcpy(out + num, out, num * sizeof(gr_complex));
-    std::cout << "one symbol";
-    for(int i = 0; i < 2 * num; i++){
-        std::cout << out[i] << ", ";
+    void inline
+    input_commutator_cvc_impl::produce_one_symbol(gr_complex* out,
+                                                  const gr_complex* in, int num)
+    {
+      reverse_for_polyphase_filter(out, in, num);
+      memcpy(out + num, out, num * sizeof(gr_complex));
     }
-    std::cout << std::endl;
-}
 
-void inline
-input_commutator_cvc_impl::reverse_for_polyphase_filter(gr_complex* out, const gr_complex* in, int num)
-{
-    std::cout << "reverse: ";
-    for (int l = 0; l < num; l++) {
+    void inline
+    input_commutator_cvc_impl::reverse_for_polyphase_filter(
+        gr_complex* out, const gr_complex* in, int num)
+    {
+      for(int l = 0; l < num; l++){
         out[l] = in[(num - 1) - l];
-//        printf("%f, ", out[l].real());
-        std::cout << out[l] << ", ";
-//        out[k * num + l] = buf[k * half + offset - l];
-//        out[k * num + half + l] = out[k * num + l];
+      }
     }
-    std::cout << std::endl;
-//    printf("\n");
-}
 
-void
-input_commutator_cvc_impl::print_valarray(std::valarray<gr_complex>& buf)
-{
-    for(int i = 0; i < buf.size(); i++){
-        std::cout << buf[i].real() << ", ";
-    }
-    std::cout << std::endl;
-}
-
-} /* namespace fbmc */
+  } /* namespace fbmc */
 } /* namespace gr */
 

@@ -94,8 +94,6 @@ def commutate_input_stream(d, L):
         [r, buf] = commutate_input(d[0:L], buf, L)
         res = res + r
         d = d[L:]
-        print buf
-        print d
     return res
 
 
