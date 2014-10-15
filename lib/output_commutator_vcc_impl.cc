@@ -75,7 +75,7 @@ int output_commutator_vcc_impl::work(int noutput_items,
 void inline output_commutator_vcc_impl::commutate_one_symbol(gr_complex* out,
         const gr_complex* in) {
     // Add first and second half and write the result to the output buffer
-    volk_32f_x2_add_32f_a((float*) out,(float*) in,(float*) (in + (d_L / 2)), d_L);
+    volk_32f_x2_add_32f((float*) out,(float*) in,(float*) (in + (d_L / 2)), d_L);
 }
 
 } /* namespace fbmc */

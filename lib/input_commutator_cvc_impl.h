@@ -25,28 +25,31 @@
 #include <valarray>
 
 namespace gr {
-  namespace fbmc {
+namespace fbmc {
 
-    class input_commutator_cvc_impl : public input_commutator_cvc
-    {
-     private:
-      int d_L; // output vector length
-      std::valarray<gr_complex> d_buf; // buffer for samples between calls to work()
+class input_commutator_cvc_impl: public input_commutator_cvc {
+private:
+    int d_L; // output vector length
+    std::valarray<gr_complex> d_buf; // buffer for samples between calls to work()
+    void inline copy_to_internal_buffer(std::valarray<gr_complex>& buf, const gr_complex* in, int offset, int num);
+    void inline produce_to_out_vectors(gr_complex* out, const gr_complex* in, int offset, int num);
+    void inline reverse_for_polyphase_filter(gr_complex* out, const gr_complex* in, int num);
+    void inline produce_one_symbol(gr_complex* out, const gr_complex* in, int num);
+    void print_valarray(std::valarray<gr_complex>& buf);
 
-     public:
-      input_commutator_cvc_impl(int L);
-      ~input_commutator_cvc_impl();
-      
-      void forecast (int noutput_items, gr_vector_int &ninput_items_required);
+public:
+    input_commutator_cvc_impl(int L);
+    ~input_commutator_cvc_impl();
 
-      // Where all the action really happens
-      int general_work(int noutput_items,
-			gr_vector_int &ninput_items,
-	       gr_vector_const_void_star &input_items,
-	       gr_vector_void_star &output_items);
-    };
+    void forecast(int noutput_items, gr_vector_int &ninput_items_required);
 
-  } // namespace fbmc
+    // Where all the action really happens
+    int general_work(int noutput_items, gr_vector_int &ninput_items,
+            gr_vector_const_void_star &input_items,
+            gr_vector_void_star &output_items);
+};
+
+} // namespace fbmc
 } // namespace gr
 
 #endif /* INCLUDED_FBMC_INPUT_COMMUTATOR_CVC_IMPL_H */

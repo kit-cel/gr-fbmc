@@ -70,11 +70,46 @@ def commutate_output(d, L):
     return map(add, d[0:Ld2], d[Ld2:])
 
 
+def commutate_input(d, buf, L):
+    # careful not exactly the inverse to commutate output!
+    assert(len(buf) >= L/2 - 1)  # make sure enough history is provided!
+    assert(len(d) > L - 2)  # require one symbol!
+    offset = L/2 - 1
+    buf = buf[0:offset] + d
+    res = []
+    for k in range(2):
+        revbuf = buf[0:L/2]
+        revbuf = revbuf[::-1]
+        revbuf *= 2
+        res += revbuf
+        buf = buf[L/2:]
+    return [res, buf]
+
+
+def commutate_input_stream(d, L):
+    assert(len(d) % L == 0)  # otherwise we may produce unexpected results.
+    buf = [0, ] * 2 * L
+    res = []
+    while len(d) >= L - 1:
+        [r, buf] = commutate_input(d[0:L], buf, L)
+        res = res + r
+        d = d[L:]
+        print buf
+        print d
+    return res
+
+
 def main():
     print "fbmc_test_functions"
-    d = range(0, 4)
-    print d
-    commutate_output(d, len(d))
+    L = 6
+
+    d = range(1, 4 * L + 1)
+    print len(d)
+    res = commutate_input_stream(d, L)
+    print len(res)
+    print res
+    # buf = [0, ] * 2 * L
+    # commutate_input(d[0:L], buf, L)
 
 if __name__ == '__main__':
     main()

@@ -79,8 +79,8 @@ int combine_iq_vcvc_impl::work(int noutput_items,
 void
 combine_iq_vcvc_impl::combine_vectors(gr_complex* out,
         const gr_complex* in, int num) {
-    volk_32fc_deinterleave_32f_x2_u(d_inphase, d_dump, in, num);
-    volk_32fc_deinterleave_32f_x2_u(d_quadrature, d_dump, in + num, num);
+    volk_32fc_deinterleave_32f_x2(d_inphase, d_dump, in, num);
+    volk_32fc_deinterleave_32f_x2(d_quadrature, d_dump, in + num, num);
     volk_32f_x2_interleave_32fc(out, d_inphase, d_quadrature, num);
 }
 

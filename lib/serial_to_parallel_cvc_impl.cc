@@ -42,8 +42,11 @@ serial_to_parallel_cvc_impl::serial_to_parallel_cvc_impl(int len_in,
         gr::sync_decimator("serial_to_parallel_cvc",
                 gr::io_signature::make(1, 1, sizeof(gr_complex)),
                 gr::io_signature::make(1, 1, sizeof(gr_complex) * vlen_out),
-                len_in), d_len_in(len_in), d_vlen_out(vlen_out), d_channel_map(
-                channel_map) {
+                len_in),
+                d_len_in(len_in),
+                d_vlen_out(vlen_out),
+                d_channel_map(channel_map)
+{
     if (d_len_in > d_vlen_out)
         throw std::runtime_error(
                 std::string(
