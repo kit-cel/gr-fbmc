@@ -31,5 +31,6 @@ install(FILES
     fbmc_symbols_to_bits_cb.xml
     fbmc_preamble_insertion_vcvc.xml
     fbmc_frame_sync_cc.xml
-    fbmc_coarse_cfo_correction.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_coarse_cfo_correction.xml
+    fbmc_smt_filterbank_rx_cvc.xml DESTINATION share/gnuradio/grc/blocks
 )

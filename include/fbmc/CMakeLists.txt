@@ -35,5 +35,6 @@ install(FILES
     symbols_to_bits_cb.h
     preamble_insertion_vcvc.h
     frame_sync_cc.h
-    coarse_cfo_correction.h DESTINATION include/fbmc
+    coarse_cfo_correction.h
+    smt_filterbank_rx_cvc.h DESTINATION include/fbmc
 )
