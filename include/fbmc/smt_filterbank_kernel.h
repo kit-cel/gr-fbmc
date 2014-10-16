@@ -18,41 +18,39 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_FBMC_SMT_FILTERBANK_RX_CVC_H
-#define INCLUDED_FBMC_SMT_FILTERBANK_RX_CVC_H
+
+#ifndef INCLUDED_FBMC_SMT_FILTERBANK_KERNEL_H
+#define INCLUDED_FBMC_SMT_FILTERBANK_KERNEL_H
 
 #include <fbmc/api.h>
-#include <gnuradio/sync_decimator.h>
+#include <gnuradio/filter/filterbank.h>
 
 namespace gr {
   namespace fbmc {
 
     /*!
-     * \brief SMT Filterbank combines Commutator, PFB and IFFT
-     * \ingroup fbmc
+     * \brief actual kernel for SMT Filterbank
      *
      */
-    class FBMC_API smt_filterbank_rx_cvc : virtual public gr::sync_decimator
+    class FBMC_API smt_filterbank_kernel: public filter::kernel::filterbank
     {
     public:
-      typedef boost::shared_ptr<smt_filterbank_rx_cvc> sptr;
+      smt_filterbank_kernel(std::vector<float> &taps, int L);
+      ~smt_filterbank_kernel();
 
-      virtual std::vector<std::vector<float> > taps() = 0;
+      int L(){return d_L;};
+      std::vector<std::vector<float> > taps(){return filterbank::taps();};
 
-      /*!
-       * \brief Return a shared_ptr to a new instance of fbmc::smt_filterbank_rx_cvc.
-       *
-       * To avoid accidental use of raw pointers, fbmc::smt_filterbank_rx_cvc's
-       * constructor is in a private implementation
-       * class. fbmc::smt_filterbank_rx_cvc::make is the public interface for
-       * creating new instances.
-       */
-      static sptr
-      make(std::vector<float> taps, int L);
+      int generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
+
+    private:
+      int d_L;
+      std::vector<std::vector<float> > d_prototype_taps;
+      void set_taps(std::vector<float> &taps);
     };
 
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_SMT_FILTERBANK_RX_CVC_H */
+#endif /* INCLUDED_FBMC_SMT_FILTERBANK_KERNEL_H */
 

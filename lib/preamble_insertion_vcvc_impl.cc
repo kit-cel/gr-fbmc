@@ -49,7 +49,7 @@ namespace gr {
     {
       if((d_preamble_sym.size() % d_L) != 0)
         throw std::runtime_error("Preamble size must be an integer multiple of the number of subcarriers");        
-      dbg_fp = fopen("freq_vals.bin", "wb");
+//      dbg_fp = fopen("freq_vals.bin", "wb");
     }
 
     /*
@@ -57,7 +57,7 @@ namespace gr {
      */
     preamble_insertion_vcvc_impl::~preamble_insertion_vcvc_impl()
     {
-      fclose(dbg_fp);
+//      fclose(dbg_fp);
     }
 
     int
@@ -75,7 +75,7 @@ namespace gr {
 		
 		  d_ctr = (d_ctr + 1) % d_frame_len; 
 
-      fwrite(out, d_L, sizeof(gr_complex), dbg_fp);
+//      fwrite(out, d_L, sizeof(gr_complex), dbg_fp);
 
       // Tell runtime system how many output items we produced.
       return 1;

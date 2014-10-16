@@ -67,7 +67,7 @@ namespace gr {
 
       set_output_multiple(d_nfft);
 
-      dbg_fp = fopen("snr_est.bin", "wb");
+//      dbg_fp = fopen("snr_est.bin", "wb");
     }
 
     /*
@@ -75,7 +75,7 @@ namespace gr {
      */
     coarse_cfo_correction_impl::~coarse_cfo_correction_impl()
     {
-      fclose(dbg_fp);
+//      fclose(dbg_fp);
 
       fftwf_free(d_buf);
       fftwf_destroy_plan(d_plan);
@@ -210,7 +210,7 @@ namespace gr {
       e_sig /= ctr_s;
       e_noise /= ctr_n;
       d_snr_est = 10*log10(e_sig/e_noise);
-      fwrite(&d_snr_est, sizeof(float), 1, dbg_fp);
+//      fwrite(&d_snr_est, sizeof(float), 1, dbg_fp);
 
       std::cout << "shift: " << shift << ", measured SNR: " << e_sig << "/" << e_noise << "=" << e_sig/e_noise << "=" << d_snr_est << " dB" << std::endl;
 

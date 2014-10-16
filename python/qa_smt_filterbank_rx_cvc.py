@@ -47,12 +47,27 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         # check data
 
         res = self.snk.data()
-
         self.assertTrue(len(res), len(d) * 2)
 
     def test_002_taps(self):
-        self.cfg = fbmc.fbmc_config(num_used_subcarriers=20, num_payload_sym=16, num_overlap_sym=4, modulation="QPSK", preamble="IAM")
+        multiple = 100
+        overlap = 4
+        self.cfg = fbmc.fbmc_config(num_used_subcarriers=20, num_payload_sym=16, num_overlap_sym=overlap, modulation="QPSK", preamble="IAM")
+        taps = self.cfg.prototype_taps_float()
+        L = self.cfg.num_total_subcarriers()
+        print overlap, "L = ", L
+
+        # initialize UUT and check results
+        self.smt = fbmc.smt_filterbank_rx_cvc(taps, L)
+        vector_taps = self.smt.taps()
+        # print vector_taps
+
+        d = range(L * multiple)
+        self.src = blocks.vector_source_c(d, vlen=1)
+        self.snk = blocks.vector_sink_c(vlen=L)
+        self.tb.connect(self.src, self.smt, self.snk)
+        self.tb.run()
 
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_smt_filterbank_rx_cvc, "qa_smt_filterbank_rx_cvc.xml")
+    gr_unittest.run(qa_smt_filterbank_rx_cvc)

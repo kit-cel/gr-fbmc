@@ -67,10 +67,6 @@ namespace gr {
       float avg_cfo(float cfo); // returns a averaged estimate of the CFO by using earlier estimations
       std::string print_state();
 
-      FILE* dbg_fp;
-      FILE* dbg_fp2;
-      FILE* dbg_fp3;
-
      public:
       frame_sync_cc_impl(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold, int overlap);
       ~frame_sync_cc_impl();

@@ -48,6 +48,7 @@ namespace gr{
 				std::string modulation(){return d_modulation;}
 				std::vector<gr_complex> constellation_points(){return d_const->points();}
 				std::vector<gr_complex> prototype_taps(){return d_prototype_taps;}
+				std::vector<float> prototype_taps_float(){return d_prototype_taps_float;}
 				std::vector<int> channel_map(){return d_channel_map;}
 				int samp_rate(){return d_samp_rate;}
 				std::vector<int> prbs(){return d_prbs;};
@@ -70,6 +71,7 @@ namespace gr{
 				int d_num_preamble_sym; // number of preamble symbols (includes overlap)
 				int d_num_sym_frame; // number of symbols per frame including preamble and overlap
 				std::vector<gr_complex> d_prototype_taps; // prototype taps for pulse shaping
+				std::vector<float> d_prototype_taps_float; // prototype taps for pulse shaping
 				std::valarray<float> d_b[15]; // keeps a table of coefficients needed for the IOTA pulse generation
 				int d_group_delay; // group delay introduced by the filter bank
 				std::vector<int> d_channel_map; // a vector of 0s and 1s denoting the used carriers

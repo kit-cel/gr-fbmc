@@ -22,18 +22,21 @@
 #define INCLUDED_FBMC_SMT_FILTERBANK_RX_CVC_IMPL_H
 
 #include <fbmc/smt_filterbank_rx_cvc.h>
+#include <fbmc/smt_filterbank_kernel.h>
 
 namespace gr {
   namespace fbmc {
 
-    class smt_filterbank_rx_cvc_impl : public smt_filterbank_rx_cvc
+    class smt_filterbank_rx_cvc_impl : public smt_filterbank_rx_cvc, smt_filterbank_kernel
     {
     private:
       int d_L;
 
     public:
-      smt_filterbank_rx_cvc_impl(std::vector<gr_complex> taps, int L);
+      smt_filterbank_rx_cvc_impl(std::vector<float> &taps, int L);
       ~smt_filterbank_rx_cvc_impl();
+
+      std::vector<std::vector<float> > taps(){return smt_filterbank_kernel::taps();};
 
       // Where all the action really happens
       int

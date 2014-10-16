@@ -39,7 +39,8 @@ list(APPEND fbmc_sources
     preamble_insertion_vcvc_impl.cc
     frame_sync_cc_impl.cc
     coarse_cfo_correction_impl.cc
-    smt_filterbank_rx_cvc_impl.cc )
+    smt_filterbank_rx_cvc_impl.cc
+    smt_filterbank_kernel.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)
@@ -72,11 +73,10 @@ install(TARGETS gnuradio-fbmc
 include(GrTest)
 
 include_directories(${CPPUNIT_INCLUDE_DIRS})
-
 list(APPEND test_fbmc_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_fbmc.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc.cc
-)
+    ${CMAKE_CURRENT_SOURCE_DIR}/)
 
 add_executable(test-fbmc ${test_fbmc_sources})
 

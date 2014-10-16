@@ -36,5 +36,6 @@ install(FILES
     preamble_insertion_vcvc.h
     frame_sync_cc.h
     coarse_cfo_correction.h
-    smt_filterbank_rx_cvc.h DESTINATION include/fbmc
+    smt_filterbank_rx_cvc.h
+    smt_filterbank_kernel.h DESTINATION include/fbmc
 )

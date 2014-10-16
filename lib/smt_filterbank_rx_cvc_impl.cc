@@ -29,7 +29,7 @@ namespace gr {
   namespace fbmc {
 
     smt_filterbank_rx_cvc::sptr
-    smt_filterbank_rx_cvc::make(std::vector<gr_complex> taps, int L)
+    smt_filterbank_rx_cvc::make(std::vector<float> taps, int L)
     {
       return gnuradio::get_initial_sptr(new smt_filterbank_rx_cvc_impl(taps, L));
     }
@@ -38,11 +38,13 @@ namespace gr {
      * The private constructor
      */
     smt_filterbank_rx_cvc_impl::smt_filterbank_rx_cvc_impl(
-        std::vector<gr_complex> taps, int L) :
+        std::vector<float> &taps, int L) :
         gr::sync_decimator("smt_filterbank_rx_cvc",
                            gr::io_signature::make(1, 1, sizeof(gr_complex)),
                            gr::io_signature::make(1, 1, sizeof(gr_complex) * L),
-                           L / 2), d_L(L)
+                           L / 2),
+                           smt_filterbank_kernel(taps, L),
+                           d_L(L)
     {
       if(d_L < 2 || d_L % 2 != 0){
         throw std::runtime_error("L has to be even and >= 2!");
@@ -67,7 +69,8 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
-      // Do <+signal processing+>
+      int nout = smt_filterbank_kernel::generic_work(out, in, noutput_items);
+      std::cout << "smt_filterbank_rx_cvc::nout = " << nout << std::endl;
 
       // Tell runtime system how many output items we produced.
       return noutput_items;

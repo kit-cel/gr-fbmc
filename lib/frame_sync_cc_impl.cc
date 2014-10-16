@@ -61,10 +61,6 @@ namespace gr {
                 d_phi(0),
                 d_track_win_len(5)
     {
-      dbg_fp = fopen("fs_lc.bin", "wb");
-      dbg_fp2 = fopen("fs_in.bin", "wb");
-      dbg_fp3 = fopen("fs_rc.bin", "wb");
-
       if(d_threshold <= 0 || d_threshold >= 1)
         throw std::runtime_error(std::string("Threshold must be between (0,1)")); 
 
@@ -85,7 +81,6 @@ namespace gr {
 
       d_buf.clear();
       d_buf.resize(d_preamble_sym.size(), 0);
-      fwrite(&d_preamble_sym[0], sizeof(gr_complex), d_preamble_sym.size(), dbg_fp);
 
       // preallocate the tracking buffers
       std::vector<gr_complex> tmp(d_preamble_sym.size(),0);
@@ -107,9 +102,6 @@ namespace gr {
      */
     frame_sync_cc_impl::~frame_sync_cc_impl()
     {
-      fclose(dbg_fp);
-      fclose(dbg_fp2);
-      fclose(dbg_fp3);
     }
 
     void
@@ -334,7 +326,6 @@ namespace gr {
 
           // copy the beginning of the next frame into the tracking buffer for later processing
           d_track_buf.assign(in+samples_to_return - (d_track_win_len-1)/2, in+samples_to_return + d_preamble_sym.size()+d_track_win_len);
-          fwrite(&d_track_buf[0], sizeof(gr_complex), d_track_buf.size(), dbg_fp);
         }
 
         samples_consumed = samples_to_return;

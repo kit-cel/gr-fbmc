@@ -24,6 +24,7 @@
 #include "fbmc/frame_sync_cc.h"
 #include "fbmc/coarse_cfo_correction.h"
 #include "fbmc/smt_filterbank_rx_cvc.h"
+#include "fbmc/smt_filterbank_kernel.h"
 %}
 
 %include "../lib/fbmc_config.h"
@@ -59,3 +60,4 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, frame_sync_cc);
 GR_SWIG_BLOCK_MAGIC2(fbmc, coarse_cfo_correction);
 %include "fbmc/smt_filterbank_rx_cvc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, smt_filterbank_rx_cvc);
+%include "fbmc/smt_filterbank_kernel.h"
