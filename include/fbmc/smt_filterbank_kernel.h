@@ -24,6 +24,7 @@
 
 #include <fbmc/api.h>
 #include <gnuradio/filter/filterbank.h>
+#include <fftw3.h>
 
 namespace gr {
   namespace fbmc {
@@ -45,6 +46,9 @@ namespace gr {
 
     private:
       int d_L;
+      gr_complex* d_fft_in_buf;
+      gr_complex* d_fft_out_buf;
+      fftwf_plan d_fft_plan; // see gr-fft files for FFTW plan usage.
       std::vector<std::vector<float> > d_prototype_taps;
       void set_taps(std::vector<float> &taps);
     };

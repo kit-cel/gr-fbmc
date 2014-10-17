@@ -21,9 +21,10 @@
 
 from operator import add
 
-# from numpy import empty_like, append, zeros, flipud, empty, roll
-# from numpy.dual import ifft, fft
-# from scipy.signal import convolve
+from numpy import empty_like, append, zeros, flipud, empty, roll
+import numpy as np
+from numpy.dual import ifft, fft
+from scipy.signal import convolve
 
 
 def generate_vector(L):
@@ -40,8 +41,8 @@ def serialize_vector(d):
 
 
 def map_to_channel(d, inlen, outlen, channel_map):
-    assert(len(d) == inlen)
-    assert(len(channel_map) == outlen)
+    assert (len(d) == inlen)
+    assert (len(channel_map) == outlen)
     v = range(outlen)
     num = 0
     for i in range(outlen):
@@ -54,9 +55,9 @@ def map_to_channel(d, inlen, outlen, channel_map):
 
 
 def unmap_from_channel(d, inlen, outlen, channel_map):
-    assert(len(d) == inlen)
-    assert(len(channel_map) == inlen)
-    assert(len([i for i in channel_map if i == 1]) == outlen)
+    assert (len(d) == inlen)
+    assert (len(channel_map) == inlen)
+    assert (len([i for i in channel_map if i == 1]) == outlen)
 
     num = 0
     v = range(outlen)
@@ -68,30 +69,30 @@ def unmap_from_channel(d, inlen, outlen, channel_map):
 
 
 def commutate_output(d, L):
-    assert(len(d) == L)
-    assert(L % 2 == 0)
+    assert (len(d) == L)
+    assert (L % 2 == 0)
     Ld2 = int(L / 2)
     return map(add, d[0:Ld2], d[Ld2:])
 
 
 def commutate_input(d, buf, L):
     # careful not exactly the inverse to commutate output!
-    assert(len(buf) >= L/2 - 1)  # make sure enough history is provided!
-    assert(len(d) > L - 2)  # require one symbol!
-    offset = L/2 - 1
+    assert (len(buf) >= L / 2 - 1)  # make sure enough history is provided!
+    assert (len(d) > L - 2)  # require one symbol!
+    offset = L / 2 - 1
     buf = buf[0:offset] + d
     res = []
     for k in range(2):
-        revbuf = buf[0:L/2]
+        revbuf = buf[0:L / 2]
         revbuf = revbuf[::-1]
         revbuf *= 2
         res += revbuf
-        buf = buf[L/2:]
+        buf = buf[L / 2:]
     return [res, buf]
 
 
 def commutate_input_stream(d, L):
-    assert(len(d) % L == 0)  # otherwise we may produce unexpected results.
+    assert (len(d) % L == 0)  # otherwise we may produce unexpected results.
     buf = [0, ] * 2 * L
     res = []
     while len(d) >= L - 1:
@@ -101,92 +102,49 @@ def commutate_input_stream(d, L):
     return res
 
 
-# def tx(symbols, prototype, osr, oqam='SIOHAN'):
-#     # 0. prep
-#     prototype = filters.get_prototype(prototype, dtype=symbols.real.dtype)
-#     coeffs =_polyphase_filter_coeffs(prototype, osr)
-#
-#     # 1. split I and Q, interleave them and apply SMT phase shifts
-#     overlap = (len(prototype) - 1) / osr
-#     # d = phase.encoder(symbols, overlap, oqam)
-#     d = symbols
-#
-#     # 2. spin polyphase components
-#     x = empty((osr, 1 + d.shape[1] + coeffs.shape[1] - 1), dtype=d.dtype)
-#     x[:,:d.shape[1]] = osr * ifft(d, osr, 0)
-#
-#     # 3. polyphase filters
-#     for l in range(osr):
-#         x[l, :-1] = convolve(coeffs[l,:], x[l, :d.shape[1]])
-#         x[l, -1] = 0.0
-#
-#     # 4. output commutator: we have L polyphase branches with rate 2
-#     # --> 2 x P/S + (delayed) add
-#     len_output = (osr // 2 * (d.shape[1] - 1) + 1) + len(prototype) - 1
-#     return (x[:(osr // 2), :] + x[(osr // 2):, :]).flatten(1)[:len_output]
-#
-#
-# def rx(samples, prototype, osr, oqam='SIOHAN', drop_in=None):
-#
-#     # 0. prep
-#     prototype = filters.get_prototype(prototype, dtype=samples.real.dtype)
-#     coeffs =_polyphase_filter_coeffs(prototype[::-1], osr)
-#     overlap = (len(prototype) - 1) // osr
-#
-#     # 1. input commutator
-#     if coeffs.size / 2 == len(prototype) - 1:
-#         # PHYDYAS filter: first and last sample is zero and therefore cut
-#         # --> samples must be cut as well
-#         samples = flipud(samples[1:].reshape((-1, osr // 2)).T)
-#
-#     else:
-#         # other filters use the full OSR*overlap + 1 samples
-#         # --> prefix some zeros to also get transient behavior right
-#         samples = flipud(append(
-#             zeros(osr - 1, dtype=samples.dtype), samples
-#          ).reshape((-1, osr // 2)).T)
-#
-#     # 2. polyphase filters
-#     samples = append(samples, empty_like(samples), axis=0)
-#     out = samples[:, :-(coeffs.shape[1] - 1)]
-#     # reverse iteration to not override samples for l >= osr/2
-#     for l in reversed(range(osr)):
-#         # run filter (draw samples from the first half for l >= osr/2
-#         out[l, :] = convolve(samples[l % (osr // 2), :], coeffs[l, :], 'valid')
-#
-#     # 3. spin polyphase signals
-#     out[:] = osr * ifft(out, osr, 0)
-#
-#     if callable(drop_in): out = drop_in(out)
-#
-#     # return phase.decoder(out, overlap, oqam)
-#     return out
-#
-#
-# def _upsample(signal, factor, phase=0):
-#     """Upsampling for signals (1D)
-#     :param signal: input samples
-#     :param factor: upsampling factor
-#     :param phase: phase offset
-#     :return: upsampled signal
-#     """
-#     factor, phase = int(factor), int(phase)
-#     output = zeros(factor * signal.shape[0], dtype=signal.dtype)
-#     output[phase::factor] = signal
-#     return output
-#
-#
-# def _polyphase_filter_coeffs(prototype, osr):
-#     # fit length
-#     if prototype[-1] == 0.0: prototype = prototype[:-1]
-#     prototype = append(prototype, zeros(-len(prototype) % osr,
-#                                         dtype=prototype.dtype))
-#     # allocate and fill matrix
-#     coeffs = zeros((osr, 2 * len(prototype) / osr), dtype=prototype.dtype)
-#     for l in range(osr):
-#         # upsample branches by two, delay second half by one sample
-#         coeffs[l, (l >= osr / 2)::2] = prototype[l::osr]
-#     return coeffs
+def rx(samples, prototype, osr):
+    # 0. prep
+    coeffs = _polyphase_filter_coeffs(prototype[::-1], osr)
+    print coeffs
+
+    # 1. input commutator
+    if coeffs.size / 2 == len(prototype) - 1:
+        # PHYDYAS filter: first and last sample is zero and therefore cut
+        # --> samples must be cut as well
+        samples = flipud(samples[1:].reshape((-1, osr // 2)).T)
+
+    else:
+        # other filters use the full OSR*overlap + 1 samples
+        # --> prefix some zeros to also get transient behavior right
+        samples = flipud(append(
+            zeros(osr - 1, dtype=samples[0].dtype), samples).reshape((-1, osr // 2)).T)
+
+    # 2. polyphase filters
+    samples = append(samples, empty_like(samples), axis=0)
+    # out = empty((samples.shape[0], samples.shape[1] + coeffs.shape[1] - 1), dtype=samples.dtype)
+    out = samples[:, :-(coeffs.shape[1] - 1)]
+    # reverse iteration to not override samples for l >= osr/2
+    for l in reversed(range(osr)):
+    # run filter (draw samples from the first half for l >= osr/2
+        out[l, :] = convolve(samples[l % (osr // 2), :], coeffs[l, :], 'valid')
+
+    # 3. spin polyphase signals
+    out[:] = osr * ifft(out, osr, 0)
+
+    return out
+
+
+def _polyphase_filter_coeffs(prototype, osr):
+    # fit length
+    if prototype[-1] == 0.0: prototype = prototype[:-1]
+    prototype = append(prototype, zeros(-len(prototype) % osr,
+                                        dtype=prototype.dtype))
+    # allocate and fill matrix
+    coeffs = zeros((osr, 2 * len(prototype) / osr), dtype=prototype.dtype)
+    for l in range(osr):
+        # upsample branches by two, delay second half by one sample
+        coeffs[l, (l >= osr / 2)::2] = prototype[l::osr]
+    return coeffs
 
 
 def main():
@@ -194,12 +152,24 @@ def main():
     L = 6
 
     d = range(1, 4 * L + 1)
-    print len(d)
-    res = commutate_input_stream(d, L)
-    print len(res)
-    print res
+    # print len(d)
+    # res = commutate_input_stream(d, L)
+    # print len(res)
+    # print res
     # buf = [0, ] * 2 * L
     # commutate_input(d[0:L], buf, L)
+    nsyms = 11
+    osr = 4
+    dlen = nsyms * osr // 2 + 1
+    protolen = osr * 4 * osr + 1
+    # d = np.ones((dlen,), dtype=np.complex)
+    d = np.arange(1, dlen + 1, dtype=np.complex)
+    print d
+    proto = np.ones(protolen)
+    res = rx(d, proto, osr)
+    print res
+    print np.shape(res)
+
 
 if __name__ == '__main__':
     main()

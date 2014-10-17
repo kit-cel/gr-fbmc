@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
   <name>smt_filterbank_kernel</name>
-  <key>fbmc_smt_filterbank_kernel</key>
-  <category>fbmc</category>
+  <key>SMT Filterbank Kernel</key>
+  <category>FBMC</category>
   <import>import fbmc</import>
   <make>fbmc.smt_filterbank_kernel()</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.

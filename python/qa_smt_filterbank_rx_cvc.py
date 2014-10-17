@@ -22,6 +22,8 @@
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
+import fbmc_test_functions as ft
+import numpy as np
 
 
 class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
@@ -50,23 +52,32 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         self.assertTrue(len(res), len(d) * 2)
 
     def test_002_taps(self):
-        multiple = 100
+        multiple = 10
         overlap = 4
-        self.cfg = fbmc.fbmc_config(num_used_subcarriers=20, num_payload_sym=16, num_overlap_sym=overlap, modulation="QPSK", preamble="IAM")
-        taps = self.cfg.prototype_taps_float()
-        L = self.cfg.num_total_subcarriers()
+
+        L = 4
+        taps = np.ones(L)
         print overlap, "L = ", L
 
         # initialize UUT and check results
         self.smt = fbmc.smt_filterbank_rx_cvc(taps, L)
-        vector_taps = self.smt.taps()
-        # print vector_taps
 
-        d = range(L * multiple)
+        d = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
         self.src = blocks.vector_source_c(d, vlen=1)
         self.snk = blocks.vector_sink_c(vlen=L)
         self.tb.connect(self.src, self.smt, self.snk)
         self.tb.run()
+        np.set_printoptions(linewidth=150)
+        # check data
+        res = self.snk.data()
+        resmatrix = np.array(res).reshape((-1, L)).T
+        print resmatrix
+        print
+
+        ref = ft.rx(d[: -L//2], taps, L)
+        print ref
+
+        self.assertComplexTuplesAlmostEqual(ref.flatten(), resmatrix.flatten())
 
 
 if __name__ == '__main__':

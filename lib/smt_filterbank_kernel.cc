@@ -28,6 +28,9 @@
 #include <cstdio>
 #include <iostream>
 #include <stdexcept>
+#include <volk/volk.h>
+#include <fftw3.h>
+#include <cstring>
 
 namespace gr {
   namespace fbmc {
@@ -43,10 +46,24 @@ namespace gr {
       }
       std::cout << "smt_filterbank_kernel::ctor\n";
       set_taps(taps);
+
+      // just like FFT block input and output buffers are used and copied out finally
+      d_fft_in_buf = (gr_complex*) volk_malloc(sizeof(gr_complex) * d_L,
+                                               volk_get_alignment());
+      d_fft_out_buf = (gr_complex*) volk_malloc(sizeof(gr_complex) * d_L,
+                                                volk_get_alignment());
+
+      // create FFTW plan.
+      d_fft_plan = fftwf_plan_dft_1d(
+          d_L, reinterpret_cast<fftwf_complex *>(d_fft_in_buf),
+          reinterpret_cast<fftwf_complex *>(d_fft_out_buf), FFTW_BACKWARD,
+          FFTW_MEASURE);
     }
 
     smt_filterbank_kernel::~smt_filterbank_kernel()
     {
+      volk_free(d_fft_in_buf);
+      volk_free(d_fft_out_buf);
     }
 
     void
@@ -88,9 +105,14 @@ namespace gr {
                                         int noutput_items)
     {
       for(int i = 0; i < d_L; i++){ // go thru filter arms!
-        out[i] = d_fir_filters[i]->filter(in + (d_L - 1) - i);
+        d_fft_in_buf[i] = d_fir_filters[i]->filter(in + (d_L - 1) - i);
+        std::cout << d_fft_in_buf[i] << ", ";
+//        out[i] = in[(d_L - 1) - i];
       }
+      std::cout << std::endl;
       // do fft.
+      fftwf_execute(d_fft_plan);
+      memcpy(out, d_fft_out_buf, sizeof(gr_complex) * d_L);
 
       return 1;
     }

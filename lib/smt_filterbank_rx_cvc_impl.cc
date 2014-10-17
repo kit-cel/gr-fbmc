@@ -51,7 +51,7 @@ namespace gr {
       }
 
       // history is needed to generate type-III polyphase components
-      set_history(L / 2);
+      set_history(L);
     }
 
     /*
@@ -73,7 +73,7 @@ namespace gr {
       std::cout << "smt_filterbank_rx_cvc::nout = " << nout << std::endl;
 
       // Tell runtime system how many output items we produced.
-      return noutput_items;
+      return nout;
     }
 
   } /* namespace fbmc */
