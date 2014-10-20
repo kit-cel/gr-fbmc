@@ -115,11 +115,11 @@ namespace gr {
         gr_complex *out = (gr_complex *) output_items[0];
 
         //FIXME: make sure center coeff has phase 0
-        if(d_group_delay % d_L != 0) // just a reminder to avoid unexpected behavior
-        {
-            std::cerr << "group delay: " << d_group_delay << ", L: " << d_L << std::endl;
-            throw std::runtime_error("assertion d_group_delay % d_L == 0 failed");
-        }
+//        if(d_group_delay % d_L != 0) // just a reminder to avoid unexpected behavior
+//        {
+//            std::cerr << "group delay: " << d_group_delay << ", L: " << d_L << std::endl;
+//            throw std::runtime_error("assertion d_group_delay % d_L == 0 failed");
+//        }
 
         // Filter one vector of L samples and return L samples
         filter(in, out);

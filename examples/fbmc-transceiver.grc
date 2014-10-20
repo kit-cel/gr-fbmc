@@ -3111,67 +3111,20 @@
     </param>
   </block>
   <block>
-    <key>fbmc_smt_filterbank_rx_cvc</key>
+    <key>fbmc_input_commutator_cvc</key>
     <param>
       <key>id</key>
-      <value>fbmc_smt_filterbank_rx_cvc_0</value>
+      <value>fbmc_input_commutator_cvc_0</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>False</value>
     </param>
     <param>
-      <key>taps</key>
-      <value>cfg.prototype_taps_float()</value>
-    </param>
-    <param>
-      <key>osr</key>
-      <value>cfg.num_total_subcarriers()</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(496, 979)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>fbmc_polyphase_filterbank_vcvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_polyphase_filterbank_vcvc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
       <key>L</key>
       <value>cfg.num_total_subcarriers()</value>
     </param>
     <param>
-      <key>taps</key>
-      <value>cfg.prototype_taps()</value>
-    </param>
-    <param>
       <key>alias</key>
       <value></value>
     </param>
@@ -3189,7 +3142,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(504, 1123)</value>
+      <value>(315, 1130)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3204,7 +3157,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>type</key>
@@ -3256,17 +3209,64 @@
     </param>
   </block>
   <block>
-    <key>fbmc_input_commutator_cvc</key>
+    <key>fbmc_polyphase_filterbank_vcvc</key>
     <param>
       <key>id</key>
-      <value>fbmc_input_commutator_cvc_0</value>
+      <value>fbmc_polyphase_filterbank_vcvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value>cfg.prototype_taps()</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(504, 1123)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_smt_filterbank_rx_cvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_smt_filterbank_rx_cvc_0</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
-      <key>L</key>
+      <key>taps</key>
+      <value>cfg.prototype_taps_float()</value>
+    </param>
+    <param>
+      <key>osr</key>
       <value>cfg.num_total_subcarriers()</value>
     </param>
     <param>
@@ -3287,7 +3287,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(315, 1130)</value>
+      <value>(496, 979)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3571,14 +3571,14 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fbmc_input_commutator_cvc_0</source_block_id>
-    <sink_block_id>fbmc_polyphase_filterbank_vcvc_0</sink_block_id>
+    <source_block_id>fbmc_polyphase_filterbank_vcvc_0</source_block_id>
+    <sink_block_id>fft_vxx_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fbmc_polyphase_filterbank_vcvc_0</source_block_id>
-    <sink_block_id>fft_vxx_0_0</sink_block_id>
+    <source_block_id>fbmc_input_commutator_cvc_0</source_block_id>
+    <sink_block_id>fbmc_polyphase_filterbank_vcvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

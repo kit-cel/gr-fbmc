@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2014 <+YOU OR YOUR COMPANY+>.
+ * Copyright 2014 Communications Engineering Lab (CEL), Karlsruhe Institute of Technology (KIT).
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -104,15 +104,17 @@ namespace gr {
     smt_filterbank_kernel::generic_work(gr_complex* out, const gr_complex* in,
                                         int noutput_items)
     {
+      std::cout << "result: ";
       for(int i = 0; i < d_L; i++){ // go thru filter arms!
-        d_fft_in_buf[i] = d_fir_filters[i]->filter(in + (d_L - 1) - i);
-        std::cout << d_fft_in_buf[i] << ", ";
+//        d_fft_in_buf[i] = d_fir_filters[i]->filter(in + (d_L - 1) - i);
+        out[i] = d_fir_filters[i]->filter(in + (d_L - 1) - i);
+        std::cout << "out: " << out[i] << ", in: " << in[(d_L - 1) - i] << std::endl;
 //        out[i] = in[(d_L - 1) - i];
       }
-      std::cout << std::endl;
+//      std::cout << std::endl;
       // do fft.
-      fftwf_execute(d_fft_plan);
-      memcpy(out, d_fft_out_buf, sizeof(gr_complex) * d_L);
+//      fftwf_execute(d_fft_plan);
+//      memcpy(out, d_fft_out_buf, sizeof(gr_complex) * d_L);
 
       return 1;
     }

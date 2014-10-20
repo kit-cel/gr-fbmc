@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2014 <+YOU OR YOUR COMPANY+>.
+ * Copyright 2014 Communications Engineering Lab (CEL), Karlsruhe Institute of Technology (KIT).
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ namespace gr {
       gr_complex *out = (gr_complex *) output_items[0];
 
       int nout = smt_filterbank_kernel::generic_work(out, in, noutput_items);
-      std::cout << "smt_filterbank_rx_cvc::nout = " << nout << std::endl;
+//      std::cout << "smt_filterbank_rx_cvc::nout = " << nout << std::endl;
 
       // Tell runtime system how many output items we produced.
       return nout;
