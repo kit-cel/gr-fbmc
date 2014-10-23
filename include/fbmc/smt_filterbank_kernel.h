@@ -51,6 +51,9 @@ namespace gr {
       fftwf_plan d_fft_plan; // see gr-fft files for FFTW plan usage.
       std::vector<std::vector<float> > d_prototype_taps;
       void set_taps(std::vector<float> &taps);
+      std::vector<gr_complex*> d_buffers;
+      void initialize_branch_buffers(int L, int ntaps);
+      gr_complex filter_branch(gr_complex in_sample, int branch);
     };
 
   } // namespace fbmc

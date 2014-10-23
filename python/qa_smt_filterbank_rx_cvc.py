@@ -35,6 +35,7 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         self.tb = None
 
     def test_001_t(self):
+        print "test001"
         multiple = 100
         L = 16
         overlap = 4
@@ -47,12 +48,13 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         self.snk = blocks.vector_sink_c(vlen=L)
         self.tb.connect(self.src, self.smt, self.snk)
         self.tb.run()
-        # check data
 
+        # check data
         res = self.snk.data()
         self.assertTrue(len(res), len(d) * 2)
 
-    def test_002_taps(self):
+    def test_002_commutator(self):
+        print "\n\n\ntest002"
         multiple = 10
         overlap = 4
 
@@ -62,7 +64,7 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
 
         # initialize UUT and check results
         self.smt = fbmc.smt_filterbank_rx_cvc(taps, L)
-
+        # print "test2 generate data"
         d = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
         self.src = blocks.vector_source_c(d, vlen=1)
         self.snk = blocks.vector_sink_c(vlen=L)
@@ -80,10 +82,7 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
 
         self.assertComplexTuplesAlmostEqual(ref.flatten(), resmatrix.flatten())
 
-    def test_003_big_taps(self):
-        # info = "Press key " # + os.getpid()
-        # print "\n\nPID: ", os.getpid()
-        # raw_input(info)
+    def test_003_legacy_small(self):
         np.set_printoptions(linewidth=150, precision=4)
         multiple = 10
         overlap = 4
@@ -103,14 +102,15 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         # old chain
         self.com = fbmc.input_commutator_cvc(L)
         self.pfb = fbmc.polyphase_filterbank_vcvc(L, taps)
+        self.fft = fft.fft_vcc(L, False, (), False, 1)
         self.snkold = blocks.vector_sink_c(vlen=L)
 
-        self.tb.connect(self.src, self.com, self.pfb, self.snkold)
+        self.tb.connect(self.src, self.com, self.pfb, self.fft, self.snkold)
         self.tb.connect(self.src, smt, self.snk)
         self.tb.run()
 
         # check data
-        ref = ft.rx(d[: -L//2], taps, L)
+        # ref = ft.rx(d[: -L//2], taps, L)
         res = self.snk.data()
         resmatrix = np.array(res).reshape((-1, L)).T
 
@@ -122,14 +122,14 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
 
         print "result"
         print resmatrix
-        print
-        print "reference"
-        print ref
+        # print
+        # print "reference"
+        # print ref
         print
         print "old"
         print oldmatrix
 
-        # self.assertComplexTuplesAlmostEqual(ref.flatten(), resmatrix.flatten())
+        self.assertComplexTuplesAlmostEqual(oldmatrix.flatten(), resmatrix.flatten())
 
     # def test_003_legacy(self):
     #     # compare results to legacy implementation for compatibility.
