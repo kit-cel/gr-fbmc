@@ -24,18 +24,18 @@ from gnuradio import blocks, fft
 import fbmc_swig as fbmc
 import fbmc_test_functions as ft
 import numpy as np
-import os
 
 
 class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
     def setUp(self):
+        np.set_printoptions(linewidth=150, precision=4)
         self.tb = gr.top_block()
 
     def tearDown(self):
         self.tb = None
 
     def test_001_t(self):
-        print "test001"
+        # test if input-output ratio is correct
         multiple = 100
         L = 16
         overlap = 4
@@ -54,13 +54,10 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         self.assertTrue(len(res), len(d) * 2)
 
     def test_002_commutator(self):
-        print "\n\n\ntest002"
+        # check if commutator works correctly.
         multiple = 10
-        overlap = 4
-
         L = 4
         taps = np.ones(L)
-        print overlap, "L = ", L
 
         # initialize UUT and check results
         self.smt = fbmc.smt_filterbank_rx_cvc(taps, L)
@@ -70,26 +67,22 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         self.snk = blocks.vector_sink_c(vlen=L)
         self.tb.connect(self.src, self.smt, self.snk)
         self.tb.run()
-        np.set_printoptions(linewidth=150, precision=4)
+
         # check data
         res = self.snk.data()
         resmatrix = np.array(res).reshape((-1, L)).T
         print resmatrix
         print
 
-        ref = ft.rx(d[: -L//2], taps, L)
+        ref = ft.rx(d[: -L // 2], taps, L)
         print ref
 
         self.assertComplexTuplesAlmostEqual(ref.flatten(), resmatrix.flatten())
 
     def test_003_legacy_small(self):
-        np.set_printoptions(linewidth=150, precision=4)
         multiple = 10
-        overlap = 4
-
         L = 4
-        taps = np.ones(L * 2)
-        print overlap, "L = ", L
+        taps = np.append(np.ones(L), 0.5 * np.ones(L))
 
         # test data!
         d = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
@@ -110,91 +103,108 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         self.tb.run()
 
         # check data
-        # ref = ft.rx(d[: -L//2], taps, L)
         res = self.snk.data()
         resmatrix = np.array(res).reshape((-1, L)).T
 
         old = self.snkold.data()
         oldmatrix = np.array(old).reshape((-1, L)).T
 
-
         print np.array(smt.taps())
-
-        print "result"
+        print "\nresult"
         print resmatrix
-        # print
-        # print "reference"
-        # print ref
-        print
-        print "old"
+        print "\nold"
         print oldmatrix
 
         self.assertComplexTuplesAlmostEqual(oldmatrix.flatten(), resmatrix.flatten())
 
-    # def test_003_legacy(self):
-    #     # compare results to legacy implementation for compatibility.
-    #     print "\n legacy"
-    #
-    #     multiple = 10
-    #     overlap = 4
-    #
-    #     L = 4
-    #     taps = np.ones(L)
-    #     self.cfg = fbmc.fbmc_config(num_used_subcarriers=20, num_payload_sym=16, num_overlap_sym=overlap, modulation="QPSK", preamble="IAM")
-    #     L = self.cfg.num_total_subcarriers()
-    #     taps = np.array(self.cfg.prototype_taps_float(), dtype=np.float)
-    #     print overlap, "L = ", L
-    #
-    #     # generate data and set it for source.
-    #     d = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
-    #     self.src = blocks.vector_source_c(d, vlen=1)
-    #
-    #     # this one should act like the old RX chain.
-    #     self.smt = fbmc.smt_filterbank_rx_cvc(taps, L)
-    #
-    #     # old chain
-    #     self.com = fbmc.input_commutator_cvc(L)
-    #     self.pfb = fbmc.polyphase_filterbank_vcvc(L, taps)
-    #     self.fft = fft.fft_vcc(L, False, (), False, 1)
-    #
-    #     self.snk0 = blocks.vector_sink_c(vlen=L)
-    #     self.snk1 = blocks.vector_sink_c(vlen=L)
-    #
-    #     self.tb.connect(self.src, self.smt, self.snk0)
-    #     self.tb.connect(self.src, self.com, self.pfb, self.fft, self.snk1)
-    #
-    #     self.tb.run()
-    #
-    #     ref = ft.rx(d[: -L//2], taps, L)
-    #
-    #     taps_matrix = np.array(self.smt.taps())
-    #     print
-    #     print taps_matrix
-    #
-    #     res0 = self.snk0.data()
-    #     res1 = self.snk1.data()
-    #     res0matrix = np.array(res0).reshape((-1, L)).T
-    #     sym0 = np.array(res0[L:L*2])
-    #     sym1 = np.array(res1[L:L*2])
-    #
-    #     # print np.array(res0[0:len(res0)/2]).reshape((-1, L)).T
-    #     # print
-    #     # print np.array(res1[0:len(res1)/2]).reshape((-1, L)).T
-    #     # for i in range(len(sym0)):
-    #     #     print sym0[i], sym1[i]
-    #
-    #     # print sym0
-    #     # print sym1
-    #     # print "vector dubidu"
-    #     # print [sym0.T, sym1.T]
-    #
-    #     print np.shape(ref), np.shape(res0matrix[:, 0:2])
-    #     print ref
-    #     print
-    #     print res0matrix[:, 0:2]
-    #
-    #     # self.assertComplexTuplesAlmostEqual(ref.flatten(), res0)
-    #     # self.assertComplexTuplesAlmostEqual(res0, res1)
+    def test_004_legacy_big(self):
+        np.set_printoptions(linewidth=150, precision=4)
+        multiple = 4
+        overlap = 4
+        self.cfg = fbmc.fbmc_config(num_used_subcarriers=20, num_payload_sym=16, num_overlap_sym=overlap,
+                                    modulation="QPSK", preamble="IAM")
+        L = self.cfg.num_total_subcarriers()
+        taps = np.array(self.cfg.prototype_taps_float(), dtype=np.float)
+
+        # test data!
+        d = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
+
+        # initialize fg
+        smt = fbmc.smt_filterbank_rx_cvc(taps, L)
+        self.src = blocks.vector_source_c(d, vlen=1)
+        self.snk = blocks.vector_sink_c(vlen=L)
+
+        # old chain
+        self.com = fbmc.input_commutator_cvc(L)
+        self.pfb = fbmc.polyphase_filterbank_vcvc(L, taps)
+        self.fft = fft.fft_vcc(L, False, (), False, 1)
+        self.snkold = blocks.vector_sink_c(vlen=L)
+        self.tb.connect(self.src, self.com, self.pfb, self.fft, self.snkold)
+        self.tb.connect(self.src, smt, self.snk)
+        self.tb.run()
+
+        # check data
+        res = self.snk.data()
+        resmatrix = np.array(res).reshape((-1, L)).T
+        old = self.snkold.data()
+        oldmatrix = np.array(old).reshape((-1, L)).T
+
+        print np.array(smt.taps())
+        print "\nresult"
+        print resmatrix
+        print "\nold fg"
+        print oldmatrix
+
+        self.assertComplexTuplesAlmostEqual(oldmatrix.flatten(), resmatrix.flatten())
+
+    def test_005_python_gen(self):
+        # check results against Python implementation
+        print "\n\n\n\nlegacy"
+        multiple = 10
+        overlap = 4
+        L = 4
+        self.cfg = fbmc.fbmc_config(num_used_subcarriers=20, num_payload_sym=16, num_overlap_sym=overlap,
+                                    modulation="QPSK", preamble="IAM")
+        L = self.cfg.num_total_subcarriers()
+        taps = np.array(self.cfg.prototype_taps_float(), dtype=np.float)
+        print "config: overlap =  ", overlap, ", L = ", L
+
+        # generate data and set it for source.
+        d = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
+        self.src = blocks.vector_source_c(d, vlen=1)
+        self.smt = fbmc.smt_filterbank_rx_cvc(taps, L)
+        self.snk0 = blocks.vector_sink_c(vlen=L)
+        self.tb.connect(self.src, self.smt, self.snk0)
+        self.tb.run()
+
+        ref = ft.rx(d[: -L // 2], taps, L)
+
+        res0 = self.snk0.data()
+        resultMatrix = np.array(res0).reshape((-1, L)).T
+        print resultMatrix[:, 0:5]
+        print np.shape(resultMatrix[:, 0:5])
+        print L * resultMatrix[0]
+        print "ref", ref[0]
+        # sym0 = np.array(res0[L:L * 2])
+        #
+        # print np.array(res0[0:len(res0) / 2]).reshape((-1, L)).T
+        # print
+        # print np.array(res1[0:len(res1)/2]).reshape((-1, L)).T
+        # for i in range(len(sym0)):
+        # print sym0[i], sym1[i]
+
+        # # print sym0
+        # # print sym1
+        # # print "vector dubidu"
+        # # print [sym0.T, sym1.T]
+        #
+        # print np.shape(ref), np.shape(res0matrix[:, 2:4])
+        # print ref
+        # print
+        # print res0matrix[:, 0:4]
+
+        # self.assertComplexTuplesAlmostEqual(ref.flatten(), res0)
+        # self.assertComplexTuplesAlmostEqual(res0, res1)
 
 
 if __name__ == '__main__':

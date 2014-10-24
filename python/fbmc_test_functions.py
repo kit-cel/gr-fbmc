@@ -105,7 +105,7 @@ def commutate_input_stream(d, L):
 def rx(samples, prototype, osr):
     # 0. prep
     coeffs = _polyphase_filter_coeffs(prototype[::-1], osr)
-    print coeffs
+    # print coeffs
 
     # 1. input commutator
     if coeffs.size / 2 == len(prototype) - 1:

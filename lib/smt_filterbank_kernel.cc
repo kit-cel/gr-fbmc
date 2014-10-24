@@ -124,7 +124,17 @@ namespace gr {
       }
     }
 
-    gr_complex
+    inline void
+    smt_filterbank_kernel::update_branch_buffer(gr_complex in_sample, int branch)
+    {
+      // for now move all samples by one
+      // left or right shift is open to debate.
+      // fir_filter seems to expect left shift and new samples on the right.
+      memmove(d_buffers[branch], d_buffers[branch] + 1, sizeof(gr_complex) * (d_fir_filters[branch]->ntaps() - 1));
+      d_buffers[branch][d_fir_filters[branch]->ntaps() - 1] = in_sample;
+    }
+
+    inline gr_complex
     smt_filterbank_kernel::filter_branch(gr_complex in_sample, int branch)
     {
       // method gets new input sample and the branch number
@@ -136,8 +146,7 @@ namespace gr {
 //      std::cout << ", buf: ";
 
       // put input sample to front of branch buffer
-      memmove(d_buffers[branch] + 1, d_buffers[branch], sizeof(gr_complex) * (d_fir_filters[branch]->ntaps() - 1));
-      d_buffers[branch][0] = in_sample;
+      update_branch_buffer(in_sample, branch);
 
 //      for(int i = 0; i < ft.size(); i++){
 //        std::cout << d_buffers[branch][i] << ", ";

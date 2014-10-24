@@ -53,7 +53,8 @@ namespace gr {
       void set_taps(std::vector<float> &taps);
       std::vector<gr_complex*> d_buffers;
       void initialize_branch_buffers(int L, int ntaps);
-      gr_complex filter_branch(gr_complex in_sample, int branch);
+      inline gr_complex filter_branch(gr_complex in_sample, int branch);
+      inline void update_branch_buffer(gr_complex in_sample, int branch);
     };
 
   } // namespace fbmc
