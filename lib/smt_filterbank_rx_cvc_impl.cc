@@ -70,7 +70,6 @@ namespace gr {
       gr_complex *out = (gr_complex *) output_items[0];
 
       int nout = smt_filterbank_kernel::generic_work(out, in, noutput_items);
-//      std::cout << "smt_filterbank_rx_cvc::nout = " << nout << std::endl;
 
       // Tell runtime system how many output items we produced.
       return nout;

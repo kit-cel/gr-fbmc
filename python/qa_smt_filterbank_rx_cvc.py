@@ -177,6 +177,7 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         self.tb.connect(self.src, self.smt, self.snk0)
         self.tb.run()
 
+        # same way to generate data in python as in every test!
         ref = ft.rx(d[: -L // 2], taps, L)
 
         res0 = self.snk0.data()

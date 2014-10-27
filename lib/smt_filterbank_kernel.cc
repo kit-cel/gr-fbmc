@@ -76,20 +76,12 @@ namespace gr {
     smt_filterbank_kernel::set_taps(std::vector<float> &taps)
     {
       // this method sanitizes the given taps and sets them for the filterbank afterwards
-
-      std::cout << "smt_filterbank_kernel::set_taps(n = " << taps.size() << ")\n";
-
       // pad the prototype to an integer multiple length of L
       while(taps.size() % d_L != 0){
         taps.push_back(0.0f);
       }
 
-      std::cout << "padded(n = " << taps.size() << ")\n";
-
       int num_branch_taps = ((taps.size() / d_L) * 2) - 1;
-
-      std::cout << "branches = " << d_L << std::endl;
-      std::cout << "branch_taps(n = " << num_branch_taps << ")\n";
 
       d_prototype_taps.clear(); // make sure it is empty!
       for(int i = 0; i < d_L; i++){ // allocate all branches/taps
@@ -138,23 +130,11 @@ namespace gr {
     smt_filterbank_kernel::filter_branch(gr_complex in_sample, int branch)
     {
       // method gets new input sample and the branch number
-//      std::cout << "branch: " << branch << ", in: " << in_sample << ", taps: ";
-//      std::vector<float> ft = d_fir_filters[branch]->taps();
-//      for(int c = 0; c < ft.size(); c++){
-//        std::cout << ft[c] << ", ";
-//      }
-//      std::cout << ", buf: ";
-
       // put input sample to front of branch buffer
       update_branch_buffer(in_sample, branch);
 
-//      for(int i = 0; i < ft.size(); i++){
-//        std::cout << d_buffers[branch][i] << ", ";
-//      }
-
       // do filtering.
       gr_complex result = d_fir_filters[branch]->filter(d_buffers[branch]);
-//      std::cout << ", out: " << out << std::endl;
 
       return result;
     }
@@ -163,18 +143,19 @@ namespace gr {
     smt_filterbank_kernel::generic_work(gr_complex* out, const gr_complex* in,
                                         int noutput_items)
     {
-      for(int i = 0; i < d_L; i++){ // go thru filter arms!
-//        d_fft_in_buf[i] = d_fir_filters[i]->filter(in + (d_L - 1) - i);
-//        out[i] = d_fir_filters[i]->filter(in + (d_L - 1) - i);
-//        out[i] = filter_branch(*(in + (d_L - 1) - i), i);
-        d_fft_in_buf[i] = filter_branch(*(in + (d_L - 1) - i), i);
+      for(int items = 0; items < noutput_items; items++){
+        for(int i = 0; i < d_L; i++){ // go thru filter arms!
+          d_fft_in_buf[i] = filter_branch(*(in + (d_L - 1) - i), i);
+        }
+
+        // do fft.
+        fftwf_execute(d_fft_plan);
+        memcpy(out, d_fft_out_buf, sizeof(gr_complex) * d_L);
+        in += d_L / 2;
+        out += d_L;
       }
 
-      // do fft.
-      fftwf_execute(d_fft_plan);
-      memcpy(out, d_fft_out_buf, sizeof(gr_complex) * d_L);
-
-      return 1;
+      return noutput_items;
     }
 
   } /* namespace fbmc */
