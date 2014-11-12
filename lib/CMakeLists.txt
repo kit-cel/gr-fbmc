@@ -40,7 +40,9 @@ list(APPEND fbmc_sources
     frame_sync_cc_impl.cc
     coarse_cfo_correction_impl.cc
     smt_filterbank_rx_cvc_impl.cc
-    smt_filterbank_kernel.cc )
+    smt_filterbank_kernel.cc
+    phydyas_filterbank_rx_cvc_impl.cc
+    phydyas_filterbank_rx_kernel.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)
@@ -76,6 +78,7 @@ include_directories(${CPPUNIT_INCLUDE_DIRS})
 list(APPEND test_fbmc_sources
     ${CMAKE_CURRENT_SOURCE_DIR}/test_fbmc.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/qa_fbmc.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/qa_phydyas_filterbank_rx_kernel.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/)
 
 add_executable(test-fbmc ${test_fbmc_sources})

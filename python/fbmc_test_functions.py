@@ -25,6 +25,7 @@ from numpy import empty_like, append, zeros, flipud, empty, roll
 import numpy as np
 from numpy.dual import ifft, fft
 from scipy.signal import convolve
+import matplotlib.pyplot as plt
 
 
 def generate_vector(L):
@@ -158,17 +159,29 @@ def main():
     # print res
     # buf = [0, ] * 2 * L
     # commutate_input(d[0:L], buf, L)
-    nsyms = 11
-    osr = 4
-    dlen = nsyms * osr // 2 + 1
-    protolen = osr * 4 * osr + 1
-    # d = np.ones((dlen,), dtype=np.complex)
-    d = np.arange(1, dlen + 1, dtype=np.complex)
-    print d
-    proto = np.ones(protolen)
-    res = rx(d, proto, osr)
-    print res
-    print np.shape(res)
+    # nsyms = 11
+    # osr = 4
+    # dlen = nsyms * osr // 2 + 1
+    # protolen = osr * 4 * osr + 1
+    # # d = np.ones((dlen,), dtype=np.complex)
+    # d = np.arange(1, dlen + 1, dtype=np.complex)
+    # print d
+    # proto = np.ones(protolen)
+    # res = rx(d, proto, osr)
+    # print res
+    # print np.shape(res)
+
+    dirac = [1, 0, 0, 0, 0, 0, 0, 0]
+    plt.plot(dirac, 'o')
+    kfiltered = np.convolve(dirac, [1, 1])
+    plt.plot(kfiltered)
+    upsampled = []
+    for s in kfiltered:
+        upsampled.extend([s, 0])
+    plt.plot(upsampled)
+    ifiltered = np.convolve(upsampled, [1, 1])
+    plt.plot(ifiltered)
+    plt.show()
 
 
 if __name__ == '__main__':

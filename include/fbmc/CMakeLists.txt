@@ -37,5 +37,7 @@ install(FILES
     frame_sync_cc.h
     coarse_cfo_correction.h
     smt_filterbank_rx_cvc.h
-    smt_filterbank_kernel.h DESTINATION include/fbmc
+    smt_filterbank_kernel.h
+    phydyas_filterbank_rx_cvc.h
+    phydyas_filterbank_rx_kernel.h DESTINATION include/fbmc
 )
