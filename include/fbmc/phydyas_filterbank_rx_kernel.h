@@ -24,6 +24,7 @@
 
 #include <fbmc/api.h>
 #include <gnuradio/gr_complex.h>
+#include <gnuradio/fft/fft.h>
 
 namespace gr {
   namespace fbmc {
@@ -50,9 +51,9 @@ namespace gr {
       std::vector<float> d_taps;
 
       float* d_taps_al;
-      float d_tap0_orphan;
       gr_complex* d_multiply_res;
       gr_complex* d_add_res;
+      gr::fft::fft_complex* d_fft;
 
       void multiply_with_taps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap);
       void add_overlaps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap);

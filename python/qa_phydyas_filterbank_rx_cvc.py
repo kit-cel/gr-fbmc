@@ -23,6 +23,7 @@ from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
 import numpy as np
+import fbmc_test_functions as ft
 
 
 class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
@@ -33,10 +34,13 @@ class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
         self.tb = None
 
     def test_001_setUp(self):
+        print "test_001_setUp"
         # test if flowgraph is set up as expected!
+        # does not throw any runtime errors unexpectedly!
         overlap = 4
         L = 4
-        taps = [1,] * (overlap * L + 1)
+        taps = np.ones(overlap * L, dtype=float)
+        taps = np.append(taps, [0.0, ])
         phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
         print "overlap: ", phydyas.overlap()
         print "L: ", phydyas.L()
@@ -45,22 +49,85 @@ class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
 
     def test_002_buffers(self):
         print "\ntest002_buffers"
-        # test if flowgraph is set up as expected!
-        multiple = 4
-        overlap = 1
+        # test if fg runs as expected on a minimum example!
+        multiple = 5
+        overlap = 1  # must be 1 in this test!
         L = 4
-        taps = [1, ] * (overlap * L + 1)
+        taps = np.ones(overlap * L, dtype=float)
+        taps = np.append(taps, [0.0, ])
+        data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
+
+        # set Up flowgraph
         phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
         print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap()
-        data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
-        print len(data)
         src = blocks.vector_source_c(data, vlen=1)
         snk = blocks.vector_sink_c(L)
         tb = gr.top_block()
         tb.connect(src, phydyas, snk)
+
+        # run fg and get results
         tb.run()
-        res = snk.data()
-        print np.array(res).reshape((-1, L)).T
+        res = np.array(snk.data())
+
+        # check results
+        ref = self.get_reference_output(data, taps, L, overlap, multiple)
+        print
+        print ref.reshape((-1, L)).T
+
+        ftref = ft.rx(data[: -L // 2], taps, L)
+
+        print
+        print ftref.reshape((-1, L)).T
+        print
+        print res.reshape((-1, L)).T
+
+        # self.assertComplexTuplesAlmostEqual(ref.flatten(), res.flatten())
+
+    # def test_003_filter(self):
+    #     print "\ntest003_filter"
+    #     # test if flowgraph is set up as expected!
+    #     multiple = 5
+    #     overlap = 2
+    #     L = 4
+    #     taps = np.ones(overlap * L, dtype=float)
+    #     taps = np.append(taps, [0.0, ])
+    #     data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
+    #
+    #     # instatiated blocks and flowgraph
+    #     phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
+    #     print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap()
+    #     src = blocks.vector_source_c(data, vlen=1)
+    #     snk = blocks.vector_sink_c(L)
+    #     tb = gr.top_block()
+    #     tb.connect(src, phydyas, snk)
+    #
+    #     # run fg and get results
+    #     tb.run()
+    #     res = np.array(snk.data())
+    #
+    #     ref = self.get_reference_output(data, taps, L, overlap, multiple)
+    #     print
+    #     print ref.reshape((-1, L)).T
+    #     print
+    #     print res.reshape((-1, L)).T
+    #
+    #     self.assertComplexTuplesAlmostEqual(ref.flatten(), res.flatten())
+
+    def get_reference_output(self, data, taps, L, overlap, multiple):
+        data = np.append([0, ] * (L - 1), data)  # prepend '0's to match history!
+        taps = taps[0:-1]  # remove last tap just like in the block
+        taps = taps[::-1]  # bring 'em in correct order
+        ref = []
+        for i in range(multiple):
+            pos = i * L // 2
+            vec = data[pos:pos + (L * overlap)]
+            if len(vec) != len(taps):
+                break
+            vec = np.multiply(vec, taps)
+            vec = vec.reshape([overlap, -1])
+            vec = np.sum(vec, axis=0)
+            ref = np.append(ref, vec)
+        return ref
 
 
 

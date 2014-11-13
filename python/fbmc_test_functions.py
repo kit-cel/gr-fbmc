@@ -130,7 +130,7 @@ def rx(samples, prototype, osr):
         out[l, :] = convolve(samples[l % (osr // 2), :], coeffs[l, :], 'valid')
 
     # 3. spin polyphase signals
-    out[:] = osr * ifft(out, osr, 0)
+    # out[:] = osr * ifft(out, osr, 0)
 
     return out
 

@@ -46,20 +46,37 @@ namespace gr {
       }
       d_overlap = overlap;
 
+      // we assume that PHYDYAS filters always have a zero tap at the end!
+      if(taps.back() != 0.0f){
+        throw std::runtime_error("Last element of PHYDYAS filter taps must be 0.0f!");
+      }
+      taps.pop_back();
+
       // initialize all buffers correctly.
       int buff_len = overlap * L;
-      d_tap0_orphan = taps[0];
+
+      // taps are expected to be provided from first on the left to last on the right.
+      // samples are oldest on the left, newest on the right.
+      // taps order reversed to match those conditions!
       d_taps_al = (float*) volk_malloc(sizeof(float) * buff_len, volk_get_alignment());
-      for(int i = 0; i < overlap * L; i++){
-        d_taps_al[i] = taps[i + 1];
+      std::vector<float>::reverse_iterator first_it = taps.rbegin();
+      std::vector<float>::reverse_iterator last_it = taps.rend();
+      for(int i = 0;first_it != last_it; first_it++, i++){
+        d_taps_al[i] = *first_it;
       }
 
       d_multiply_res = (gr_complex*) volk_malloc(sizeof(gr_complex) * buff_len, volk_get_alignment());
       d_add_res = (gr_complex*) volk_malloc(sizeof(gr_complex) * L, volk_get_alignment());
+
+      int fft_size = L;
+      bool forward = false; // we want an IFFT
+      int nthreads = 1; // may be altered if needed
+      d_fft = new gr::fft::fft_complex(fft_size, forward, nthreads);
     }
 
     phydyas_filterbank_rx_kernel::~phydyas_filterbank_rx_kernel()
     {
+      delete d_fft;
     }
 
     int
@@ -68,16 +85,16 @@ namespace gr {
                                                int noutput_items)
     {
       multiply_with_taps(d_multiply_res, in, d_L, d_overlap);
-      add_overlaps(d_add_res, d_multiply_res, d_L, d_overlap);
-      memcpy(out, d_multiply_res, sizeof(gr_complex) * d_L);
-//      memcpy(out, in, sizeof(gr_complex) * d_L);
+      add_overlaps(d_fft->get_inbuf(), d_multiply_res, d_L, d_overlap);
+      d_fft->execute();
+      memcpy(out, d_fft->get_inbuf(), sizeof(gr_complex) * d_L);
+//      memcpy(out, d_fft->get_outbuf(), sizeof(gr_complex) * d_L); // write result to output
 
       return 1;
     }
 
     void phydyas_filterbank_rx_kernel::multiply_with_taps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap){
       volk_32fc_32f_multiply_32fc(out_buff, in_buff, d_taps_al, overlap * L);
-      out_buff[L - 1] += in_buff[0] * d_tap0_orphan;
     }
 
     void phydyas_filterbank_rx_kernel::add_overlaps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap){
