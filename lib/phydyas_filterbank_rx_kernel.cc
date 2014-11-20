@@ -28,6 +28,7 @@
 #include <stdexcept>
 #include <volk/volk.h>
 #include <cstring> // necessary for memset
+#include <algorithm>
 
 // for debbuging
 #include <iostream>
@@ -84,23 +85,31 @@ namespace gr {
                                                const gr_complex *in,
                                                int noutput_items)
     {
-      multiply_with_taps(d_multiply_res, in, d_L, d_overlap);
-      add_overlaps(d_fft->get_inbuf(), d_multiply_res, d_L, d_overlap);
-      d_fft->execute();
-      memcpy(out, d_fft->get_inbuf(), sizeof(gr_complex) * d_L);
-//      memcpy(out, d_fft->get_outbuf(), sizeof(gr_complex) * d_L); // write result to output
+      for(int items = 0; items < noutput_items; items++){
+        multiply_with_taps(d_multiply_res, in, d_L, d_overlap);
+//      multiply_with_taps(out, in, d_L, 1);
+        add_overlaps(d_fft->get_inbuf(), d_multiply_res, d_L, d_overlap);
+        // reversing was previously done by input_commutator
+        std::reverse(d_fft->get_inbuf(), d_fft->get_inbuf() + d_L);
+        d_fft->execute();
+  //      memcpy(out, d_fft->get_inbuf(), sizeof(gr_complex) * d_L);
+        memcpy(out, d_fft->get_outbuf(), sizeof(gr_complex) * d_L); // write result to output
+        in += d_L / 2;
+        out += d_L;
+      }
 
-      return 1;
+
+      return noutput_items;
     }
 
-    void phydyas_filterbank_rx_kernel::multiply_with_taps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap){
+    inline void phydyas_filterbank_rx_kernel::multiply_with_taps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap){
       volk_32fc_32f_multiply_32fc(out_buff, in_buff, d_taps_al, overlap * L);
     }
 
-    void phydyas_filterbank_rx_kernel::add_overlaps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap){
+    inline void phydyas_filterbank_rx_kernel::add_overlaps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap){
       memset(out_buff, 0, sizeof(gr_complex) * L);
       for(int i = 0; i < overlap; i++){
-        std::cout << "add: " << i << std::endl;
+//        std::cout << "add: " << i << std::endl;
         volk_32f_x2_add_32f((float*) out_buff, (float*) out_buff, (float*) (in_buff + i * L), 2 * L);
       }
     }

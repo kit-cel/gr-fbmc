@@ -53,7 +53,7 @@ class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
         multiple = 5
         overlap = 1  # must be 1 in this test!
         L = 4
-        taps = np.ones(overlap * L, dtype=float)
+        taps = np.array([0, 1, 2, 1]) #  np.ones(overlap * L, dtype=float)
         taps = np.append(taps, [0.0, ])
         data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
 
@@ -71,47 +71,134 @@ class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
 
         # check results
         ref = self.get_reference_output(data, taps, L, overlap, multiple)
-        print
+        print "\nJohannes test"
         print ref.reshape((-1, L)).T
 
         ftref = ft.rx(data[: -L // 2], taps, L)
 
-        print
-        print ftref.reshape((-1, L)).T
-        print
+        print "\nFBMC blocks"
+        print ftref
+        print "\nGR blocks"
         print res.reshape((-1, L)).T
 
-        # self.assertComplexTuplesAlmostEqual(ref.flatten(), res.flatten())
+        ftref = ftref.T
+        self.assertComplexTuplesAlmostEqual(ftref.flatten(), res.flatten()[2*L:])
 
-    # def test_003_filter(self):
-    #     print "\ntest003_filter"
-    #     # test if flowgraph is set up as expected!
-    #     multiple = 5
-    #     overlap = 2
-    #     L = 4
-    #     taps = np.ones(overlap * L, dtype=float)
-    #     taps = np.append(taps, [0.0, ])
-    #     data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
-    #
-    #     # instatiated blocks and flowgraph
-    #     phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
-    #     print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap()
-    #     src = blocks.vector_source_c(data, vlen=1)
-    #     snk = blocks.vector_sink_c(L)
-    #     tb = gr.top_block()
-    #     tb.connect(src, phydyas, snk)
-    #
-    #     # run fg and get results
-    #     tb.run()
-    #     res = np.array(snk.data())
-    #
-    #     ref = self.get_reference_output(data, taps, L, overlap, multiple)
-    #     print
-    #     print ref.reshape((-1, L)).T
-    #     print
-    #     print res.reshape((-1, L)).T
-    #
-    #     self.assertComplexTuplesAlmostEqual(ref.flatten(), res.flatten())
+    def test_003_filter(self):
+        print "\ntest003_filter"
+        multiple = 9
+        overlap = 2
+        L = 4
+        taps = np.append([0.0, ], np.ones(overlap * L - 1, dtype=float))
+        taps = np.append(taps, [0.0, ])
+        data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
+
+        # instatiated blocks and flowgraph
+        phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
+        print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap()
+        src = blocks.vector_source_c(data, vlen=1)
+        snk = blocks.vector_sink_c(L)
+        tb = gr.top_block()
+        tb.connect(src, phydyas, snk)
+
+        # run fg and get results
+        tb.run()
+        res = np.array(snk.data())
+
+        ref = self.get_reference_output(data, taps, L, overlap, multiple)
+
+        ftref = ft.rx(data[: -L // 2], taps, L)
+        print "\nFBMC blocks"
+        print ftref
+        print "\nGR blocks"
+        print res.reshape((-1, L)).T
+
+        ftref = ftref.T
+        ftref = ftref.flatten()
+        self.assertComplexTuplesAlmostEqual(ftref, res[2 * L: -L])
+
+    def test_004_phydyas_taps(self):
+        print "\ntest_004_phydyas_taps"
+    # test if flowgraph is set up as expected!
+        multiple = 9
+        overlap = 4
+        L = 32
+        taps = ft.generate_phydyas_filter(L, overlap)
+        # taps = np.append([0.0, ], np.ones(overlap * L - 1, dtype=float))
+        # taps = np.append(taps, [0.0, ])
+        data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
+
+        # instatiated blocks and flowgraph
+        phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
+        print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap()
+        src = blocks.vector_source_c(data, vlen=1)
+        snk = blocks.vector_sink_c(L)
+        tb = gr.top_block()
+        tb.connect(src, phydyas, snk)
+
+        # run fg and get results
+        tb.run()
+        res = np.array(snk.data())
+
+        ref = self.get_reference_output(data, taps, L, overlap, multiple)
+
+        ftref = ft.rx(data[: -L // 2], taps, L)
+        print "\nFBMC blocks"
+        print ftref
+
+        lcut = 2
+        rcut = 5
+        print "\nGR blocks"
+        print res[lcut * L: -rcut * L].reshape((-1, L)).T
+        # print res.reshape((-1, L)).T
+
+        ftref = ftref.T
+        ftref = ftref.flatten()
+        self.assertComplexTuplesAlmostEqual(ftref, res[lcut * L: -rcut * L])
+
+    def test_005_legacy(self):
+        print "\ntest_005_legacy"
+    # test if flowgraph is set up as expected!
+        multiple = 9
+        overlap = 4
+        L = 32
+        taps = ft.generate_phydyas_filter(L, overlap)
+        data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
+
+        # instatiated blocks and flowgraph
+        phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
+        smt = fbmc.smt_filterbank_rx_cvc(taps, L)
+        print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap()
+        src = blocks.vector_source_c(data, vlen=1)
+        snk0 = blocks.vector_sink_c(L)
+        snk1 = blocks.vector_sink_c(L)
+        tb = gr.top_block()
+        tb.connect(src, phydyas, snk0)
+        tb.connect(src, smt, snk1)
+
+        # run fg and get results
+        tb.run()
+        res0 = np.array(snk0.data())
+        res1 = np.array(snk1.data())
+
+        ref = self.get_reference_output(data, taps, L, overlap, multiple)
+
+        ftref = ft.rx(data[: -L // 2], taps, L)
+        print "\nFBMC blocks"
+        print ftref
+
+        lcut = 2
+        rcut = 5
+        print "\nGR blocks"
+        print res0[lcut * L: -rcut * L].reshape((-1, L)).T
+
+        print "\nSMT blocks"
+        print res1[8 * L:].reshape((-1, L)).T
+
+        ftref = ftref.T
+        ftref = ftref.flatten()
+        self.assertComplexTuplesAlmostEqual(ftref, res0[lcut * L: -rcut * L])
+        self.assertComplexTuplesAlmostEqual(ftref, res1[8 * L:])
 
     def get_reference_output(self, data, taps, L, overlap, multiple):
         data = np.append([0, ] * (L - 1), data)  # prepend '0's to match history!
@@ -126,10 +213,9 @@ class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
             vec = np.multiply(vec, taps)
             vec = vec.reshape([overlap, -1])
             vec = np.sum(vec, axis=0)
+            vec = np.flipud(vec)
             ref = np.append(ref, vec)
         return ref
-
-
 
 
 if __name__ == '__main__':

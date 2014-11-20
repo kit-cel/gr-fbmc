@@ -47,6 +47,7 @@ namespace gr {
     {
       set_output_multiple(overlap());
       // history is needed to generate type-III polyphase components
+//      set_history(L + 5 * L);
       set_history(L);
     }
 

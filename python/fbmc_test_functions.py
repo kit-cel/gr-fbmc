@@ -119,18 +119,21 @@ def rx(samples, prototype, osr):
         # --> prefix some zeros to also get transient behavior right
         samples = flipud(append(
             zeros(osr - 1, dtype=samples[0].dtype), samples).reshape((-1, osr // 2)).T)
-
+    # print samples
     # 2. polyphase filters
     samples = append(samples, empty_like(samples), axis=0)
     # out = empty((samples.shape[0], samples.shape[1] + coeffs.shape[1] - 1), dtype=samples.dtype)
     out = samples[:, :-(coeffs.shape[1] - 1)]
+    # print np.round(samples)
     # reverse iteration to not override samples for l >= osr/2
     for l in reversed(range(osr)):
     # run filter (draw samples from the first half for l >= osr/2
         out[l, :] = convolve(samples[l % (osr // 2), :], coeffs[l, :], 'valid')
+        # print "\n", np.round(samples)
+        # print "out\n", np.round(out)
 
     # 3. spin polyphase signals
-    # out[:] = osr * ifft(out, osr, 0)
+    out[:] = osr * ifft(out, osr, 0)
 
     return out
 
@@ -146,6 +149,57 @@ def _polyphase_filter_coeffs(prototype, osr):
         # upsample branches by two, delay second half by one sample
         coeffs[l, (l >= osr / 2)::2] = prototype[l::osr]
     return coeffs
+
+
+_OPT_FILTER_COEFFS = (
+    None, None, None,  # K = 0/1/2
+    (0.91143783, ),  # K = 3
+    (0.97195983, ),  # K = 4
+    None,  # K = 5 not available
+    (0.99722723, 0.94136732),  # K = 6
+    None,  # K = 7 not available
+    (0.99988389, 0.99315513, 0.92708081))  # K = 8
+
+
+def _get_freq_sample(k, K):
+    """Get / Calculate filter coeff"""
+    # symmetric
+    k = abs(k)
+
+    if k == 0:  # "DC"
+        Gk = 1.0
+    elif k < K / 2:  # get pre calculated values
+        Gk = _OPT_FILTER_COEFFS[K][k - 1]
+    elif k == K / 2:  # "middle" tap
+        Gk = 1 / np.sqrt(2)
+    elif k < K:  # satisfy x[k] = sqrt(1 - x[K-k]^2)
+        Gk = np.sqrt(1 - _OPT_FILTER_COEFFS[K][K - k - 1] ** 2)
+    else:  # all others zero = only neighbouring channels overlap
+        Gk = 0.0
+
+    return Gk
+
+
+def generate_phydyas_filter(L, K):
+    # L == osr, K == overlap
+    g = zeros((L * K + 1, ))
+    for m in range(L * K + 1):
+        if m == 0:
+            g[m] = 0.0  # Nyquist pulse
+            # note: below formula works too, but not exact: | g[0] | < 1e-9
+
+        elif m <= L * K / 2:
+            g[m] = _get_freq_sample(0, K)
+            for k in range(1, K): # note: H[K][k]=0 for all k>=K
+                g[m] += 2 * (-1) ** k * _get_freq_sample(k, K) * \
+                    np.cos(2 * np.pi * (k / K) * (m / L))
+            g[m] /= 2.0
+
+        else:
+            # symmetric impulse response
+            # note: this is optional, the above formula works for all m
+            g[m] = g[len(g) - m - 1]
+    return g
 
 
 def main():
@@ -171,16 +225,22 @@ def main():
     # print res
     # print np.shape(res)
 
-    dirac = [1, 0, 0, 0, 0, 0, 0, 0]
-    plt.plot(dirac, 'o')
-    kfiltered = np.convolve(dirac, [1, 1])
-    plt.plot(kfiltered)
-    upsampled = []
-    for s in kfiltered:
-        upsampled.extend([s, 0])
-    plt.plot(upsampled)
-    ifiltered = np.convolve(upsampled, [1, 1])
-    plt.plot(ifiltered)
+    d0 = np.zeros(20)
+    d1 = np.zeros(20)
+    d0[6] = 1
+    d1[5] = 1
+    c = np.convolve(d0, d1)
+    plt.plot(c)
+
+    # plt.plot(dirac, 'o')
+    # kfiltered = np.convolve(dirac, [1, 1])
+    # plt.plot(kfiltered)
+    # upsampled = []
+    # for s in kfiltered:
+    #     upsampled.extend([s, 0])
+    # plt.plot(upsampled)
+    # ifiltered = np.convolve(upsampled, [1, 1])
+    # plt.plot(ifiltered)
     plt.show()
 
 
