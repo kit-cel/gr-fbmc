@@ -29,7 +29,8 @@ namespace gr {
   namespace fbmc {
 
     /*!
-     * \brief <+description of block+>
+     * \brief Use a PHYDYAS filter to implement FBMC RX filterbank.
+     * includes Commutator -> PFB -> FFT
      * \ingroup fbmc
      *
      */

@@ -39,8 +39,8 @@ list(APPEND fbmc_sources
     preamble_insertion_vcvc_impl.cc
     frame_sync_cc_impl.cc
     coarse_cfo_correction_impl.cc
-    smt_filterbank_rx_cvc_impl.cc
-    smt_filterbank_kernel.cc
+    iota_filterbank_rx_cvc_impl.cc
+    iota_filterbank_rx_kernel.cc
     phydyas_filterbank_rx_cvc_impl.cc
     phydyas_filterbank_rx_kernel.cc )
 

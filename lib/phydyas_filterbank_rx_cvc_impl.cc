@@ -47,7 +47,6 @@ namespace gr {
     {
       set_output_multiple(overlap());
       // history is needed to generate type-III polyphase components
-//      set_history(L + 5 * L);
       set_history(L);
     }
 
@@ -66,12 +65,9 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
-//        std::cout << "wanted nout: " << noutput_items << std::endl;
-
       int nout = phydyas_filterbank_rx_kernel::generic_work(out, in,
                                                             noutput_items);
-//        std::cout << "calced nout: " << nout << std::endl;
-      // Tell runtime system how many output items we produced.
+
       return nout;
     }
 

@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <block>
-  <name>SMT Filterbank Kernel</name>
-  <key>smt_filterbank_kernel</key>
+  <name>IOTA Filterbank Kernel</name>
+  <key>iota_filterbank_rx_kernel</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.smt_filterbank_kernel($taps, $osr)</make>
+  <make>fbmc.iota_filterbank_rx_kernel($taps, $osr)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

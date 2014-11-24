@@ -32,6 +32,7 @@ namespace gr {
     /*!
      * \brief PHYDYAS Filterbank RX Kernel
      *
+     * \ingroup fbmc
      */
     class FBMC_API phydyas_filterbank_rx_kernel
     {

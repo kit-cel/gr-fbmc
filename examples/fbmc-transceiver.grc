@@ -69,15 +69,15 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>pat</value>
+      <value>ones</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>False</value>
+      <value>True</value>
     </param>
     <param>
       <key>value</key>
-      <value>np.concatenate((zeros,ones,ones,zeros,ones,ones, zeros,zeros, zeros,zeros,zeros,zeros))</value>
+      <value>np.ones((frame_len_samps*1,1))</value>
     </param>
     <param>
       <key>alias</key>
@@ -85,7 +85,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(400, 771)</value>
+      <value>(984, 11)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -112,7 +112,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(968, 75)</value>
+      <value>(984, 75)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -123,7 +123,7 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>samp_rate</value>
+      <value>output_oversampling</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -131,7 +131,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>250e3</value>
+      <value>1</value>
     </param>
     <param>
       <key>alias</key>
@@ -139,7 +139,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(175, 8)</value>
+      <value>(284, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -177,7 +177,7 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>ones</value>
+      <value>samp_rate</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -185,7 +185,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>np.ones((frame_len_samps*1,1))</value>
+      <value>250e3</value>
     </param>
     <param>
       <key>alias</key>
@@ -193,7 +193,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(968, 11)</value>
+      <value>(175, 8)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -204,15 +204,15 @@
     <key>variable</key>
     <param>
       <key>id</key>
-      <value>output_oversampling</value>
+      <value>pat</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>value</key>
-      <value>1</value>
+      <value>np.concatenate((zeros,ones,ones,zeros,ones,ones, zeros,zeros, zeros,zeros,zeros,zeros))</value>
     </param>
     <param>
       <key>alias</key>
@@ -220,7 +220,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(284, 12)</value>
+      <value>(400, 771)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1930,104 +1930,6 @@
     </param>
   </block>
   <block>
-    <key>fbmc_apply_betas_vcvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_apply_betas_vcvc_1_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>L</key>
-      <value>cfg.num_total_subcarriers()</value>
-    </param>
-    <param>
-      <key>inverse</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(768, 347)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
-    <key>fbmc_frame_generator_vcvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_frame_generator_vcvc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>sym_len</key>
-      <value>cfg.num_total_subcarriers()</value>
-    </param>
-    <param>
-      <key>num_payload</key>
-      <value>cfg.num_payload_sym()</value>
-    </param>
-    <param>
-      <key>inverse</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>num_overlap</key>
-      <value>cfg.num_overlap_sym()</value>
-    </param>
-    <param>
-      <key>num_sync</key>
-      <value>cfg.num_sync_sym()</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1048, 323)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-  </block>
-  <block>
     <key>fbmc_polyphase_filterbank_vcvc</key>
     <param>
       <key>id</key>
@@ -2915,49 +2817,6 @@
     </param>
   </block>
   <block>
-    <key>fbmc_smt_filterbank_rx_cvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_smt_filterbank_rx_cvc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>taps</key>
-      <value>cfg.prototype_taps_float()</value>
-    </param>
-    <param>
-      <key>osr</key>
-      <value>cfg.num_total_subcarriers()</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(576, 1099)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>fbmc_phydyas_filterbank_rx_cvc</key>
     <param>
       <key>id</key>
@@ -3091,65 +2950,6 @@
     </param>
   </block>
   <block>
-    <key>fbmc_frame_sync_cc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_frame_sync_cc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>L</key>
-      <value>cfg.num_total_subcarriers()</value>
-    </param>
-    <param>
-      <key>frame_len</key>
-      <value>cfg.num_sym_frame()</value>
-    </param>
-    <param>
-      <key>preamble_sym</key>
-      <value>cfg.time_domain_preamble_sym()</value>
-    </param>
-    <param>
-      <key>step_size</key>
-      <value>max(cfg.num_total_subcarriers()/10,1)</value>
-    </param>
-    <param>
-      <key>threshold</key>
-      <value>0.95</value>
-    </param>
-    <param>
-      <key>overlap</key>
-      <value>cfg.num_overlap_sym()</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(184, 1163)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>fft_vxx</key>
     <param>
       <key>id</key>
@@ -3264,53 +3064,6 @@
     <param>
       <key>_coordinate</key>
       <value>(88, 1059)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_vector_to_stream</key>
-    <param>
-      <key>id</key>
-      <value>blocks_vector_to_stream_0_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>num_items</key>
-      <value>cfg.num_total_subcarriers()</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(968, 1107)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3829,6 +3582,253 @@
       <value>0</value>
     </param>
   </block>
+  <block>
+    <key>fbmc_apply_betas_vcvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_apply_betas_vcvc_1_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>inverse</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(768, 347)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_frame_generator_vcvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_frame_generator_vcvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>sym_len</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>num_payload</key>
+      <value>cfg.num_payload_sym()</value>
+    </param>
+    <param>
+      <key>inverse</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>num_overlap</key>
+      <value>cfg.num_overlap_sym()</value>
+    </param>
+    <param>
+      <key>num_sync</key>
+      <value>cfg.num_sync_sym()</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1032, 323)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_vector_to_stream</key>
+    <param>
+      <key>id</key>
+      <value>blocks_vector_to_stream_0_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>num_items</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(968, 1107)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_frame_sync_cc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_frame_sync_cc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>cfg.num_sym_frame()</value>
+    </param>
+    <param>
+      <key>preamble_sym</key>
+      <value>cfg.time_domain_preamble_sym()</value>
+    </param>
+    <param>
+      <key>step_size</key>
+      <value>max(cfg.num_total_subcarriers()/10,1)</value>
+    </param>
+    <param>
+      <key>threshold</key>
+      <value>0.95</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>cfg.num_overlap_sym()</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(184, 1163)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_iota_filterbank_rx_cvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_iota_filterbank_rx_cvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value>cfg.prototype_taps_float()</value>
+    </param>
+    <param>
+      <key>osr</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(592, 1099)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
   <connection>
     <source_block_id>blocks_throttle_0</source_block_id>
     <sink_block_id>virtual_sink_3</sink_block_id>
@@ -4082,12 +4082,6 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fbmc_smt_filterbank_rx_cvc_0</source_block_id>
-    <sink_block_id>blocks_vector_to_stream_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>fbmc_phydyas_filterbank_rx_cvc_0</source_block_id>
     <sink_block_id>blocks_delay_0</sink_block_id>
     <source_key>0</source_key>
@@ -4118,12 +4112,6 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fbmc_frame_sync_cc_0</source_block_id>
-    <sink_block_id>fbmc_smt_filterbank_rx_cvc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>fbmc_input_commutator_cvc_0</source_block_id>
     <sink_block_id>fbmc_polyphase_filterbank_vcvc_0</sink_block_id>
     <source_key>0</source_key>
@@ -4150,6 +4138,18 @@
   <connection>
     <source_block_id>blocks_vector_to_stream_0_1</source_block_id>
     <sink_block_id>qtgui_time_sink_x_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_iota_filterbank_rx_cvc_0</source_block_id>
+    <sink_block_id>blocks_vector_to_stream_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_frame_sync_cc_0</source_block_id>
+    <sink_block_id>fbmc_iota_filterbank_rx_cvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

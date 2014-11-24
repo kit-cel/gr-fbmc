@@ -19,8 +19,8 @@
  */
 
 
-#ifndef INCLUDED_FBMC_SMT_FILTERBANK_KERNEL_H
-#define INCLUDED_FBMC_SMT_FILTERBANK_KERNEL_H
+#ifndef INCLUDED_FBMC_IOTA_FILTERBANK__RX_KERNEL_H
+#define INCLUDED_FBMC_IOTA_FILTERBANK__RX_KERNEL_H
 
 #include <fbmc/api.h>
 #include <gnuradio/filter/filterbank.h>
@@ -33,11 +33,11 @@ namespace gr {
      * \brief actual kernel for SMT Filterbank
      *
      */
-    class FBMC_API smt_filterbank_kernel: public filter::kernel::filterbank
+    class FBMC_API iota_filterbank_rx_kernel: public filter::kernel::filterbank
     {
     public:
-      smt_filterbank_kernel(std::vector<float> &taps, int L);
-      ~smt_filterbank_kernel();
+      iota_filterbank_rx_kernel(std::vector<float> &taps, int L);
+      ~iota_filterbank_rx_kernel();
 
       int L(){return d_L;};
       std::vector<std::vector<float> > taps(){return filterbank::taps();};
@@ -60,5 +60,5 @@ namespace gr {
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_SMT_FILTERBANK_KERNEL_H */
+#endif /* INCLUDED_FBMC_IOTA_FILTERBANK_RX_KERNEL_H */
 

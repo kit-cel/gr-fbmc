@@ -26,7 +26,7 @@ import fbmc_test_functions as ft
 import numpy as np
 
 
-class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
+class qa_iota_filterbank_rx_cvc(gr_unittest.TestCase):
     def setUp(self):
         np.set_printoptions(linewidth=150, precision=4)
         self.tb = gr.top_block()
@@ -44,7 +44,7 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
 
         # set up fg
         self.src = blocks.vector_source_c(d, vlen=1)
-        self.smt = fbmc.smt_filterbank_rx_cvc(taps, L)
+        self.smt = fbmc.iota_filterbank_rx_cvc(taps, L)
         self.snk = blocks.vector_sink_c(vlen=L)
         self.tb.connect(self.src, self.smt, self.snk)
         self.tb.run()
@@ -60,7 +60,7 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         taps = np.ones(L)
 
         # initialize UUT and check results
-        self.smt = fbmc.smt_filterbank_rx_cvc(taps, L)
+        self.smt = fbmc.iota_filterbank_rx_cvc(taps, L)
         # print "test2 generate data"
         d = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
         self.src = blocks.vector_source_c(d, vlen=1)
@@ -88,7 +88,7 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         d = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
 
         # initialize fg
-        smt = fbmc.smt_filterbank_rx_cvc(taps, L)
+        smt = fbmc.iota_filterbank_rx_cvc(taps, L)
         self.src = blocks.vector_source_c(d, vlen=1)
         self.snk = blocks.vector_sink_c(vlen=L)
 
@@ -130,7 +130,7 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         d = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
 
         # initialize fg
-        smt = fbmc.smt_filterbank_rx_cvc(taps, L)
+        smt = fbmc.iota_filterbank_rx_cvc(taps, L)
         self.src = blocks.vector_source_c(d, vlen=1)
         self.snk = blocks.vector_sink_c(vlen=L)
 
@@ -172,7 +172,7 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
         # generate data and set it for source.
         d = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
         self.src = blocks.vector_source_c(d, vlen=1)
-        self.smt = fbmc.smt_filterbank_rx_cvc(taps, L)
+        self.smt = fbmc.iota_filterbank_rx_cvc(taps, L)
         self.snk0 = blocks.vector_sink_c(vlen=L)
         self.tb.connect(self.src, self.smt, self.snk0)
         self.tb.run()
@@ -209,4 +209,4 @@ class qa_smt_filterbank_rx_cvc(gr_unittest.TestCase):
 
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_smt_filterbank_rx_cvc)
+    gr_unittest.run(qa_iota_filterbank_rx_cvc)
