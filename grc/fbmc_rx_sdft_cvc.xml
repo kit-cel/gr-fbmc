@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <block>
-  <name>PHYDYAS Filterbank RX</name>
+  <name>RX SDFT</name>
   <key>fbmc_rx_sdft_cvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>

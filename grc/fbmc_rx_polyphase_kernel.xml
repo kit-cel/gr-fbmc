@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <block>
-  <name>IOTA Filterbank Kernel</name>
+  <name>RX Polyphase Filterbank Kernel</name>
   <key>rx_polyphase_kernel</key>
   <category>FBMC</category>
   <import>import fbmc</import>
