@@ -151,12 +151,12 @@ def _run_infile_replace(rfile, first, second):
     if not os.path.isfile(rfile):
         return False
     # with open(rfile, 'r') as file:
-    with fileinput.input(rfile, inplace=1) as file:
-        for line in file:
-            if line.find(first) > -1:
-                old = line
-                line = line.replace(first, second)
-                sys.stdout.write(old[:-1], ' --> ', line[:-1])
+    # with fileinput.input(rfile, inplace=1) as file:
+    for line in fileinput.input(rfile, inplace=1):
+        if line.find(first) > -1:
+            old = line
+            line = line.replace(first, second)
+            sys.stdout.write(old[:-1], ' --> ', line[:-1])
 
 
 if __name__ == '__main__':
