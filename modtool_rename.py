@@ -156,7 +156,7 @@ def _run_infile_replace(rfile, first, second):
             if line.find(first) > -1:
                 old = line
                 line = line.replace(first, second)
-                print old[:-1], ' --> ', line[:-1]
+                sys.stdout.write(old[:-1], ' --> ', line[:-1])
 
 
 if __name__ == '__main__':
