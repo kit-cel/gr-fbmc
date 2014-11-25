@@ -21,6 +21,8 @@
 
 from optparse import OptionParser, OptionGroup
 import os as os
+import fileinput
+import sys
 
 
 def setup_parser():
@@ -138,18 +140,23 @@ def _run_file_rename(path, first, second):
     for file in files:
         if file.find(first) > -1:
             nl = file.replace(first, second)
-            print "_run_file_rename: ", file, ' --> ', nl
+            src = path + file
+            dst = path + nl
+            print "_run_file_rename: ", src, ' --> ', dst
+            os.rename(src, dst)
 
 
 def _run_infile_replace(rfile, first, second):
     print "_run_infile_replace: ", rfile
     if not os.path.isfile(rfile):
         return False
-    with open(rfile, 'r') as file:
+    # with open(rfile, 'r') as file:
+    with fileinput.input(rfile, inplace=1) as file:
         for line in file:
             if line.find(first) > -1:
-                nl = line.replace(first, second)
-                print line[:-1], ' --> ', nl[:-1]
+                old = line
+                line = line.replace(first, second)
+                print old[:-1], ' --> ', line[:-1]
 
 
 if __name__ == '__main__':
