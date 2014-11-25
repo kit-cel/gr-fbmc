@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <block>
   <name>PHYDYAS Filterbank RX</name>
-  <key>fbmc_phydyas_filterbank_rx_cvc</key>
+  <key>fbmc_rx_sdft_cvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.phydyas_filterbank_rx_cvc($taps, $osr)</make>
+  <make>fbmc.rx_sdft_cvc($taps, $osr)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

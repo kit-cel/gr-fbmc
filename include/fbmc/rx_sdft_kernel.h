@@ -19,8 +19,8 @@
  */
 
 
-#ifndef INCLUDED_FBMC_PHYDYAS_FILTERBANK_RX_KERNEL_H
-#define INCLUDED_FBMC_PHYDYAS_FILTERBANK_RX_KERNEL_H
+#ifndef INCLUDED_FBMC_RX_SDFT_KERNEL_H
+#define INCLUDED_FBMC_RX_SDFT_KERNEL_H
 
 #include <fbmc/api.h>
 #include <gnuradio/gr_complex.h>
@@ -34,11 +34,11 @@ namespace gr {
      *
      * \ingroup fbmc
      */
-    class FBMC_API phydyas_filterbank_rx_kernel
+    class FBMC_API rx_sdft_kernel
     {
     public:
-      phydyas_filterbank_rx_kernel(std::vector<float> taps, int L);
-      ~phydyas_filterbank_rx_kernel();
+      rx_sdft_kernel(std::vector<float> taps, int L);
+      ~rx_sdft_kernel();
 
       int L(){return d_L;};
       int overlap(){return d_overlap;};
@@ -63,5 +63,5 @@ namespace gr {
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_PHYDYAS_FILTERBANK_RX_KERNEL_H */
+#endif /* INCLUDED_FBMC_RX_SDFT_KERNEL_H */
 

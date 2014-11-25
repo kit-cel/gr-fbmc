@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <block>
   <name>PHYDYAS Filterbank RX Kernel</name>
-  <key>fbmc_phydyas_filterbank_rx_kernel</key>
+  <key>fbmc_rx_sdft_kernel</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.phydyas_filterbank_rx_kernel($taps, $osr)</make>
+  <make>fbmc.rx_sdft_kernel($taps, $osr)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

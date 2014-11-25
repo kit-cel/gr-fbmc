@@ -38,6 +38,6 @@ install(FILES
     coarse_cfo_correction.h
     rx_polyphase_cvc.h
     rx_polyphase_kernel.h
-    phydyas_filterbank_rx_cvc.h
-    phydyas_filterbank_rx_kernel.h DESTINATION include/fbmc
+    rx_sdft_cvc.h
+    rx_sdft_kernel.h DESTINATION include/fbmc
 )

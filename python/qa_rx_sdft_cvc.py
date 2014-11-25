@@ -26,7 +26,7 @@ import numpy as np
 import fbmc_test_functions as ft
 
 
-class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
+class qa_rx_sdft_cvc(gr_unittest.TestCase):
     def setUp(self):
         self.tb = gr.top_block()
 
@@ -41,7 +41,7 @@ class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
         L = 4
         taps = np.ones(overlap * L, dtype=float)
         taps = np.append(taps, [0.0, ])
-        phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
+        phydyas = fbmc.rx_sdft_cvc(taps, L)
         print "overlap: ", phydyas.overlap()
         print "L: ", phydyas.L()
         assert phydyas.overlap() == overlap
@@ -58,7 +58,7 @@ class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
         data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
 
         # set Up flowgraph
-        phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
+        phydyas = fbmc.rx_sdft_cvc(taps, L)
         print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap()
         src = blocks.vector_source_c(data, vlen=1)
         snk = blocks.vector_sink_c(L)
@@ -94,7 +94,7 @@ class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
         data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
 
         # instatiated blocks and flowgraph
-        phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
+        phydyas = fbmc.rx_sdft_cvc(taps, L)
         print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap()
         src = blocks.vector_source_c(data, vlen=1)
         snk = blocks.vector_sink_c(L)
@@ -129,7 +129,7 @@ class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
         data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
 
         # instatiated blocks and flowgraph
-        phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
+        phydyas = fbmc.rx_sdft_cvc(taps, L)
         print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap()
         src = blocks.vector_source_c(data, vlen=1)
         snk = blocks.vector_sink_c(L)
@@ -166,7 +166,7 @@ class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
         data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
 
         # instatiated blocks and flowgraph
-        phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
+        phydyas = fbmc.rx_sdft_cvc(taps, L)
         pfb = fbmc.rx_polyphase_cvc(taps, L)
         print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap()
         src = blocks.vector_source_c(data, vlen=1)
@@ -219,4 +219,4 @@ class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
 
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_phydyas_filterbank_rx_cvc)
+    gr_unittest.run(qa_rx_sdft_cvc)

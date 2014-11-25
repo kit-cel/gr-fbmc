@@ -23,27 +23,27 @@
 #endif
 
 #include <gnuradio/io_signature.h>
-#include "phydyas_filterbank_rx_cvc_impl.h"
+#include "rx_sdft_cvc_impl.h"
 
 namespace gr {
   namespace fbmc {
 
-    phydyas_filterbank_rx_cvc::sptr
-    phydyas_filterbank_rx_cvc::make(std::vector<float> taps, int L)
+    rx_sdft_cvc::sptr
+    rx_sdft_cvc::make(std::vector<float> taps, int L)
     {
       return gnuradio::get_initial_sptr(
-          new phydyas_filterbank_rx_cvc_impl(taps, L));
+          new rx_sdft_cvc_impl(taps, L));
     }
 
     /*
      * The private constructor
      */
-    phydyas_filterbank_rx_cvc_impl::phydyas_filterbank_rx_cvc_impl(
+    rx_sdft_cvc_impl::rx_sdft_cvc_impl(
         std::vector<float> taps, int L) :
-        gr::sync_decimator("phydyas_filterbank_rx_cvc",
+        gr::sync_decimator("rx_sdft_cvc",
                            gr::io_signature::make(1, 1, sizeof(gr_complex)),
                            gr::io_signature::make(1, 1, sizeof(gr_complex) * L),
-                           L / 2), phydyas_filterbank_rx_kernel(taps, L)
+                           L / 2), rx_sdft_kernel(taps, L)
     {
       set_output_multiple(overlap());
       // history is needed to generate type-III polyphase components
@@ -53,20 +53,19 @@ namespace gr {
     /*
      * Our virtual destructor.
      */
-    phydyas_filterbank_rx_cvc_impl::~phydyas_filterbank_rx_cvc_impl()
+    rx_sdft_cvc_impl::~rx_sdft_cvc_impl()
     {
     }
 
     int
-    phydyas_filterbank_rx_cvc_impl::work(int noutput_items,
+    rx_sdft_cvc_impl::work(int noutput_items,
                                          gr_vector_const_void_star &input_items,
                                          gr_vector_void_star &output_items)
     {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
-      int nout = phydyas_filterbank_rx_kernel::generic_work(out, in,
-                                                            noutput_items);
+      int nout = rx_sdft_kernel::generic_work(out, in, noutput_items);
 
       return nout;
     }

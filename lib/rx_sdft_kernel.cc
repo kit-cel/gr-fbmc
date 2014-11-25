@@ -23,7 +23,7 @@
 #endif
 
 #include <gnuradio/io_signature.h>
-#include <fbmc/phydyas_filterbank_rx_kernel.h>
+#include <fbmc/rx_sdft_kernel.h>
 
 #include <stdexcept>
 #include <volk/volk.h>
@@ -33,7 +33,7 @@
 namespace gr {
   namespace fbmc {
 
-    phydyas_filterbank_rx_kernel::phydyas_filterbank_rx_kernel(
+    rx_sdft_kernel::rx_sdft_kernel(
         std::vector<float> taps, int L) :
         d_L(L), d_taps(taps)
     {
@@ -72,13 +72,13 @@ namespace gr {
       d_fft = new gr::fft::fft_complex(fft_size, forward, nthreads);
     }
 
-    phydyas_filterbank_rx_kernel::~phydyas_filterbank_rx_kernel()
+    rx_sdft_kernel::~rx_sdft_kernel()
     {
       delete d_fft;
     }
 
     int
-    phydyas_filterbank_rx_kernel::generic_work(gr_complex *out,
+    rx_sdft_kernel::generic_work(gr_complex *out,
                                                const gr_complex *in,
                                                int noutput_items)
     {
@@ -97,11 +97,11 @@ namespace gr {
       return noutput_items;
     }
 
-    inline void phydyas_filterbank_rx_kernel::multiply_with_taps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap){
+    inline void rx_sdft_kernel::multiply_with_taps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap){
       volk_32fc_32f_multiply_32fc(out_buff, in_buff, d_taps_al, overlap * L);
     }
 
-    inline void phydyas_filterbank_rx_kernel::add_overlaps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap){
+    inline void rx_sdft_kernel::add_overlaps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap){
       memset(out_buff, 0, sizeof(gr_complex) * L);
       for(int i = 0; i < overlap; i++){
         volk_32f_x2_add_32f((float*) out_buff, (float*) out_buff, (float*) (in_buff + i * L), 2 * L);

@@ -111,6 +111,8 @@ def _run_python(name, first, second):
 def _run_lib(name, first, second):
     print "\n\n_run_lib: ", name, first, second
     ccfile = './lib/' + first + '_impl.cc'
+    if not os.path.isfile(ccfile):
+        ccfile = './lib/' + first + '.cc'
     hfile = './lib/' + first + '_impl.h'
     _run_infile_replace(ccfile, first, second)
     _run_infile_replace(hfile, first, second)

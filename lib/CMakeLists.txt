@@ -41,8 +41,8 @@ list(APPEND fbmc_sources
     coarse_cfo_correction_impl.cc
     rx_polyphase_cvc_impl.cc
     rx_polyphase_kernel.cc
-    phydyas_filterbank_rx_cvc_impl.cc
-    phydyas_filterbank_rx_kernel.cc )
+    rx_sdft_cvc_impl.cc
+    rx_sdft_kernel.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)

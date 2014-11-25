@@ -18,35 +18,35 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_FBMC_PHYDYAS_FILTERBANK_RX_CVC_IMPL_H
-#define INCLUDED_FBMC_PHYDYAS_FILTERBANK_RX_CVC_IMPL_H
+#ifndef INCLUDED_FBMC_RX_SDFT_CVC_IMPL_H
+#define INCLUDED_FBMC_RX_SDFT_CVC_IMPL_H
 
-#include <fbmc/phydyas_filterbank_rx_cvc.h>
-#include <fbmc/phydyas_filterbank_rx_kernel.h>
+#include <fbmc/rx_sdft_cvc.h>
+#include <fbmc/rx_sdft_kernel.h>
 
 namespace gr {
   namespace fbmc {
 
-    class phydyas_filterbank_rx_cvc_impl : public phydyas_filterbank_rx_cvc, phydyas_filterbank_rx_kernel
+    class rx_sdft_cvc_impl : public rx_sdft_cvc, rx_sdft_kernel
     {
      private:
       // Nothing to declare in this block.
 
      public:
-      phydyas_filterbank_rx_cvc_impl(std::vector<float> taps, int L);
-      ~phydyas_filterbank_rx_cvc_impl();
+      rx_sdft_cvc_impl(std::vector<float> taps, int L);
+      ~rx_sdft_cvc_impl();
 
       // Where all the action really happens
       int work(int noutput_items,
 	       gr_vector_const_void_star &input_items,
 	       gr_vector_void_star &output_items);
 
-      int L(){return phydyas_filterbank_rx_kernel::L();};
-      int overlap(){return phydyas_filterbank_rx_kernel::overlap();};
+      int L(){return rx_sdft_kernel::L();};
+      int overlap(){return rx_sdft_kernel::overlap();};
     };
 
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_PHYDYAS_FILTERBANK_RX_CVC_IMPL_H */
+#endif /* INCLUDED_FBMC_RX_SDFT_CVC_IMPL_H */
 

@@ -19,8 +19,8 @@
  */
 
 
-#ifndef INCLUDED_FBMC_PHYDYAS_FILTERBANK_RX_CVC_H
-#define INCLUDED_FBMC_PHYDYAS_FILTERBANK_RX_CVC_H
+#ifndef INCLUDED_FBMC_RX_SDFT_CVC_H
+#define INCLUDED_FBMC_RX_SDFT_CVC_H
 
 #include <fbmc/api.h>
 #include <gnuradio/sync_decimator.h>
@@ -34,20 +34,20 @@ namespace gr {
      * \ingroup fbmc
      *
      */
-    class FBMC_API phydyas_filterbank_rx_cvc : virtual public gr::sync_decimator
+    class FBMC_API rx_sdft_cvc : virtual public gr::sync_decimator
     {
      public:
-      typedef boost::shared_ptr<phydyas_filterbank_rx_cvc> sptr;
+      typedef boost::shared_ptr<rx_sdft_cvc> sptr;
 
       virtual int L() = 0;
       virtual int overlap() = 0;
 
       /*!
-       * \brief Return a shared_ptr to a new instance of fbmc::phydyas_filterbank_rx_cvc.
+       * \brief Return a shared_ptr to a new instance of fbmc::rx_sdft_cvc.
        *
-       * To avoid accidental use of raw pointers, fbmc::phydyas_filterbank_rx_cvc's
+       * To avoid accidental use of raw pointers, fbmc::rx_sdft_cvc's
        * constructor is in a private implementation
-       * class. fbmc::phydyas_filterbank_rx_cvc::make is the public interface for
+       * class. fbmc::rx_sdft_cvc::make is the public interface for
        * creating new instances.
        */
       static sptr make(std::vector<float> taps, int L);
@@ -56,5 +56,5 @@ namespace gr {
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_PHYDYAS_FILTERBANK_RX_CVC_H */
+#endif /* INCLUDED_FBMC_RX_SDFT_CVC_H */
 
