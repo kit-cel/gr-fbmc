@@ -23,8 +23,8 @@
 #include "fbmc/preamble_insertion_vcvc.h"
 #include "fbmc/frame_sync_cc.h"
 #include "fbmc/coarse_cfo_correction.h"
-#include "fbmc/iota_filterbank_rx_cvc.h"
-#include "fbmc/iota_filterbank_rx_kernel.h"
+#include "fbmc/rx_polyphase_cvc.h"
+#include "fbmc/rx_polyphase_kernel.h"
 #include "fbmc/phydyas_filterbank_rx_cvc.h"
 #include "fbmc/phydyas_filterbank_rx_kernel.h"
 %}
@@ -60,9 +60,9 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, preamble_insertion_vcvc);
 GR_SWIG_BLOCK_MAGIC2(fbmc, frame_sync_cc);
 %include "fbmc/coarse_cfo_correction.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, coarse_cfo_correction);
-%include "fbmc/iota_filterbank_rx_cvc.h"
-GR_SWIG_BLOCK_MAGIC2(fbmc, iota_filterbank_rx_cvc);
-%include "fbmc/iota_filterbank_rx_kernel.h"
+%include "fbmc/rx_polyphase_cvc.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, rx_polyphase_cvc);
+%include "fbmc/rx_polyphase_kernel.h"
 %include "fbmc/phydyas_filterbank_rx_cvc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, phydyas_filterbank_rx_cvc);
 %include "fbmc/phydyas_filterbank_rx_kernel.h"

@@ -32,8 +32,8 @@ install(FILES
     fbmc_preamble_insertion_vcvc.xml
     fbmc_frame_sync_cc.xml
     fbmc_coarse_cfo_correction.xml
-    fbmc_iota_filterbank_rx_cvc.xml
-    fbmc_iota_filterbank_rx_kernel.xml
+    fbmc_rx_polyphase_cvc.xml
+    fbmc_rx_polyphase_kernel.xml
     fbmc_phydyas_filterbank_rx_cvc.xml
     fbmc_phydyas_filterbank_rx_kernel.xml DESTINATION share/gnuradio/grc/blocks
 )

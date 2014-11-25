@@ -26,13 +26,11 @@
  */
 
 #include "qa_fbmc.h"
-#include "qa_phydyas_filterbank_rx_kernel.h"
 
 CppUnit::TestSuite *
 qa_fbmc::suite()
 {
   CppUnit::TestSuite *s = new CppUnit::TestSuite("fbmc");
-  s->addTest(gr::fbmc::qa_phydyas_filterbank_rx_kernel::suite());
 
   return s;
 }

@@ -18,25 +18,25 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_FBMC_IOTA_FILTERBANK_RX_CVC_IMPL_H
-#define INCLUDED_FBMC_IOTA_FILTERBANK_RX_CVC_IMPL_H
+#ifndef INCLUDED_FBMC_RX_POLYPHASE_CVC_IMPL_H
+#define INCLUDED_FBMC_RX_POLYPHASE_CVC_IMPL_H
 
-#include <fbmc/iota_filterbank_rx_cvc.h>
-#include <fbmc/iota_filterbank_rx_kernel.h>
+#include <fbmc/rx_polyphase_cvc.h>
+#include <fbmc/rx_polyphase_kernel.h>
 
 namespace gr {
   namespace fbmc {
 
-    class iota_filterbank_rx_cvc_impl : public iota_filterbank_rx_cvc, iota_filterbank_rx_kernel
+    class rx_polyphase_cvc_impl : public rx_polyphase_cvc, rx_polyphase_kernel
     {
     private:
       int d_L;
 
     public:
-      iota_filterbank_rx_cvc_impl(std::vector<float> &taps, int L);
-      ~iota_filterbank_rx_cvc_impl();
+      rx_polyphase_cvc_impl(std::vector<float> &taps, int L);
+      ~rx_polyphase_cvc_impl();
 
-      std::vector<std::vector<float> > taps(){return iota_filterbank_rx_kernel::taps();};
+      std::vector<std::vector<float> > taps(){return rx_polyphase_kernel::taps();};
 
       // Where all the action really happens
       int
@@ -47,5 +47,5 @@ namespace gr {
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_IOTA_FILTERBANK_RX_CVC_IMPL_H */
+#endif /* INCLUDED_FBMC_RX_POLYPHASE_CVC_IMPL_H */
 

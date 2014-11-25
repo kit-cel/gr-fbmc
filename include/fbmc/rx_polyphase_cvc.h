@@ -18,8 +18,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_FBMC_IOTA_FILTERBANK_RX_CVC_H
-#define INCLUDED_FBMC_IOTA_FILTERBANK_RX_CVC_H
+#ifndef INCLUDED_FBMC_RX_POLYPHASE_CVC_H
+#define INCLUDED_FBMC_RX_POLYPHASE_CVC_H
 
 #include <fbmc/api.h>
 #include <gnuradio/sync_decimator.h>
@@ -32,19 +32,19 @@ namespace gr {
      * \ingroup fbmc
      *
      */
-    class FBMC_API iota_filterbank_rx_cvc : virtual public gr::sync_decimator
+    class FBMC_API rx_polyphase_cvc : virtual public gr::sync_decimator
     {
     public:
-      typedef boost::shared_ptr<iota_filterbank_rx_cvc> sptr;
+      typedef boost::shared_ptr<rx_polyphase_cvc> sptr;
 
       virtual std::vector<std::vector<float> > taps() = 0;
 
       /*!
-       * \brief Return a shared_ptr to a new instance of fbmc::iota_filterbank_rx_cvc.
+       * \brief Return a shared_ptr to a new instance of fbmc::rx_polyphase_cvc.
        *
-       * To avoid accidental use of raw pointers, fbmc::iota_filterbank_rx_cvc's
+       * To avoid accidental use of raw pointers, fbmc::rx_polyphase_cvc's
        * constructor is in a private implementation
-       * class. fbmc::iota_filterbank_rx_cvc::make is the public interface for
+       * class. fbmc::rx_polyphase_cvc::make is the public interface for
        * creating new instances.
        */
       static sptr
@@ -54,5 +54,5 @@ namespace gr {
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_IOTA_FILTERBANK_RX_CVC_H */
+#endif /* INCLUDED_FBMC_RX_POLYPHASE_CVC_H */
 

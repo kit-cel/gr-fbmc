@@ -36,8 +36,8 @@ install(FILES
     preamble_insertion_vcvc.h
     frame_sync_cc.h
     coarse_cfo_correction.h
-    iota_filterbank_rx_cvc.h
-    iota_filterbank_rx_kernel.h
+    rx_polyphase_cvc.h
+    rx_polyphase_kernel.h
     phydyas_filterbank_rx_cvc.h
     phydyas_filterbank_rx_kernel.h DESTINATION include/fbmc
 )

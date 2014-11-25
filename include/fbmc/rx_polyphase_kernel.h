@@ -33,11 +33,11 @@ namespace gr {
      * \brief actual kernel for SMT Filterbank
      *
      */
-    class FBMC_API iota_filterbank_rx_kernel: public filter::kernel::filterbank
+    class FBMC_API rx_polyphase_kernel: public filter::kernel::filterbank
     {
     public:
-      iota_filterbank_rx_kernel(std::vector<float> &taps, int L);
-      ~iota_filterbank_rx_kernel();
+      rx_polyphase_kernel(std::vector<float> &taps, int L);
+      ~rx_polyphase_kernel();
 
       int L(){return d_L;};
       std::vector<std::vector<float> > taps(){return filterbank::taps();};
@@ -60,5 +60,5 @@ namespace gr {
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_IOTA_FILTERBANK_RX_KERNEL_H */
+#endif /* INCLUDED_FBMC_RX_POLYPHASE_KERNEL_H */
 

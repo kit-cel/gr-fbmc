@@ -167,14 +167,14 @@ class qa_phydyas_filterbank_rx_cvc(gr_unittest.TestCase):
 
         # instatiated blocks and flowgraph
         phydyas = fbmc.phydyas_filterbank_rx_cvc(taps, L)
-        iota = fbmc.iota_filterbank_rx_cvc(taps, L)
+        pfb = fbmc.rx_polyphase_cvc(taps, L)
         print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap()
         src = blocks.vector_source_c(data, vlen=1)
         snk0 = blocks.vector_sink_c(L)
         snk1 = blocks.vector_sink_c(L)
         tb = gr.top_block()
         tb.connect(src, phydyas, snk0)
-        tb.connect(src, iota, snk1)
+        tb.connect(src, pfb, snk1)
 
         # run fg and get results
         tb.run()

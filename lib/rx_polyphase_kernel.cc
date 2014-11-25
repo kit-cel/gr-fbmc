@@ -23,7 +23,7 @@
 #endif
 
 #include <gnuradio/io_signature.h>
-#include <fbmc/iota_filterbank_rx_kernel.h>
+#include <fbmc/rx_polyphase_kernel.h>
 
 #include <cstdio>
 #include <iostream>
@@ -35,7 +35,7 @@
 namespace gr {
   namespace fbmc {
 
-    iota_filterbank_rx_kernel::iota_filterbank_rx_kernel(std::vector<float> &taps,
+    rx_polyphase_kernel::rx_polyphase_kernel(std::vector<float> &taps,
                                                  int L) :
         filterbank(
             std::vector<std::vector<float> >(L, std::vector<float>(1, 0.0f))), d_L(
@@ -63,7 +63,7 @@ namespace gr {
           FFTW_MEASURE);
     }
 
-    iota_filterbank_rx_kernel::~iota_filterbank_rx_kernel()
+    rx_polyphase_kernel::~rx_polyphase_kernel()
     {
       volk_free(d_fft_in_buf);
       volk_free(d_fft_out_buf);
@@ -73,7 +73,7 @@ namespace gr {
     }
 
     void
-    iota_filterbank_rx_kernel::set_taps(std::vector<float> &taps)
+    rx_polyphase_kernel::set_taps(std::vector<float> &taps)
     {
       // this method sanitizes the given taps and sets them for the filterbank afterwards
       // pad the prototype to an integer multiple length of L
@@ -105,7 +105,7 @@ namespace gr {
     }
 
     void
-    iota_filterbank_rx_kernel::initialize_branch_buffers(int L, int ntaps)
+    rx_polyphase_kernel::initialize_branch_buffers(int L, int ntaps)
     {
       d_buffers.clear();
       gr_complex* buf = (gr_complex*) volk_malloc(sizeof(gr_complex) * ntaps, volk_get_alignment());
@@ -117,7 +117,7 @@ namespace gr {
     }
 
     inline void
-    iota_filterbank_rx_kernel::update_branch_buffer(gr_complex in_sample, int branch)
+    rx_polyphase_kernel::update_branch_buffer(gr_complex in_sample, int branch)
     {
       // for now move all samples by one
       // left or right shift is open to debate.
@@ -127,7 +127,7 @@ namespace gr {
     }
 
     inline gr_complex
-    iota_filterbank_rx_kernel::filter_branch(gr_complex in_sample, int branch)
+    rx_polyphase_kernel::filter_branch(gr_complex in_sample, int branch)
     {
       // method gets new input sample and the branch number
       // put input sample to front of branch buffer
@@ -140,7 +140,7 @@ namespace gr {
     }
 
     int
-    iota_filterbank_rx_kernel::generic_work(gr_complex* out, const gr_complex* in,
+    rx_polyphase_kernel::generic_work(gr_complex* out, const gr_complex* in,
                                         int noutput_items)
     {
       for(int items = 0; items < noutput_items; items++){

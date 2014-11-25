@@ -55,5 +55,5 @@ GR_ADD_TEST(qa_symbols_to_bits_cb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DI
 GR_ADD_TEST(qa_preamble_insertion_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_preamble_insertion_vcvc.py)
 GR_ADD_TEST(qa_frame_sync_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_frame_sync_cc.py)
 GR_ADD_TEST(qa_coarse_cfo_correction ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_coarse_cfo_correction.py)
-GR_ADD_TEST(qa_iota_filterbank_rx_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_iota_filterbank_rx_cvc.py)
+GR_ADD_TEST(qa_rx_polyphase_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_rx_polyphase_cvc.py)
 GR_ADD_TEST(qa_phydyas_filterbank_rx_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_phydyas_filterbank_rx_cvc.py)
