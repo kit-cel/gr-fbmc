@@ -39,5 +39,7 @@ install(FILES
     rx_polyphase_cvc.h
     rx_polyphase_kernel.h
     rx_sdft_cvc.h
-    rx_sdft_kernel.h DESTINATION include/fbmc
+    rx_sdft_kernel.h
+    tx_sdft_vcc.h
+    tx_sdft_kernel.h DESTINATION include/fbmc
 )

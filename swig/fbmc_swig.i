@@ -27,6 +27,8 @@
 #include "fbmc/rx_polyphase_kernel.h"
 #include "fbmc/rx_sdft_cvc.h"
 #include "fbmc/rx_sdft_kernel.h"
+#include "fbmc/tx_sdft_vcc.h"
+#include "fbmc/tx_sdft_kernel.h"
 %}
 
 %include "../lib/fbmc_config.h"
@@ -66,3 +68,6 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, rx_polyphase_cvc);
 %include "fbmc/rx_sdft_cvc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, rx_sdft_cvc);
 %include "fbmc/rx_sdft_kernel.h"
+%include "fbmc/tx_sdft_vcc.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, tx_sdft_vcc);
+%include "fbmc/tx_sdft_kernel.h"

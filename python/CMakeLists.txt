@@ -57,3 +57,4 @@ GR_ADD_TEST(qa_frame_sync_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa
 GR_ADD_TEST(qa_coarse_cfo_correction ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_coarse_cfo_correction.py)
 GR_ADD_TEST(qa_rx_polyphase_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_rx_polyphase_cvc.py)
 GR_ADD_TEST(qa_rx_sdft_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_rx_sdft_cvc.py)
+GR_ADD_TEST(qa_tx_sdft_vcc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_tx_sdft_vcc.py)
