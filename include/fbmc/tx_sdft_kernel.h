@@ -23,6 +23,7 @@
 #define INCLUDED_FBMC_TX_SDFT_KERNEL_H
 
 #include <fbmc/api.h>
+#include <gnuradio/fft/fft.h>
 
 namespace gr {
   namespace fbmc {
@@ -38,7 +39,21 @@ namespace gr {
       ~tx_sdft_kernel();
 
       int generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
+
+      int L(){return d_L;};
+      int overlap(){return d_overlap;};
+      std::vector<float> taps(){return d_taps;};
     private:
+      int d_L;
+      int d_overlap;
+      std::vector<float> d_taps;
+      float* d_taps_al;
+
+      gr_complex* d_multiply_res;
+
+      gr::fft::fft_complex* d_fft;
+
+      void multiply_with_taps(gr_complex* out, const gr_complex* in);
     };
 
   } // namespace fbmc

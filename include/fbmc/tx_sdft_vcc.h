@@ -38,6 +38,10 @@ namespace gr {
      public:
       typedef boost::shared_ptr<tx_sdft_vcc> sptr;
 
+      virtual int L() = 0;
+      virtual int overlap() = 0;
+      virtual std::vector<float> taps() = 0;
+
       /*!
        * \brief Return a shared_ptr to a new instance of fbmc::tx_sdft_vcc.
        *

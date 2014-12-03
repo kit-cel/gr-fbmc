@@ -36,6 +36,10 @@ namespace gr {
       tx_sdft_vcc_impl(std::vector<float> taps, int L);
       ~tx_sdft_vcc_impl();
 
+      int L(){return tx_sdft_kernel::L();};
+      int overlap(){return tx_sdft_kernel::overlap();};
+      std::vector<float> taps(){return tx_sdft_kernel::taps();};
+
       // Where all the action really happens
       int work(int noutput_items,
 	       gr_vector_const_void_star &input_items,

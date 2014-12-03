@@ -25,11 +25,36 @@
 #include <gnuradio/io_signature.h>
 #include <fbmc/tx_sdft_kernel.h>
 
+#include <volk/volk.h>
+
 namespace gr {
   namespace fbmc {
 
-    tx_sdft_kernel::tx_sdft_kernel(std::vector<float> taps, int L)
+    tx_sdft_kernel::tx_sdft_kernel(std::vector<float> taps, int L): d_L(L), d_taps(taps)
     {
+      // make sure we calculate the correct overlap size!
+      int overlap = (taps.size() - 1) / L;
+      if(overlap * L + 1 != taps.size()){
+        throw std::runtime_error("number of filter taps must be equal to L * overlap + 1!");
+      }
+      d_overlap = overlap;
+
+      taps.pop_back(); // remove last sample. Assuming PHYDYAS!
+
+      int buff_len = overlap * L;
+      d_taps_al = (float*) volk_malloc(sizeof(float) * buff_len, volk_get_alignment());
+      std::vector<float>::iterator first_it = taps.begin();
+      std::vector<float>::iterator last_it = taps.end();
+      for(int i = 0;first_it != last_it; first_it++, i++){
+        d_taps_al[i] = *first_it;
+      }
+
+      d_multiply_res = (gr_complex*) volk_malloc(sizeof(gr_complex) * buff_len, volk_get_alignment());
+
+      int fft_size = L;
+      bool forward = false; // we want an IFFT
+      int nthreads = 1; // may be altered if needed
+      d_fft = new gr::fft::fft_complex(fft_size, forward, nthreads);
     }
 
     tx_sdft_kernel::~tx_sdft_kernel()
@@ -39,8 +64,23 @@ namespace gr {
     int
     tx_sdft_kernel::generic_work(gr_complex* out, const gr_complex* in, int noutput_items)
     {
+      memcpy(d_fft->get_inbuf(), in, sizeof(gr_complex) * d_L); // get data into FFT
+      d_fft->execute(); // execute FFT. Get one vector.
+      multiply_with_taps(d_multiply_res, in);
+      volk_32f_x2_add_32f((float*) out, (float*) out, (float*) d_multiply_res, 2 * d_L * d_overlap);
 
-      return 1;
+      return d_L / 2;
+    }
+
+    /*
+     * For this multiply L, overlap and taps must be available and known. No need to pass them on as parameters.
+     */
+    void
+    tx_sdft_kernel::multiply_with_taps(gr_complex* outbuf, const gr_complex* inbuf)
+    {
+      for(int i = 0; i < d_overlap; i++){
+        volk_32fc_32f_multiply_32fc(outbuf + d_L * i, inbuf, d_taps_al + d_L * i, d_L);
+      }
     }
   } /* namespace fbmc */
 } /* namespace gr */

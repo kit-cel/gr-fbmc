@@ -44,9 +44,18 @@ class qa_tx_sdft_vcc(gr_unittest.TestCase):
         src = blocks.vector_source_c(data, vlen=L)
         snk = blocks.vector_sink_c(vlen=1)
         # set up fg
+        self.tb.connect(src, tx_sdft, snk)
+
         self.tb.run()
         # check data
 
+        print "L: ", tx_sdft.L()
+        print "overlap: ", tx_sdft.overlap()
+        print "taps: ", tx_sdft.taps()
+
+        res = snk.data()
+        print res
+
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_tx_sdft_vcc, "qa_tx_sdft_vcc.xml")
+    gr_unittest.run(qa_tx_sdft_vcc)
