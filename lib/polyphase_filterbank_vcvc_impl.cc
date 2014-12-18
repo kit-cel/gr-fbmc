@@ -128,6 +128,18 @@ namespace gr {
         return 1;
     }
 
+    std::vector<std::vector<gr_complex> >
+    polyphase_filterbank_vcvc_impl::filter_branch_taps()
+    {
+      std::vector<std::vector<gr_complex> > tmp(d_L, std::vector<gr_complex>(d_num_branch_taps, 0));
+      for(int l = 0; l < d_L; l++){
+        for(int n = 0; n < d_num_branch_taps; n++){
+          tmp[l][n] = d_branch_taps[l][n];
+        }
+      }
+      return tmp;
+    }
+
   } /* namespace fbmc */
 } /* namespace gr */
 

@@ -64,16 +64,39 @@ namespace gr {
     int
     tx_sdft_kernel::generic_work(gr_complex* out, const gr_complex* in, int noutput_items)
     {
+//      std::cout << "\ngeneric_work\n";
+//
+//      std::cout << "out: " << out << "\t";
+//      for(int i = 0; i < d_L * d_overlap; i++){
+//        std::cout << out[i] << ", ";
+//      }
+//      std::cout << std::endl;
+
       memcpy(d_fft->get_inbuf(), in, sizeof(gr_complex) * d_L); // get data into FFT
       d_fft->execute(); // execute FFT. Get one vector.
-      multiply_with_taps(d_multiply_res, in);
+
+      multiply_with_taps(d_multiply_res, d_fft->get_outbuf());
+
+//      std::cout << "mul: " << d_multiply_res << "\t";
+//      for(int i = 0; i < d_L * d_overlap; i++){
+//        std::cout << d_multiply_res[i] << ", ";
+//      }
+//      std::cout << std::endl;
+
+//      memcpy(out, d_multiply_res, sizeof(gr_complex) * d_L * d_overlap);
       volk_32f_x2_add_32f((float*) out, (float*) out, (float*) d_multiply_res, 2 * d_L * d_overlap);
+
+//      std::cout << "out: " << out << "\t";
+//      for(int i = 0; i < d_L * d_overlap; i++){
+//        std::cout << out[i] << ", ";
+//      }
+//      std::cout << std::endl;
 
       return d_L / 2;
     }
 
     /*
-     * For this multiply L, overlap and taps must be available and known. No need to pass them on as parameters.
+     * For this multiply [L, overlap and taps] must be available and known. No need to pass them on as parameters.
      */
     void
     tx_sdft_kernel::multiply_with_taps(gr_complex* outbuf, const gr_complex* inbuf)

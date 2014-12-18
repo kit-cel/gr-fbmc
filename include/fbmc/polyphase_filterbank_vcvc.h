@@ -47,6 +47,7 @@ namespace gr {
        * creating new instances.
        */
       static sptr make(int L, std::vector<gr_complex> prototype_taps);
+      virtual std::vector<std::vector<gr_complex> > filter_branch_taps() = 0;
     };
 
   } // namespace fbmc
