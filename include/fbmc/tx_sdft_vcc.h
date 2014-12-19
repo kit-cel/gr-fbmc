@@ -18,7 +18,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-
 #ifndef INCLUDED_FBMC_TX_SDFT_VCC_H
 #define INCLUDED_FBMC_TX_SDFT_VCC_H
 
@@ -35,12 +34,15 @@ namespace gr {
      */
     class FBMC_API tx_sdft_vcc : virtual public gr::sync_interpolator
     {
-     public:
+    public:
       typedef boost::shared_ptr<tx_sdft_vcc> sptr;
 
-      virtual int L() = 0;
-      virtual int overlap() = 0;
-      virtual std::vector<float> taps() = 0;
+      virtual int
+      L() = 0;
+      virtual int
+      overlap() = 0;
+      virtual std::vector<float>
+      taps() = 0;
 
       /*!
        * \brief Return a shared_ptr to a new instance of fbmc::tx_sdft_vcc.
@@ -50,7 +52,8 @@ namespace gr {
        * class. fbmc::tx_sdft_vcc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(std::vector<float> taps, int L);
+      static sptr
+      make(std::vector<float> taps, int L);
     };
 
   } // namespace fbmc

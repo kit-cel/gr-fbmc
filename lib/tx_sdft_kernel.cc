@@ -30,26 +30,34 @@
 namespace gr {
   namespace fbmc {
 
-    tx_sdft_kernel::tx_sdft_kernel(std::vector<float> taps, int L): d_L(L), d_taps(taps)
+    tx_sdft_kernel::tx_sdft_kernel(std::vector<float> taps, int L) :
+        d_L(L), d_taps(taps)
     {
       // make sure we calculate the correct overlap size!
       int overlap = (taps.size() - 1) / L;
       if(overlap * L + 1 != taps.size()){
-        throw std::runtime_error("number of filter taps must be equal to L * overlap + 1!");
+        throw std::runtime_error(
+            "number of filter taps must be equal to L * overlap + 1!");
       }
       d_overlap = overlap;
 
       taps.pop_back(); // remove last sample. Assuming PHYDYAS!
 
       int buff_len = overlap * L;
-      d_taps_al = (float*) volk_malloc(sizeof(float) * buff_len, volk_get_alignment());
+      d_taps_al = (float*) volk_malloc(sizeof(float) * buff_len,
+                                       volk_get_alignment());
       std::vector<float>::iterator first_it = taps.begin();
       std::vector<float>::iterator last_it = taps.end();
-      for(int i = 0;first_it != last_it; first_it++, i++){
+      for(int i = 0; first_it != last_it; first_it++, i++){
         d_taps_al[i] = *first_it;
       }
 
-      d_multiply_res = (gr_complex*) volk_malloc(sizeof(gr_complex) * buff_len, volk_get_alignment());
+      d_multiply_res = (gr_complex*) volk_malloc(sizeof(gr_complex) * buff_len,
+                                                 volk_get_alignment());
+
+      d_add_buf = (gr_complex*) volk_malloc(
+          sizeof(gr_complex) * (buff_len + d_L), volk_get_alignment());
+      memset(d_add_buf, 0, sizeof(gr_complex) * (buff_len + d_L));
 
       int fft_size = L;
       bool forward = false; // we want an IFFT
@@ -59,51 +67,64 @@ namespace gr {
 
     tx_sdft_kernel::~tx_sdft_kernel()
     {
+      volk_free(d_multiply_res);
+      volk_free(d_add_buf);
+      delete d_fft;
     }
 
     int
-    tx_sdft_kernel::generic_work(gr_complex* out, const gr_complex* in, int noutput_items)
+    tx_sdft_kernel::generic_work(gr_complex* out, const gr_complex* in,
+                                 int noutput_items)
     {
-//      std::cout << "\ngeneric_work\n";
-//
-//      std::cout << "out: " << out << "\t";
-//      for(int i = 0; i < d_L * d_overlap; i++){
-//        std::cout << out[i] << ", ";
-//      }
-//      std::cout << std::endl;
+      int available_vectors = noutput_items / (d_L / 2);
+      int finished_items = 0;
+      for(int i = 0; i < available_vectors; i++){
+        finished_items += process_one_vector(out, in);
+        out += (d_L / 2);
+        in += d_L;
+      }
 
-      memcpy(d_fft->get_inbuf(), in, sizeof(gr_complex) * d_L); // get data into FFT
+      return finished_items;
+    }
+
+    inline int
+    tx_sdft_kernel::process_one_vector(gr_complex* outbuf,
+                                       const gr_complex* inbuf)
+    {
+      memcpy(d_fft->get_inbuf(), inbuf, sizeof(gr_complex) * d_L); // get data into FFT
       d_fft->execute(); // execute FFT. Get one vector.
-
       multiply_with_taps(d_multiply_res, d_fft->get_outbuf());
-
-//      std::cout << "mul: " << d_multiply_res << "\t";
-//      for(int i = 0; i < d_L * d_overlap; i++){
-//        std::cout << d_multiply_res[i] << ", ";
-//      }
-//      std::cout << std::endl;
-
-//      memcpy(out, d_multiply_res, sizeof(gr_complex) * d_L * d_overlap);
-      volk_32f_x2_add_32f((float*) out, (float*) out, (float*) d_multiply_res, 2 * d_L * d_overlap);
-
-//      std::cout << "out: " << out << "\t";
-//      for(int i = 0; i < d_L * d_overlap; i++){
-//        std::cout << out[i] << ", ";
-//      }
-//      std::cout << std::endl;
-
-      return d_L / 2;
+      return calculate_sum_result(outbuf, d_multiply_res);
     }
 
     /*
-     * For this multiply [L, overlap and taps] must be available and known. No need to pass them on as parameters.
+     * For this multiply [L, overlap and taps] must be available and known.
+     * No need to pass them on as parameters.
      */
-    void
-    tx_sdft_kernel::multiply_with_taps(gr_complex* outbuf, const gr_complex* inbuf)
+    inline void
+    tx_sdft_kernel::multiply_with_taps(gr_complex* outbuf,
+                                       const gr_complex* inbuf)
     {
       for(int i = 0; i < d_overlap; i++){
-        volk_32fc_32f_multiply_32fc(outbuf + d_L * i, inbuf, d_taps_al + d_L * i, d_L);
+        volk_32fc_32f_multiply_32fc(outbuf + d_L * i, inbuf,
+                                    d_taps_al + d_L * i, d_L);
       }
+    }
+
+    /*
+     * use internal buffer to sum up result and copy completed samples to out buffer.
+     */
+    inline int
+    tx_sdft_kernel::calculate_sum_result(gr_complex* outbuf,
+                                         const gr_complex* res)
+    {
+      volk_32f_x2_add_32f((float*) d_add_buf, (float*) d_add_buf, (float*) res,
+                          2 * d_L * d_overlap);
+      int num_samps = d_L / 2;
+      memcpy(outbuf, d_add_buf, sizeof(gr_complex) * num_samps);
+      memmove(d_add_buf, d_add_buf + num_samps,
+              sizeof(gr_complex) * d_L * d_overlap);
+      return num_samps;
     }
   } /* namespace fbmc */
 } /* namespace gr */

@@ -31,18 +31,17 @@ namespace gr {
     tx_sdft_vcc::sptr
     tx_sdft_vcc::make(std::vector<float> taps, int L)
     {
-      return gnuradio::get_initial_sptr
-        (new tx_sdft_vcc_impl(taps, L));
+      return gnuradio::get_initial_sptr(new tx_sdft_vcc_impl(taps, L));
     }
 
     /*
      * The private constructor
      */
-    tx_sdft_vcc_impl::tx_sdft_vcc_impl(std::vector<float> taps, int L)
-      : gr::sync_interpolator("tx_sdft_vcc",
-              gr::io_signature::make(1, 1, sizeof(gr_complex) * L),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)), L / 2 /*also sets output_multiple*/),
-              tx_sdft_kernel(taps, L)
+    tx_sdft_vcc_impl::tx_sdft_vcc_impl(std::vector<float> taps, int L) :
+        gr::sync_interpolator(
+            "tx_sdft_vcc", gr::io_signature::make(1, 1, sizeof(gr_complex) * L),
+            gr::io_signature::make(1, 1, sizeof(gr_complex)),
+            L / 2 /*also sets output_multiple*/), tx_sdft_kernel(taps, L)
     {
     }
 

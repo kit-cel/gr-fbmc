@@ -29,10 +29,10 @@ namespace gr {
 
     class tx_sdft_vcc_impl : public tx_sdft_vcc, tx_sdft_kernel
     {
-     private:
+    private:
       // Nothing to declare in this block.
 
-     public:
+    public:
       tx_sdft_vcc_impl(std::vector<float> taps, int L);
       ~tx_sdft_vcc_impl();
 
@@ -40,10 +40,10 @@ namespace gr {
       int overlap(){return tx_sdft_kernel::overlap();};
       std::vector<float> taps(){return tx_sdft_kernel::taps();};
 
-      // Where all the action really happens
-      int work(int noutput_items,
-	       gr_vector_const_void_star &input_items,
-	       gr_vector_void_star &output_items);
+// Where all the action really happens
+      int
+      work(int noutput_items, gr_vector_const_void_star &input_items,
+           gr_vector_void_star &output_items);
     };
 
   } // namespace fbmc

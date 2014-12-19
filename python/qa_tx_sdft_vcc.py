@@ -36,7 +36,7 @@ class qa_tx_sdft_vcc(gr_unittest.TestCase):
         multiple = 6
         overlap = 1  # must be 1 in this test!
         L = 4
-        taps = np.array([0, 1, 2, 1]) #  np.ones(overlap * L, dtype=float)
+        taps = np.array([0, 1, 2, 1])
         taps = np.append(taps, [0.0, ])
         data = np.arange(1, multiple * L + 1, dtype=np.complex)
 
@@ -69,7 +69,7 @@ class qa_tx_sdft_vcc(gr_unittest.TestCase):
         multiple = 6
         overlap = 1
         L = 4
-        taps = np.array([1, 1, 1, 1, 2, 2, 2, 2, ]) #  np.ones(overlap * L, dtype=float)
+        taps = np.array([1, 1, 1, 1, 2, 2, 2, 2, ])
         taps = np.append(taps, [0.0, ])
         data = np.arange(1, multiple * L + 1, dtype=np.complex)
 
@@ -88,16 +88,6 @@ class qa_tx_sdft_vcc(gr_unittest.TestCase):
         r0 = np.array(snk0.data())
         r1 = np.array(snk1.data())
 
-        # print "len(data) = ", len(data)
-        # print "len(r0) = ", len(r0)
-        # print "len(r1) = ", len(r1)
-        pfb_taps = np.array(pfb.filter_branch_taps())
-        # print "\nPFB taps"
-        # print pfb_taps
-        #
-        # print "\ndata"
-        # print data.reshape((-1, L)).T
-
         print "\ntx_sdft"
         print r0.reshape((-1, L)).T
 
@@ -106,15 +96,16 @@ class qa_tx_sdft_vcc(gr_unittest.TestCase):
 
         tmp = np.concatenate((r0, r1)).reshape((2, -1)).T
         for x, y in tmp:
-            print x, y, "\tis equal", x==y
+            print x, y, "\tis equal", x == y
 
         self.assertComplexTuplesAlmostEqual(r0, r1)
 
     def test_003_go_big(self):
         print "\n\n\ntest_003"
-        multiple = 20
+        multiple = 2000
         overlap = 4
 
+        # get test data, taps, config, etc.
         self.cfg = fbmc.fbmc_config(num_used_subcarriers=20, num_payload_sym=16, num_overlap_sym=overlap,
                                     modulation="QPSK", preamble="IAM")
         L = self.cfg.num_total_subcarriers()
@@ -124,30 +115,21 @@ class qa_tx_sdft_vcc(gr_unittest.TestCase):
         data = np.arange(1, L + 1, dtype=np.complex)
         data = np.repeat(data, multiple)
 
+        # set up fg
         tx_sdft = fbmc.tx_sdft_vcc(taps, L)
         src = blocks.vector_source_c(data, vlen=L)
         snk0 = blocks.vector_sink_c(vlen=1)
+        self.tb.connect(src, tx_sdft, snk0)
 
         ft = fft.fft_vcc(L, False, (), False, 1)
         pfb = fbmc.polyphase_filterbank_vcvc(L, taps)
         comm = fbmc.output_commutator_vcc(L=L)
         snk1 = blocks.vector_sink_c(vlen=1)
-        self.tb.connect(src, tx_sdft, snk0)
         self.tb.connect(src, ft, pfb, comm, snk1)
 
         self.tb.run()
         r0 = np.array(snk0.data())
         r1 = np.array(snk1.data())
-
-        # print "len(data) = ", len(data)
-        # print "len(r0) = ", len(r0)
-        # print "len(r1) = ", len(r1)
-        pfb_taps = np.array(pfb.filter_branch_taps())
-        # print "\nPFB taps"
-        # print pfb_taps
-        #
-        # print "\ndata"
-        # print data.reshape((-1, L)).T
 
         print "\ntx_sdft"
         print r0.reshape((-1, L)).T
@@ -155,11 +137,8 @@ class qa_tx_sdft_vcc(gr_unittest.TestCase):
         print "\npolyphase"
         print r1.reshape((-1, L)).T
 
-        # tmp = np.concatenate((r0, r1)).reshape((2, -1)).T
-        # for x, y in tmp:
-        #     print x, y, "\tis equal", x==y
-
         self.assertComplexTuplesAlmostEqual(r0, r1, 4)
+
 
 if __name__ == '__main__':
     gr_unittest.run(qa_tx_sdft_vcc)
