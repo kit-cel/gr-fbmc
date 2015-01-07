@@ -25,59 +25,75 @@
 #include <gnuradio/io_signature.h>
 #include "apply_betas_vcvc_impl.h"
 
+#include <volk/volk.h>
+
 namespace gr {
   namespace fbmc {
 
     apply_betas_vcvc::sptr
     apply_betas_vcvc::make(int L, int inverse)
     {
-      return gnuradio::get_initial_sptr
-        (new apply_betas_vcvc_impl(L, inverse));
+      return gnuradio::get_initial_sptr(new apply_betas_vcvc_impl(L, inverse));
     }
 
     /*
      * The private constructor
      */
-    apply_betas_vcvc_impl::apply_betas_vcvc_impl(int L, int inverse)
-      : gr::sync_block("apply_betas_vcvc",
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*L),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)*L)),
-				d_L(L),
-				d_beta(NULL),
-				d_sym_ctr(0),
-                d_inverse(inverse)
-        {
-            if(!(d_inverse==0 || d_inverse == 1))
-                throw std::runtime_error("inverse has to be 0 or 1");
+    apply_betas_vcvc_impl::apply_betas_vcvc_impl(int L, int inverse) :
+        gr::sync_block("apply_betas_vcvc",
+                       gr::io_signature::make(1, 1, sizeof(gr_complex) * L),
+                       gr::io_signature::make(1, 1, sizeof(gr_complex) * L)),
+                       d_L(L),
+                       d_sym_ctr(0),
+                       d_inverse(inverse)
+    {
+      if(!(d_inverse == 0 || d_inverse == 1))
+        throw std::runtime_error("inverse has to be 0 or 1");
 
-        	// define the minimum set of betas
-        	// frames that exceed the dimension of this set can be processed by periodic continuation of this matrix
-        	// basically this is the result of overlaying j**(l+k) and beta[1::2,1::2] = -beta[1::2,1::2]
-        	gr_complex beta[4][4] = {
-        			{gr_complex(1,0), gr_complex(0,1), gr_complex(-1,0), gr_complex(0,-1)},
-        			{gr_complex(0,1), gr_complex(1,0), gr_complex(0,-1), gr_complex(-1,0)},
-        			{gr_complex(-1,0), gr_complex(0,-1), gr_complex(1,0), gr_complex(0,1)},
-        			{gr_complex(0,-1), gr_complex(-1,0), gr_complex(0,1), gr_complex(1,0)}
-        	};
-            
-            // set up the beta matrix
-            d_betas.resize(2); // index 0: forward, 1: reverse
-            d_betas[0].resize(4);
-            d_betas[1].resize(4);
-            for(int i = 0; i < 4; i++)
-            {
-                d_betas[0][i].resize(4);
-                d_betas[1][i].resize(4);
-            }
-            for(int m = 0; m < 4; m++)
-            {
-                for(int k = 0; k < 4; k++)
-                {
-                    d_betas[0][m][k] = beta[m][k];
-                    d_betas[1][m][k] = std::conj(beta[m][k]);
-                }
-            }
+      // define the minimum set of betas
+      // frames that exceed the dimension of this set can be processed by periodic continuation of this matrix
+      // basically this is the result of overlaying j**(l+k) and beta[1::2,1::2] = -beta[1::2,1::2]
+      gr_complex beta[4][4] =
+        {
+              {gr_complex(1, 0), gr_complex(0, 1), gr_complex(-1, 0),
+                  gr_complex(0, -1)},
+              {gr_complex(0, 1), gr_complex(1, 0), gr_complex(0, -1),
+                  gr_complex(-1, 0)},
+              {gr_complex(-1, 0), gr_complex(0, -1), gr_complex(1, 0),
+                  gr_complex(0, 1)},
+              {gr_complex(0, -1), gr_complex(-1, 0), gr_complex(0, 1),
+                  gr_complex(1, 0)}};
+
+      // set up the beta matrix
+      std::vector<std::vector<std::vector<gr_complex> > > betas; // 3D matrix holding the beta values
+      betas.resize(2); // index 0: forward, 1: reverse
+      betas[0].resize(4);
+      betas[1].resize(4);
+      for(int i = 0; i < 4; i++){
+        betas[0][i].resize(4);
+        betas[1][i].resize(4);
+      }
+      for(int m = 0; m < 4; m++){
+        for(int k = 0; k < 4; k++){
+          betas[0][m][k] = beta[m][k];
+          betas[1][m][k] = std::conj(beta[m][k]);
         }
+      }
+
+      d_betas_al.resize(2); // forward and backward
+      d_betas_al[0].resize(4); // influence length
+      d_betas_al[1].resize(4); // influence length
+
+      for(int i = 0; i < 2; i++){
+        for(int k = 0; k < 4; k++){
+          d_betas_al[i][k] = (gr_complex*) volk_malloc(sizeof(gr_complex) * L,
+                                                       volk_get_alignment());
+          for(int l = 0; l < L; l++){
+            d_betas_al[i][k][l] = betas[i][l % 4][k];
+          }
+        }
+      }
+    }
     /*
      * Our virtual destructor.
      */
@@ -87,21 +103,36 @@ namespace gr {
 
     int
     apply_betas_vcvc_impl::work(int noutput_items,
-			  gr_vector_const_void_star &input_items,
-			  gr_vector_void_star &output_items)
+                                gr_vector_const_void_star &input_items,
+                                gr_vector_void_star &output_items)
     {
-        const gr_complex *in = (const gr_complex *) input_items[0];
-        gr_complex *out = (gr_complex *) output_items[0];
+      const gr_complex *in = (const gr_complex *) input_items[0];
+      gr_complex *out = (gr_complex *) output_items[0];
 
-        // Apply the betas to the current symbol
-        for(int l = 0; l < d_L; l++)
-        	out[l] = d_betas[d_inverse][l%4][d_sym_ctr] * in[l];
+      for(int i = 0; i < noutput_items; i++){
+        apply_betas_to_one_vector(out, in);
+        out += d_L;
+        in += d_L;
+      }
 
-        // update symbol counter
-        d_sym_ctr = (d_sym_ctr+1) % 4;
+      return noutput_items;
+    }
 
-        // Return one vector of L elements
-        return 1;
+    int
+    apply_betas_vcvc_impl::apply_betas_to_one_vector(gr_complex* out,
+                                                     const gr_complex* in)
+    {
+//      std::cout << "ctr: " << d_sym_ctr << "\t";
+      volk_32fc_x2_multiply_32fc(out, in, d_betas_al[d_inverse][d_sym_ctr],
+                                 d_L);
+//      for(int l = 0; l < d_L; l++){
+//
+////        out[l] = d_betas[d_inverse][l % 4][d_sym_ctr] * in[l];
+////        std::cout << "[" << d_betas[d_inverse][l % 4][d_sym_ctr] << "," << d_betas_al[d_inverse][d_sym_ctr][l] << "], ";
+//      }
+//      std::cout << std::endl;
+      // update symbol counter
+      d_sym_ctr = (d_sym_ctr + 1) % 4;
     }
 
   } /* namespace fbmc */

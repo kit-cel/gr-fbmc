@@ -30,20 +30,21 @@ namespace gr {
     {
      private:
       int d_L; // number of subcarriers (some are possibly zero)
-      gr_complex** d_beta; // matrix of possible betas
-      std::vector< std::vector< std::vector<gr_complex> > > d_betas; // 3D matrix holding the beta values
-      int d_sym_ctr; // tells the block if it's an even or odd symbol count and adjusts the betas accordingly
+      std::vector< std::vector< gr_complex* > > d_betas_al;
+      int d_sym_ctr; // counter to select the correct beta vector for each input vector.
       int d_inverse; // tells the block which table is to be used
+
+      int apply_betas_to_one_vector(gr_complex* out, const gr_complex* in);
+
      public:
       apply_betas_vcvc_impl(int L, int inverse);
       ~apply_betas_vcvc_impl();
 
       // Where all the action really happens
-      int work(int noutput_items,
-	       gr_vector_const_void_star &input_items,
-	       gr_vector_void_star &output_items);
+      int
+      work(int noutput_items, gr_vector_const_void_star &input_items,
+           gr_vector_void_star &output_items);
     };
-
   } // namespace fbmc
 } // namespace gr
 
