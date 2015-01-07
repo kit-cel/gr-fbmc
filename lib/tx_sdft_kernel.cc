@@ -118,9 +118,15 @@ namespace gr {
     tx_sdft_kernel::calculate_sum_result(gr_complex* outbuf,
                                          const gr_complex* res)
     {
-      volk_32f_x2_add_32f((float*) d_add_buf, (float*) d_add_buf, (float*) res,
-                          2 * d_L * d_overlap);
       int num_samps = d_L / 2;
+      /*
+      // that would be the most efficient way but it seems like occasional glitches break this solution
+      memset(outbuf + d_L * d_overlap - num_samps, 0, sizeof(gr_complex) * num_samps);
+      volk_32f_x2_add_32f((float*) outbuf, (float*) outbuf, (float*) res,
+                          2 * d_L * d_overlap);
+      */
+      volk_32f_x2_add_32f((float*) d_add_buf, (float*) d_add_buf, (float*) res,
+                                2 * d_L * d_overlap);
       memcpy(outbuf, d_add_buf, sizeof(gr_complex) * num_samps);
       memmove(d_add_buf, d_add_buf + num_samps,
               sizeof(gr_complex) * d_L * d_overlap);
