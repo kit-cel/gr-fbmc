@@ -58,3 +58,4 @@ GR_ADD_TEST(qa_coarse_cfo_correction ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE
 GR_ADD_TEST(qa_rx_polyphase_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_rx_polyphase_cvc.py)
 GR_ADD_TEST(qa_rx_sdft_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_rx_sdft_cvc.py)
 GR_ADD_TEST(qa_tx_sdft_vcc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_tx_sdft_vcc.py)
+GR_ADD_TEST(qa_rx_domain_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_rx_domain_cvc.py)

@@ -44,7 +44,9 @@ list(APPEND fbmc_sources
     rx_sdft_cvc_impl.cc
     rx_sdft_kernel.cc
     tx_sdft_vcc_impl.cc
-    tx_sdft_kernel.cc )
+    tx_sdft_kernel.cc
+    rx_domain_cvc_impl.cc
+    rx_domain_kernel.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)

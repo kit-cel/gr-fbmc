@@ -41,5 +41,7 @@ install(FILES
     rx_sdft_cvc.h
     rx_sdft_kernel.h
     tx_sdft_vcc.h
-    tx_sdft_kernel.h DESTINATION include/fbmc
+    tx_sdft_kernel.h
+    rx_domain_cvc.h
+    rx_domain_kernel.h DESTINATION include/fbmc
 )
