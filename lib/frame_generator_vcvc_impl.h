@@ -28,7 +28,7 @@ namespace gr {
 
     class frame_generator_vcvc_impl : public frame_generator_vcvc
     {
-     private:
+    private:
       int d_sym_len; // length of one symbol aka the input vector length aka number of subcarriers
       int d_num_frame; // number of symbols (vectors) per frame
       int d_num_overlap; // hard-coded to 4
@@ -36,19 +36,37 @@ namespace gr {
       int d_num_sync; // number of sync symbols
       int d_payload_sym_ctr; // payload symbol counter to detect the start/end of frame
       int d_dropped_sym_ctr; // counter for dropping zero/sync symbols in inverse mode
-	  int d_inverse; // defines if the zero symbols are inserted or removed
-	  
-     public:
-      frame_generator_vcvc_impl(int sym_len, int num_payload, int inverse, int num_overlap, int num_sync);
+      int d_inverse; // defines if the zero symbols are inserted or removed
+
+      inline void
+      finish_one_symbol(gr_complex* outbuf, const gr_complex* inbuf,
+                        const int symbol_length);
+
+      inline void
+      insert_placeholder_symbols(gr_complex* outbuf, const int symbol_length,
+                                 const int num_symbols);
+
+      int
+      consume_one_forward_symbol(gr_complex* outbuf, const gr_complex* inbuf,
+                                 const int symbol_length);
+
+      int
+      consume_one_reverse_symbol(gr_complex* outbuf, const gr_complex* inbuf,
+                                 const int symbol_length);
+
+    public:
+      frame_generator_vcvc_impl(int sym_len, int num_payload, int inverse,
+                                int num_overlap, int num_sync);
       ~frame_generator_vcvc_impl();
 
-      // Where all the action really happens
-      void forecast (int noutput_items, gr_vector_int &ninput_items_required);
+      void
+      forecast(int noutput_items, gr_vector_int &ninput_items_required);
 
-      int general_work(int noutput_items,
-		       gr_vector_int &ninput_items,
-		       gr_vector_const_void_star &input_items,
-		       gr_vector_void_star &output_items);
+      // Where all the action really happens
+      int
+      general_work(int noutput_items, gr_vector_int &ninput_items,
+                   gr_vector_const_void_star &input_items,
+                   gr_vector_void_star &output_items);
     };
 
   } // namespace fbmc
