@@ -116,7 +116,7 @@ namespace gr {
       return noutput_items;
     }
 
-    int
+    inline void
     apply_betas_vcvc_impl::apply_betas_to_one_vector(gr_complex* out,
                                                      const gr_complex* in)
     {

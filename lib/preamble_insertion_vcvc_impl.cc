@@ -47,9 +47,10 @@ namespace gr {
               d_ctr(0),
               d_preamble_sym(preamble_sym)
     {
-      if((d_preamble_sym.size() % d_L) != 0)
-        throw std::runtime_error("Preamble size must be an integer multiple of the number of subcarriers");        
-//      dbg_fp = fopen("freq_vals.bin", "wb");
+      if((d_preamble_sym.size() % d_L) != 0){
+        throw std::runtime_error(
+            "Preamble size must be an integer multiple of the number of subcarriers");
+      }
     }
 
     /*
@@ -57,28 +58,39 @@ namespace gr {
      */
     preamble_insertion_vcvc_impl::~preamble_insertion_vcvc_impl()
     {
-//      fclose(dbg_fp);
+    }
+
+    inline void
+    preamble_insertion_vcvc_impl::process_one_symbol(gr_complex* outbuf,
+                                                     const gr_complex* inbuf)
+    {
+      if(d_ctr < d_preamble_sym.size() / d_L){ // insert preamble symbol
+        memcpy(outbuf, &d_preamble_sym[0] + d_ctr * d_L, sizeof(gr_complex) * d_L);
+      }
+      else{
+        // just copy the input to the output
+        memcpy(outbuf, inbuf, sizeof(gr_complex) * d_L);
+      }
+
+      d_ctr = (d_ctr + 1) % d_frame_len;
     }
 
     int
     preamble_insertion_vcvc_impl::work(int noutput_items,
-			  gr_vector_const_void_star &input_items,
-			  gr_vector_void_star &output_items)
+                                       gr_vector_const_void_star &input_items,
+                                       gr_vector_void_star &output_items)
     {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
-      if(d_ctr < d_preamble_sym.size()/d_L) // insert preamble symbol twice
-    	  memcpy(out, &d_preamble_sym[0]+d_ctr*d_L, sizeof(gr_complex)*d_L);
-  		else // just copy the input to the output
-  		  memcpy(out, in, sizeof(gr_complex)*d_L);
-		
-		  d_ctr = (d_ctr + 1) % d_frame_len; 
-
-//      fwrite(out, d_L, sizeof(gr_complex), dbg_fp);
+      for(int i = 0; i < noutput_items; i++){
+        process_one_symbol(out, in);
+        in += d_L;
+        out += d_L;
+      }
 
       // Tell runtime system how many output items we produced.
-      return 1;
+      return noutput_items;
     }
 
   } /* namespace fbmc */

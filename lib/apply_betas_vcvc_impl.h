@@ -34,7 +34,7 @@ namespace gr {
       int d_sym_ctr; // counter to select the correct beta vector for each input vector.
       int d_inverse; // tells the block which table is to be used
 
-      int apply_betas_to_one_vector(gr_complex* out, const gr_complex* in);
+      inline void apply_betas_to_one_vector(gr_complex* out, const gr_complex* in);
 
      public:
       apply_betas_vcvc_impl(int L, int inverse);

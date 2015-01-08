@@ -34,7 +34,8 @@ namespace gr {
       int d_frame_len; // num symbols per frame
       int d_ctr; // counts the symbols
       std::vector<gr_complex> d_preamble_sym; // preamble symbol
-      FILE* dbg_fp;
+
+      inline void process_one_symbol(gr_complex* outbuf, const gr_complex* inbuf);
 
      public:
       preamble_insertion_vcvc_impl(int L, int frame_len, std::vector<gr_complex> preamble_sym);

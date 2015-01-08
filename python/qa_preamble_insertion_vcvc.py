@@ -24,152 +24,80 @@ from gnuradio import blocks
 import fbmc_swig as fbmc
 from numpy import *
 
-class qa_preamble_insertion_vcvc (gr_unittest.TestCase):
 
-	def setUp (self):
-		self.tb = gr.top_block ()
+class qa_preamble_insertion_vcvc(gr_unittest.TestCase):
+    def setUp(self):
+        self.tb = gr.top_block()
 
-	def tearDown (self):
-		self.tb = None
+    def tearDown(self):
+        self.tb = None
 
-	def test_001_t (self):
-		# insert preamble into two consecutive frames
-		L=8
-		input_data = (1,1,1,1,1,1,1,1, 
-			   1,1,1,1,1,1,1,1, 
-			   1,1,1,1,1,1,1,1, 
-			   1,1,1,1,1,1,1,1, 
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   10,20,30,40,50,60,70,80,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   1,1,1,1,1,1,1,1, 
-			   1,1,1,1,1,1,1,1, 
-			   1,1,1,1,1,1,1,1, 
-			   1,1,1,1,1,1,1,1, 
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   10,20,30,40,50,60,70,80,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0 )
-		self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
-		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=L, frame_len = 6, preamble_sym=range(2*L)) # the frame len includes the length of the overlap
-		self.snk = blocks.vector_sink_c(vlen=L)
-		self.tb.connect(self.src, self.preamble_insertion, self.snk)
-		self.tb.run ()
-		# check data
+    def test_001_t(self):
+        # insert preamble into two consecutive frames
+        L = 8
 
-		ref = (0,1,2,3,4,5,6,7, 
-			   8,9,10,11,12,13,14,15,
-			   0,1,2,3,4,5,6,7, 
-			   8,9,10,11,12,13,14,15,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   10,20,30,40,50,60,70,80,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,1,2,3,4,5,6,7, 
-			   8,9,10,11,12,13,14,15,
-			   0,1,2,3,4,5,6,7, 
-			   8,9,10,11,12,13,14,15,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   10,20,30,40,50,60,70,80,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0,
-			   0,0,0,0,0,0,0,0)
-		data = self.snk.data()
-		#for i in range(len(data)):
-		#	print data[i]
-		self.assertComplexTuplesAlmostEqual(ref, data)
+        input_data = (1, 1, 1, 1, 1, 1, 1, 1,
+                      1, 1, 1, 1, 1, 1, 1, 1,
+                      1, 1, 1, 1, 1, 1, 1, 1,
+                      1, 1, 1, 1, 1, 1, 1, 1,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      10, 20, 30, 40, 50, 60, 70, 80,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      1, 1, 1, 1, 1, 1, 1, 1,
+                      1, 1, 1, 1, 1, 1, 1, 1,
+                      1, 1, 1, 1, 1, 1, 1, 1,
+                      1, 1, 1, 1, 1, 1, 1, 1,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      10, 20, 30, 40, 50, 60, 70, 80,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 0, 0, 0)
 
-	# def test_002_t (self):
-	# 	# insert preamble into two consecutive frames, M < L
-	# 	# insert preamble into two consecutive frames
-	# 	L=8
-	# 	input_data = (1,2,3,4,5,6,7,8,
-	# 				   1,2,3,4,5,6,7,8,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   10,20,30,40,50,60,70,80,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   1,2,3,4,5,6,7,8,
-	# 				   1,2,3,4,5,6,7,8,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   10,20,30,40,50,60,70,80,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0,
-	# 				   0,0,0,0,0,0,0,0 )
-	# 	self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
-	# 	self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=L, frame_len = 15, overlap=4, channel_map=(0, 1, 1, 1, 0, 1, 1, 1), prbs=range(L)) # the frame len includes the length of the overlap
-	# 	self.snk = blocks.vector_sink_c(vlen=L)
-	# 	self.tb.connect(self.src, self.preamble_insertion, self.snk)
-	# 	self.tb.run ()
-	# 	# check data
+        self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
+        self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=L, frame_len=12, preamble_sym=range(
+            4 * L))  # the frame len includes the length of the overlap
+        self.snk = blocks.vector_sink_c(vlen=L)
+        self.tb.connect(self.src, self.preamble_insertion, self.snk)
+        self.tb.run()
+        # check data
 
-	# 	ref = (0,1,2,3,4,5,6,7, 
-	# 		   7,6,5,4,3,2,1,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   10,20,30,40,50,60,70,80,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0, 
-	# 		   0,1,2,3,4,5,6,7, 
-	# 		   7,6,5,4,3,2,1,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   10,20,30,40,50,60,70,80,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0,
-	# 		   0,0,0,0,0,0,0,0 )
-	# 	data = self.snk.data()
-	# 	#for i in range(len(data)):
-	# 	#	print data[i]
-	# 	self.assertComplexTuplesAlmostEqual(ref, data)
+        ref = (0, 1, 2, 3, 4, 5, 6, 7,
+               8, 9, 10, 11, 12, 13, 14, 15,
+               16, 17, 18, 19, 20, 21, 22, 23,
+               24, 25, 26, 27, 28, 29, 30, 31,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               10, 20, 30, 40, 50, 60, 70, 80,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 1, 2, 3, 4, 5, 6, 7,
+               8, 9, 10, 11, 12, 13, 14, 15,
+               16, 17, 18, 19, 20, 21, 22, 23,
+               24, 25, 26, 27, 28, 29, 30, 31,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               10, 20, 30, 40, 50, 60, 70, 80,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0)
+        data = self.snk.data()
+        # for i in range(len(data)):
+        #	print data[i]
+        partlen = 16 * L
+        self.assertComplexTuplesAlmostEqual(ref[0:partlen], data[0:partlen])
 
 if __name__ == '__main__':
-	gr_unittest.run(qa_preamble_insertion_vcvc)
+    gr_unittest.run(qa_preamble_insertion_vcvc)
