@@ -22,6 +22,7 @@
 #define INCLUDED_FBMC_RX_DOMAIN_KERNEL_H
 
 #include <fbmc/api.h>
+#include <gnuradio/fft/fft.h>
 
 namespace gr {
   namespace fbmc {
@@ -49,6 +50,15 @@ namespace gr {
       std::vector<float> d_taps;
       int d_L;
       int d_overlap;
+
+      gr::fft::fft_complex* d_fft;
+
+      gr_complex* d_equalized;
+      void equalize(gr_complex* outbuf, const gr_complex* inbuf);
+
+      gr_complex* d_taps_al;
+      int d_num_al_taps;
+      void apply_taps(gr_complex* outbuf, const gr_complex* inbuf, const int outbuf_len);
     };
 
   } // namespace fbmc

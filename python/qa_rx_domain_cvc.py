@@ -27,6 +27,7 @@ import numpy as np
 
 class qa_rx_domain_cvc(gr_unittest.TestCase):
     def setUp(self):
+        np.set_printoptions(precision=2, linewidth=150)
         self.tb = gr.top_block()
 
     def tearDown(self):
@@ -35,14 +36,39 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
     def test_001_t(self):
         # set up fg
         taps = np.ones(7)
-        L = 4
-        overlap = 1
-        rx_domain = fbmc.rx_domain_cvc(taps, L, overlap)
+        L = 8
+        overlap = 4
+        multiple = 4
+        data = np.arange(1, multiple * L + 1)
+        print data
+        npfft = np.fft.fft(data[0:L * overlap])
+        print len(npfft)
+        print npfft
+        npfft = np.roll(npfft, -overlap)
+        ref = []
+        for i in range(L):
+            part = npfft[0:7]
+            print part
+            dotprod = np.dot(part, taps)
+            print dotprod
+            ref.append(dotprod)
+            npfft = np.roll(npfft, overlap)
+        ref = np.array(ref)
+        print ref
 
+        src = blocks.vector_source_c(data, vlen=1)
+        rx_domain = fbmc.rx_domain_cvc(taps, L, overlap)
+        snk = blocks.vector_sink_c(vlen=L)
+
+        self.tb.connect(src, rx_domain, snk)
 
         self.tb.run()
+
         # check data
+        res = np.array(snk.data())
+        print len(res)
+        print res
 
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_rx_domain_cvc, "qa_rx_domain_cvc.xml")
+    gr_unittest.run(qa_rx_domain_cvc)
