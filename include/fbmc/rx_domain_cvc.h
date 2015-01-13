@@ -50,7 +50,7 @@ namespace gr {
        * class. fbmc::rx_domain_cvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(std::vector<float> taps, int L, int overlap);
+      static sptr make(std::vector<float> taps, int L);
     };
 
   } // namespace fbmc

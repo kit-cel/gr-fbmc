@@ -23,6 +23,8 @@ from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
 import numpy as np
+from matplotlib.pyplot import over
+import fbmc_test_functions as ft
 
 
 class qa_rx_domain_cvc(gr_unittest.TestCase):
@@ -35,39 +37,36 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
 
     def test_001_t(self):
         # set up fg
-        taps = np.ones(7)
         L = 8
         overlap = 4
         multiple = 4
-        data = np.arange(1, multiple * L + 1)
-        print data
-        npfft = np.fft.fft(data[0:L * overlap])
-        print len(npfft)
-        print npfft
-        npfft = np.roll(npfft, -overlap)
-        ref = []
-        for i in range(L):
-            part = npfft[0:7]
-            print part
-            dotprod = np.dot(part, taps)
-            print dotprod
-            ref.append(dotprod)
-            npfft = np.roll(npfft, overlap)
-        ref = np.array(ref)
-        print ref
+        taps = ft.prototype_fsamples(overlap, False)
+        taps = np.ones(7, dtype=float)
+        print taps
+        data = np.arange(1, multiple * L + 1, dtype=np.complex)
 
+        # get blocks for test
         src = blocks.vector_source_c(data, vlen=1)
-        rx_domain = fbmc.rx_domain_cvc(taps, L, overlap)
+        rx_domain = fbmc.rx_domain_cvc(taps.tolist(), L)
         snk = blocks.vector_sink_c(vlen=L)
 
+        # connect and run
         self.tb.connect(src, rx_domain, snk)
-
         self.tb.run()
 
         # check data
+        ref = ft.rx_fdomain(data, taps, L).flatten()
         res = np.array(snk.data())
+
+        print np.reshape(ref, (-1, L)).T
         print len(res)
-        print res
+        print np.reshape(res, (-1, L)).T
+
+        r = 6
+        print res[0:r]
+        print ref[0:r]
+
+        self.assertComplexTuplesAlmostEqual(ref, res, 4)
 
 
 if __name__ == '__main__':

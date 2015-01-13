@@ -356,6 +356,54 @@ namespace gr {
       }
     }
 
+    std::vector<float>
+    fbmc_config::phydyas_frequency_taps(int overlap)
+    {
+      std::vector<float> taps;
+      for(int i = 0; i < 2 * overlap - 1; i++){
+        int k = i - overlap + 1;
+        float tap = std::pow(-1.0f, float(k)) * get_phydyas_frequency_tap(k, overlap);
+        taps.push_back(tap);
+      }
+      return taps;
+    }
+
+    float
+    fbmc_config::get_phydyas_frequency_tap(int k, const int overlap)
+    {
+      const int orig_k = k;
+      std::vector<std::vector<float> > optimal_filter_coeffs;
+      optimal_filter_coeffs.push_back(std::vector<float>()); // K = 0 N/A
+      optimal_filter_coeffs.push_back(std::vector<float>()); // K = 1 N/A
+      optimal_filter_coeffs.push_back(std::vector<float>()); // K = 2 N/A
+      optimal_filter_coeffs.push_back(std::vector<float>(1, 0.91143783f)); // K = 3
+      optimal_filter_coeffs.push_back(std::vector<float>(1, 0.97195983f)); // K = 4
+      optimal_filter_coeffs.push_back(std::vector<float>()); // K = 5 N/A
+      optimal_filter_coeffs.push_back(std::vector<float>(2, 0.99722723f)); // K = 6
+      optimal_filter_coeffs[6][1] = 0.94136732f;
+      optimal_filter_coeffs.push_back(std::vector<float>()); // K = 7 N/A
+      optimal_filter_coeffs.push_back(std::vector<float>(3, 0.99988389f)); // K = 8
+      optimal_filter_coeffs[8][1] = 0.99315513f;
+      optimal_filter_coeffs[8][2] = 0.92708081f;
+
+      if(optimal_filter_coeffs[overlap].size() == 0){
+        std::cout << "WARNING: Unsupported overlap size. Returning 0.0f\n";
+        return 0.0f;
+      }
+
+      k = std::abs(k);
+      float tap = 0.0f;
+
+      if(k == 0){tap = 1.0f;}
+      else if(k < overlap / 2){tap = optimal_filter_coeffs[overlap][k - 1];}
+      else if(k == overlap / 2){tap = 1.0f / std::sqrt(2.0f);}
+      else if(k < overlap){
+        tap = std::sqrt(1.0f - std::pow(optimal_filter_coeffs[overlap][overlap - k - 1], 2.0f));
+      }
+      else{tap = 0.0f;}
+      return tap;
+    }
+
     void
     fbmc_config::gen_ref_preamble_sym()
     {

@@ -33,7 +33,7 @@ namespace gr {
       // Nothing to declare in this block.
 
     public:
-      rx_domain_cvc_impl(std::vector<float> taps, int L, int overlap);
+      rx_domain_cvc_impl(std::vector<float> taps, int L);
       ~rx_domain_cvc_impl();
 
       std::vector<float> taps(){return rx_domain_kernel::taps();};

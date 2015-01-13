@@ -29,19 +29,19 @@ namespace gr {
   namespace fbmc {
 
     rx_domain_cvc::sptr
-    rx_domain_cvc::make(std::vector<float> taps, int L, int overlap)
+    rx_domain_cvc::make(std::vector<float> taps, int L)
     {
-      return gnuradio::get_initial_sptr(new rx_domain_cvc_impl(taps, L, overlap));
+      return gnuradio::get_initial_sptr(new rx_domain_cvc_impl(taps, L));
     }
 
     /*
      * The private constructor
      */
-    rx_domain_cvc_impl::rx_domain_cvc_impl(std::vector<float> taps, int L, int overlap) :
+    rx_domain_cvc_impl::rx_domain_cvc_impl(std::vector<float> taps, int L) :
         gr::sync_decimator("rx_domain_cvc",
                            gr::io_signature::make(1, 1, sizeof(gr_complex)),
                            gr::io_signature::make(1, 1, sizeof(gr_complex) * L),
-                           L / 2), rx_domain_kernel(taps, L, overlap)
+                           L / 2), rx_domain_kernel(taps, L)
     {
       set_output_multiple(L);
     }

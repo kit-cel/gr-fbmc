@@ -201,46 +201,89 @@ def generate_phydyas_filter(L, K):
             g[m] = g[len(g) - m - 1]
     return g
 
+def prototype_fsamples(overlap, normalize=True):
+    K = overlap
+    freq_samples = np.array([
+        (-1)**k * _get_freq_sample(k, K) for k in range(-K+1, K)
+    ], dtype=np.float32)
+
+    if normalize:
+        freq_samples /= np.sqrt(K)
+        assert 0.99 < (freq_samples * freq_samples.conj()).sum() < 1.01
+    return freq_samples
+
+
+def generate_phydyas_filter(L, K, min_grp_delay=False):
+    g = zeros((L * K + 1, ))
+    for m in range(L * K + 1):
+        if m == 0:
+            g[m] = 0.0  # Nyquist pulse
+            # note: below formula works too, but not exact: | g[0] | < 1e-9
+
+        elif m <= L * K / 2:
+            g[m] = _get_freq_sample(0, K)
+            for k in range(1, K): # note: H[K][k]=0 for all k>=K
+                g[m] += 2 * (-1) ** k * _get_freq_sample(k, K) * \
+                    np.cos(2 * np.pi * (k / K) * (m / L))
+            g[m] /= 2.0
+
+        else:
+            # symmetric impulse response
+            # note: this is optional, the above formula works for all m
+            g[m] = g[len(g) - m - 1]
+
+    if min_grp_delay:
+        # trim leading and tailing zero
+        g = g[1:-1]
+
+    return g
+
+
+def _spreading_matrix(prototype_freq, osr):
+    overlap = (len(prototype_freq) + 1) // 2
+    # user map
+    num_carriers = osr
+    subcarrier_map = list(range(num_carriers))
+
+    # create a template row with zero shift
+    G0 = zeros(osr * overlap, dtype=prototype_freq.dtype)
+    G0[list(range(-(overlap-1), overlap))] = prototype_freq
+
+    # construct a convolution matrix and shuffle rows
+    G = zeros((len(subcarrier_map), osr * overlap), dtype=G0.dtype)
+    for index, shift in enumerate(subcarrier_map):
+        G[index, :] = roll(G0, shift * overlap)
+    return G
+
+
+def rx_fdomain(samples, prototype_freq, osr, oqam='SIOHAN', drop_in=None, drop_in2=None):
+    """SMT receiver using a frequency domain filtering
+    """
+    K = (len(prototype_freq) + 1) // 2
+
+    num_symbols = (len(samples) - (osr * K )) // (osr // 2) + 1
+
+    R_hat = zeros((num_symbols, osr * K), dtype=samples.dtype)
+    for i, offset in zip(range(num_symbols), range(0, len(samples), osr // 2)):
+        R_hat[i,:] = fft(samples[offset:offset + K * osr]) #/ np.sqrt(osr * K)
+
+    G_hat = _spreading_matrix(prototype_freq, osr)
+    d_hat = np.dot(G_hat, R_hat.T)
+    print G_hat
+
+    return d_hat
+
 
 def main():
     print "fbmc_test_functions"
     L = 6
+    K = 4
 
-    d = range(1, 4 * L + 1)
-    # print len(d)
-    # res = commutate_input_stream(d, L)
-    # print len(res)
-    # print res
-    # buf = [0, ] * 2 * L
-    # commutate_input(d[0:L], buf, L)
-    # nsyms = 11
-    # osr = 4
-    # dlen = nsyms * osr // 2 + 1
-    # protolen = osr * 4 * osr + 1
-    # # d = np.ones((dlen,), dtype=np.complex)
-    # d = np.arange(1, dlen + 1, dtype=np.complex)
-    # print d
-    # proto = np.ones(protolen)
-    # res = rx(d, proto, osr)
-    # print res
-    # print np.shape(res)
+    fprot = prototype_fsamples(K, False)
+    print fprot
+    plt.plot(fprot)
 
-    d0 = np.zeros(20)
-    d1 = np.zeros(20)
-    d0[6] = 1
-    d1[5] = 1
-    c = np.convolve(d0, d1)
-    plt.plot(c)
 
-    # plt.plot(dirac, 'o')
-    # kfiltered = np.convolve(dirac, [1, 1])
-    # plt.plot(kfiltered)
-    # upsampled = []
-    # for s in kfiltered:
-    #     upsampled.extend([s, 0])
-    # plt.plot(upsampled)
-    # ifiltered = np.convolve(upsampled, [1, 1])
-    # plt.plot(ifiltered)
     plt.show()
 
 

@@ -36,7 +36,7 @@ namespace gr {
     class FBMC_API rx_domain_kernel
     {
     public:
-      rx_domain_kernel(std::vector<float> taps, int L, int overlap);
+      rx_domain_kernel(std::vector<float> taps, int L);
       ~rx_domain_kernel();
 
       int
@@ -56,7 +56,7 @@ namespace gr {
       gr_complex* d_equalized;
       void equalize(gr_complex* outbuf, const gr_complex* inbuf);
 
-      gr_complex* d_taps_al;
+      float* d_taps_al;
       int d_num_al_taps;
       void apply_taps(gr_complex* outbuf, const gr_complex* inbuf, const int outbuf_len);
     };
