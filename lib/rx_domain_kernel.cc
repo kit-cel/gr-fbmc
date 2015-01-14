@@ -40,7 +40,7 @@ namespace gr {
       }
       d_overlap = overlap;
       int fft_size = overlap * L;
-      bool forward = false; // we want an IFFT
+      bool forward = true; // we want an IFFT
       int nthreads = 1; // may be altered if needed
       d_fft = new gr::fft::fft_complex(fft_size, forward, nthreads);
 
@@ -91,6 +91,11 @@ namespace gr {
         outbuf++;
         inbuf += d_overlap;
       }
+      // test part which will likely be removed.
+      float fscalar = 1.0f / std::sqrt(float(d_overlap * d_L));
+      gr_complex scalar = gr_complex(fscalar, 0.0f);
+      std::cout << "scalar: " << scalar;
+      volk_32f_s32f_multiply_32f((float*) outbuf, (float*) outbuf, fscalar, 2 * d_L);
     }
 
   } /* namespace fbmc */

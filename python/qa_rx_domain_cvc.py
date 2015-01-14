@@ -35,12 +35,11 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
     def tearDown(self):
         self.tb = None
 
-    def test_001_t(self):
+    def test_001_initial(self):
         # set up fg
         L = 8
         overlap = 4
         multiple = 4
-        taps = ft.prototype_fsamples(overlap, False)
         taps = np.ones(7, dtype=float)
         print taps
         data = np.arange(1, multiple * L + 1, dtype=np.complex)
@@ -62,11 +61,47 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
         print len(res)
         print np.reshape(res, (-1, L)).T
 
-        r = 6
-        print res[0:r]
-        print ref[0:r]
-
         self.assertComplexTuplesAlmostEqual(ref, res, 4)
+
+    def test_002_go_big(self):
+        print "test_002_go_big -> try out!"
+        # set up fg
+        L = 8
+        overlap = 4
+        multiple = 4
+        taps = ft.prototype_fsamples(overlap, False)
+        print taps
+        data = np.arange(1, multiple * L + 1, dtype=np.complex)
+
+        # get blocks for test
+        src = blocks.vector_source_c(data, vlen=1)
+        rx_domain = fbmc.rx_domain_cvc(taps.tolist(), L)
+        impulse_taps = ft.generate_phydyas_filter(L, overlap)
+
+        snk = blocks.vector_sink_c(vlen=L)
+        pfb = smt = fbmc.rx_polyphase_cvc(taps.tolist(), L)
+        snk1 = blocks.vector_sink_c(vlen=L)
+
+        # connect and run
+        self.tb.connect(src, rx_domain, snk)
+        self.tb.connect(src, pfb, snk1)
+        self.tb.run()
+
+        # check data
+        ref = ft.rx_fdomain(data, taps, L).flatten()
+        res = np.array(snk.data())
+        res1 = np.array(snk1.data())
+
+
+        print np.reshape(ref, (-1, L)).T
+        print len(res)
+        print np.reshape(res, (-1, L)).T
+        print len(res1)
+        mat1 = np.reshape(res1, (-1, L)).T
+        print mat1[:, 0:4]
+
+
+        self.assertComplexTuplesAlmostEqual(ref, res, 3)
 
 
 if __name__ == '__main__':

@@ -180,27 +180,6 @@ def _get_freq_sample(k, K):
     return Gk
 
 
-def generate_phydyas_filter(L, K):
-    # L == osr, K == overlap
-    g = zeros((L * K + 1, ))
-    for m in range(L * K + 1):
-        if m == 0:
-            g[m] = 0.0  # Nyquist pulse
-            # note: below formula works too, but not exact: | g[0] | < 1e-9
-
-        elif m <= L * K / 2:
-            g[m] = _get_freq_sample(0, K)
-            for k in range(1, K): # note: H[K][k]=0 for all k>=K
-                g[m] += 2 * (-1) ** k * _get_freq_sample(k, K) * \
-                    np.cos(2 * np.pi * (k / K) * (m / L))
-            g[m] /= 2.0
-
-        else:
-            # symmetric impulse response
-            # note: this is optional, the above formula works for all m
-            g[m] = g[len(g) - m - 1]
-    return g
-
 def prototype_fsamples(overlap, normalize=True):
     K = overlap
     freq_samples = np.array([
@@ -214,7 +193,7 @@ def prototype_fsamples(overlap, normalize=True):
 
 
 def generate_phydyas_filter(L, K, min_grp_delay=False):
-    g = zeros((L * K + 1, ))
+    g = np.zeros((L * K + 1, ))
     for m in range(L * K + 1):
         if m == 0:
             g[m] = 0.0  # Nyquist pulse
@@ -222,9 +201,10 @@ def generate_phydyas_filter(L, K, min_grp_delay=False):
 
         elif m <= L * K / 2:
             g[m] = _get_freq_sample(0, K)
+
             for k in range(1, K): # note: H[K][k]=0 for all k>=K
                 g[m] += 2 * (-1) ** k * _get_freq_sample(k, K) * \
-                    np.cos(2 * np.pi * (k / K) * (m / L))
+                    np.cos(2 * np.pi * (k / float(K)) * (m / float(L)))
             g[m] /= 2.0
 
         else:
@@ -269,18 +249,18 @@ def rx_fdomain(samples, prototype_freq, osr, oqam='SIOHAN', drop_in=None, drop_i
 
     G_hat = _spreading_matrix(prototype_freq, osr)
     d_hat = np.dot(G_hat, R_hat.T)
-    print G_hat
 
     return d_hat
 
 
 def main():
     print "fbmc_test_functions"
-    L = 6
+    L = 32
     K = 4
 
-    fprot = prototype_fsamples(K, False)
-    print fprot
+    fprot = generate_phydyas_filter(L, K)
+    print len(fprot)
+    print type(fprot[0])
     plt.plot(fprot)
 
 

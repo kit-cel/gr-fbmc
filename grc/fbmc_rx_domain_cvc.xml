@@ -1,19 +1,25 @@
 <?xml version="1.0"?>
 <block>
-  <name>rx_domain_cvc</name>
+  <name>RX frequency domain SMT</name>
   <key>fbmc_rx_domain_cvc</key>
-  <category>fbmc</category>
+  <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.rx_domain_cvc($taps, $L)</make>
+  <make>fbmc.rx_domain_cvc($taps, $osr)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Filter taps</name>
+    <key>taps</key>
+    <type>float_vector</type>
+  </param>
+
+  <param>
+    <name>L</name>
+    <key>osr</key>
+    <type>int</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -23,16 +29,12 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
   </sink>
 
-  <!-- Make one 'source' node per output. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
+    <vlen>$osr</vlen>
   </source>
 </block>
