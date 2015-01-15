@@ -43,7 +43,7 @@ namespace gr {
                            gr::io_signature::make(1, 1, sizeof(gr_complex) * L),
                            L / 2), rx_domain_kernel(taps, L)
     {
-      set_output_multiple(L);
+      set_output_multiple(overlap() * 2);
     }
 
     /*

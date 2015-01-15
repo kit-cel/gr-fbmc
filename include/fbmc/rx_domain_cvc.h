@@ -41,6 +41,7 @@ namespace gr {
       virtual std::vector<float> taps() = 0;
       virtual int L() = 0;
       virtual int overlap() = 0;
+      virtual int fft_size() = 0;
 
       /*!
        * \brief Return a shared_ptr to a new instance of fbmc::rx_domain_cvc.

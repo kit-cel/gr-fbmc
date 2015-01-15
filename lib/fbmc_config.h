@@ -52,6 +52,7 @@ namespace gr {
       std::vector<gr_complex> preamble_sym(){return d_preamble_sym;}
       std::vector<gr_complex> time_domain_preamble_sym(){return d_ref_preamble_sym;}
       std::vector<float> phydyas_frequency_taps(int overlap);
+      std::vector<float> phydyas_impulse_taps(int L, int overlap);
 
     private:
       bool check_user_args(); // checks constructor parameters for validity

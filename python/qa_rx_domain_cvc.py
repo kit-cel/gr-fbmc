@@ -19,12 +19,17 @@
 # Boston, MA 02110-1301, USA.
 # 
 
+# import sys
+# sp = sys.path
+# sp = "\n".join(sp)
+# print sp
+
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
 import fbmc_swig as fbmc
 import numpy as np
-from matplotlib.pyplot import over
 import fbmc_test_functions as ft
+import matplotlib.pyplot as plt
 
 
 class qa_rx_domain_cvc(gr_unittest.TestCase):
@@ -36,6 +41,7 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
         self.tb = None
 
     def test_001_initial(self):
+        print "test_001_initial"
         # set up fg
         L = 8
         overlap = 4
@@ -57,29 +63,55 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
         ref = ft.rx_fdomain(data, taps, L).flatten()
         res = np.array(snk.data())
 
-        print np.reshape(ref, (-1, L)).T
-        print len(res)
-        print np.reshape(res, (-1, L)).T
+        # print np.reshape(ref, (-1, L)).T
+        # print len(res)
+        # print np.reshape(res, (-1, L)).T
 
         self.assertComplexTuplesAlmostEqual(ref, res, 4)
 
-    def test_002_go_big(self):
-        print "test_002_go_big -> try out!"
+    def test_002_small_taps(self):
+        print "test_002_small_taps"
         # set up fg
         L = 8
         overlap = 4
-        multiple = 4
+        multiple = 5
         taps = ft.prototype_fsamples(overlap, False)
         print taps
         data = np.arange(1, multiple * L + 1, dtype=np.complex)
-
         # get blocks for test
         src = blocks.vector_source_c(data, vlen=1)
         rx_domain = fbmc.rx_domain_cvc(taps.tolist(), L)
         impulse_taps = ft.generate_phydyas_filter(L, overlap)
+        snk = blocks.vector_sink_c(vlen=L)
+
+        # connect and run
+        self.tb.connect(src, rx_domain, snk)
+        self.tb.run()
+
+        # check data
+        ref = ft.rx_fdomain(data, taps, L).flatten()
+        res = np.array(snk.data())
+
+        self.assertComplexTuplesAlmostEqual(ref, res, 3)
+
+    def test_003_go_big(self):
+        print "test_003_go_big -> try out!"
+        # set up fg
+        L = 32
+        overlap = 4
+        multiple = 3000
+        taps = ft.prototype_fsamples(overlap, False)
+        print taps
+        data = np.arange(1, multiple * L + 1, dtype=np.complex)
+        print "len(data) = ", len(data)
+        # get blocks for test
+        src = blocks.vector_source_c(data, vlen=1)
+        rx_domain = fbmc.rx_domain_cvc(taps.tolist(), L)
+        impulse_taps = ft.generate_phydyas_filter(L, overlap)
+        print "fft_size: ", rx_domain.fft_size()
 
         snk = blocks.vector_sink_c(vlen=L)
-        pfb = smt = fbmc.rx_polyphase_cvc(taps.tolist(), L)
+        pfb = fbmc.rx_polyphase_cvc(impulse_taps.tolist(), L)
         snk1 = blocks.vector_sink_c(vlen=L)
 
         # connect and run
@@ -88,20 +120,27 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
         self.tb.run()
 
         # check data
-        ref = ft.rx_fdomain(data, taps, L).flatten()
+        ref = ft.rx_fdomain(data, taps, L).T.flatten()
+        print "ref shape = ", np.shape(ref)
         res = np.array(snk.data())
         res1 = np.array(snk1.data())
 
+        print "ref: ", np.shape(ref)
+        # print np.reshape(ref, (-1, L)).T
+        print "res: ", np.shape(res)
+        # print np.reshape(res, (-1, L)).T
+        # print len(res1)
+        mat1 = np.reshape(res1, (L, -1)).T
+        # print mat1[:, 1:5]
+        print np.shape(mat1)
+        plt.plot(ref, 'bo', linestyle='-')
+        plt.plot(res, 'rx', linestyle='-')
+        # for symbol in mat1:
+        #     plt.plot(symbol, 'c.', linestyle='-')
+        plt.grid()
+        plt.show()
 
-        print np.reshape(ref, (-1, L)).T
-        print len(res)
-        print np.reshape(res, (-1, L)).T
-        print len(res1)
-        mat1 = np.reshape(res1, (-1, L)).T
-        print mat1[:, 0:4]
-
-
-        self.assertComplexTuplesAlmostEqual(ref, res, 3)
+        self.assertComplexTuplesAlmostEqual(ref, res, 0)
 
 
 if __name__ == '__main__':

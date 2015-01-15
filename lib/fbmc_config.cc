@@ -368,6 +368,31 @@ namespace gr {
       return taps;
     }
 
+    std::vector<float>
+    fbmc_config::phydyas_impulse_taps(int L, int overlap)
+    {
+      int num_taps = L * overlap + 1;
+      std::vector<float> taps(num_taps, 0.0f);
+      for(int m = 0; m < num_taps; m++){
+        if(m == 0){
+          taps[m] = 0.0f;
+        }
+        else if(m <= L * overlap / 2){
+          taps[m] = get_phydyas_frequency_tap(0, overlap);
+
+          for(int k = 1; k < overlap; k++){
+            float tap = get_phydyas_frequency_tap(k, overlap);
+            taps[m] += 2.0f * std::pow(-1.0f, k) * tap * std::cos(2 * M_PI * float(k * m) / float(overlap * L));
+          }
+          taps[m] /= 2.0f;
+        }
+        else{
+          taps[m] = taps[num_taps - m - 1];
+        }
+      }
+      return taps;
+    }
+
     float
     fbmc_config::get_phydyas_frequency_tap(int k, const int overlap)
     {

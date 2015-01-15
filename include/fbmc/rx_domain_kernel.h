@@ -45,6 +45,7 @@ namespace gr {
       std::vector<float> taps(){return d_taps;};
       int L(){return d_L;};
       int overlap(){return d_overlap;};
+      int fft_size(){return d_fft->inbuf_length();};
 
     private:
       std::vector<float> d_taps;

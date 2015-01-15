@@ -39,6 +39,7 @@ namespace gr {
       std::vector<float> taps(){return rx_domain_kernel::taps();};
       int L(){return rx_domain_kernel::L();};
       int overlap(){return rx_domain_kernel::overlap();};
+      int fft_size(){return rx_domain_kernel::fft_size();};
 
       // Where all the action really happens
       int
