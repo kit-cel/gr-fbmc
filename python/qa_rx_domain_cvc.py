@@ -99,11 +99,18 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
         # set up fg
         L = 32
         overlap = 4
-        multiple = 3000
+        multiple = 4
         taps = ft.prototype_fsamples(overlap, False)
         print taps
-        data = np.arange(1, multiple * L + 1, dtype=np.complex)
-        print "len(data) = ", len(data)
+        # data = np.arange(1, multiple * L + 1, dtype=np.complex)
+        data = np.zeros(L, dtype=np.complex)
+        data[0] = np.complex(1, 0)
+        # print data
+        # print np.reshape(data, (L, -1))
+        data = np.repeat(np.reshape(data, (L, -1)), multiple, axis=1)
+        data = data.T.flatten()#np.reshape(data, (L, -1))
+        print "shape(data) = ", np.shape(data)
+        # print data
         # get blocks for test
         src = blocks.vector_source_c(data, vlen=1)
         rx_domain = fbmc.rx_domain_cvc(taps.tolist(), L)
@@ -128,19 +135,19 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
         print "ref: ", np.shape(ref)
         # print np.reshape(ref, (-1, L)).T
         print "res: ", np.shape(res)
-        # print np.reshape(res, (-1, L)).T
+        print np.reshape(res, (-1, L)).T
         # print len(res1)
         mat1 = np.reshape(res1, (L, -1)).T
         # print mat1[:, 1:5]
         print np.shape(mat1)
-        plt.plot(ref, 'bo', linestyle='-')
-        plt.plot(res, 'rx', linestyle='-')
-        # for symbol in mat1:
-        #     plt.plot(symbol, 'c.', linestyle='-')
-        plt.grid()
-        plt.show()
+        # plt.plot(ref, 'bo', linestyle='-')
+        # plt.plot(res, 'rx', linestyle='-')
+        # # for symbol in mat1:
+        # #     plt.plot(symbol, 'c.', linestyle='-')
+        # plt.grid()
+        # plt.show()
 
-        self.assertComplexTuplesAlmostEqual(ref, res, 0)
+        self.assertComplexTuplesAlmostEqual(ref, res, 4)
 
 
 if __name__ == '__main__':

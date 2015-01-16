@@ -46,7 +46,11 @@ namespace gr {
 
       d_equalized = (gr_complex*) volk_malloc(sizeof(gr_complex) * (overlap * L + overlap), volk_get_alignment());
 
-      d_num_al_taps = std::ceil(float(taps.size()) / float(volk_get_alignment())) * volk_get_alignment();
+      int volk_complex_al_items = volk_get_alignment() / sizeof(gr_complex);
+      int num_taps = taps.size();
+      int al_multiple = std::ceil(float(num_taps) / float(volk_complex_al_items));
+      d_num_al_taps = al_multiple * volk_complex_al_items;
+      std::cout << "volk_complex: " << volk_complex_al_items << ", num_taps: " << num_taps << ", multiple: " << al_multiple << ", result: " << d_num_al_taps << std::endl;
       d_taps_al = (float*) volk_malloc(sizeof(float) * d_num_al_taps, volk_get_alignment());
       memset(d_taps_al, 0, sizeof(float) * d_num_al_taps);
       for(int i = 0; i < taps.size(); i++){
@@ -63,11 +67,19 @@ namespace gr {
                                    int noutput_items)
     {
       int fft_size = d_overlap * d_L;
+      std::cout << "inbuffer\n";
+      containsNaN(in, fft_size);
       memcpy(d_fft->get_inbuf(), in, sizeof(gr_complex) * fft_size);
       d_fft->execute();
+      std::cout << "fft_buffer\n";
+      containsNaN(d_fft->get_outbuf(), fft_size);
 //      memcpy(out, d_fft->get_outbuf(), sizeof(gr_complex) * fft_size);
       equalize(d_equalized, d_fft->get_outbuf());
+      std::cout << "equalized buffer\n";
+      containsNaN(d_equalized, fft_size + d_overlap);
       apply_taps(out, d_equalized, d_L);
+      std::cout << "out buffer\n";
+      containsNaN(out, d_L);
       return 1;
     }
 
@@ -88,10 +100,36 @@ namespace gr {
       // this loop could select used subcarriers only. Thus drop unnecessary calculations.
       for(int i = 0; i < outbuf_len; i++){
         volk_32fc_32f_dot_prod_32fc(outbuf, inbuf, d_taps_al, d_num_al_taps);
+        if(std::isnan((*outbuf).real()) ||std::isnan((*outbuf).imag())){
+          std::cout << "isNaN: " << i << "\n" << containsNaN(inbuf, d_num_al_taps);
+
+        }
         outbuf++;
         inbuf += d_overlap;
       }
     }
 
+    bool
+    rx_domain_kernel::containsNaN(const gr_complex* buf, const int vec_length)
+    {
+      bool is_broken = false;
+      for(int i = 0; i < vec_length; i++){
+        is_broken = std::isnan(buf[i].real());
+        if(is_broken){break;}
+        is_broken = std::isnan(buf[i].imag());
+        if(is_broken){break;}
+      }
+      if(is_broken){
+        std::cout << "NaN: " << is_broken << ", length = " << vec_length << std::endl;
+        for(int i = 0; i < vec_length; i++){
+          std::cout << buf[i] << ", ";
+        }
+        std::cout << "\n";
+      }
+      return is_broken;
+    }
+
   } /* namespace fbmc */
 } /* namespace gr */
+
+

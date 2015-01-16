@@ -60,6 +60,8 @@ namespace gr {
       float* d_taps_al;
       int d_num_al_taps;
       void apply_taps(gr_complex* outbuf, const gr_complex* inbuf, const int outbuf_len);
+
+      bool containsNaN(const gr_complex* buf, const int vec_length);
     };
 
   } // namespace fbmc
