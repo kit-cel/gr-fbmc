@@ -39,48 +39,66 @@ namespace gr {
         throw std::runtime_error("number of frequency domain taps not equal to 2 * overlap -1 !!");
       }
       d_overlap = overlap;
-      int fft_size = overlap * L;
-      bool forward = true; // we want an IFFT
-      int nthreads = 1; // may be altered if needed
-      d_fft = new gr::fft::fft_complex(fft_size, forward, nthreads);
-
+      d_fft = setup_fft(L, overlap);
       d_equalized = (gr_complex*) volk_malloc(sizeof(gr_complex) * (overlap * L + overlap), volk_get_alignment());
-
-      int volk_complex_al_items = volk_get_alignment() / sizeof(gr_complex);
-      int num_taps = taps.size();
-      int al_multiple = std::ceil(float(num_taps) / float(volk_complex_al_items));
-      d_num_al_taps = al_multiple * volk_complex_al_items;
-      std::cout << "volk_complex: " << volk_complex_al_items << ", num_taps: " << num_taps << ", multiple: " << al_multiple << ", result: " << d_num_al_taps << std::endl;
-      d_taps_al = (float*) volk_malloc(sizeof(float) * d_num_al_taps, volk_get_alignment());
-      memset(d_taps_al, 0, sizeof(float) * d_num_al_taps);
-      for(int i = 0; i < taps.size(); i++){
-        d_taps_al[i + 1] = taps[i];
-      }
+      d_taps_al = setup_taps_array(taps);
     }
 
     rx_domain_kernel::~rx_domain_kernel()
     {
+      delete d_fft;
+      volk_free(d_equalized);
+      volk_free(d_taps_al);
+    }
+
+    gr::fft::fft_complex*
+    gr::fbmc::rx_domain_kernel::setup_fft(int L, int overlap)
+    {
+      int fft_size = overlap * L;
+      bool forward = true; // we want an IFFT
+      int nthreads = 1; // may be altered if needed
+      return new gr::fft::fft_complex(fft_size, forward, nthreads);
+    }
+
+    float*
+    gr::fbmc::rx_domain_kernel::setup_taps_array(std::vector<float> taps)
+    {
+      int volk_float_al_items = volk_get_alignment() / sizeof(float);
+      int num_taps = taps.size();
+      int al_multiple = std::ceil(
+          float(num_taps) / float(volk_float_al_items));
+      // this class member is set within setup and not returned like the array pointer.
+      d_num_al_taps = al_multiple * volk_float_al_items;
+      float* taps_al = (float*) volk_malloc(sizeof(float) * d_num_al_taps,
+                                       volk_get_alignment());
+      memset(taps_al, 0, sizeof(float) * d_num_al_taps);
+      for(int i = 0; i < taps.size(); i++){
+        taps_al[i + 1] = taps[i];
+      }
+
+      std::cout << "volk_float: " << volk_float_al_items
+          << ", num_taps: " << num_taps
+          << ", multiple: " << al_multiple
+          << ", result: " << d_num_al_taps << std::endl;
+
+      return taps_al;
     }
 
     int
     rx_domain_kernel::generic_work(gr_complex* out, const gr_complex* in,
                                    int noutput_items)
     {
-      int fft_size = d_overlap * d_L;
-      std::cout << "inbuffer\n";
-      containsNaN(in, fft_size);
-      memcpy(d_fft->get_inbuf(), in, sizeof(gr_complex) * fft_size);
-      d_fft->execute();
-      std::cout << "fft_buffer\n";
-      containsNaN(d_fft->get_outbuf(), fft_size);
-//      memcpy(out, d_fft->get_outbuf(), sizeof(gr_complex) * fft_size);
-      equalize(d_equalized, d_fft->get_outbuf());
-      std::cout << "equalized buffer\n";
-      containsNaN(d_equalized, fft_size + d_overlap);
-      apply_taps(out, d_equalized, d_L);
-      std::cout << "out buffer\n";
-      containsNaN(out, d_L);
-      return 1;
+      const int fft_size = d_overlap * d_L;
+      for(int i = 0; i < noutput_items; i++){
+        memcpy(d_fft->get_inbuf(), in, sizeof(gr_complex) * fft_size);
+        d_fft->execute();
+        equalize(d_equalized, d_fft->get_outbuf());
+        apply_taps(out, d_equalized, d_L);
+        in += (d_L / 2);
+        out += d_L;
+      }
+
+      return noutput_items;
     }
 
     void
@@ -100,33 +118,9 @@ namespace gr {
       // this loop could select used subcarriers only. Thus drop unnecessary calculations.
       for(int i = 0; i < outbuf_len; i++){
         volk_32fc_32f_dot_prod_32fc(outbuf, inbuf, d_taps_al, d_num_al_taps);
-        if(std::isnan((*outbuf).real()) ||std::isnan((*outbuf).imag())){
-          std::cout << "isNaN: " << i << "\n" << containsNaN(inbuf, d_num_al_taps);
-
-        }
         outbuf++;
         inbuf += d_overlap;
       }
-    }
-
-    bool
-    rx_domain_kernel::containsNaN(const gr_complex* buf, const int vec_length)
-    {
-      bool is_broken = false;
-      for(int i = 0; i < vec_length; i++){
-        is_broken = std::isnan(buf[i].real());
-        if(is_broken){break;}
-        is_broken = std::isnan(buf[i].imag());
-        if(is_broken){break;}
-      }
-      if(is_broken){
-        std::cout << "NaN: " << is_broken << ", length = " << vec_length << std::endl;
-        for(int i = 0; i < vec_length; i++){
-          std::cout << buf[i] << ", ";
-        }
-        std::cout << "\n";
-      }
-      return is_broken;
     }
 
   } /* namespace fbmc */

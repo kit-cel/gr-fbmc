@@ -99,12 +99,16 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
         # set up fg
         L = 32
         overlap = 4
-        multiple = 4
+        multiple = 8
         taps = ft.prototype_fsamples(overlap, False)
         print taps
         # data = np.arange(1, multiple * L + 1, dtype=np.complex)
         data = np.zeros(L, dtype=np.complex)
         data[0] = np.complex(1, 0)
+        data[L / 2] = np.complex(1, 0)
+        data[L / 4] = np.complex(1, -1)
+        data[L / 8] = np.complex(1, 0)
+        data[3 * L / 4] = np.complex(1, 1)
         # print data
         # print np.reshape(data, (L, -1))
         data = np.repeat(np.reshape(data, (L, -1)), multiple, axis=1)
@@ -147,7 +151,7 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
         # plt.grid()
         # plt.show()
 
-        self.assertComplexTuplesAlmostEqual(ref, res, 4)
+        self.assertComplexTuplesAlmostEqual(ref, res, 6)
 
 
 if __name__ == '__main__':

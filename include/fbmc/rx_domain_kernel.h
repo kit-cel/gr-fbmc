@@ -53,12 +53,14 @@ namespace gr {
       int d_overlap;
 
       gr::fft::fft_complex* d_fft;
+      gr::fft::fft_complex* setup_fft(int L, int overlap);
 
       gr_complex* d_equalized;
       void equalize(gr_complex* outbuf, const gr_complex* inbuf);
 
       float* d_taps_al;
       int d_num_al_taps;
+      float* setup_taps_array(std::vector<float> taps);
       void apply_taps(gr_complex* outbuf, const gr_complex* inbuf, const int outbuf_len);
 
       bool containsNaN(const gr_complex* buf, const int vec_length);

@@ -61,6 +61,8 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
+      // make sure enough input samples are available for a big FFT.
+      noutput_items = std::max(0, noutput_items - 2 * overlap() + 1);
       int nout = rx_domain_kernel::generic_work(out, in, noutput_items);
 
       // Tell runtime system how many output items we produced.
