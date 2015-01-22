@@ -144,17 +144,19 @@ class qa_rx_sdft_cvc(gr_unittest.TestCase):
 
         ftref = ft.rx(data[: -L // 2], taps, L)
         print "\nFBMC blocks"
+        print np.shape(ftref)
         print ftref
 
         lcut = 2
         rcut = 5
         print "\nGR blocks"
+        print np.shape(res)
         print res[lcut * L: -rcut * L].reshape((-1, L)).T
         # print res.reshape((-1, L)).T
 
         ftref = ftref.T
         ftref = ftref.flatten()
-        self.assertComplexTuplesAlmostEqual(ftref, res[lcut * L: -rcut * L])
+        self.assertComplexTuplesAlmostEqual(ftref, res[lcut * L: -rcut * L], 3)
 
     def test_005_legacy(self):
         print "\ntest_005_legacy"
@@ -197,8 +199,8 @@ class qa_rx_sdft_cvc(gr_unittest.TestCase):
 
         ftref = ftref.T
         ftref = ftref.flatten()
-        self.assertComplexTuplesAlmostEqual(ftref, res0[lcut * L: -rcut * L])
-        self.assertComplexTuplesAlmostEqual(ftref, res1[8 * L:])
+        self.assertComplexTuplesAlmostEqual(ftref, res0[lcut * L: -rcut * L], 3)
+        self.assertComplexTuplesAlmostEqual(ftref, res1[8 * L:], 3)
 
     def get_reference_output(self, data, taps, L, overlap, multiple):
         data = np.append([0, ] * (L - 1), data)  # prepend '0's to match history!

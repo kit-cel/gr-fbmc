@@ -74,14 +74,13 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
         # set up fg
         L = 8
         overlap = 4
-        multiple = 5
+        multiple = 4
         taps = ft.prototype_fsamples(overlap, False)
         print taps
         data = np.arange(1, multiple * L + 1, dtype=np.complex)
         # get blocks for test
         src = blocks.vector_source_c(data, vlen=1)
         rx_domain = fbmc.rx_domain_cvc(taps.tolist(), L)
-        impulse_taps = ft.generate_phydyas_filter(L, overlap)
         snk = blocks.vector_sink_c(vlen=L)
 
         # connect and run
@@ -132,24 +131,14 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
 
         # check data
         ref = ft.rx_fdomain(data, taps, L).T.flatten()
-        print "ref shape = ", np.shape(ref)
         res = np.array(snk.data())
         res1 = np.array(snk1.data())
 
-        print "ref: ", np.shape(ref)
-        # print np.reshape(ref, (-1, L)).T
-        print "res: ", np.shape(res)
-        print np.reshape(res, (-1, L)).T
-        # print len(res1)
-        mat1 = np.reshape(res1, (L, -1)).T
-        # print mat1[:, 1:5]
-        print np.shape(mat1)
-        # plt.plot(ref, 'bo', linestyle='-')
-        # plt.plot(res, 'rx', linestyle='-')
-        # # for symbol in mat1:
-        # #     plt.plot(symbol, 'c.', linestyle='-')
-        # plt.grid()
-        # plt.show()
+        # print "ref: ", np.shape(ref)
+        # print "res: ", np.shape(res)
+        # print np.reshape(res, (-1, L)).T
+        # mat1 = np.reshape(res1, (L, -1)).T
+        # print np.shape(mat1)
 
         self.assertComplexTuplesAlmostEqual(ref, res, 6)
 
