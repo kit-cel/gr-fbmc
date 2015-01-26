@@ -84,6 +84,30 @@ namespace gr {
       return taps_al;
     }
 
+    std::vector<gr_complex>
+    rx_domain_kernel::generic_work_python(const std::vector<gr_complex> &inbuf)
+    {
+      std::vector<gr_complex> outbuf;
+      if(inbuf.size() < fft_size()) {
+        std::cout << "Not enough input items to calculate at least 1 FFT!\n";
+        return outbuf;
+      }
+      if(inbuf.size() % (d_L / 2) != 0){
+        std::cout << "input - output ration not met!\n";
+        return outbuf;
+      }
+
+      int noutput_items = 1 + (inbuf.size() - fft_size()) / (d_L / 2);
+      outbuf.resize(noutput_items * d_L);
+
+      std::cout << "requested items = " << noutput_items << ", inbuf.size() = " << inbuf.size()
+          << std::endl;
+
+//      // fancy new shit! Using data() member on vectors. C++11.
+      int nout = generic_work(outbuf.data(), inbuf.data(), noutput_items);
+      return outbuf;
+    }
+
     int
     rx_domain_kernel::generic_work(gr_complex* out, const gr_complex* in,
                                    int noutput_items)
@@ -125,5 +149,3 @@ namespace gr {
 
   } /* namespace fbmc */
 } /* namespace gr */
-
-

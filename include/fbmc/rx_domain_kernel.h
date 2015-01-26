@@ -39,6 +39,8 @@ namespace gr {
       rx_domain_kernel(std::vector<float> taps, int L);
       ~rx_domain_kernel();
 
+      std::vector<gr_complex> generic_work_python(const std::vector<gr_complex> &inbuf);
+
       int
       generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
 

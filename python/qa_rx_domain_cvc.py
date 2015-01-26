@@ -142,6 +142,23 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
 
         self.assertComplexTuplesAlmostEqual(ref, res, 6)
 
+    def test_004_kernel(self):
+        L = 32
+        overlap = 4
+        multiple = 1 * overlap
+        taps = ft.prototype_fsamples(overlap, False)
+        print taps
+        kernel = fbmc.rx_domain_kernel(taps.tolist(), L)
+        print "L = ", kernel.L()
+        print "overlap = ", kernel.overlap()
+        print "fft_size = ", kernel.fft_size()
+        print "taps = ", kernel.taps()
+
+        data = np.arange(1, L * multiple + 1, dtype=complex)
+        print data
+        res = kernel.generic_work_python(data)
+        print res
+
 
 if __name__ == '__main__':
     gr_unittest.run(qa_rx_domain_cvc)
