@@ -31,7 +31,7 @@
 namespace gr {
   namespace fbmc {
 
-    rx_domain_kernel::rx_domain_kernel(std::vector<float> taps, int L):
+    rx_domain_kernel::rx_domain_kernel(const std::vector<float> &taps, int L):
         d_taps(taps), d_L(L)
     {
       int overlap = (taps.size() + 1) / 2;

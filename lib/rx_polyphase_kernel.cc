@@ -45,6 +45,8 @@ namespace gr {
         throw std::runtime_error("L has to be even and >= 2!");
       }
 
+      d_overlap = (taps.size() - 1) / L;
+
       // calculate actual taps and distribution for taps
       set_taps(taps);
       // initialize buffers for filters.

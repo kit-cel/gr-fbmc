@@ -36,7 +36,7 @@ namespace gr {
     class FBMC_API rx_domain_kernel
     {
     public:
-      rx_domain_kernel(std::vector<float> taps, int L);
+      rx_domain_kernel(const std::vector<float> &taps, int L);
       ~rx_domain_kernel();
 
       std::vector<gr_complex> generic_work_python(const std::vector<gr_complex> &inbuf);
@@ -44,15 +44,15 @@ namespace gr {
       int
       generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
 
-      std::vector<float> taps(){return d_taps;};
       int L(){return d_L;};
       int overlap(){return d_overlap;};
       int fft_size(){return d_fft->inbuf_length();};
+      std::vector<float> taps(){return d_taps;};
 
     private:
-      std::vector<float> d_taps;
       int d_L;
       int d_overlap;
+      std::vector<float> d_taps;
 
       gr::fft::fft_complex* d_fft;
       gr::fft::fft_complex* setup_fft(int L, int overlap);

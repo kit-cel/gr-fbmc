@@ -37,14 +37,15 @@ namespace gr {
     class FBMC_API rx_sdft_kernel
     {
     public:
-      rx_sdft_kernel(std::vector<float> taps, int L);
+      rx_sdft_kernel(const std::vector<float> &taps, int L);
       ~rx_sdft_kernel();
+
+      int generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
 
       int L(){return d_L;};
       int overlap(){return d_overlap;};
+      int fft_size(){return d_fft->inbuf_length();};
       std::vector<float> taps(){return d_taps;};
-
-      int generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
 
     private:
       int d_L;

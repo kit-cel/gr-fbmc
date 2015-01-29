@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2014 <+YOU OR YOUR COMPANY+>.
+ * Copyright 2015 <+YOU OR YOUR COMPANY+>.
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,55 +18,39 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_FBMC_TX_SDFT_KERNEL_H
-#define INCLUDED_FBMC_TX_SDFT_KERNEL_H
+
+#ifndef INCLUDED_FBMC_SMT_KERNEL_H
+#define INCLUDED_FBMC_SMT_KERNEL_H
 
 #include <fbmc/api.h>
-#include <gnuradio/fft/fft.h>
 
 namespace gr {
   namespace fbmc {
 
     /*!
-     * \brief TX SDFT implementation of an IFFT -> PFB -> Commutator
+     * \brief Interface class for all SMT FBMC filters
      *
      */
-    class FBMC_API tx_sdft_kernel
+    class FBMC_API smt_kernel
     {
     public:
-      tx_sdft_kernel(const std::vector<float> &taps, int L);
-      ~tx_sdft_kernel();
+      smt_kernel(const std::vector<float> &taps, int L);
+      ~smt_kernel();
 
-      int
-      generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
+      virtual int generic_work(gr_complex* out, const gr_complex* in, int noutput_items) = 0;
 
       int L(){return d_L;};
       int overlap(){return d_overlap;};
-      int fft_size(){return d_fft->inbuf_length();};
+      virtual int fft_size() = 0;
       std::vector<float> taps(){return d_taps;};
-
-    private:
+    protected:
       int d_L;
       int d_overlap;
       std::vector<float> d_taps;
-      float* d_taps_al;
-
-      gr::fft::fft_complex* d_fft;
-
-      gr_complex* d_multiply_res;
-      inline void
-      multiply_with_taps(gr_complex* out, const gr_complex* in);
-
-      gr_complex* d_add_buf;
-      inline int
-      calculate_sum_result(gr_complex* outbuf, const gr_complex* res);
-
-      inline int
-      process_one_vector(gr_complex* outbuf, const gr_complex* inbuf);
     };
 
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_TX_SDFT_KERNEL_H */
+#endif /* INCLUDED_FBMC_SMT_KERNEL_H */
 

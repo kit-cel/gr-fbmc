@@ -39,5 +39,6 @@ install(FILES
     fbmc_tx_sdft_vcc.xml
     fbmc_tx_sdft_kernel.xml
     fbmc_rx_domain_cvc.xml
-    fbmc_rx_domain_kernel.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_rx_domain_kernel.xml
+    fbmc_smt_kernel.xml DESTINATION share/gnuradio/grc/blocks
 )

@@ -30,7 +30,7 @@
 namespace gr {
   namespace fbmc {
 
-    tx_sdft_kernel::tx_sdft_kernel(std::vector<float> taps, int L) :
+    tx_sdft_kernel::tx_sdft_kernel(const std::vector<float> &taps, int L) :
         d_L(L), d_taps(taps)
     {
       // make sure we calculate the correct overlap size!
@@ -41,13 +41,14 @@ namespace gr {
       }
       d_overlap = overlap;
 
-      taps.pop_back(); // remove last sample. Assuming PHYDYAS!
+      std::vector<float> my_taps(taps);
+      my_taps.pop_back(); // remove last sample. Assuming PHYDYAS!
 
       int buff_len = overlap * L;
       d_taps_al = (float*) volk_malloc(sizeof(float) * buff_len,
                                        volk_get_alignment());
-      std::vector<float>::iterator first_it = taps.begin();
-      std::vector<float>::iterator last_it = taps.end();
+      std::vector<float>::iterator first_it = my_taps.begin();
+      std::vector<float>::iterator last_it = my_taps.end();
       for(int i = 0; first_it != last_it; first_it++, i++){
         d_taps_al[i] = *first_it;
       }

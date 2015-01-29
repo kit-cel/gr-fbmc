@@ -34,7 +34,7 @@ namespace gr {
   namespace fbmc {
 
     rx_sdft_kernel::rx_sdft_kernel(
-        std::vector<float> taps, int L) :
+        const std::vector<float> &taps, int L) :
         d_L(L), d_taps(taps)
     {
       // make sure we calculate the correct overlap size!
@@ -48,7 +48,8 @@ namespace gr {
       if(taps.back() != 0.0f){
         throw std::runtime_error("Last element of PHYDYAS filter taps must be 0.0f!");
       }
-      taps.pop_back();
+      std::vector<float> my_taps(taps);
+      my_taps.pop_back();
 
       // initialize all buffers correctly.
       int buff_len = overlap * L;
@@ -57,8 +58,8 @@ namespace gr {
       // samples are oldest on the left, newest on the right.
       // taps order reversed to match those conditions!
       d_taps_al = (float*) volk_malloc(sizeof(float) * buff_len, volk_get_alignment());
-      std::vector<float>::reverse_iterator first_it = taps.rbegin();
-      std::vector<float>::reverse_iterator last_it = taps.rend();
+      std::vector<float>::reverse_iterator first_it = my_taps.rbegin();
+      std::vector<float>::reverse_iterator last_it = my_taps.rend();
       for(int i = 0;first_it != last_it; first_it++, i++){
         d_taps_al[i] = *first_it;
       }

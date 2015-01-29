@@ -1,4 +1,5 @@
 build/
+cython/
 *~
 examples/*.py
 .idea/

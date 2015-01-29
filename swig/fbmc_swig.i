@@ -31,6 +31,7 @@
 #include "fbmc/tx_sdft_kernel.h"
 #include "fbmc/rx_domain_cvc.h"
 #include "fbmc/rx_domain_kernel.h"
+#include "fbmc/smt_kernel.h"
 %}
 
 %include "../lib/fbmc_config.h"
@@ -76,3 +77,4 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, tx_sdft_vcc);
 %include "fbmc/rx_domain_cvc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, rx_domain_cvc);
 %include "fbmc/rx_domain_kernel.h"
+%include "fbmc/smt_kernel.h"

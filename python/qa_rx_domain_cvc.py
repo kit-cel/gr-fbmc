@@ -147,12 +147,18 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
         overlap = 4
         multiple = 1 * overlap
         taps = ft.prototype_fsamples(overlap, False)
+        impulse_taps = ft.generate_phydyas_filter(L, overlap)
         print taps
         kernel = fbmc.rx_domain_kernel(taps.tolist(), L)
+        pfbk = fbmc.rx_polyphase_cvc(impulse_taps.tolist(), L)
+        rsdftk = fbmc.rx_sdft_kernel(impulse_taps.tolist(), L)
+        tsdftk = fbmc.tx_sdft_kernel(impulse_taps.tolist(), L)
         print "L = ", kernel.L()
         print "overlap = ", kernel.overlap()
         print "fft_size = ", kernel.fft_size()
         print "taps = ", kernel.taps()
+
+        print "pfb taps = ", pfbk.taps()
 
         data = np.arange(1, L * multiple + 1, dtype=complex)
         print data

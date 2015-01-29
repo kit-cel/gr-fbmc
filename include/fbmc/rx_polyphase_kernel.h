@@ -39,13 +39,19 @@ namespace gr {
       rx_polyphase_kernel(std::vector<float> &taps, int L);
       ~rx_polyphase_kernel();
 
-      int L(){return d_L;};
-      std::vector<std::vector<float> > taps(){return filterbank::taps();};
-
       int generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
+
+      int L(){return d_L;};
+      int overlap(){return d_overlap;};
+      int fft_size(){return d_L;};
+      std::vector<float> taps(){return d_taps;};
+      std::vector<std::vector<float> > filterbank_taps(){return filterbank::taps();};
 
     private:
       int d_L;
+      int d_overlap;
+      std::vector<float> d_taps;
+
       gr_complex* d_fft_in_buf;
       gr_complex* d_fft_out_buf;
       fftwf_plan d_fft_plan; // see gr-fft files for FFTW plan usage.
