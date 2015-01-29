@@ -37,12 +37,12 @@ namespace gr {
       smt_kernel(const std::vector<float> &taps, int L);
       ~smt_kernel();
 
-      virtual int generic_work(gr_complex* out, const gr_complex* in, int noutput_items) = 0;
+      virtual int generic_work(gr_complex* out, const gr_complex* in, int noutput_items){return 0;};
 
-      int L(){return d_L;};
-      int overlap(){return d_overlap;};
-      virtual int fft_size() = 0;
-      std::vector<float> taps(){return d_taps;};
+      virtual int L(){return d_L;};
+      virtual int overlap(){return d_overlap;};
+      virtual int fft_size(){return d_L;};
+      virtual std::vector<float> taps(){return d_taps;};
     protected:
       int d_L;
       int d_overlap;

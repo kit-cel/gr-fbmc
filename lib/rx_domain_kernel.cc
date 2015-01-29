@@ -32,7 +32,7 @@ namespace gr {
   namespace fbmc {
 
     rx_domain_kernel::rx_domain_kernel(const std::vector<float> &taps, int L):
-        d_taps(taps), d_L(L)
+        smt_kernel(taps, L)
     {
       int overlap = (taps.size() + 1) / 2;
       if(overlap * 2 - 1 != taps.size()){

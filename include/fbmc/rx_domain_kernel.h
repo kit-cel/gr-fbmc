@@ -22,6 +22,7 @@
 #define INCLUDED_FBMC_RX_DOMAIN_KERNEL_H
 
 #include <fbmc/api.h>
+#include <fbmc/smt_kernel.h>
 #include <gnuradio/fft/fft.h>
 
 namespace gr {
@@ -33,7 +34,7 @@ namespace gr {
      * outputs received vectors.
      *
      */
-    class FBMC_API rx_domain_kernel
+    class FBMC_API rx_domain_kernel: public smt_kernel
     {
     public:
       rx_domain_kernel(const std::vector<float> &taps, int L);
@@ -44,16 +45,13 @@ namespace gr {
       int
       generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
 
-      int L(){return d_L;};
+      using smt_kernel::L;
+//      int L(){return d_L;};
       int overlap(){return d_overlap;};
       int fft_size(){return d_fft->inbuf_length();};
       std::vector<float> taps(){return d_taps;};
 
     private:
-      int d_L;
-      int d_overlap;
-      std::vector<float> d_taps;
-
       gr::fft::fft_complex* d_fft;
       gr::fft::fft_complex* setup_fft(int L, int overlap);
 
