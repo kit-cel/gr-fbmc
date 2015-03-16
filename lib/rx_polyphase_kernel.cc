@@ -35,20 +35,19 @@
 namespace gr {
   namespace fbmc {
 
-    rx_polyphase_kernel::rx_polyphase_kernel(std::vector<float> &taps,
-                                                 int L) :
-        filterbank(
-            std::vector<std::vector<float> >(L, std::vector<float>(1, 0.0f))), d_L(
-            L)
+    rx_polyphase_kernel::rx_polyphase_kernel(const std::vector<float> &taps, int L) :
+        smt_kernel(taps, L),
+            filterbank(std::vector<std::vector<float> >(L, std::vector<float>(1, 0.0f)))
     {
-      if(d_L < 2 || d_L % 2 != 0){
+      if(d_L < 2 || d_L % 2 != 0) {
         throw std::runtime_error("L has to be even and >= 2!");
       }
 
       d_overlap = (taps.size() - 1) / L;
 
       // calculate actual taps and distribution for taps
-      set_taps(taps);
+      std::vector<float> my_taps(taps);
+      set_taps(my_taps);
       // initialize buffers for filters.
       initialize_branch_buffers(L, d_fir_filters[0]->ntaps());
 

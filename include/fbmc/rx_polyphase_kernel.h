@@ -23,6 +23,7 @@
 #define INCLUDED_FBMC_IOTA_FILTERBANK__RX_KERNEL_H
 
 #include <fbmc/api.h>
+#include <fbmc/smt_kernel.h>
 #include <gnuradio/filter/filterbank.h>
 #include <fftw3.h>
 
@@ -33,25 +34,26 @@ namespace gr {
      * \brief actual kernel for SMT Filterbank
      *
      */
-    class FBMC_API rx_polyphase_kernel: public filter::kernel::filterbank
+    class FBMC_API rx_polyphase_kernel: public smt_kernel, public filter::kernel::filterbank
     {
     public:
-      rx_polyphase_kernel(std::vector<float> &taps, int L);
+      rx_polyphase_kernel(const std::vector<float> &taps, int L);
       ~rx_polyphase_kernel();
 
       int generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
 
-      int L(){return d_L;};
-      int overlap(){return d_overlap;};
+      // using directives are only SWIG necessities
+      using smt_kernel::L;
+      using smt_kernel::overlap;
+      using smt_kernel::taps;
+      using smt_kernel::generic_work_python;
       int fft_size(){return d_L;};
-      std::vector<float> taps(){return d_taps;};
       std::vector<std::vector<float> > filterbank_taps(){return filterbank::taps();};
 
-    private:
-      int d_L;
-      int d_overlap;
-      std::vector<float> d_taps;
+    protected:
+      int get_noutput_items_for_ninput(int inbuf_size){return inbuf_size;};
 
+    private:
       gr_complex* d_fft_in_buf;
       gr_complex* d_fft_out_buf;
       fftwf_plan d_fft_plan; // see gr-fft files for FFTW plan usage.

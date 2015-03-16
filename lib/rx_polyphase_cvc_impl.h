@@ -36,7 +36,7 @@ namespace gr {
       rx_polyphase_cvc_impl(std::vector<float> &taps, int L);
       ~rx_polyphase_cvc_impl();
 
-      std::vector<std::vector<float> > taps(){return rx_polyphase_kernel::filterbank_taps();};
+      std::vector<std::vector<float> > filterbank_taps(){return rx_polyphase_kernel::filterbank_taps();};
 
       // Where all the action really happens
       int

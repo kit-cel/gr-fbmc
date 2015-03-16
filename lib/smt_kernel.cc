@@ -25,6 +25,8 @@
 #include <gnuradio/io_signature.h>
 #include <fbmc/smt_kernel.h>
 
+#include <iostream>
+
 namespace gr {
   namespace fbmc {
 
@@ -37,6 +39,32 @@ namespace gr {
     {
     }
 
+    std::vector<gr_complex>
+    gr::fbmc::smt_kernel::generic_work_python(const std::vector<gr_complex>& inbuf)
+    {
+      std::cout << "smt_kernel::generic_work_python\n";
+      std::vector<gr_complex> outbuf;
+      if(inbuf.size() < fft_size()) {
+        std::cout << "Not enough input items to calculate at least 1 FFT!\n";
+        return outbuf;
+      }
+      if(inbuf.size() % (L() / 2) != 0){
+        std::cout << "input - output ration not met!\n";
+        return outbuf;
+      }
+
+      int noutput_items = get_noutput_items_for_ninput(inbuf.size());
+      outbuf.resize(noutput_items * L());
+
+      std::cout << "requested items = " << noutput_items << ", inbuf.size() = " << inbuf.size()
+          << std::endl;
+
+//      // fancy new shit! Using data() member on vectors. C++11.
+      int nout = generic_work(outbuf.data(), inbuf.data(), noutput_items);
+      return outbuf;
+    }
+
   } /* namespace fbmc */
 } /* namespace gr */
+
 

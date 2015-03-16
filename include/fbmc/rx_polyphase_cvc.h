@@ -37,7 +37,7 @@ namespace gr {
     public:
       typedef boost::shared_ptr<rx_polyphase_cvc> sptr;
 
-      virtual std::vector<std::vector<float> > taps() = 0;
+      virtual std::vector<std::vector<float> > filterbank_taps() = 0;
 
       /*!
        * \brief Return a shared_ptr to a new instance of fbmc::rx_polyphase_cvc.

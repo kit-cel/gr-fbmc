@@ -109,7 +109,7 @@ class qa_rx_polyphase_cvc(gr_unittest.TestCase):
         old = self.snkold.data()
         oldmatrix = np.array(old).reshape((-1, L)).T
 
-        print np.array(smt.taps())
+        print np.array(smt.filterbank_taps())
         print "\nresult"
         print resmatrix
         print "\nold"
@@ -149,7 +149,7 @@ class qa_rx_polyphase_cvc(gr_unittest.TestCase):
         old = self.snkold.data()
         oldmatrix = np.array(old).reshape((-1, L)).T
 
-        print np.array(smt.taps())
+        print np.array(smt.filterbank_taps())
         print "\nresult"
         print resmatrix
         print "\nold fg"

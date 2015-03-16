@@ -72,7 +72,7 @@ namespace gr {
        */
 
       noutput_items = std::max(0, noutput_items - 2 * overlap() + 1);
-      std::cout << "generic_work noutput_items = " << noutput_items << std::endl;
+//      std::cout << "generic_work noutput_items = " << noutput_items << std::endl;
 
       int nout = rx_domain_kernel::generic_work(out, in, noutput_items);
 

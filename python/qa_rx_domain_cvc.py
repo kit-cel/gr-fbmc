@@ -140,7 +140,7 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
         # mat1 = np.reshape(res1, (L, -1)).T
         # print np.shape(mat1)
 
-        self.assertComplexTuplesAlmostEqual(ref, res, 6)
+        self.assertComplexTuplesAlmostEqual(ref, res, 5)
 
     def test_004_kernel(self):
         L = 32
@@ -156,14 +156,15 @@ class qa_rx_domain_cvc(gr_unittest.TestCase):
         print "L = ", kernel.L()
         print "overlap = ", kernel.overlap()
         print "fft_size = ", kernel.fft_size()
-        print "taps = ", kernel.taps()
-
-        print "pfb taps = ", pfbk.taps()
+        # print "taps = ", kernel.taps()
+        kernel_taps = kernel.taps()
+        pfb_taps = pfbk.filterbank_taps()
+        # print "pfb taps = ", pfbk.filterbank_taps()
 
         data = np.arange(1, L * multiple + 1, dtype=complex)
-        print data
+        # print data
         res = kernel.generic_work_python(data)
-        print res
+        print len(res)
 
 
 if __name__ == '__main__':

@@ -40,16 +40,18 @@ namespace gr {
       rx_domain_kernel(const std::vector<float> &taps, int L);
       ~rx_domain_kernel();
 
-      std::vector<gr_complex> generic_work_python(const std::vector<gr_complex> &inbuf);
 
-      int
-      generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
+      int generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
 
+      // using directives are only SWIG necessities
       using smt_kernel::L;
-//      int L(){return d_L;};
-      int overlap(){return d_overlap;};
+      using smt_kernel::overlap;
+      using smt_kernel::taps;
+      using smt_kernel::generic_work_python;
       int fft_size(){return d_fft->inbuf_length();};
-      std::vector<float> taps(){return d_taps;};
+
+    protected:
+      int get_noutput_items_for_ninput(int inbuf_size){1 + (inbuf_size - fft_size()) / (L() / 2);};
 
     private:
       gr::fft::fft_complex* d_fft;

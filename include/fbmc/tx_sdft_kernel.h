@@ -22,6 +22,7 @@
 #define INCLUDED_FBMC_TX_SDFT_KERNEL_H
 
 #include <fbmc/api.h>
+#include <fbmc/smt_kernel.h>
 #include <gnuradio/fft/fft.h>
 
 namespace gr {
@@ -31,7 +32,7 @@ namespace gr {
      * \brief TX SDFT implementation of an IFFT -> PFB -> Commutator
      *
      */
-    class FBMC_API tx_sdft_kernel
+    class FBMC_API tx_sdft_kernel: public smt_kernel
     {
     public:
       tx_sdft_kernel(const std::vector<float> &taps, int L);
@@ -40,15 +41,16 @@ namespace gr {
       int
       generic_work(gr_complex* out, const gr_complex* in, int noutput_items);
 
-      int L(){return d_L;};
-      int overlap(){return d_overlap;};
+      // using directives are only SWIG necessities
+      using smt_kernel::L;
+      using smt_kernel::overlap;
+      using smt_kernel::taps;
       int fft_size(){return d_fft->inbuf_length();};
-      std::vector<float> taps(){return d_taps;};
+
+    protected:
+      int get_noutput_items_for_ninput(int inbuf_size){return inbuf_size;};
 
     private:
-      int d_L;
-      int d_overlap;
-      std::vector<float> d_taps;
       float* d_taps_al;
 
       gr::fft::fft_complex* d_fft;

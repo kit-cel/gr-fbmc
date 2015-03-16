@@ -31,7 +31,7 @@ namespace gr {
   namespace fbmc {
 
     tx_sdft_kernel::tx_sdft_kernel(const std::vector<float> &taps, int L) :
-        d_L(L), d_taps(taps)
+        smt_kernel(taps, L)
     {
       // make sure we calculate the correct overlap size!
       int overlap = (taps.size() - 1) / L;
