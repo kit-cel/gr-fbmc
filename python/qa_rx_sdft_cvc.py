@@ -28,6 +28,7 @@ import fbmc_test_functions as ft
 
 class qa_rx_sdft_cvc(gr_unittest.TestCase):
     def setUp(self):
+        np.set_printoptions(4, linewidth=150)
         self.tb = gr.top_block()
 
     def tearDown(self):
@@ -92,10 +93,13 @@ class qa_rx_sdft_cvc(gr_unittest.TestCase):
         taps = np.append([0.0, ], np.ones(overlap * L - 1, dtype=float))
         taps = np.append(taps, [0.0, ])
         data = np.arange(1, multiple * L // 2 + 1 + 1, dtype=np.complex)
+        print "len(data) = ", len(data)
+        print taps
+        print data
 
         # instatiated blocks and flowgraph
         phydyas = fbmc.rx_sdft_cvc(taps, L)
-        print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap()
+        print "phydyas: L = ", phydyas.L(), ", overlap = ", phydyas.overlap(), ", history() = ", phydyas.history()
         src = blocks.vector_source_c(data, vlen=1)
         snk = blocks.vector_sink_c(L)
         tb = gr.top_block()
@@ -104,6 +108,7 @@ class qa_rx_sdft_cvc(gr_unittest.TestCase):
         # run fg and get results
         tb.run()
         res = np.array(snk.data())
+        print "len(res) = ", len(res)
 
         ref = self.get_reference_output(data, taps, L, overlap, multiple)
 

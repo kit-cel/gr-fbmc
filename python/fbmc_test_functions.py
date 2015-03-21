@@ -252,19 +252,37 @@ def rx_fdomain(samples, prototype_freq, osr, oqam='SIOHAN', drop_in=None, drop_i
 
     return d_hat
 
+def fft_reverse_test():
+    np.set_printoptions(4)
+    l = 8
+    d = np.arange(1, l + 1)
+    print d
+    print d[::-1]
+
+    rif = ifft(d[::-1])
+    print rif
+    f = ifft(d) * -1
+    print f
+
+    for n in np.array(zip(rif, f)):
+        e = n[0] == n[1]
+        print 'values:', n, 'equal?', e
+
 
 def main():
-    print "fbmc_test_functions"
-    L = 32
-    K = 4
+    # print "fbmc_test_functions"
+    # L = 32
+    # K = 4
+    #
+    # fprot = generate_phydyas_filter(L, K)
+    # print len(fprot)
+    # print type(fprot[0])
+    # plt.plot(fprot)
+    #
+    #
+    # plt.show()
 
-    fprot = generate_phydyas_filter(L, K)
-    print len(fprot)
-    print type(fprot[0])
-    plt.plot(fprot)
-
-
-    plt.show()
+    fft_reverse_test()
 
 
 if __name__ == '__main__':

@@ -83,13 +83,21 @@ namespace gr {
                                                const gr_complex *in,
                                                int noutput_items)
     {
+      gr_complex* fft_inbuf = d_fft->get_inbuf();
+      gr_complex* fft_outbuf = d_fft->get_outbuf();
       for(int items = 0; items < noutput_items; items++){
         multiply_with_taps(d_multiply_res, in, d_L, d_overlap);
-        add_overlaps(d_fft->get_inbuf(), d_multiply_res, d_L, d_overlap);
+        add_overlaps(fft_inbuf, d_multiply_res, d_L, d_overlap);
         // reversing was previously done by input_commutator
-        std::reverse(d_fft->get_inbuf(), d_fft->get_inbuf() + d_L);
+        // profiling tools indicate reversing is VERY expensive!
+        std::reverse(fft_inbuf, fft_inbuf + d_L);
         d_fft->execute();
-        memcpy(out, d_fft->get_outbuf(), sizeof(gr_complex) * d_L); // write result to output
+
+        // some ideas to make it faster.
+//        volk_32f_s32f_multiply_32f((float*)(fft_outbuf + 1), (float*)(fft_outbuf + 1), (-1.0f), (d_L - 1) * 2);
+//        volk_32fc_s32fc_multiply_32fc(fft_outbuf + 1, fft_outbuf + 1, gr_complex(-1.0f, 0.0f), d_L - 1);
+
+        memcpy(out, fft_outbuf, sizeof(gr_complex) * d_L); // write result to output
         in += d_L / 2;
         out += d_L;
       }
@@ -103,9 +111,11 @@ namespace gr {
     }
 
     inline void rx_sdft_kernel::add_overlaps(gr_complex *out_buff, const gr_complex *in_buff, int L, int overlap){
+      int fL = 2 * L;
       memset(out_buff, 0, sizeof(gr_complex) * L);
       for(int i = 0; i < overlap; i++){
-        volk_32f_x2_add_32f((float*) out_buff, (float*) out_buff, (float*) (in_buff + i * L), 2 * L);
+        volk_32f_x2_add_32f((float*) out_buff, (float*) out_buff, (float*) in_buff, fL);
+        in_buff += L;
       }
     }
 
