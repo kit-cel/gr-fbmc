@@ -23,25 +23,25 @@
 #endif
 
 #include <gnuradio/io_signature.h>
-#include "frame_generator_vcvc_impl.h"
+#include "simple_frame_generator_vcvc_impl.h"
 
 #include <volk/volk.h>
 
 namespace gr {
   namespace fbmc {
 
-    frame_generator_vcvc::sptr
-    frame_generator_vcvc::make(int sym_len, int num_payload, int inverse, int num_overlap, int num_sync)
+    simple_frame_generator_vcvc::sptr
+    simple_frame_generator_vcvc::make(int sym_len, int num_payload, int inverse, int num_overlap, int num_sync)
     {
       return gnuradio::get_initial_sptr
-        (new frame_generator_vcvc_impl(sym_len, num_payload, inverse, num_overlap, num_sync));
+        (new simple_frame_generator_vcvc_impl(sym_len, num_payload, inverse, num_overlap, num_sync));
     }
 
     /*
      * The private constructor
      */
-    frame_generator_vcvc_impl::frame_generator_vcvc_impl(int sym_len, int num_payload, int inverse, int num_overlap, int num_sync)
-      : gr::block("frame_generator_vcvc",
+    simple_frame_generator_vcvc_impl::simple_frame_generator_vcvc_impl(int sym_len, int num_payload, int inverse, int num_overlap, int num_sync)
+      : gr::block("simple_frame_generator_vcvc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)*sym_len),
               gr::io_signature::make(1, 1, sizeof(gr_complex)*sym_len)),
               d_sym_len(sym_len),
@@ -80,18 +80,18 @@ namespace gr {
     /*
      * Our virtual destructor.
      */
-    frame_generator_vcvc_impl::~frame_generator_vcvc_impl()
+    simple_frame_generator_vcvc_impl::~simple_frame_generator_vcvc_impl()
     {
     }
 
     void
-    frame_generator_vcvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
+    simple_frame_generator_vcvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
         ninput_items_required[0] = 1;
     }
 
     inline void
-    frame_generator_vcvc_impl::finish_one_symbol(gr_complex* outbuf,
+    simple_frame_generator_vcvc_impl::finish_one_symbol(gr_complex* outbuf,
                                                  const gr_complex* inbuf,
                                                  const int symbol_length)
     {
@@ -99,7 +99,7 @@ namespace gr {
     }
 
     inline void
-    frame_generator_vcvc_impl::insert_placeholder_symbols(
+    simple_frame_generator_vcvc_impl::insert_placeholder_symbols(
         gr_complex* outbuf, const int symbol_length, const int num_symbols)
     {
       int nplaceholder_symbols = symbol_length * num_symbols;
@@ -107,7 +107,7 @@ namespace gr {
     }
 
     int
-    frame_generator_vcvc_impl::consume_one_forward_symbol(
+    simple_frame_generator_vcvc_impl::consume_one_forward_symbol(
         gr_complex* outbuf, const gr_complex* inbuf, const int symbol_length)
     {
       int produced_items = 0;
@@ -145,7 +145,7 @@ namespace gr {
     }
 
     int
-    frame_generator_vcvc_impl::consume_one_reverse_symbol(
+    simple_frame_generator_vcvc_impl::consume_one_reverse_symbol(
         gr_complex* outbuf, const gr_complex* inbuf, const int symbol_length)
     {
       int produced_items = 0;
@@ -184,7 +184,7 @@ namespace gr {
     }
 
     int
-    frame_generator_vcvc_impl::general_work(
+    simple_frame_generator_vcvc_impl::general_work(
         int noutput_items, gr_vector_int &ninput_items,
         gr_vector_const_void_star &input_items,
         gr_vector_void_star &output_items)

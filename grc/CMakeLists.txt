@@ -24,7 +24,7 @@ install(FILES
     fbmc_serialize_iq_vcvc.xml
     fbmc_polyphase_filterbank_vcvc.xml
     fbmc_output_commutator_vcc.xml
-    fbmc_frame_generator_vcvc.xml
+    fbmc_simple_frame_generator_vcvc.xml
     fbmc_input_commutator_cvc.xml
     fbmc_combine_iq_vcvc.xml
     fbmc_parallel_to_serial_vcc.xml

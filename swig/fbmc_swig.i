@@ -15,7 +15,7 @@
 #include "fbmc/serialize_iq_vcvc.h"
 #include "fbmc/polyphase_filterbank_vcvc.h"
 #include "fbmc/output_commutator_vcc.h"
-#include "fbmc/frame_generator_vcvc.h"
+#include "fbmc/simple_frame_generator_vcvc.h"
 #include "fbmc/input_commutator_cvc.h"
 #include "fbmc/combine_iq_vcvc.h"
 #include "fbmc/parallel_to_serial_vcc.h"
@@ -47,8 +47,8 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, polyphase_filterbank_vcvc);
 
 %include "fbmc/output_commutator_vcc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, output_commutator_vcc);
-%include "fbmc/frame_generator_vcvc.h"
-GR_SWIG_BLOCK_MAGIC2(fbmc, frame_generator_vcvc);
+%include "fbmc/simple_frame_generator_vcvc.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, simple_frame_generator_vcvc);
 %include "fbmc/input_commutator_cvc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, input_commutator_cvc);
 

@@ -18,15 +18,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_FBMC_FRAME_GENERATOR_VCVC_IMPL_H
-#define INCLUDED_FBMC_FRAME_GENERATOR_VCVC_IMPL_H
+#ifndef INCLUDED_FBMC_SIMPLE_FRAME_GENERATOR_VCVC_IMPL_H
+#define INCLUDED_FBMC_SIMPLE_FRAME_GENERATOR_VCVC_IMPL_H
 
-#include <fbmc/frame_generator_vcvc.h>
+#include <fbmc/simple_frame_generator_vcvc.h>
 
 namespace gr {
   namespace fbmc {
 
-    class frame_generator_vcvc_impl : public frame_generator_vcvc
+    class simple_frame_generator_vcvc_impl : public simple_frame_generator_vcvc
     {
     private:
       int d_sym_len; // length of one symbol aka the input vector length aka number of subcarriers
@@ -55,9 +55,9 @@ namespace gr {
                                  const int symbol_length);
 
     public:
-      frame_generator_vcvc_impl(int sym_len, int num_payload, int inverse,
+      simple_frame_generator_vcvc_impl(int sym_len, int num_payload, int inverse,
                                 int num_overlap, int num_sync);
-      ~frame_generator_vcvc_impl();
+      ~simple_frame_generator_vcvc_impl();
 
       void
       forecast(int noutput_items, gr_vector_int &ninput_items_required);
@@ -72,5 +72,5 @@ namespace gr {
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_FRAME_GENERATOR_VCVC_IMPL_H */
+#endif /* INCLUDED_FBMC_SIMPLE_FRAME_GENERATOR_VCVC_IMPL_H */
 

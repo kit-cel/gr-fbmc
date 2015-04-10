@@ -1,9 +1,9 @@
 <block>
   <name>Frame generator</name>
-  <key>fbmc_frame_generator_vcvc</key>
+  <key>fbmc_simple_frame_generator_vcvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.frame_generator_vcvc($sym_len, $num_payload, $inverse, $num_overlap, $num_sync)</make>
+  <make>fbmc.simple_frame_generator_vcvc($sym_len, $num_payload, $inverse, $num_overlap, $num_sync)</make>
   <param>
     <name>Num subcarriers</name>
     <key>sym_len</key>

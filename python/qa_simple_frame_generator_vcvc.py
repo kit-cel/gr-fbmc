@@ -25,7 +25,7 @@ import fbmc_swig as fbmc
 import numpy as np
 
 
-class qa_frame_generator_vcvc(gr_unittest.TestCase):
+class qa_simple_frame_generator_vcvc(gr_unittest.TestCase):
     def setUp(self):
         self.tb = gr.top_block()
 
@@ -37,7 +37,7 @@ class qa_frame_generator_vcvc(gr_unittest.TestCase):
         print "test 1 - forward"
         L = 8
         self.src = blocks.vector_source_c(range(1, L + 1), vlen=L, repeat=False)
-        self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload=1, inverse=0, num_overlap=4,
+        self.frame_gen = fbmc.simple_frame_generator_vcvc(sym_len=L, num_payload=1, inverse=0, num_overlap=4,
                                                    num_sync=7)  # the frame len includes the length of the overlap
         self.snk = blocks.vector_sink_c(vlen=L)
         self.tb.connect(self.src, self.frame_gen, self.snk)
@@ -78,7 +78,7 @@ class qa_frame_generator_vcvc(gr_unittest.TestCase):
                       0, 0, 0, 0, 0, 0, 0, 0,
                       1, 2, 3, 4, 5, 6, 7, 8)
         self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
-        self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload=1, inverse=1, num_overlap=4, num_sync=3)
+        self.frame_gen = fbmc.simple_frame_generator_vcvc(sym_len=L, num_payload=1, inverse=1, num_overlap=4, num_sync=3)
         self.snk = blocks.vector_sink_c(vlen=L)
         self.tb.connect(self.src, self.frame_gen, self.snk)
         self.tb.run()
@@ -98,7 +98,7 @@ class qa_frame_generator_vcvc(gr_unittest.TestCase):
         multiple = 20
         input_data = range(1, L * multiple + 1)
         self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
-        self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload=payload_len, inverse=0, num_overlap=overlap,
+        self.frame_gen = fbmc.simple_frame_generator_vcvc(sym_len=L, num_payload=payload_len, inverse=0, num_overlap=overlap,
                                                    num_sync=sync_symbol_len)  # the frame len includes the length of the overlap
         self.snk = blocks.vector_sink_c(vlen=L)
         self.tb.connect(self.src, self.frame_gen, self.snk)
@@ -114,7 +114,7 @@ class qa_frame_generator_vcvc(gr_unittest.TestCase):
         num_frames = 10
         input_data = range(1, (K + 11) * L * num_frames + 1)
         self.src = blocks.vector_source_c(input_data, vlen=L, repeat=False)
-        self.frame_gen = fbmc.frame_generator_vcvc(sym_len=L, num_payload=K, inverse=1, num_overlap=4, num_sync=3)
+        self.frame_gen = fbmc.simple_frame_generator_vcvc(sym_len=L, num_payload=K, inverse=1, num_overlap=4, num_sync=3)
         self.snk = blocks.vector_sink_c(vlen=L)
         self.tb.connect(self.src, self.frame_gen, self.snk)
         self.tb.run()
@@ -124,4 +124,4 @@ class qa_frame_generator_vcvc(gr_unittest.TestCase):
 
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_frame_generator_vcvc)
+    gr_unittest.run(qa_simple_frame_generator_vcvc)

@@ -19,8 +19,8 @@
  */
 
 
-#ifndef INCLUDED_FBMC_FRAME_GENERATOR_VCVC_H
-#define INCLUDED_FBMC_FRAME_GENERATOR_VCVC_H
+#ifndef INCLUDED_FBMC_SIMPLE_FRAME_GENERATOR_VCVC_H
+#define INCLUDED_FBMC_SIMPLE_FRAME_GENERATOR_VCVC_H
 
 #include <fbmc/api.h>
 #include <gnuradio/block.h>
@@ -40,17 +40,17 @@ namespace gr {
      * \ingroup fbmc
      *
      */
-    class FBMC_API frame_generator_vcvc : virtual public gr::block
+    class FBMC_API simple_frame_generator_vcvc : virtual public gr::block
     {
      public:
-      typedef boost::shared_ptr<frame_generator_vcvc> sptr;
+      typedef boost::shared_ptr<simple_frame_generator_vcvc> sptr;
 
       /*!
-       * \brief Return a shared_ptr to a new instance of fbmc::frame_generator_vcvc.
+       * \brief Return a shared_ptr to a new instance of fbmc::simple_frame_generator_vcvc.
        *
-       * To avoid accidental use of raw pointers, fbmc::frame_generator_vcvc's
+       * To avoid accidental use of raw pointers, fbmc::simple_frame_generator_vcvc's
        * constructor is in a private implementation
-       * class. fbmc::frame_generator_vcvc::make is the public interface for
+       * class. fbmc::simple_frame_generator_vcvc::make is the public interface for
        * creating new instances.
        */
       static sptr make(int sym_len, int num_payload, int inverse, int num_overlap, int num_sync);
@@ -59,5 +59,5 @@ namespace gr {
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_FRAME_GENERATOR_VCVC_H */
+#endif /* INCLUDED_FBMC_SIMPLE_FRAME_GENERATOR_VCVC_H */
 

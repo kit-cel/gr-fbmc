@@ -31,7 +31,7 @@ list(APPEND fbmc_sources
     serialize_iq_vcvc_impl.cc
     polyphase_filterbank_vcvc_impl.cc
     output_commutator_vcc_impl.cc
-    frame_generator_vcvc_impl.cc
+    simple_frame_generator_vcvc_impl.cc
     input_commutator_cvc_impl.cc
     combine_iq_vcvc_impl.cc
     parallel_to_serial_vcc_impl.cc

@@ -47,7 +47,7 @@ GR_ADD_TEST(qa_serialize_iq_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR
 GR_ADD_TEST(qa_polyphase_filterbank_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_polyphase_filterbank_vcvc.py)
 GR_ADD_TEST(qa_output_commutator_vcc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_output_commutator_vcc.py)
 GR_ADD_TEST(qa_txrx ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_txrx.py)
-GR_ADD_TEST(qa_frame_generator_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_frame_generator_vcvc.py)
+GR_ADD_TEST(qa_simple_frame_generator_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_simple_frame_generator_vcvc.py)
 GR_ADD_TEST(qa_input_commutator_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_input_commutator_cvc.py)
 GR_ADD_TEST(qa_combine_iq_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_combine_iq_vcvc.py)
 GR_ADD_TEST(qa_parallel_to_serial_vcc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_parallel_to_serial_vcc.py)
