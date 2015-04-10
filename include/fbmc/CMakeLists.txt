@@ -44,5 +44,6 @@ install(FILES
     tx_sdft_kernel.h
     rx_domain_cvc.h
     rx_domain_kernel.h
-    smt_kernel.h DESTINATION include/fbmc
+    smt_kernel.h
+    frame_generator_bvc.h DESTINATION include/fbmc
 )
