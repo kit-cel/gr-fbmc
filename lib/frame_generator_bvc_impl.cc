@@ -23,6 +23,7 @@
 #endif
 
 #include <stdexcept>
+#include <volk/volk.h>
 
 #include <gnuradio/io_signature.h>
 #include "frame_generator_bvc_impl.h"
@@ -40,26 +41,21 @@ namespace gr {
     /*
      * The private constructor
      */
-    frame_generator_bvc_impl::frame_generator_bvc_impl(int used_subcarriers, int total_subcarriers, int payload_symbols, int overlap, std::vector<int> channel_map, std::vector<gr_complex> preamble)
-      : gr::block("frame_generator_bvc",
-              gr::io_signature::make(1, 1, sizeof(char)),
-              gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers)),
-              d_used_subcarriers(used_subcarriers),
-              d_total_subcarriers(total_subcarriers),
-              d_payload_symbols(payload_symbols),
-              d_overlap(overlap),
-              d_channel_map(channel_map),
-              d_preamble(preamble),
-              d_frame_position(0)
+    frame_generator_bvc_impl::frame_generator_bvc_impl(int used_subcarriers, int total_subcarriers,
+                                                       int payload_symbols, int overlap,
+                                                       std::vector<int> channel_map,
+                                                       std::vector<gr_complex> preamble) :
+            gr::block("frame_generator_bvc", gr::io_signature::make(1, 1, sizeof(char)),
+                      gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers)),
+            d_used_subcarriers(used_subcarriers), d_total_subcarriers(total_subcarriers),
+            d_payload_symbols(payload_symbols), d_overlap(overlap), d_channel_map(channel_map),
+            d_preamble(preamble), d_frame_position(0)
     {
-      if(channel_map.size() != total_subcarriers){
+      if(channel_map.size() != total_subcarriers) {
         throw std::runtime_error("Parameter mismatch: size(channel_map) != total_subcarriers");
       }
 
-      if(preamble.size() % total_subcarriers != 0){
-        throw std::runtime_error("Parameter mismatch: size(preamble) % total_subcarriers != 0");
-      }
-      d_preamble_symbols = preamble.size() / total_subcarriers;
+      setup_preamble(preamble);
 
       // 2 times overlap because we need 'zero-symbols' after preamble and after payload.
       d_frame_len = d_preamble_symbols + d_payload_symbols + 2 * d_overlap;
@@ -70,19 +66,47 @@ namespace gr {
      */
     frame_generator_bvc_impl::~frame_generator_bvc_impl()
     {
+      volk_free(d_preamble_buf);
+    }
+
+    void
+    frame_generator_bvc_impl::setup_preamble(std::vector<gr_complex> preamble)
+    {
+      if(preamble.size() % d_total_subcarriers != 0) {
+        throw std::runtime_error("Parameter mismatch: size(preamble) % total_subcarriers != 0");
+      }
+      d_preamble_symbols = preamble.size() / d_total_subcarriers;
+      d_preamble_buf = (gr_complex*) volk_malloc(sizeof(gr_complex) * d_preamble_symbols * d_total_subcarriers, volk_get_alignment());
+      for(int i = 0; i < d_preamble_symbols * d_total_subcarriers; i++){
+        d_preamble_buf[i] = preamble[i];
+      }
     }
 
     void
     frame_generator_bvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
-        /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
+      // always only 1 input and 1 output.
+      ninput_items_required[0] = noutput_items;
     }
 
     void
     frame_generator_bvc_impl::insert_preamble_vector(gr_complex* out, int preamble_position)
     {
-      gr_complex* preample_ptr = &d_preamble[d_total_subcarriers * preamble_position];
-      memcpy(out, preample_ptr, sizeof(gr_complex) * d_total_subcarriers);
+      memcpy(out, d_preamble_buf + d_total_subcarriers * preamble_position, sizeof(gr_complex) * d_total_subcarriers);
+    }
+
+    void
+    frame_generator_bvc_impl::insert_padding_zeros(gr_complex* out){
+      memset(out, 0, sizeof(gr_complex) * d_total_subcarriers);
+    }
+
+    int
+    frame_generator_bvc_impl::insert_payload(gr_complex* out, const char* inbuf)
+    {
+      for(int i = 0; i < d_total_subcarriers; i++){
+        *(out + i) = gr_complex(5, 0);
+      }
+      return d_used_subcarriers / 2;
     }
 
     int
@@ -94,22 +118,36 @@ namespace gr {
         const char *in = (const char *) input_items[0];
         gr_complex *out = (gr_complex *) output_items[0];
 
-        const int nin_items = ninput_items[0];
+        // one payload vector will carry d_used_subcarriers / 2 payload symbols!
+        const int nin_items = ninput_items[0] - (ninput_items[0] % (d_used_subcarriers / 2));
 
+        int consumed_items = 0;
         for(int i = 0; i < noutput_items; i++){
           if(d_frame_position < d_preamble_symbols){
             insert_preamble_vector(out, d_frame_position);
           }
+          else if(d_frame_position < d_preamble_symbols + d_overlap){
+            insert_padding_zeros(out);
+          }
+          else if(d_frame_position < d_preamble_symbols + d_overlap + d_payload_symbols){
+            int consumed = insert_payload(out, in);
+            in += consumed;
+            consumed_items += consumed;
+          }
+          else{
+            insert_padding_zeros(out);
+          }
 
-//          if()
-
-          d_preamble_symbols = (d_preamble_symbols + 1) % d_frame_len;
+          d_frame_position = (d_frame_position + 1) % d_frame_len;
+          out += d_total_subcarriers;
         }
+
+        std::cout << "noutput_items = " << noutput_items << ", nin_items = " << nin_items << ", consumed = " << consumed_items << std::endl;
 
 
         // Tell runtime system how many input items we consumed on
         // each input stream.
-        consume_each (noutput_items);
+        consume_each (consumed_items);
 
         // Tell runtime system how many output items we produced.
         return noutput_items;

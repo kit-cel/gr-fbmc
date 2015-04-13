@@ -835,53 +835,6 @@
     </param>
   </block>
   <block>
-    <key>variable_configuration_new</key>
-    <param>
-      <key>id</key>
-      <value>cfg</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>20</value>
-    </param>
-    <param>
-      <key>K</key>
-      <value>16</value>
-    </param>
-    <param>
-      <key>overlap</key>
-      <value>4</value>
-    </param>
-    <param>
-      <key>mod</key>
-      <value>"QPSK"</value>
-    </param>
-    <param>
-      <key>preamble</key>
-      <value>"IAM"</value>
-    </param>
-    <param>
-      <key>sample_rate</key>
-      <value>int(samp_rate)</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(264, 83)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>virtual_sink</key>
     <param>
       <key>id</key>
@@ -2762,6 +2715,53 @@
     <param>
       <key>_coordinate</key>
       <value>(512, 347)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_configuration_new</key>
+    <param>
+      <key>id</key>
+      <value>cfg</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>20</value>
+    </param>
+    <param>
+      <key>K</key>
+      <value>16</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>4</value>
+    </param>
+    <param>
+      <key>mod</key>
+      <value>"QPSK"</value>
+    </param>
+    <param>
+      <key>preamble</key>
+      <value>"IAM"</value>
+    </param>
+    <param>
+      <key>sample_rate</key>
+      <value>int(samp_rate)</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(264, 83)</value>
     </param>
     <param>
       <key>_rotation</key>

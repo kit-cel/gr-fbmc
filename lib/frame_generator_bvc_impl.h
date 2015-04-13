@@ -35,11 +35,17 @@ namespace gr {
       int d_overlap;
       std::vector<int> d_channel_map;
       std::vector<gr_complex> d_preamble;
+      gr_complex* d_preamble_buf;
       int d_preamble_symbols;
       int d_frame_len;
       int d_frame_position;
 
+      void setup_preamble(std::vector<gr_complex> preamble);
       void insert_preamble_vector(gr_complex* out, int preamble_position);
+
+      void insert_padding_zeros(gr_complex* out);
+
+      int insert_payload(gr_complex* out, const char* inbuf);
 
      public:
       frame_generator_bvc_impl(int used_subcarriers, int total_subcarriers, int payload_symbols, int overlap, std::vector<int> channel_map, std::vector<gr_complex> preamble);
