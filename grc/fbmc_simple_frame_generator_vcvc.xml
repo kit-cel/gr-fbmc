@@ -1,5 +1,5 @@
 <block>
-  <name>Frame generator</name>
+  <name>Simple Frame generator</name>
   <key>fbmc_simple_frame_generator_vcvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>

@@ -48,14 +48,12 @@ namespace gr {
             gr::block("frame_generator_bvc", gr::io_signature::make(1, 1, sizeof(char)),
                       gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers)),
             d_used_subcarriers(used_subcarriers), d_total_subcarriers(total_subcarriers),
-            d_payload_symbols(payload_symbols), d_overlap(overlap), d_channel_map(channel_map),
-            d_preamble(preamble), d_frame_position(0)
+            d_payload_symbols(payload_symbols), d_overlap(overlap), /*d_channel_map(channel_map),*/
+            d_preamble(preamble), d_frame_position(0),
+            D_INVSQRT(1.0f / std::sqrt(2.0f))
     {
-      if(channel_map.size() != total_subcarriers) {
-        throw std::runtime_error("Parameter mismatch: size(channel_map) != total_subcarriers");
-      }
-
       setup_preamble(preamble);
+      setup_channel_map(channel_map);
 
       // 2 times overlap because we need 'zero-symbols' after preamble and after payload.
       d_frame_len = d_preamble_symbols + d_payload_symbols + 2 * d_overlap;
@@ -83,6 +81,32 @@ namespace gr {
     }
 
     void
+    frame_generator_bvc_impl::setup_channel_map(std::vector<int> channel_map)
+    {
+      if(channel_map.size() != d_total_subcarriers) {
+        throw std::runtime_error("Parameter mismatch: size(channel_map) != total_subcarriers");
+      }
+      d_channel_map.push_back(std::vector<int>());
+      d_channel_map.push_back(std::vector<int>());
+
+
+      bool inphase = true;
+      for(int i = 0; i < d_total_subcarriers; i++){
+        if(channel_map[i] == 1){
+          if(inphase){
+            d_channel_map[0].push_back(i);
+          }
+          else{
+            d_channel_map[1].push_back(i);
+          }
+        }
+        if(i % 2 == 0){
+          inphase = !inphase;
+        }
+      }
+    }
+
+    void
     frame_generator_bvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
       // always only 1 input and 1 output.
@@ -103,10 +127,12 @@ namespace gr {
     int
     frame_generator_bvc_impl::insert_payload(gr_complex* out, const char* inbuf)
     {
-      for(int i = 0; i < d_total_subcarriers; i++){
-        *(out + i) = gr_complex(5, 0);
+      const int inphase_sel = (d_frame_position - d_preamble_symbols + d_overlap) % 2;
+      memset(out, 0, sizeof(gr_complex) * d_total_subcarriers);
+      for(int i = 0; i < d_channel_map[inphase_sel].size(); i++){
+        *(out + d_channel_map[inphase_sel][i]) = gr_complex(float(2 * *(inbuf + i) - 1) * D_INVSQRT, 0.0f);
       }
-      return d_used_subcarriers / 2;
+      return d_channel_map[inphase_sel].size();
     }
 
     int
@@ -141,9 +167,6 @@ namespace gr {
           d_frame_position = (d_frame_position + 1) % d_frame_len;
           out += d_total_subcarriers;
         }
-
-        std::cout << "noutput_items = " << noutput_items << ", nin_items = " << nin_items << ", consumed = " << consumed_items << std::endl;
-
 
         // Tell runtime system how many input items we consumed on
         // each input stream.

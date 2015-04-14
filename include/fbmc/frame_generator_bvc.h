@@ -38,6 +38,8 @@ namespace gr {
      public:
       typedef boost::shared_ptr<frame_generator_bvc> sptr;
 
+      virtual std::vector<std::vector<int> > channel_map() = 0;
+
       /*!
        * \brief Return a shared_ptr to a new instance of fbmc::frame_generator_bvc.
        *

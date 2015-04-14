@@ -51,12 +51,15 @@ class qa_frame_generator_bvc(gr_unittest.TestCase):
         snk = blocks.vector_sink_c(total_subcarriers)
         self.tb.connect(src, framer, snk)
 
+        print "framer.channel_map() = ", framer.channel_map()
         # run fg
         self.tb.run()
         # check data
 
-        res = snk.data()
-        print np.reshape(res, (-1, total_subcarriers)).T
+        res = np.array(snk.data())
+        # print np.reshape(res.astype(float), (-1, total_subcarriers)).T
+
+        self.assertComplexTuplesAlmostEqual(frame[0:len(res)], res)
 
     def _get_payload(self, payload_symbols, used_subcarriers):
         num_pl_vals = payload_symbols * used_subcarriers // 2

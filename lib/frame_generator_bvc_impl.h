@@ -33,14 +33,18 @@ namespace gr {
       int d_total_subcarriers;
       int d_payload_symbols;
       int d_overlap;
-      std::vector<int> d_channel_map;
+      std::vector<std::vector<int> > d_channel_map;
       std::vector<gr_complex> d_preamble;
       gr_complex* d_preamble_buf;
       int d_preamble_symbols;
       int d_frame_len;
       int d_frame_position;
 
+      const float D_INVSQRT;
+
       void setup_preamble(std::vector<gr_complex> preamble);
+      void setup_channel_map(std::vector<int> channel_map);
+
       void insert_preamble_vector(gr_complex* out, int preamble_position);
 
       void insert_padding_zeros(gr_complex* out);
@@ -53,6 +57,8 @@ namespace gr {
 
       // Where all the action really happens
       void forecast (int noutput_items, gr_vector_int &ninput_items_required);
+
+      std::vector<std::vector<int> > channel_map(){return d_channel_map;};
 
       int general_work(int noutput_items,
 		       gr_vector_int &ninput_items,
