@@ -252,37 +252,81 @@ def rx_fdomain(samples, prototype_freq, osr, oqam='SIOHAN', drop_in=None, drop_i
 
     return d_hat
 
-def fft_reverse_test():
-    np.set_printoptions(4)
-    l = 8
-    d = np.arange(1, l + 1)
-    print d
-    print d[::-1]
 
-    rif = ifft(d[::-1])
-    print rif
-    f = ifft(d) * -1
-    print f
+def _get_padding_zeros(total_subcarriers, overlap):
+    return np.zeros(total_subcarriers * overlap, dtype=float)
 
-    for n in np.array(zip(rif, f)):
-        e = n[0] == n[1]
-        print 'values:', n, 'equal?', e
+
+def _get_payload_frame(payload, total_subcarriers, channel_map, payload_symbols):
+    if payload_symbols % 2 != 0:
+        raise ValueError('payload_symbols MUST be even!')
+    invsqrt = 1.0 / np.sqrt(2.0)
+    pf = np.zeros((payload_symbols, total_subcarriers), dtype=float)
+    smt_scheme = _get_smt_scheme(total_subcarriers)
+    ctr = 0
+    for i, vec in enumerate(pf):
+        for e, el in enumerate(vec):
+            if channel_map[e] != 0 and smt_scheme[i % 2][e] != 0:
+                val = payload[ctr]
+                pf[i][e] = (2 * val - 1) * invsqrt
+                ctr += 1
+    return pf.flatten()
+
+
+def _get_smt_scheme(total_subcarriers):
+    scheme = np.zeros((2, total_subcarriers), dtype=int)
+    isInphase = True
+    for i in range(total_subcarriers):
+        if isInphase:
+            scheme[0][i] = 1
+        if not isInphase:
+            scheme[1][i] = 1
+        if i % 2 == 0:
+            isInphase = not isInphase
+    return scheme
+
+
+def get_frame(payload, total_subcarriers, channel_map, payload_symbols, overlap):
+    preamble = get_preamble(total_subcarriers)
+    zero_pad = _get_padding_zeros(total_subcarriers, overlap)
+    payload = _get_payload_frame(payload, total_subcarriers, channel_map, payload_symbols)
+    return np.concatenate((preamble, zero_pad, payload, zero_pad))
+
+
+def get_payload(payload_symbols, used_subcarriers):
+    num_pl_vals = payload_symbols * used_subcarriers // 2
+    payload = np.random.randint(0, 2, num_pl_vals)
+    return payload
+
+
+def get_channel_map(used_subcarriers, total_subcarriers):
+    # channel_map = [1, 1, 0, 0, 1, 1, 0, 0]  # original!
+    channel_map = np.concatenate(
+        (np.zeros(total_subcarriers - used_subcarriers, dtype=int), np.ones(used_subcarriers, dtype=int)))
+    np.random.shuffle(channel_map)  # careful! it's an in-place shuffle!
+    return channel_map
+
+
+def get_preamble(total_subcarriers):
+    preamble = np.ones(total_subcarriers, dtype=float) * 2
+    preamble = np.concatenate((preamble, np.zeros(total_subcarriers, dtype=float)))
+    preamble = np.concatenate((preamble, np.ones(total_subcarriers, dtype=float) * 4))
+    preamble = np.concatenate((preamble, np.ones(total_subcarriers, dtype=float)))
+    return preamble
 
 
 def main():
-    # print "fbmc_test_functions"
-    # L = 32
-    # K = 4
-    #
-    # fprot = generate_phydyas_filter(L, K)
-    # print len(fprot)
-    # print type(fprot[0])
-    # plt.plot(fprot)
-    #
-    #
-    # plt.show()
+    np.set_printoptions(2, linewidth=150)
+    total_subcarriers = 8
+    used_subcarriers = 4
+    channel_map = get_channel_map(used_subcarriers, total_subcarriers)
+    payload_symbols = 8
+    overlap = 4
 
-    fft_reverse_test()
+    preamble = get_preamble(total_subcarriers)
+    payload = get_payload(payload_symbols, used_subcarriers)
+    frame = get_frame(payload, total_subcarriers, channel_map, payload_symbols, overlap)
+    print np.reshape(frame, (-1, total_subcarriers)).T
 
 
 if __name__ == '__main__':

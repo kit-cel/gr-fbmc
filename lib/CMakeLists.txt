@@ -48,7 +48,8 @@ list(APPEND fbmc_sources
     rx_domain_cvc_impl.cc
     rx_domain_kernel.cc
     smt_kernel.cc
-    frame_generator_bvc_impl.cc )
+    frame_generator_bvc_impl.cc
+    deframer_vcb_impl.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)

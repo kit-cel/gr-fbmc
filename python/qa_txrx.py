@@ -21,295 +21,68 @@
 
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
-from gnuradio import fft
-from gnuradio import digital
 import fbmc_swig as fbmc
-from numpy import *
+import numpy as np
+import fbmc_test_functions as ft
 
-class qa_tx (gr_unittest.TestCase):
-	
-	def get_frame_len(self):
-		return self.cfg.num_total_subcarriers()*self.cfg.num_sym_frame()
 
-	def setUp (self):
-		self.tb = gr.top_block ()
-		self.cfg = fbmc.fbmc_config(num_used_subcarriers=16, num_payload_sym=18, num_overlap_sym=4, modulation="QPSK", preamble="IAM", samp_rate=250000)
-		
-		# default configuration, can be overwritten in the test
-		self.num_frames = 100
-			
-		
-		# prepare all blocks needed for a full TXRX chain but connect only the needed ones
-		
-		# TX 
-		self.b2s = digital.chunks_to_symbols_bc(self.cfg.constellation_points(), 1)
-		self.serial_to_parallel = fbmc.serial_to_parallel_cvc(self.cfg.num_used_subcarriers(), self.cfg.num_total_subcarriers(), self.cfg.channel_map())
-		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=0, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())
-		self.preamble_insertion = fbmc.preamble_insertion_vcvc(L=self.cfg.num_total_subcarriers(), frame_len = self.cfg.num_payload_sym()+self.cfg.num_sync_sym()+2*self.cfg.num_overlap_sym(), type=self.cfg.preamble(), overlap=self.cfg.num_overlap_sym(), channel_map=self.cfg.channel_map())
-		self.oqam = fbmc.serialize_iq_vcvc(self.cfg.num_total_subcarriers())
-		self.betas = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=0)
-		from gnuradio import fft # why does the import at the top not work??
-		self.inv_fft = fft.fft_vcc(self.cfg.num_total_subcarriers(), False, (()), False, 1)
-		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_total_subcarriers(), prototype_taps=self.cfg.prototype_taps())
-		self.output_commutator = fbmc.output_commutator_vcc(self.cfg.num_total_subcarriers())	
-		
-		# RX path
-		self.frame_sync = fbmc.frame_sync_cc(self.cfg.num_used_subcarriers(), self.cfg.num_sym_frame(), self.cfg.num_overlap_sym(), "IAM", 1, 0.999)
-		self.input_commutator = fbmc.input_commutator_cvc(self.cfg.num_total_subcarriers())
-		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_total_subcarriers(), prototype_taps=self.cfg.prototype_taps())
-		self.inv_fft2 = fft.fft_vcc(self.cfg.num_total_subcarriers(), False, (()), False, 1)
-		self.betas2 = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=1)
-		self.qam = fbmc.combine_iq_vcvc(self.cfg.num_total_subcarriers())
-		self.frame_gen2 = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=1, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())		
-		self.parallel_to_serial = fbmc.parallel_to_serial_vcc(self.cfg.num_used_subcarriers(), self.cfg.num_total_subcarriers(), self.cfg.channel_map())
-		self.s2b = fbmc.symbols_to_bits_cb(self.cfg.constellation())
-				
-	def tearDown (self):
-		self.tb = None
-		
+class qa_tx(gr_unittest.TestCase):
+    def get_frame_len(self):
+        return self.cfg.num_total_subcarriers() * self.cfg.num_sym_frame()
 
-	def test_001_t(self):
-		print "test 1 - src to parallelization"
-		
-		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_used_subcarriers())]		
-		
-		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
-		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames)
-		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
-		
-		self.tb.connect(self.src, self.head, self.serial_to_parallel, self.snk)
-		self.tb.run()
-		
-		# check data
-		data = self.snk.data()
-		self.assertEqual(len(data), self.num_frames*self.cfg.num_payload_sym()*self.cfg.num_total_subcarriers())
-	
-	def test_004_t(self):
-		print "test 4 - serializer and OQAM without frame generator inbetween"
-		
-		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_used_subcarriers())]		
-		
-		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
-		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames) 
-		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
-		
-		self.tb.connect(self.src, self.head, self.serial_to_parallel, self.oqam, self.snk)
-		self.tb.run()
-		
-		# check data
-		data = self.snk.data()
-		self.assertEqual(len(data), self.num_frames*self.cfg.num_total_subcarriers()*self.cfg.num_payload_sym()*2)	
-		
-	def test_005_t(self):
-		print "test 5 - serializer, OQAM, betas"
-		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_used_subcarriers())]
-		
-		# TX
-		self.src = blocks.vector_source_c(input_data, vlen=1)
-		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
-		self.tb.connect(self.src, self.serial_to_parallel, self.oqam, self.betas, self.snk)
-			  
-		# run the flow graph
-		self.tb.run()
-		
-		# check data
-		output_data = self.snk.data()	
+    def setUp(self):
+        np.set_printoptions(2, linewidth=150)
+        self.tb = gr.top_block()
+        self.cfg = fbmc.fbmc_config(num_used_subcarriers=20, num_payload_sym=16, num_overlap_sym=4, modulation="QPSK",
+                                    preamble="IAM", samp_rate=250000)
 
-		self.assertEqual(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers()*2, len(output_data))	
-		
-	def test_006_t(self):
-		print "test 6 - serializer, OQAM, betas, ifft"
-		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_used_subcarriers())]
-		
-		# TX
-		self.src = blocks.vector_source_c(input_data, vlen=1)
-		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
-		self.tb.connect(self.src, self.serial_to_parallel, self.oqam, self.betas, self.inv_fft, self.snk)
-			  
-		# run the flow graph
-		self.tb.run()
-		
-		# check data
-		output_data = self.snk.data()	
+    def tearDown(self):
+        self.tb = None
 
-		self.assertEqual(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers()*2, len(output_data))				
-		
-	def test_007_t(self):
-		print "test 7 - serializer, OQAM, betas, ifft, ppfb"
-		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_used_subcarriers())]
-		
-		# TX
-		self.src = blocks.vector_source_c(input_data, vlen=1)
-		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
-		self.tb.connect(self.src, self.serial_to_parallel, self.oqam, self.betas, self.inv_fft, self.ppfb, self.snk)
-			  
-		# run the flow graph
-		self.tb.run()
-		
-		# check data
-		output_data = self.snk.data()	
+    def test_001_frames(self):
+        total_subcarriers = 8
+        used_subcarriers = 4
+        channel_map = ft.get_channel_map(used_subcarriers, total_subcarriers)
+        payload_symbols = 8
+        overlap = 4
 
-		self.assertEqual(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers()*2, len(output_data))	
-		
-	def test_008_t(self):		
-		print "test 8 - serializer, OQAM, betas, ifft, ppfb, output commutator"
-		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_used_subcarriers())]
-		
-		# TX
-		self.src = blocks.vector_source_c(input_data, vlen=1)
-		self.snk = blocks.vector_sink_c(vlen=1)
-		self.tb.connect(self.src, self.serial_to_parallel, self.oqam, self.betas, self.inv_fft, self.ppfb, self.output_commutator, self.snk)
-			  
-		# run the flow graph
-		self.tb.run()
-		
-		# check data
-		output_data = self.snk.data()	
+        preamble = ft.get_preamble(total_subcarriers)
+        payload = ft.get_payload(payload_symbols, used_subcarriers)
+        payload = np.concatenate((payload, payload))
 
-		self.assertEqual(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_total_subcarriers(), len(output_data))			
-		
-	
-	
-	def test_002_t(self):
-		print "test 2 - src to frame generator"
-		
-		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_used_subcarriers())]		
-		
-		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
-		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames)
-		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
-		
-		self.tb.connect(self.src, self.head, self.serial_to_parallel, self.frame_gen, self.snk)
-		self.tb.run()
-		
-		# check data
-		data = self.snk.data()
-		self.assertEqual(len(data), self.num_frames*self.get_frame_len())
-			
-	def test_003_t(self):
-		print "test 3 - src to serializer"
-		
-		# random input signal
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.cfg.num_used_subcarriers())]		
-		
-		self.src = blocks.vector_source_c(input_data, vlen=1, repeat=True) 
-		self.head = blocks.head(gr.sizeof_gr_complex, len(input_data)*self.num_frames) 
-		self.snk = blocks.vector_sink_c(vlen=self.cfg.num_total_subcarriers())
-		
-		self.tb.connect(self.src, self.head, self.serial_to_parallel, self.frame_gen, self.oqam, self.snk)
-		self.tb.run()
-		
-		# check data
-		data = self.snk.data()
-		self.assertEqual(len(data), self.num_frames*self.get_frame_len()*2)		
-		
-	def test_010_t(self):
-		print "test 10 - complete tx chain (with frame generator)"
-		
-		
-		input_data = [i+1j*i for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_used_subcarriers())]
-		self.src = blocks.vector_source_c(input_data, vlen=1)
-		self.snk = blocks.vector_sink_c(vlen=1)
-		
-		# connect and run
-		self.tb.connect(self.src, self.serial_to_parallel, self.frame_gen, self.oqam, self.betas, self.inv_fft, self.ppfb, self.output_commutator, self.snk)
-		self.tb.run()
-		
-		# check
-		output_data = self.snk.data()
-		self.assertEqual(len(output_data),self.num_frames*self.get_frame_len())
-		
-	def test_009_t(self):
-		print "test 9 - symbol input - M=L - whole TXRX chain"
+        src = blocks.vector_source_b(payload, repeat=False)
+        framer = fbmc.frame_generator_bvc(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map, preamble)
+        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map)
+        snk = blocks.vector_sink_b(1)
+        self.tb.connect(src, framer, deframer, snk)
+        self.tb.run()
 
-		# random input signal
-		input_data = [sin(i)+1j*cos(i) for i in range(self.cfg.num_payload_sym()*self.num_frames*self.cfg.num_used_subcarriers())]
-		
-		# TX
-		self.src = blocks.vector_source_c(input_data, vlen=1)
-		self.tb.connect(self.src, self.serial_to_parallel, self.frame_gen, self.oqam, self.betas, self.inv_fft, self.ppfb, self.output_commutator)
-			  
-		# RX
-		self.snk = blocks.vector_sink_c(vlen=1)		
-		self.tb.connect(self.output_commutator, self.input_commutator, self.ppfb2, self. inv_fft2, self.betas2, self.qam, self. frame_gen2, self.parallel_to_serial, self.snk)
-		
-		# run the flow graph
-		self.tb.run()
-		
-		# check data
-		output_data = self.snk.data()	
-		self.assertComplexTuplesAlmostEqual(output_data, input_data, 2)
-			
-	
-	def test_011_t(self):
-		print "test 11 - bit input - M<L - whole TXRX chain"
-		# configuration
-		self.cfg = fbmc.fbmc_config(num_used_subcarriers = 5, num_payload_sym = 18, modulation="QPSK", preamble="IAM")
+        res = np.array(snk.data())
+        print res
+        print payload
 
-		# random input signal
-		input_data = map(int, random.randint(0, 4, self.cfg.num_used_subcarriers()*self.num_frames*self.cfg.num_payload_sym()))
-		
-		# TX
-		self.src = blocks.vector_source_b(input_data, False)
-		self.b2s = digital.chunks_to_symbols_bc((self.cfg.constellation_points()), 1)
-		self.s2p = fbmc.serial_to_parallel_cvc(len_in=self.cfg.num_used_subcarriers(), vlen_out=self.cfg.num_total_subcarriers(), channel_map=self.cfg.channel_map())
-		self.frame_gen = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=0, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())
-		
-		self.oqam = fbmc.serialize_iq_vcvc(self.cfg.num_total_subcarriers())
-		self.betas = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=0)
-		from gnuradio import fft # why does the import at the top not work??
-		self.inv_fft = fft.fft_vcc(self.cfg.num_total_subcarriers(), False, (()), False, 1)
-		self.ppfb = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_total_subcarriers(), prototype_taps=self.cfg.prototype_taps())
-		self.output_commutator = fbmc.output_commutator_vcc(self.cfg.num_total_subcarriers())
-	
-		self.tb.connect(self.src, self.b2s, self.s2p, self.frame_gen, self.oqam, self.betas, self.inv_fft, self.ppfb, self.output_commutator)
-			  
-		# RX
-		self.input_commutator = fbmc.input_commutator_cvc(self.cfg.num_total_subcarriers())
-		self.ppfb2 = fbmc.polyphase_filterbank_vcvc(L=self.cfg.num_total_subcarriers(), prototype_taps=self.cfg.prototype_taps())
-		self.inv_fft2 = fft.fft_vcc(self.cfg.num_total_subcarriers(), False, (()), False, 1)
-		self.betas2 = fbmc.apply_betas_vcvc(L=self.cfg.num_total_subcarriers(), inverse=1)
-		self.qam = fbmc.combine_iq_vcvc(self.cfg.num_total_subcarriers())
-		self.frame_gen2 = fbmc.frame_generator_vcvc(sym_len=self.cfg.num_total_subcarriers(), num_payload = self.cfg.num_payload_sym(), inverse=1, num_overlap = self.cfg.num_overlap_sym(), num_sync = self.cfg.num_sync_sym())
-		self.p2s = fbmc.parallel_to_serial_vcc(len_out=self.cfg.num_used_subcarriers(), vlen_in=self.cfg.num_total_subcarriers(), channel_map=self.cfg.channel_map())
-		self.s2b = fbmc.symbols_to_bits_cb(self.cfg.constellation())
-		self.snk = blocks.vector_sink_b(vlen=1)
-		
-		self.tb.connect(self.output_commutator, self.input_commutator, self.ppfb2, self.inv_fft2, self.betas2, self.qam, self.frame_gen2, self.p2s, self.s2b, self.snk)
-		
-		# run the flow graph
-		self.tb.run()
-		
-		# check data
-		output_data = self.snk.data()
-		self.assertComplexTuplesAlmostEqual(input_data, output_data)	
+        self.assertTupleEqual(tuple(payload), tuple(res))
 
-	def test_012_t(self):
-		print "test 12 - bit input - whole TXRX chain"
+    def test_002_modulation(self):
+        total_subcarriers = 8
+        overlap = 4
+        taps = ft.generate_phydyas_filter(total_subcarriers, overlap)
 
-		# random input signal
-		input_data = map(int, random.randint(0, 4, self.cfg.num_used_subcarriers()*self.num_frames*self.cfg.num_payload_sym()))		
-		# TX
-		self.src = blocks.vector_source_b(input_data, False)
-		self.tb.connect(self.src, self.b2s, self.serial_to_parallel, self.frame_gen, self.oqam, self.betas, self.inv_fft, self.ppfb, self.output_commutator)
-			  
-		# RX
-		self.snk = blocks.vector_sink_b(vlen=1)		
-		self.tb.connect(self.output_commutator, self.input_commutator, self.ppfb2, self. inv_fft2, self.betas2, self.qam, self. frame_gen2, self.parallel_to_serial, self.s2b, self.snk)
-		
-		# run the flow graph
-		self.tb.run()
-		
-		# check data
-		output_data = self.snk.data()	
-		self.assertFloatTuplesAlmostEqual(output_data, input_data[:len(output_data)])
+        data = np.arange(1, 2 * total_subcarriers * overlap + 1, dtype=complex)
+
+        src = blocks.vector_source_c(data, vlen=total_subcarriers, repeat=False)
+        mod = fbmc.tx_sdft_vcc(taps, total_subcarriers)
+        demod = fbmc.rx_sdft_cvc(taps, total_subcarriers)
+        snk = blocks.vector_sink_c(total_subcarriers)
+
+        self.tb.connect(src, mod, demod, snk)
+        self.tb.run()
+
+        res = np.array(snk.data())
+        print np.reshape(res, (-1, total_subcarriers)).T
+
+        # self.assertTupleEqual(tuple(payload), tuple(res))
+
 
 if __name__ == '__main__':
-	gr_unittest.run(qa_tx)
+    gr_unittest.run(qa_tx)

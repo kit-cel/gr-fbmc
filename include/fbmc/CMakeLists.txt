@@ -45,5 +45,6 @@ install(FILES
     rx_domain_cvc.h
     rx_domain_kernel.h
     smt_kernel.h
-    frame_generator_bvc.h DESTINATION include/fbmc
+    frame_generator_bvc.h
+    deframer_vcb.h DESTINATION include/fbmc
 )

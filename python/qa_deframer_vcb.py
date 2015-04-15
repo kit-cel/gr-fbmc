@@ -26,7 +26,7 @@ import numpy as np
 import fbmc_test_functions as ft
 
 
-class qa_frame_generator_bvc(gr_unittest.TestCase):
+class qa_deframer_vcb(gr_unittest.TestCase):
     def setUp(self):
         np.set_printoptions(2, linewidth=150)
         self.tb = gr.top_block()
@@ -41,27 +41,48 @@ class qa_frame_generator_bvc(gr_unittest.TestCase):
         payload_symbols = 8
         overlap = 4
 
-        preamble = ft.get_preamble(total_subcarriers)
         payload = ft.get_payload(payload_symbols, used_subcarriers)
         frame = ft.get_frame(payload, total_subcarriers, channel_map, payload_symbols, overlap)
-        print np.reshape(frame, (-1, total_subcarriers)).T
+        frame = np.concatenate((frame, frame))
+        payload = np.concatenate((payload, payload))
 
-        # create and connect blocks
+        # set up fg
+        src = blocks.vector_source_c(frame, repeat=False, vlen=total_subcarriers)
+        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map)
+        snk = blocks.vector_sink_b(1)
+        self.tb.connect(src, deframer, snk)
+        self.tb.run()
+
+        # check data
+        res = np.array(snk.data())
+        print res
+        print payload
+
+        self.assertTupleEqual(tuple(payload), tuple(res))
+
+    def test_002_chain_test(self):
+        total_subcarriers = 8
+        used_subcarriers = 4
+        channel_map = ft.get_channel_map(used_subcarriers, total_subcarriers)
+        payload_symbols = 8
+        overlap = 4
+
+        preamble = ft.get_preamble(total_subcarriers)
+        payload = ft.get_payload(payload_symbols, used_subcarriers)
+        payload = np.concatenate((payload, payload))
+
         src = blocks.vector_source_b(payload, repeat=False)
         framer = fbmc.frame_generator_bvc(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map, preamble)
-        snk = blocks.vector_sink_c(total_subcarriers)
-        self.tb.connect(src, framer, snk)
-
-        print "framer.channel_map() = ", framer.channel_map()
-        # run fg
+        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map)
+        snk = blocks.vector_sink_b(1)
+        self.tb.connect(src, framer, deframer, snk)
         self.tb.run()
-        # check data
 
         res = np.array(snk.data())
-        # print np.reshape(res.astype(float), (-1, total_subcarriers)).T
+        print res
+        print payload
 
-        self.assertComplexTuplesAlmostEqual(frame[0:len(res)], res)
-
+        self.assertTupleEqual(tuple(payload), tuple(res))
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_frame_generator_bvc)
+    gr_unittest.run(qa_deframer_vcb, "qa_deframer_vcb.xml")

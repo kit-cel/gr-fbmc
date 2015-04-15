@@ -18,15 +18,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_FBMC_FRAME_GENERATOR_BVC_IMPL_H
-#define INCLUDED_FBMC_FRAME_GENERATOR_BVC_IMPL_H
+#ifndef INCLUDED_FBMC_DEFRAMER_VCB_IMPL_H
+#define INCLUDED_FBMC_DEFRAMER_VCB_IMPL_H
 
-#include <fbmc/frame_generator_bvc.h>
+#include <fbmc/deframer_vcb.h>
 
 namespace gr {
   namespace fbmc {
 
-    class frame_generator_bvc_impl : public frame_generator_bvc
+    class deframer_vcb_impl : public deframer_vcb
     {
      private:
       int d_used_subcarriers;
@@ -34,31 +34,22 @@ namespace gr {
       int d_payload_symbols;
       int d_overlap;
       std::vector<std::vector<int> > d_channel_map;
-      std::vector<gr_complex> d_preamble;
-      gr_complex* d_preamble_buf;
       int d_preamble_symbols;
       int d_frame_len;
       int d_frame_position;
+      int d_start_of_payload;
+      int d_end_of_payload;
 
-      const float D_INVSQRT;
-
-      void setup_preamble(std::vector<gr_complex> preamble);
       void setup_channel_map(std::vector<int> channel_map);
 
-      inline void insert_preamble_vector(gr_complex* out, int preamble_position);
-
-      inline void insert_padding_zeros(gr_complex* out);
-
-      inline int insert_payload(gr_complex* out, const char* inbuf);
+      int extract_bytes(char* out, const gr_complex* inbuf);
 
      public:
-      frame_generator_bvc_impl(int used_subcarriers, int total_subcarriers, int payload_symbols, int overlap, std::vector<int> channel_map, std::vector<gr_complex> preamble);
-      ~frame_generator_bvc_impl();
+      deframer_vcb_impl(int used_subcarriers, int total_subcarriers, int payload_symbols, int overlap, std::vector<int> channel_map);
+      ~deframer_vcb_impl();
 
       // Where all the action really happens
       void forecast (int noutput_items, gr_vector_int &ninput_items_required);
-
-      std::vector<std::vector<int> > channel_map(){return d_channel_map;};
 
       int general_work(int noutput_items,
 		       gr_vector_int &ninput_items,
@@ -69,5 +60,5 @@ namespace gr {
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_FRAME_GENERATOR_BVC_IMPL_H */
+#endif /* INCLUDED_FBMC_DEFRAMER_VCB_IMPL_H */
 

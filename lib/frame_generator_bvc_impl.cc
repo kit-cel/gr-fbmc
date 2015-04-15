@@ -113,18 +113,18 @@ namespace gr {
       ninput_items_required[0] = noutput_items;
     }
 
-    void
+    inline void
     frame_generator_bvc_impl::insert_preamble_vector(gr_complex* out, int preamble_position)
     {
       memcpy(out, d_preamble_buf + d_total_subcarriers * preamble_position, sizeof(gr_complex) * d_total_subcarriers);
     }
 
-    void
+    inline void
     frame_generator_bvc_impl::insert_padding_zeros(gr_complex* out){
       memset(out, 0, sizeof(gr_complex) * d_total_subcarriers);
     }
 
-    int
+    inline int
     frame_generator_bvc_impl::insert_payload(gr_complex* out, const char* inbuf)
     {
       const int inphase_sel = (d_frame_position - d_preamble_symbols + d_overlap) % 2;
@@ -136,44 +136,43 @@ namespace gr {
     }
 
     int
-    frame_generator_bvc_impl::general_work (int noutput_items,
-                       gr_vector_int &ninput_items,
-                       gr_vector_const_void_star &input_items,
-                       gr_vector_void_star &output_items)
+    frame_generator_bvc_impl::general_work(int noutput_items, gr_vector_int &ninput_items,
+                                           gr_vector_const_void_star &input_items,
+                                           gr_vector_void_star &output_items)
     {
-        const char *in = (const char *) input_items[0];
-        gr_complex *out = (gr_complex *) output_items[0];
+      const char *in = (const char *) input_items[0];
+      gr_complex *out = (gr_complex *) output_items[0];
 
-        // one payload vector will carry d_used_subcarriers / 2 payload symbols!
-        const int nin_items = ninput_items[0] - (ninput_items[0] % (d_used_subcarriers / 2));
+      // one payload vector will carry d_used_subcarriers / 2 payload symbols!
+      const int nin_items = ninput_items[0] - (ninput_items[0] % (d_used_subcarriers / 2));
 
-        int consumed_items = 0;
-        for(int i = 0; i < noutput_items; i++){
-          if(d_frame_position < d_preamble_symbols){
-            insert_preamble_vector(out, d_frame_position);
-          }
-          else if(d_frame_position < d_preamble_symbols + d_overlap){
-            insert_padding_zeros(out);
-          }
-          else if(d_frame_position < d_preamble_symbols + d_overlap + d_payload_symbols){
-            int consumed = insert_payload(out, in);
-            in += consumed;
-            consumed_items += consumed;
-          }
-          else{
-            insert_padding_zeros(out);
-          }
-
-          d_frame_position = (d_frame_position + 1) % d_frame_len;
-          out += d_total_subcarriers;
+      int consumed_items = 0;
+      for(int i = 0; i < noutput_items; i++) {
+        if(d_frame_position < d_preamble_symbols) {
+          insert_preamble_vector(out, d_frame_position);
+        }
+        else if(d_frame_position < d_preamble_symbols + d_overlap) {
+          insert_padding_zeros(out);
+        }
+        else if(d_frame_position < d_preamble_symbols + d_overlap + d_payload_symbols) {
+          int consumed = insert_payload(out, in);
+          in += consumed;
+          consumed_items += consumed;
+        }
+        else {
+          insert_padding_zeros(out);
         }
 
-        // Tell runtime system how many input items we consumed on
-        // each input stream.
-        consume_each (consumed_items);
+        d_frame_position = (d_frame_position + 1) % d_frame_len;
+        out += d_total_subcarriers;
+      }
 
-        // Tell runtime system how many output items we produced.
-        return noutput_items;
+      // Tell runtime system how many input items we consumed on
+      // each input stream.
+      consume_each(consumed_items);
+
+      // Tell runtime system how many output items we produced.
+      return noutput_items;
     }
 
   } /* namespace fbmc */

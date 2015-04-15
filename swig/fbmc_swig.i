@@ -33,6 +33,7 @@
 #include "fbmc/rx_domain_kernel.h"
 #include "fbmc/smt_kernel.h"
 #include "fbmc/frame_generator_bvc.h"
+#include "fbmc/deframer_vcb.h"
 %}
 
 %include "../lib/fbmc_config.h"
@@ -81,3 +82,5 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, rx_domain_cvc);
 %include "fbmc/smt_kernel.h"
 %include "fbmc/frame_generator_bvc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, frame_generator_bvc);
+%include "fbmc/deframer_vcb.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, deframer_vcb);
