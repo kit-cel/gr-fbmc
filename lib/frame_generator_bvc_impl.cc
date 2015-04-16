@@ -144,7 +144,7 @@ namespace gr {
       gr_complex *out = (gr_complex *) output_items[0];
 
       // one payload vector will carry d_used_subcarriers / 2 payload symbols!
-      const int nin_items = ninput_items[0] - (ninput_items[0] % (d_used_subcarriers / 2));
+      const int nin_items = ninput_items[0];
 
       int consumed_items = 0;
       for(int i = 0; i < noutput_items; i++) {
@@ -155,6 +155,12 @@ namespace gr {
           insert_padding_zeros(out);
         }
         else if(d_frame_position < d_preamble_symbols + d_overlap + d_payload_symbols) {
+          if(nin_items <= consumed_items){
+            // next line seems odd, because iterator val sets new value for loop condition.
+            // prevents block from outputting 1k's of trash data.
+            noutput_items = i - 1;
+            break;
+          }
           int consumed = insert_payload(out, in);
           in += consumed;
           consumed_items += consumed;
