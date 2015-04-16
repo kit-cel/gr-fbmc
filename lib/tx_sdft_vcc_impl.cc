@@ -43,7 +43,10 @@ namespace gr {
             gr::io_signature::make(1, 1, sizeof(gr_complex)),
             L / 2 /*also sets output_multiple*/), tx_sdft_kernel(taps, L)
     {
-//      set_history(L);
+      // this is awkward. for streams just use num filtertaps
+      // for vectors do a +1. easy, hu?
+      // also remember input has double datarate due to this combine IQ stage.
+      set_history((overlap() / 2) + 1);
     }
 
     /*

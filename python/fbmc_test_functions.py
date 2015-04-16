@@ -308,10 +308,10 @@ def get_channel_map(used_subcarriers, total_subcarriers):
 
 
 def get_preamble(total_subcarriers):
-    preamble = np.ones(total_subcarriers, dtype=float) * 2
-    preamble = np.concatenate((preamble, np.zeros(total_subcarriers, dtype=float)))
+    preamble = np.ones(total_subcarriers, dtype=float) * 1
+    preamble = np.concatenate((preamble, np.ones(total_subcarriers, dtype=float) * 2))
+    preamble = np.concatenate((preamble, np.ones(total_subcarriers, dtype=float) * 3))
     preamble = np.concatenate((preamble, np.ones(total_subcarriers, dtype=float) * 4))
-    preamble = np.concatenate((preamble, np.ones(total_subcarriers, dtype=float)))
     return preamble
 
 
