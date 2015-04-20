@@ -46,12 +46,13 @@ class qa_tx(gr_unittest.TestCase):
         overlap = 4
 
         preamble = ft.get_preamble(total_subcarriers)
+        num_preamble_symbols = len(preamble) // total_subcarriers
         payload = ft.get_payload(payload_symbols, used_subcarriers)
         payload = np.concatenate((payload, payload))
 
         src = blocks.vector_source_b(payload, repeat=False)
         framer = fbmc.frame_generator_bvc(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map, preamble)
-        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map)
+        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, num_preamble_symbols, payload_symbols, overlap, channel_map)
         snk = blocks.vector_sink_b(1)
         self.tb.connect(src, framer, deframer, snk)
         self.tb.run()
@@ -87,14 +88,14 @@ class qa_tx(gr_unittest.TestCase):
 
         freq = np.fft.fft(np.reshape(res, (-1, total_subcarriers)))
         # print freq.T
-        plt.plot(freq.flatten().real)
-        for i in range(len(freq.flatten())):
-            if (i + 1) % total_subcarriers == 0:
-                plt.axvline(i)
-        plt.plot(5 * data.real)
-
-        plt.grid()
-        plt.show()
+        # plt.plot(freq.flatten().real)
+        # for i in range(len(freq.flatten())):
+        #     if (i + 1) % total_subcarriers == 0:
+        #         plt.axvline(i)
+        # plt.plot(5 * data.real)
+        #
+        # plt.grid()
+        # plt.show()
 
     def test_003_small_frame_mod(self):
         total_subcarriers = 8
@@ -105,10 +106,11 @@ class qa_tx(gr_unittest.TestCase):
         taps = ft.generate_phydyas_filter(total_subcarriers, overlap)
 
         preamble = ft.get_preamble(total_subcarriers)
+        num_preamble_symbols = len(preamble) // total_subcarriers
         print np.reshape(preamble, (-1, total_subcarriers)).T
         payload = ft.get_payload(payload_symbols, used_subcarriers)
         # payload = np.ones(payload_symbols * used_subcarriers // 2, dtype=int) # np.array((1, ) * payload_symbols * used_subcarriers // 2)
-        payload = np.tile(payload, 5)
+        payload = np.tile(payload, 3)
 
 
         src = blocks.vector_source_b(payload, repeat=False)
@@ -120,7 +122,7 @@ class qa_tx(gr_unittest.TestCase):
         skipper = blocks.skiphead(8 * total_subcarriers, 4)
 
         snk_rx = blocks.vector_sink_c(total_subcarriers)
-        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map)
+        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, num_preamble_symbols, payload_symbols, overlap, channel_map)
         snk = blocks.vector_sink_b(1)
         self.tb.connect(src, framer, mod, demod, skipper, deframer, snk)
         self.tb.connect(framer, snk_frame)
@@ -158,6 +160,7 @@ class qa_tx(gr_unittest.TestCase):
         taps = cfg.phydyas_impulse_taps(cfg.num_total_subcarriers(), cfg.num_overlap_sym())  # ft.generate_phydyas_filter(total_subcarriers, overlap)
 
         preamble = ft.get_preamble(total_subcarriers)
+        num_preamble_symbols = len(preamble) // total_subcarriers
         payload = ft.get_payload(payload_symbols, used_subcarriers)
         payload = np.concatenate((payload, payload))
 
@@ -171,7 +174,7 @@ class qa_tx(gr_unittest.TestCase):
         skipper = blocks.skiphead(8 * total_subcarriers, 4)
 
         snk_rx = blocks.vector_sink_c(total_subcarriers)
-        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map)
+        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, num_preamble_symbols, payload_symbols, overlap, channel_map)
         snk = blocks.vector_sink_b(1)
         self.tb.connect(src, framer, mod, demod, skipper, deframer, snk)
         self.tb.connect(framer, snk_frame)

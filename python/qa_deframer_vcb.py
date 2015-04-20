@@ -40,6 +40,7 @@ class qa_deframer_vcb(gr_unittest.TestCase):
         channel_map = ft.get_channel_map(used_subcarriers, total_subcarriers)
         payload_symbols = 8
         overlap = 4
+        num_preamble_symbols = 4
 
         payload = ft.get_payload(payload_symbols, used_subcarriers)
         frame = ft.get_frame(payload, total_subcarriers, channel_map, payload_symbols, overlap)
@@ -48,7 +49,7 @@ class qa_deframer_vcb(gr_unittest.TestCase):
 
         # set up fg
         src = blocks.vector_source_c(frame, repeat=False, vlen=total_subcarriers)
-        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map)
+        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, num_preamble_symbols, payload_symbols, overlap, channel_map)
         snk = blocks.vector_sink_b(1)
         self.tb.connect(src, deframer, snk)
         self.tb.run()
@@ -66,6 +67,7 @@ class qa_deframer_vcb(gr_unittest.TestCase):
         channel_map = ft.get_channel_map(used_subcarriers, total_subcarriers)
         payload_symbols = 8
         overlap = 4
+        num_preamble_symbols = 4
 
         preamble = ft.get_preamble(total_subcarriers)
         payload = ft.get_payload(payload_symbols, used_subcarriers)
@@ -73,7 +75,7 @@ class qa_deframer_vcb(gr_unittest.TestCase):
 
         src = blocks.vector_source_b(payload, repeat=False)
         framer = fbmc.frame_generator_bvc(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map, preamble)
-        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map)
+        deframer = fbmc.deframer_vcb(used_subcarriers, total_subcarriers, num_preamble_symbols, payload_symbols, overlap, channel_map)
         snk = blocks.vector_sink_b(1)
         self.tb.connect(src, framer, deframer, snk)
         self.tb.run()

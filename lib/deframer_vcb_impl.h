@@ -45,7 +45,7 @@ namespace gr {
       int extract_bytes(char* out, const gr_complex* inbuf);
 
      public:
-      deframer_vcb_impl(int used_subcarriers, int total_subcarriers, int payload_symbols, int overlap, std::vector<int> channel_map);
+      deframer_vcb_impl(int used_subcarriers, int total_subcarriers, int num_preamble_symbols, int payload_symbols, int overlap, std::vector<int> channel_map);
       ~deframer_vcb_impl();
 
       // Where all the action really happens

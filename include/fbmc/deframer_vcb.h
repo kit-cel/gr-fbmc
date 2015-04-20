@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::deframer_vcb::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int used_subcarriers, int total_subcarriers, int payload_symbols, int overlap, std::vector<int> channel_map);
+      static sptr make(int used_subcarriers, int total_subcarriers, int num_preamble_symbols, int payload_symbols, int overlap, std::vector<int> channel_map);
     };
 
   } // namespace fbmc

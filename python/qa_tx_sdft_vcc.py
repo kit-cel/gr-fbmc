@@ -85,8 +85,11 @@ class qa_tx_sdft_vcc(gr_unittest.TestCase):
         self.tb.connect(src, ft, pfb, comm, snk1)
 
         self.tb.run()
-        r0 = np.array(snk0.data())
+        r0 = np.array(snk0.data()[L//2:-L//2])
         r1 = np.array(snk1.data())
+
+        print "sdft overlap = ", tx_sdft.overlap()
+        print "sdft history = ", tx_sdft.history()
 
         print "\ntx_sdft"
         print r0.reshape((-1, L)).T
@@ -98,7 +101,7 @@ class qa_tx_sdft_vcc(gr_unittest.TestCase):
         for x, y in tmp:
             print x, y, "\tis equal", x == y
 
-        self.assertComplexTuplesAlmostEqual(r0, r1)
+        self.assertComplexTuplesAlmostEqual(r0, r1[0:len(r0)])
 
     def test_003_go_big(self):
         print "\n\n\ntest_003"
@@ -128,8 +131,8 @@ class qa_tx_sdft_vcc(gr_unittest.TestCase):
         self.tb.connect(src, ft, pfb, comm, snk1)
 
         self.tb.run()
-        r0 = np.array(snk0.data())
-        r1 = np.array(snk1.data())
+        r0 = np.array(snk0.data()[L:])
+        r1 = np.array(snk1.data()[:-L])
 
         print "\ntx_sdft"
         print r0.reshape((-1, L)).T

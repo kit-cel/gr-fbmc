@@ -29,23 +29,23 @@ namespace gr {
   namespace fbmc {
 
     deframer_vcb::sptr
-    deframer_vcb::make(int used_subcarriers, int total_subcarriers, int payload_symbols, int overlap, std::vector<int> channel_map)
+    deframer_vcb::make(int used_subcarriers, int total_subcarriers, int num_preamble_symbols, int payload_symbols, int overlap, std::vector<int> channel_map)
     {
       return gnuradio::get_initial_sptr
-        (new deframer_vcb_impl(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map));
+        (new deframer_vcb_impl(used_subcarriers, total_subcarriers, num_preamble_symbols, payload_symbols, overlap, channel_map));
     }
 
     /*
      * The private constructor
      */
-    deframer_vcb_impl::deframer_vcb_impl(int used_subcarriers, int total_subcarriers,
+    deframer_vcb_impl::deframer_vcb_impl(int used_subcarriers, int total_subcarriers, int num_preamble_symbols,
                                          int payload_symbols, int overlap,
                                          std::vector<int> channel_map) :
             gr::block("deframer_vcb",
                       gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers),
                       gr::io_signature::make(1, 1, sizeof(char))),
             d_used_subcarriers(used_subcarriers), d_total_subcarriers(total_subcarriers),
-            d_payload_symbols(payload_symbols), d_overlap(overlap), d_preamble_symbols(4),
+            d_payload_symbols(payload_symbols), d_overlap(overlap), d_preamble_symbols(num_preamble_symbols),
             d_frame_position(0)
     {
       setup_channel_map(channel_map);
