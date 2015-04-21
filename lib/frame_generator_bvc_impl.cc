@@ -111,7 +111,7 @@ namespace gr {
     frame_generator_bvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
       // always only 1 input and 1 output.
-      ninput_items_required[0] = noutput_items;
+      ninput_items_required[0] = noutput_items / 2;
     }
 
     inline void
@@ -148,6 +148,7 @@ namespace gr {
       const int nin_items = ninput_items[0];
 
       int consumed_items = 0;
+      int produced_items = 0;
       for(int i = 0; i < noutput_items; i++) {
         if(d_frame_position < d_preamble_symbols) {
           insert_preamble_vector(out, d_frame_position);
@@ -156,12 +157,10 @@ namespace gr {
           insert_padding_zeros(out);
         }
         else if(d_frame_position < d_preamble_symbols + d_overlap + d_payload_symbols) {
-          if(nin_items <= consumed_items){
-            // next line seems odd, because iterator val sets new value for loop condition.
-            // prevents block from outputting 1k's of trash data.
-            noutput_items = i - 1;
+          if(nused_items_on_vector() > nin_items - consumed_items){
             break;
           }
+
           int consumed = insert_payload(out, in);
           in += consumed;
           consumed_items += consumed;
@@ -172,14 +171,19 @@ namespace gr {
 
         d_frame_position = (d_frame_position + 1) % d_frame_len;
         out += d_total_subcarriers;
+        ++produced_items;
       }
+
+//      std::cout << "consumed_items(" << consumed_items << ") produced_items(" << produced_items << ")\n";
+//      std::cout << "nin_items     (" << nin_items <<      ")  noutput_items(" << noutput_items << ")\n";
+
 
       // Tell runtime system how many input items we consumed on
       // each input stream.
       consume_each(consumed_items);
 
       // Tell runtime system how many output items we produced.
-      return noutput_items;
+      return produced_items;
     }
 
   } /* namespace fbmc */

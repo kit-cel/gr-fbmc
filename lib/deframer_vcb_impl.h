@@ -44,6 +44,9 @@ namespace gr {
 
       int extract_bytes(char* out, const gr_complex* inbuf);
 
+      inline int inphase_selector() const {return (d_frame_position - d_preamble_symbols + d_overlap) % 2;};
+      inline int nused_items_on_vector() const {return d_channel_map[inphase_selector()].size();};
+
      public:
       deframer_vcb_impl(int used_subcarriers, int total_subcarriers, int num_preamble_symbols, int payload_symbols, int overlap, std::vector<int> channel_map);
       ~deframer_vcb_impl();

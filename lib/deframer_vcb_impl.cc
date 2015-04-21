@@ -67,7 +67,9 @@ namespace gr {
     void
     deframer_vcb_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
-      ninput_items_required[0] = noutput_items;
+      // this block "interpolates" because it takes vectors and puts out a stream.
+      // the number is an approximation. take into account that every frame has overlap and preamble symbols which are dropped here.
+      ninput_items_required[0] = noutput_items / (d_used_subcarriers / 2);
     }
 
     void
@@ -99,7 +101,7 @@ namespace gr {
     int
     deframer_vcb_impl::extract_bytes(char* out, const gr_complex* inbuf)
     {
-      const int inphase_sel = (d_frame_position - d_preamble_symbols + d_overlap) % 2;
+      const int inphase_sel = inphase_selector();
       for(int i = 0; i < d_channel_map[inphase_sel].size(); i++){
         if((*(inbuf + d_channel_map[inphase_sel][i])).real() > 0.0f){
           *(out + i) = 1;
@@ -123,20 +125,25 @@ namespace gr {
         const int nin_items = ninput_items[0];
 
         int produced_items = 0;
+        int consumed_items = 0;
         for(int items = 0; items < nin_items; items++){
           if(d_start_of_payload <= d_frame_position && d_frame_position < d_end_of_payload){
+            if(nused_items_on_vector() > noutput_items - produced_items){
+              break;
+            }
             int produced = extract_bytes(out, in);
             out += produced;
             produced_items += produced;
           }
+
           d_frame_position = (d_frame_position + 1) % d_frame_len;
           in += d_total_subcarriers;
-
+          ++consumed_items;
         }
 
         // Tell runtime system how many input items we consumed on
         // each input stream.
-        consume_each (nin_items);
+        consume_each (consumed_items);
 
         // Tell runtime system how many output items we produced.
         return produced_items;

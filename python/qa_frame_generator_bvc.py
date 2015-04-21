@@ -35,6 +35,7 @@ class qa_frame_generator_bvc(gr_unittest.TestCase):
         self.tb = None
 
     def test_001_t(self):
+        num_frames = 10
         total_subcarriers = 8
         used_subcarriers = 4
         channel_map = ft.get_channel_map(used_subcarriers, total_subcarriers)
@@ -42,9 +43,12 @@ class qa_frame_generator_bvc(gr_unittest.TestCase):
         overlap = 4
 
         preamble = ft.get_preamble(total_subcarriers)
+
         payload = ft.get_payload(payload_symbols, used_subcarriers)
         frame = ft.get_frame(payload, total_subcarriers, channel_map, payload_symbols, overlap)
-        print np.reshape(frame, (-1, total_subcarriers)).T
+
+        frame = np.tile(frame, num_frames).flatten()
+        payload = np.tile(payload, num_frames).flatten()
 
         # create and connect blocks
         src = blocks.vector_source_b(payload, repeat=False)
@@ -59,8 +63,10 @@ class qa_frame_generator_bvc(gr_unittest.TestCase):
 
         res = np.array(snk.data())
         # print np.reshape(res.astype(float), (-1, total_subcarriers)).T
+        print "len(frame) =", len(frame)
+        print "len(res)   =", len(res)
 
-        self.assertComplexTuplesAlmostEqual(frame[0:len(res)], res)
+        self.assertComplexTuplesAlmostEqual(frame, res[0:len(frame)])
 
 
 if __name__ == '__main__':

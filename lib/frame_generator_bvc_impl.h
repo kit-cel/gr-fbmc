@@ -51,6 +51,9 @@ namespace gr {
 
       inline int insert_payload(gr_complex* out, const char* inbuf);
 
+      inline int inphase_selector() const {return (d_frame_position - d_preamble_symbols + d_overlap) % 2;};
+      inline int nused_items_on_vector() const {return d_channel_map[inphase_selector()].size();};
+
      public:
       frame_generator_bvc_impl(int used_subcarriers, int total_subcarriers, int payload_symbols, int overlap, std::vector<int> channel_map, std::vector<gr_complex> preamble);
       ~frame_generator_bvc_impl();

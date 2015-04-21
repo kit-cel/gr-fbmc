@@ -1261,53 +1261,6 @@
     </param>
   </block>
   <block>
-    <key>blocks_skiphead</key>
-    <param>
-      <key>id</key>
-      <value>blocks_skiphead_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>num_items</key>
-      <value>2</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>total_subcarriers</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(904, 603)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>pad_sink</key>
     <param>
       <key>id</key>
@@ -1340,61 +1293,6 @@
     <param>
       <key>_coordinate</key>
       <value>(1376, 603)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>fbmc_deframer_vcb</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_deframer_vcb_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>used_subcarriers</key>
-      <value>used_subcarriers</value>
-    </param>
-    <param>
-      <key>total_subcarriers</key>
-      <value>total_subcarriers</value>
-    </param>
-    <param>
-      <key>payload_symbols</key>
-      <value>num_payload_symbols</value>
-    </param>
-    <param>
-      <key>overlap</key>
-      <value>num_overlap_symbols</value>
-    </param>
-    <param>
-      <key>channel_map</key>
-      <value>channel_map</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1168, 683)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1587,6 +1485,112 @@
     <param>
       <key>_coordinate</key>
       <value>(672, 603)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_deframer_vcb</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_deframer_vcb_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>used_subcarriers</key>
+      <value>used_subcarriers</value>
+    </param>
+    <param>
+      <key>total_subcarriers</key>
+      <value>total_subcarriers</value>
+    </param>
+    <param>
+      <key>num_preamble_symbols</key>
+      <value>int(len(preamble_symbol) // total_subcarriers)</value>
+    </param>
+    <param>
+      <key>payload_symbols</key>
+      <value>num_payload_symbols</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>num_overlap_symbols</value>
+    </param>
+    <param>
+      <key>channel_map</key>
+      <value>channel_map</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1168, 683)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_skiphead</key>
+    <param>
+      <key>id</key>
+      <value>blocks_skiphead_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>num_items</key>
+      <value>num_overlap_symbols</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>total_subcarriers</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(904, 603)</value>
     </param>
     <param>
       <key>_rotation</key>
