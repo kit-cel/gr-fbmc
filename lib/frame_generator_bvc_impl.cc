@@ -49,8 +49,7 @@ namespace gr {
                       gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers)),
             d_used_subcarriers(used_subcarriers), d_total_subcarriers(total_subcarriers),
             d_payload_symbols(payload_symbols), d_overlap(overlap), /*d_channel_map(channel_map),*/
-            d_preamble(preamble), d_frame_position(0),
-            D_INVSQRT(1.0f / std::sqrt(2.0f))
+            d_preamble(preamble), d_frame_position(0)
     {
       setup_preamble(preamble);
       setup_channel_map(channel_map);
@@ -67,6 +66,8 @@ namespace gr {
     {
       volk_free(d_preamble_buf);
     }
+
+    const gr_complex frame_generator_bvc_impl::D_CONSTELLATION[2] = {gr_complex(-1.0f / std::sqrt(2.0f), 0.0f), gr_complex(1.0f / std::sqrt(2.0f), 0.0f)};
 
     void
     frame_generator_bvc_impl::setup_preamble(std::vector<gr_complex> preamble)
@@ -111,7 +112,7 @@ namespace gr {
     frame_generator_bvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
       // always only 1 input and 1 output.
-      ninput_items_required[0] = noutput_items / 2;
+      ninput_items_required[0] = noutput_items * (d_used_subcarriers / 4);
     }
 
     inline void
@@ -128,12 +129,20 @@ namespace gr {
     inline int
     frame_generator_bvc_impl::insert_payload(gr_complex* out, const char* inbuf)
     {
-      const int inphase_sel = (d_frame_position - d_preamble_symbols + d_overlap) % 2;
+      const int inphase_sel = inphase_selector();
+      const int num_elements = d_channel_map[inphase_sel].size();
+
       memset(out, 0, sizeof(gr_complex) * d_total_subcarriers);
-      for(int i = 0; i < d_channel_map[inphase_sel].size(); i++){
-        *(out + d_channel_map[inphase_sel][i]) = gr_complex(float(2 * *(inbuf + i) - 1) * D_INVSQRT, 0.0f);
+//      for(int i = 0; i < num_elements; i++){
+//        *(out + d_channel_map[inphase_sel][i]) = D_CONSTELLATION[*inbuf++];
+//      }
+
+      int i = 0;
+      while(i < num_elements){
+        *(out + d_channel_map[inphase_sel][i++]) = D_CONSTELLATION[*inbuf++];
       }
-      return d_channel_map[inphase_sel].size();
+
+      return num_elements;
     }
 
     int
@@ -144,7 +153,6 @@ namespace gr {
       const char *in = (const char *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
-      // one payload vector will carry d_used_subcarriers / 2 payload symbols!
       const int nin_items = ninput_items[0];
 
       int consumed_items = 0;
@@ -173,10 +181,6 @@ namespace gr {
         out += d_total_subcarriers;
         ++produced_items;
       }
-
-//      std::cout << "consumed_items(" << consumed_items << ") produced_items(" << produced_items << ")\n";
-//      std::cout << "nin_items     (" << nin_items <<      ")  noutput_items(" << noutput_items << ")\n";
-
 
       // Tell runtime system how many input items we consumed on
       // each input stream.

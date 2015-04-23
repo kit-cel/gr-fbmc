@@ -40,10 +40,11 @@ namespace gr {
       int d_frame_len;
       int d_frame_position;
 
-      const float D_INVSQRT;
+      static const gr_complex D_CONSTELLATION[2];
 
       void setup_preamble(std::vector<gr_complex> preamble);
       void setup_channel_map(std::vector<int> channel_map);
+      std::vector<gr_complex> setup_constellation() const;
 
       inline void insert_preamble_vector(gr_complex* out, int preamble_position);
 

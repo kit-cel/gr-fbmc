@@ -4,3 +4,4 @@ cython/
 examples/*.py
 .idea/
 *.pyc
+perf*
