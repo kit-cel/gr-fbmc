@@ -33,6 +33,15 @@ namespace gr {
     unsigned const FRAME_SYNC_TRACKING = 2;
     unsigned const FRAME_SYNC_VALIDATION = 3;
 
+    struct io_info
+    {
+    	io_info(const gr_complex* inbuf, gr_complex* outbuf):in(inbuf), out(outbuf), samples_consumed(0), samples_returned(0){}
+    	int samples_consumed;
+    	int samples_returned;
+    	const gr_complex* in;
+    	gr_complex* out;
+    };
+
     class frame_sync_cc_impl : public frame_sync_cc {
      private:
       int d_L; // number of subcarriers
@@ -66,6 +75,11 @@ namespace gr {
       float estimate_cfo(gr_complex corr_val); // estimate carrier frequency offset
       float avg_cfo(float cfo); // returns a averaged estimate of the CFO by using earlier estimations
       std::string print_state();
+
+      void presence_detection(io_info	& io);
+      void acquisition(io_info& io);
+      void tracking(io_info& io);
+      void validation(io_info& io);
 
      public:
       frame_sync_cc_impl(int L, int frame_len, std::vector<gr_complex> preamble_sym, int step_size, float threshold, int overlap);

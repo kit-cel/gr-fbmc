@@ -189,23 +189,191 @@ namespace gr {
         return "invalid state";
     }
 
+	void 
+    frame_sync_cc_impl::presence_detection(io_info& io)
+    {
+        gr_complex res = fixed_lag_corr(io.in+d_fixed_lag_lookahead);
+        if(abs(res) > d_threshold)
+        {
+          std::cout << "DET->ACQ after successful fixed lag correlation:" << nitems_read(0) << std::endl;
+          d_state = FRAME_SYNC_ACQUISITION;
+          d_acq_ctr = 0;
+          
+          io.samples_consumed = 0;
+          io.samples_returned = 0;
+        }
+        else
+        {
+          io.samples_consumed = d_step_size;
+          io.samples_returned = 0;
+        }
+    }
+
+	void 
+    frame_sync_cc_impl::acquisition(io_info& io)
+    {
+		gr_complex res_flc = fixed_lag_corr(io.in+d_fixed_lag_lookahead);
+        if(abs(res_flc) > d_threshold)
+        {
+          d_cfo = estimate_cfo(res_flc);
+
+          d_buf.assign(io.in, io.in+d_preamble_sym.size());
+          for(int i=0; i < d_preamble_sym.size(); i++)
+            d_buf[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i));
+          if(!d_buf.is_linearized())
+            d_buf.linearize();
+          gr_complex res_rc = ref_corr(&d_buf[0]);
+
+          if(abs(res_rc) > d_threshold)
+          {
+            std::cout << "ACQ->TRACK after successful reference correlation: "  << nitems_read(0) << std::endl;
+            d_state = FRAME_SYNC_TRACKING;
+            d_phi = arg(res_rc);
+
+            d_cfo_hist.clear();
+            d_cfo = avg_cfo(d_cfo);
+            std::cout << "fractional CFO*250e3: " << d_cfo*250e3 << "Hz" << std::endl;
+            for(int i=0; i<d_preamble_sym.size(); i++)
+              d_buf[i] *= exp(gr_complex(0,-d_phi));
+            d_phi += fmod(2*M_PI*d_cfo*d_preamble_sym.size(), 2*M_PI);
+
+            memcpy(io.out, &d_buf[0], sizeof(gr_complex)*d_preamble_sym.size());
+            d_sample_ctr = d_preamble_sym.size();
+
+            io.samples_consumed = d_preamble_sym.size();
+            io.samples_returned = d_preamble_sym.size();
+          }
+          else
+          {
+            d_acq_ctr++;
+            if(d_acq_ctr >= d_acq_win_len)
+            {
+              d_state = FRAME_SYNC_PRESENCE_DETECTION;
+            }      
+
+            io.samples_consumed = 1;
+            io.samples_returned = 0;      
+          }
+        }
+        else
+        {
+          d_acq_ctr++;
+          if(d_acq_ctr >= d_acq_win_len)
+          {
+            d_state = FRAME_SYNC_PRESENCE_DETECTION;
+          }
+
+          io.samples_consumed = 1;
+          io.samples_returned = 0;
+        }    	
+    }
+
+	void 
+    frame_sync_cc_impl::tracking(io_info& io)
+    {
+        int samples_until_eof = d_frame_len - d_sample_ctr;
+        int samples_to_return = std::min(samples_until_eof, d_L);
+       
+        // TODO: this is simple but costly because for long frames many samples are just shifted through this buffer without being used
+        for(int i=0; i<samples_to_return; i++)
+          d_eof_buf.push_back(io.in[i]);
+
+        d_sample_ctr += samples_to_return;
+
+        if(d_sample_ctr == d_frame_len)
+        {
+          d_state = FRAME_SYNC_VALIDATION;
+          // duplicate end of the frame as buffer inbetween the frames
+          // memset(io.out+samples_to_return, 0, sizeof(gr_complex)*d_overlap/2*d_L);  
+          d_eof_buf.linearize();
+          memcpy(io.out+samples_to_return, &d_eof_buf[0], sizeof(gr_complex)*d_overlap/2*d_L);    
+          io.samples_returned = d_overlap/2*d_L; 
+
+          // copy the beginning of the next frame into the tracking buffer for later processing
+          d_track_buf.assign(io.in+samples_to_return - (d_track_win_len-1)/2, io.in+samples_to_return + d_preamble_sym.size()+d_track_win_len);
+        }
+
+        io.samples_consumed = samples_to_return;
+        io.samples_returned += samples_to_return;
+
+        memcpy(io.out, io.in, sizeof(gr_complex)*io.samples_returned);
+        for(int i=0; i < io.samples_returned; i++)
+          io.out[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i - d_phi));
+        d_phi = fmod(d_phi + 2*M_PI*d_cfo*io.samples_returned, 2*M_PI);    	
+    }
+
+	void 
+    frame_sync_cc_impl::validation(io_info& io)
+    {
+        // reset the frame sample counter
+        d_sample_ctr = 0;
+
+        // calculate the different correlations
+        for(int i = 0; i < d_track_win_len; i++)
+        {
+          d_track_fl_res[i] = fixed_lag_corr(&d_track_buf[i]+d_fixed_lag_lookahead);
+          if(abs(d_track_fl_res[i]) > d_threshold)
+          {
+            float cfo = estimate_cfo(d_track_fl_res[i]);
+            for(int k = 0; k < d_preamble_sym.size(); k++)
+            {
+              d_track_fcorr[i][k] = d_track_buf[i+k]*exp(gr_complex(0,-2*M_PI*cfo*k));
+            }
+            d_track_ref_res[i] = ref_corr(&d_track_fcorr[i][0]);
+          }
+        }
+
+        // find the optimal shift
+        int index=-1;
+        float max_abs = 0;
+        for(int i = 0; i < d_track_win_len; i++)
+        {
+          if(abs(d_track_fl_res[i]) > d_threshold && abs(d_track_ref_res[i]) > d_threshold && abs(d_track_ref_res[i]) > max_abs)
+            index = i;
+        }
+
+        // if a frame has been found, correct the remaining static phase shift
+        if(index != -1)
+        {
+          d_state = FRAME_SYNC_TRACKING;
+
+          d_cfo = avg_cfo(estimate_cfo(d_track_fl_res[index]));
+          float static_phi_off = arg(d_track_ref_res[index]);
+          for(int i = 0; i < d_preamble_sym.size(); i++)
+            d_track_fcorr[index][i] *= exp(gr_complex(0,-2*M_PI*static_phi_off));
+          d_phi = fmod(2*M_PI*d_cfo*d_preamble_sym.size() + static_phi_off, 2*M_PI);
+
+          memcpy(io.out, &d_track_fcorr[index][0], d_preamble_sym.size());
+          int shift = -(d_track_win_len-1)/2 + index;
+          io.samples_consumed = d_preamble_sym.size() + shift;
+          io.samples_returned = d_preamble_sym.size();
+          d_sample_ctr = d_preamble_sym.size();
+
+          if(shift != 0)
+            std::cout << "Move SOF by " << shift << " samples" << std::endl;
+        }
+        else
+        {
+          d_state = FRAME_SYNC_PRESENCE_DETECTION;
+          io.samples_consumed = (d_track_win_len-1)/2;
+          io.samples_returned = 0;          
+        }    	
+    }
+
+
     int
     frame_sync_cc_impl::general_work (int noutput_items,
                        gr_vector_int &ninput_items,
                        gr_vector_const_void_star &input_items,
                        gr_vector_void_star &output_items)
     {
-      //std::cout << "work was called with " << ninput_items[0] << "/" << noutput_items << " input/output items" << std::endl;
       if( ninput_items[0] < 2*d_L)
         throw std::runtime_error(std::string("Not enough input items"));
 
       const gr_complex *in = (gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
-      int samples_consumed = 0;
-      int samples_returned = 0;
-
-      //std::cout << "ctw, state: " << print_state() << std::endl;
+      io_info io(in, out); // keeps track of the number of consumed and returned samples
 
       /* Acquisition algorithm:
       * Step 1: Perform correlation of two subsequent symbols about 2 symbols in advance. This is very robust against frequency offsets.
@@ -224,190 +392,30 @@ namespace gr {
 
       if(d_state == FRAME_SYNC_PRESENCE_DETECTION)
       {
-        gr_complex res = fixed_lag_corr(in+d_fixed_lag_lookahead);
-        if(abs(res) > d_threshold)
-        {
-          std::cout << "DET->ACQ after successful fixed lag correlation:" << nitems_read(0) << std::endl;
-          d_state = FRAME_SYNC_ACQUISITION;
-          d_acq_ctr = 0;
-          
-          samples_consumed = 0;
-          samples_returned = 0;
-        }
-        else
-        {
-          //std::cout << "DET->DET: " << nitems_read(0) << std::endl;
-          samples_consumed = d_step_size;
-          samples_returned = 0;
-        }
+      	presence_detection(io);
       }
       
       if(d_state == FRAME_SYNC_ACQUISITION)
       {
-        gr_complex res_flc = fixed_lag_corr(in+d_fixed_lag_lookahead);
-        if(abs(res_flc) > d_threshold)
-        {
-          d_cfo = estimate_cfo(res_flc);
-
-          d_buf.assign(in, in+d_preamble_sym.size());
-          for(int i=0; i < d_preamble_sym.size(); i++)
-            d_buf[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i));
-          // std::cout << "cfo*250e3=" << d_cfo*250e3 << ", phi=" << d_phi << std::endl;
-
-          if(!d_buf.is_linearized())
-            d_buf.linearize();
-          gr_complex res_rc = ref_corr(&d_buf[0]);
-
-          if(abs(res_rc) > d_threshold)
-          {
-            std::cout << "ACQ->TRACK after successful reference correlation: "  << nitems_read(0) << std::endl;
-            d_state = FRAME_SYNC_TRACKING;
-            d_phi = arg(res_rc);
-
-            d_cfo_hist.clear();
-            d_cfo = avg_cfo(d_cfo);
-            std::cout << "fractional CFO*250e3: " << d_cfo*250e3 << "Hz" << std::endl;
-            for(int i=0; i<d_preamble_sym.size(); i++)
-              d_buf[i] *= exp(gr_complex(0,-d_phi));
-            d_phi += fmod(2*M_PI*d_cfo*d_preamble_sym.size(), 2*M_PI);
-
-            memcpy(out, &d_buf[0], sizeof(gr_complex)*d_preamble_sym.size());
-            d_sample_ctr = d_preamble_sym.size();
-
-            samples_consumed = d_preamble_sym.size();
-            samples_returned = d_preamble_sym.size();
-          }
-          else
-          {
-            d_acq_ctr++;
-            if(d_acq_ctr >= d_acq_win_len)
-            {
-              // std::cout << "ACQ->DET after " << d_acq_win_len << " unsuccessful trials: " << nitems_read(0) << std::endl;
-              d_state = FRAME_SYNC_PRESENCE_DETECTION;
-            }      
-
-            samples_consumed = 1;
-            samples_returned = 0;      
-          }
-        }
-        else
-        {
-          d_acq_ctr++;
-          if(d_acq_ctr >= d_acq_win_len)
-          {
-            // std::cout << "ACQ->DET after " << d_acq_win_len << " unsuccessful trials: " << nitems_read(0) << std::endl;
-            d_state = FRAME_SYNC_PRESENCE_DETECTION;
-          }
-
-          samples_consumed = 1;
-          samples_returned = 0;
-        }
+        acquisition(io);
       }
       else if(d_state == FRAME_SYNC_TRACKING)
       {
-        int samples_until_eof = d_frame_len - d_sample_ctr;
-        int samples_to_return = std::min(samples_until_eof, d_L);
-       
-        // TODO: this is simple but costly because for long frames many samples are just shifted through this buffer without being used
-        for(int i=0; i<samples_to_return; i++)
-          d_eof_buf.push_back(in[i]);
-
-        d_sample_ctr += samples_to_return;
-
-        if(d_sample_ctr == d_frame_len)
-        {
-          d_state = FRAME_SYNC_VALIDATION;
-          //std::cout << "TRACK->VAL after a complete frame: " << nitems_read(0) << std::endl;   
-          // duplicate end of the frame as buffer inbetween the frames
-          //memset(out+samples_to_return, 0, sizeof(gr_complex)*d_overlap/2*d_L);  
-          d_eof_buf.linearize();
-          memcpy(out+samples_to_return, &d_eof_buf[0], sizeof(gr_complex)*d_overlap/2*d_L);    
-          samples_returned = d_overlap/2*d_L; 
-
-          // copy the beginning of the next frame into the tracking buffer for later processing
-          d_track_buf.assign(in+samples_to_return - (d_track_win_len-1)/2, in+samples_to_return + d_preamble_sym.size()+d_track_win_len);
-        }
-
-        samples_consumed = samples_to_return;
-        samples_returned += samples_to_return;
-
-        memcpy(out, in, sizeof(gr_complex)*samples_returned);
-        for(int i=0; i < samples_returned; i++)
-          out[i] *= exp(gr_complex(0,-2*M_PI*d_cfo*i - d_phi));
-        d_phi = fmod(d_phi + 2*M_PI*d_cfo*samples_returned, 2*M_PI);       
+    	tracking(io);
       }
       else if(d_state == FRAME_SYNC_VALIDATION)
       {
-        // reset the frame sample counter
-        d_sample_ctr = 0;
-
-        // calculate the different correlations
-        for(int i = 0; i < d_track_win_len; i++)
-        {
-          d_track_fl_res[i] = fixed_lag_corr(&d_track_buf[i]+d_fixed_lag_lookahead);
-          if(abs(d_track_fl_res[i]) > d_threshold)
-          {
-            float cfo = estimate_cfo(d_track_fl_res[i]);
-            // std::cout << "correct cfo\n";
-            for(int k = 0; k < d_preamble_sym.size(); k++)
-            {
-              d_track_fcorr[i][k] = d_track_buf[i+k]*exp(gr_complex(0,-2*M_PI*cfo*k));
-            }
-            d_track_ref_res[i] = ref_corr(&d_track_fcorr[i][0]);
-            // std::cout << i << ": " << abs(d_track_fl_res[i]) << "/" << abs(d_track_ref_res[i]) << std::endl;
-          }
-        }
-
-        // find the optimal shift
-        int index=-1;
-        float max_abs = 0;
-        for(int i = 0; i < d_track_win_len; i++)
-        {
-          if(abs(d_track_fl_res[i]) > d_threshold && abs(d_track_ref_res[i]) > d_threshold && abs(d_track_ref_res[i]) > max_abs)
-            index = i;
-        }
-        // std::cout << "max index: " << index << std::endl;
-
-        // std::cout << "corr phase shift\n";
-
-        // if a frame has been found, correct the remaining static phase shift
-        if(index != -1)
-        {
-          d_state = FRAME_SYNC_TRACKING;
-          //std::cout << "VAL->TRACK" << std::endl;
-
-          d_cfo = avg_cfo(estimate_cfo(d_track_fl_res[index]));
-          float static_phi_off = arg(d_track_ref_res[index]);
-          for(int i = 0; i < d_preamble_sym.size(); i++)
-            d_track_fcorr[index][i] *= exp(gr_complex(0,-2*M_PI*static_phi_off));
-          d_phi = fmod(2*M_PI*d_cfo*d_preamble_sym.size() + static_phi_off, 2*M_PI);
-
-          memcpy(out, &d_track_fcorr[index][0], d_preamble_sym.size());
-          int shift = -(d_track_win_len-1)/2 + index;
-          samples_consumed = d_preamble_sym.size() + shift;
-          samples_returned = d_preamble_sym.size();
-          d_sample_ctr = d_preamble_sym.size();
-
-          if(shift != 0)
-            std::cout << "SOF has been moved by " << shift << " samples" << std::endl;
-        }
-        else
-        {
-          d_state = FRAME_SYNC_PRESENCE_DETECTION;
-          //std::cout << "VAL->DET" << std::endl;
-
-          samples_consumed = (d_track_win_len-1)/2;
-          samples_returned = 0;          
-        }
+      	validation(io);
       }
 
       // inform the scheduler about what has been going on...
-      //std::cout << "consumed:" << samples_consumed << ", returned:" << samples_returned << std::endl;
-      consume_each(samples_consumed);
-      if(noutput_items < samples_returned)
+      if(noutput_items < io.samples_returned)
         throw std::runtime_error(std::string("Output buffer too small"));
-
-      return samples_returned;            
+      if(ninput_items[0] < io.samples_consumed)
+      	throw std::runtime_error(std::string("Input buffer too small"));
+      
+      consume_each(io.samples_consumed);
+      return io.samples_returned;            
     }
 
   } /* namespace fbmc */
