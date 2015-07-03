@@ -41,6 +41,7 @@ namespace gr {
       int num_sync_sym(){return d_num_sync_sym;}
       int num_preamble_sym(){return d_num_preamble_sym;}
       int num_sym_frame(){return d_num_sym_frame;}
+      int num_samp_frame(){return d_num_sym_frame * d_num_total_subcarriers / 2;}
       gr::digital::constellation_sptr constellation(){return d_const;}
       std::string modulation(){return d_modulation;}
       std::vector<gr_complex> constellation_points(){return d_const->points();}

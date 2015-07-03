@@ -1351,65 +1351,6 @@
     </param>
   </block>
   <block>
-    <key>fbmc_frame_sync_cc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_frame_sync_cc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>L</key>
-      <value>total_subcarriers</value>
-    </param>
-    <param>
-      <key>frame_len</key>
-      <value>frame_len</value>
-    </param>
-    <param>
-      <key>preamble_sym</key>
-      <value>preamble_symbol</value>
-    </param>
-    <param>
-      <key>step_size</key>
-      <value>max(total_subcarriers/10,1)</value>
-    </param>
-    <param>
-      <key>threshold</key>
-      <value>0.95</value>
-    </param>
-    <param>
-      <key>overlap</key>
-      <value>num_overlap_symbols</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(432, 259)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>pad_sink</key>
     <param>
       <key>id</key>
@@ -1442,49 +1383,6 @@
     <param>
       <key>_coordinate</key>
       <value>(1376, 603)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>fbmc_rx_sdft_cvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_rx_sdft_cvc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>taps</key>
-      <value>phydyas_taps_time</value>
-    </param>
-    <param>
-      <key>osr</key>
-      <value>total_subcarriers</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(672, 603)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1591,6 +1489,108 @@
     <param>
       <key>_coordinate</key>
       <value>(904, 603)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_rx_sdft_cvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_rx_sdft_cvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value>phydyas_taps_time</value>
+    </param>
+    <param>
+      <key>osr</key>
+      <value>total_subcarriers</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(672, 603)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_frame_sync_cc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_frame_sync_cc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>total_subcarriers</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>frame_len</value>
+    </param>
+    <param>
+      <key>preamble_sym</key>
+      <value>preamble_symbol</value>
+    </param>
+    <param>
+      <key>step_size</key>
+      <value>max(total_subcarriers/10,1)</value>
+    </param>
+    <param>
+      <key>threshold</key>
+      <value>0.95</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>num_overlap_symbols</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(344, 443)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1756,12 +1756,6 @@
   <connection>
     <source_block_id>fbmc_simple_frame_generator_vcvc_0</source_block_id>
     <sink_block_id>fbmc_parallel_to_serial_vcc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>rx_signal</source_block_id>
-    <sink_block_id>fbmc_rx_sdft_cvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
