@@ -188,7 +188,7 @@ namespace gr {
         frame_sync_cc_impl::presence_detection(io_info &io) {
             gr_complex res = fixed_lag_corr(io.in + d_fixed_lag_lookahead);
             if (abs(res) > d_threshold) {
-                std::cout << "DET->ACQ after successful fixed lag correlation:" << nitems_read(0) << std::endl;
+                // std::cout << "DET->ACQ after successful fixed lag correlation:" << nitems_read(0) << std::endl;
                 d_state = FRAME_SYNC_ACQUISITION;
                 d_acq_ctr = 0;
 
@@ -215,13 +215,13 @@ namespace gr {
                 gr_complex res_rc = ref_corr(&d_buf[0]);
 
                 if (abs(res_rc) > d_threshold) {
-                    std::cout << "ACQ->TRACK after successful reference correlation: " << nitems_read(0) << std::endl;
+                    // std::cout << "ACQ->TRACK after successful reference correlation: " << nitems_read(0) << std::endl;
                     d_state = FRAME_SYNC_TRACKING;
                     d_phi = arg(res_rc);
 
                     d_cfo_hist.clear();
                     d_cfo = avg_cfo(d_cfo);
-                    std::cout << "fractional CFO*250e3: " << d_cfo * 250e3 << "Hz" << std::endl;
+                    // std::cout << "fractional CFO*250e3: " << d_cfo * 250e3 << "Hz" << std::endl;
                     for (int i = 0; i < d_preamble_sym.size(); i++)
                         d_buf[i] *= exp(gr_complex(0, -d_phi));
                     d_phi += fmod(2 * M_PI * d_cfo * d_preamble_sym.size(), 2 * M_PI);
