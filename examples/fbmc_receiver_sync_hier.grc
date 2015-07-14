@@ -1365,6 +1365,112 @@
     </param>
   </block>
   <block>
+    <key>pad_source</key>
+    <param>
+      <key>id</key>
+      <value>rx_signal</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>in</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>num_streams</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>optional</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(48, 299)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_frame_sync_cc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_frame_sync_cc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>total_subcarriers</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>frame_len</value>
+    </param>
+    <param>
+      <key>preamble_sym</key>
+      <value>preamble_symbol</value>
+    </param>
+    <param>
+      <key>step_size</key>
+      <value>max(total_subcarriers/10,1)</value>
+    </param>
+    <param>
+      <key>threshold</key>
+      <value>0.95</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>num_overlap_symbols</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(432, 259)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>pad_sink</key>
     <param>
       <key>id</key>
@@ -1401,6 +1507,53 @@
     <param>
       <key>_coordinate</key>
       <value>(1376, 603)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_rx_sdft_cvc</key>
+    <param>
+      <key>id</key>
+      <value>fbmc_rx_sdft_cvc_0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value>phydyas_taps_time</value>
+    </param>
+    <param>
+      <key>osr</key>
+      <value>total_subcarriers</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(672, 603)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1471,96 +1624,6 @@
     </param>
   </block>
   <block>
-    <key>pad_source</key>
-    <param>
-      <key>id</key>
-      <value>rx_signal</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>in</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>num_streams</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>optional</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(48, 299)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>fbmc_rx_sdft_cvc</key>
-    <param>
-      <key>id</key>
-      <value>fbmc_rx_sdft_cvc_0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>taps</key>
-      <value>phydyas_taps_time</value>
-    </param>
-    <param>
-      <key>osr</key>
-      <value>total_subcarriers</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(672, 603)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>blocks_skiphead</key>
     <param>
       <key>id</key>
@@ -1576,7 +1639,7 @@
     </param>
     <param>
       <key>num_items</key>
-      <value>num_overlap_symbols</value>
+      <value>num_overlap_symbols/2</value>
     </param>
     <param>
       <key>vlen</key>
@@ -1615,7 +1678,7 @@
     <key>options</key>
     <param>
       <key>id</key>
-      <value>fbmc_receiver</value>
+      <value>fbmc_receiver_sync</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -1623,7 +1686,7 @@
     </param>
     <param>
       <key>title</key>
-      <value>FBMC Receiver without Sync</value>
+      <value>FBMC Receiver with Sync</value>
     </param>
     <param>
       <key>author</key>
@@ -1683,14 +1746,44 @@
     </param>
   </block>
   <connection>
+    <source_block_id>fbmc_coarse_cfo_correction_0</source_block_id>
+    <sink_block_id>fbmc_frame_sync_cc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_frame_sync_cc_0</source_block_id>
+    <sink_block_id>fbmc_rx_domain_cvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>rx_signal</source_block_id>
     <sink_block_id>fbmc_coarse_cfo_correction_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>rx_signal</source_block_id>
+    <sink_block_id>fbmc_frame_sync_cc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_frame_sync_cc_0</source_block_id>
+    <sink_block_id>fbmc_rx_sdft_cvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>fbmc_rx_sdft_cvc_0</source_block_id>
     <sink_block_id>blocks_delay_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_frame_sync_cc_0</source_block_id>
+    <sink_block_id>fbmc_rx_polyphase_cvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -1811,12 +1904,6 @@
   <connection>
     <source_block_id>blocks_skiphead_0</source_block_id>
     <sink_block_id>fbmc_deframer_vcb_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>rx_signal</source_block_id>
-    <sink_block_id>fbmc_rx_sdft_cvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -18,7 +18,6 @@
 # Boston, MA 02110-1301, USA.
 install(FILES
     fbmc_configuration.xml
-    fbmc_configuration_new.xml
     fbmc_apply_betas_vcvc.xml
     fbmc_serial_to_parallel_cvc.xml
     fbmc_serialize_iq_vcvc.xml

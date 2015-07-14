@@ -29,10 +29,10 @@
 
 namespace gr {
   namespace fbmc {
-    fbmc_config::fbmc_config(int num_used_subcarriers, int num_payload_sym,
+    fbmc_config::fbmc_config(std::vector<int> channel_map, int num_payload_sym,
                              int num_overlap_sym, std::string modulation,
                              std::string preamble, int samp_rate) :
-        d_num_used_subcarriers(num_used_subcarriers), d_num_payload_sym(
+        d_channel_map(channel_map), d_num_payload_sym(
             num_payload_sym), d_num_overlap_sym(num_overlap_sym), d_modulation(
             modulation), d_preamble(preamble), d_samp_rate(samp_rate)
     {
@@ -40,8 +40,8 @@ namespace gr {
       check_user_args();
 
       // calculate all the variables defined by the c'tor parameters
-      d_num_total_subcarriers = int(
-          std::pow(2, std::ceil(log2(d_num_used_subcarriers))));
+      d_num_total_subcarriers = d_channel_map.size();
+      d_num_used_subcarriers = std::accumulate(d_channel_map.begin(), d_channel_map.end(), 0);
 
       if(d_num_used_subcarriers >= d_num_total_subcarriers){
         std::cerr << "WARNING: Invalid number of used subcarriers" << std::endl;
@@ -61,16 +61,6 @@ namespace gr {
       d_group_delay = (d_prototype_taps.size() - 1) / 2;
 
       d_const = gr::digital::constellation_qpsk::make();
-
-      // generate (DC free) channel map centered around zero, if the number of used channels is odd, add the one to the USB
-      d_channel_map.assign(d_num_total_subcarriers, 0); // preset the vector to all zeros
-      int num_used_usb = d_num_used_subcarriers / 2
-          + (d_num_used_subcarriers % 2); // add one if the M is odd
-      int num_used_lsb = d_num_used_subcarriers / 2;
-      for(int i = 0; i < num_used_usb; i++)
-        d_channel_map[1 + i] = 1;
-      for(int i = 0; i < num_used_lsb; i++)
-        d_channel_map[d_num_total_subcarriers - 1 - i] = 1;
 
       // generate frequency domain preamble for insertion into the tx frame
       gen_preamble_sym();
@@ -235,10 +225,7 @@ namespace gr {
     bool
     fbmc_config::check_user_args()
     {
-      if(d_num_used_subcarriers < 1)
-        throw std::runtime_error(
-            std::string("Number of used subcarriers must be > 1"));
-      else if(d_num_payload_sym < 1)
+      if(d_num_payload_sym < 1)
         throw std::runtime_error(std::string("Need at least 1 payload symbol"));
       else if(d_num_overlap_sym != 4)
         throw std::runtime_error(std::string("Overlap must be 4"));

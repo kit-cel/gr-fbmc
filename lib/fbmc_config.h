@@ -29,7 +29,7 @@ namespace gr {
     class fbmc_config
     {
     public:
-      fbmc_config(int num_used_subcarriers = 100, int num_payload_sym = 102,
+      fbmc_config(std::vector<int> channel_map, int num_payload_sym = 102,
                   int num_overlap_sym = 4, std::string modulation = "QPSK",
                   std::string preamble = "IAM", int samp_rate = 1);
 

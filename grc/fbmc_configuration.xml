@@ -1,23 +1,18 @@
 <?xml version="1.0"?>
 
 <block>
-	<name>FBMC configuration old</name>
-	<key>variable_configuration</key>
+	<name>FBMC configuration</name>
+	<key>variable_configuration_new</key>
 	<category>FBMC</category>
 	<import>import fbmc</import>
-	<var_make>self.$(id) = $(id) = fbmc.fbmc_config(num_used_subcarriers=$M, num_payload_sym=$K, num_overlap_sym=$overlap, modulation=$mod, preamble=$preamble, samp_rate=$sample_rate)</var_make>
+	<var_make>self.$(id) = $(id) = fbmc.fbmc_config(channel_map=$chanmap, num_payload_sym=$K, num_overlap_sym=$overlap, modulation=$mod, preamble=$preamble, samp_rate=$sample_rate)</var_make>
+	<var_value>fbmc.fbmc_config(channel_map=$chanmap, num_payload_sym=$K, num_overlap_sym=$overlap, modulation=$mod, preamble=$preamble, samp_rate=$sample_rate)</var_value>
 	<make></make>
 	<param>
-		<name>Value</name>
-		<key>value</key>
-		<value>fbmc.fbmc_config(num_used_subcarriers=$M, num_payload_sym=$K, num_overlap_sym=$overlap, modulation=$mod, preamble=$preamble)</value>
-		<type>raw</type>
-	</param>
-	<param>
-		<name>Num used subcarriers</name>
-		<key>M</key>
-		<value>8</value>
-		<type>int</type>
+		<name>Channel Map</name>
+		<key>chanmap</key>
+		<value>[1,]*32</value>
+		<type>int_vector</type>
 	</param>
 	<param>
 		<name>Num payload symbols</name>
@@ -32,12 +27,12 @@
 	</param>	<param>
 		<name>Modulation type</name>
 		<key>mod</key>
-		<value>"QPSK"</value>
+		<value>QPSK</value>
 		<type>string</type>
 	</param>	<param>
 		<name>Preamble type</name>
 		<key>preamble</key>
-		<value>"IAM"</value>
+		<value>IAM</value>
 		<type>string</type>
 	</param>
 	<param>
