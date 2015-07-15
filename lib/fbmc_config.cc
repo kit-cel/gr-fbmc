@@ -20,21 +20,22 @@
 
 #include "fbmc_config.h"
 #include <cmath>
+#include <cstring>
 #include <stdexcept>
 #include <boost/format.hpp>
 #include <numeric>
 #include <iostream>
 #include <fftw3.h>
 #include <boost/circular_buffer.hpp>
+#include <gnuradio/digital/constellation.h>
+
 
 namespace gr {
   namespace fbmc {
     fbmc_config::fbmc_config(std::vector<int> channel_map, int num_payload_sym,
-                             int num_overlap_sym, std::string modulation,
-                             std::string preamble, int samp_rate) :
+                             int num_overlap_sym, int samp_rate) :
         d_channel_map(channel_map), d_num_payload_sym(
-            num_payload_sym), d_num_overlap_sym(num_overlap_sym), d_modulation(
-            modulation), d_preamble(preamble), d_samp_rate(samp_rate)
+            num_payload_sym), d_num_overlap_sym(num_overlap_sym), d_samp_rate(samp_rate)
     {
       // user parameter validity check
       check_user_args();
@@ -60,8 +61,6 @@ namespace gr {
       gen_prototype_filter();
       d_group_delay = (d_prototype_taps.size() - 1) / 2;
 
-      d_const = gr::digital::constellation_qpsk::make();
-
       // generate frequency domain preamble for insertion into the tx frame
       gen_preamble_sym();
 
@@ -71,9 +70,6 @@ namespace gr {
       d_num_sync_sym = d_num_overlap_sym
           + d_preamble_sym.size() / d_num_total_subcarriers; // num_overlap_sym is needed to settle the filters
       d_num_sym_frame = d_num_sync_sym + d_num_payload_sym + d_num_overlap_sym; // total symbols per frame
-
-      // check calulated parameters for validity
-      check_calc_params();
 
       // print a short summary of the parameters to stdout
       print_info();
@@ -229,40 +225,12 @@ namespace gr {
         throw std::runtime_error(std::string("Need at least 1 payload symbol"));
       else if(d_num_overlap_sym != 4)
         throw std::runtime_error(std::string("Overlap must be 4"));
-      else if(d_preamble != "IAM")
-        throw std::runtime_error(
-            std::string("Only IAM is implemented as preamble"));
-      else if(d_modulation != "QPSK")
-        throw std::runtime_error(
-            std::string("Only QPSK is implemented as modulation"));
       else if(d_samp_rate <= 0)
         throw std::runtime_error(std::string("Invalid sample rate"));
 
       return true;
     }
 
-    bool
-    fbmc_config::check_calc_params()
-    {
-      if(d_num_total_subcarriers < d_num_used_subcarriers
-          || d_num_total_subcarriers % 4 != 0)
-        throw std::runtime_error(
-            std::string(
-                "Invalid number of total subcarriers, has to be positive and an integer multiple of 4"));
-      //else if(d_num_sym_frame % 4 != 0)
-      //	throw std::runtime_error(str(boost::format("Number of symbols per frame has to be a multiple of 4, but is %d") % d_num_sym_frame));
-      else if(std::accumulate(d_channel_map.begin(), d_channel_map.end(), 0)
-          != d_num_used_subcarriers
-          || d_channel_map.size() != d_num_total_subcarriers){
-        std::cout
-            << std::accumulate(d_channel_map.begin(), d_channel_map.end(), 0)
-            << " " << d_channel_map.size() << std::endl;
-        throw std::runtime_error(
-            std::string(
-                "Channel map does not match the number of total/used subcarriers!"));
-      }
-      return true;
-    }
     void
     fbmc_config::print_info()
     {
@@ -290,7 +258,6 @@ namespace gr {
       std::cout << "Symbol duration (ms):\t" << tsym * 1000 << std::endl;
       std::cout << "Frame duration (ms):\t" << tsym * 1000 * d_num_sym_frame
           << std::endl;
-      std::cout << "Modulation:\t" << modulation() << std::endl;
       std::cout << "Filterbank group delay:\t"
           << (d_prototype_taps.size() - 1) / 2 << std::endl;
       int payl_bits_frame = d_num_payload_sym * d_num_used_subcarriers;
@@ -310,8 +277,8 @@ namespace gr {
     {
       if(d_num_used_subcarriers > pow(2, 16) - 1)
         throw std::runtime_error("Max length 2**16-1 of PN sequence exceeded");
-      uint16_t start_state = 0xACE1u; /* Any nonzero start start will work. */
-      uint16_t lfsr = start_state;
+      gr_uint16 start_state = 0xACE1u; /* Any nonzero start start will work. */
+      gr_uint16  lfsr = start_state;
       unsigned bit;
       unsigned period = 0;
       float output;
@@ -433,10 +400,10 @@ namespace gr {
                                               buffer, FFTW_BACKWARD,
                                               FFTW_ESTIMATE);
       for(int i = 0; i < nsym; i++){
-        memcpy(buffer, &d_preamble_sym[0] + i * d_num_total_subcarriers,
+          std::memcpy(buffer, &d_preamble_sym[0] + i * d_num_total_subcarriers,
                d_num_total_subcarriers * sizeof(gr_complex));
         fftwf_execute(fft_plan);
-        memcpy(&preamble_sym_fft[0] + i * d_num_total_subcarriers, buffer,
+          std::memcpy(&preamble_sym_fft[0] + i * d_num_total_subcarriers, buffer,
                d_num_total_subcarriers * sizeof(gr_complex));
       }
 

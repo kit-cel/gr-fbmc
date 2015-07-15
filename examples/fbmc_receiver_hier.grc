@@ -3,29 +3,57 @@
 <flow_graph>
   <timestamp>Fri Apr 10 13:11:29 2015</timestamp>
   <block>
-    <key>parameter</key>
+    <key>options</key>
     <param>
       <key>id</key>
-      <value>constellation</value>
+      <value>fbmc_receiver</value>
     </param>
     <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
-      <key>label</key>
-      <value>Constellation</value>
+      <key>title</key>
+      <value>FBMC Receiver without Sync</value>
     </param>
     <param>
-      <key>value</key>
-      <value>[1, 0, 1, 0]</value>
+      <key>author</key>
+      <value>Johannes Demel, Felix Wunsch</value>
     </param>
     <param>
-      <key>type</key>
+      <key>description</key>
+      <value>FBMC Receiver hier blocks</value>
+    </param>
+    <param>
+      <key>window_size</key>
+      <value>1920,1080</value>
+    </param>
+    <param>
+      <key>generate_options</key>
+      <value>hb</value>
+    </param>
+    <param>
+      <key>category</key>
+      <value>FBMC</value>
+    </param>
+    <param>
+      <key>run_options</key>
+      <value>prompt</value>
+    </param>
+    <param>
+      <key>run</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>max_nouts</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>realtime_scheduling</key>
       <value></value>
     </param>
     <param>
-      <key>short_id</key>
+      <key>thread_safe_setters</key>
       <value></value>
     </param>
     <param>
@@ -38,7 +66,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(272, 35)</value>
+      <value>(10, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1612,57 +1640,29 @@
     </param>
   </block>
   <block>
-    <key>options</key>
+    <key>parameter</key>
     <param>
       <key>id</key>
-      <value>fbmc_receiver</value>
+      <value>constellation</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
-      <key>title</key>
-      <value>FBMC Receiver without Sync</value>
+      <key>label</key>
+      <value>Constellation</value>
     </param>
     <param>
-      <key>author</key>
-      <value>Johannes Demel, Felix Wunsch</value>
+      <key>value</key>
+      <value>[1, 0, 1, 0]</value>
     </param>
     <param>
-      <key>description</key>
-      <value>FBMC Receiver hier blocks</value>
-    </param>
-    <param>
-      <key>window_size</key>
-      <value>1920,1080</value>
-    </param>
-    <param>
-      <key>generate_options</key>
-      <value>hb</value>
-    </param>
-    <param>
-      <key>category</key>
-      <value>FBMC</value>
-    </param>
-    <param>
-      <key>run_options</key>
-      <value>prompt</value>
-    </param>
-    <param>
-      <key>run</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>max_nouts</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>realtime_scheduling</key>
+      <key>type</key>
       <value></value>
     </param>
     <param>
-      <key>thread_safe_setters</key>
+      <key>short_id</key>
       <value></value>
     </param>
     <param>
@@ -1675,7 +1675,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(10, 10)</value>
+      <value>(272, 35)</value>
     </param>
     <param>
       <key>_rotation</key>

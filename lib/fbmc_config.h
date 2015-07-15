@@ -21,7 +21,6 @@
 #include <vector>
 #include <valarray>
 #include "gnuradio/types.h"
-#include <gnuradio/digital/constellation.h>
 
 
 namespace gr {
@@ -30,8 +29,7 @@ namespace gr {
     {
     public:
       fbmc_config(std::vector<int> channel_map, int num_payload_sym = 102,
-                  int num_overlap_sym = 4, std::string modulation = "QPSK",
-                  std::string preamble = "IAM", int samp_rate = 1);
+                  int num_overlap_sym = 4, int samp_rate = 1);
 
       // public get methods
       int num_used_subcarriers() {return d_num_used_subcarriers;}
@@ -42,9 +40,6 @@ namespace gr {
       int num_preamble_sym(){return d_num_preamble_sym;}
       int num_sym_frame(){return d_num_sym_frame;}
       int num_samp_frame(){return d_num_sym_frame * d_num_total_subcarriers / 2;}
-      gr::digital::constellation_sptr constellation(){return d_const;}
-      std::string modulation(){return d_modulation;}
-      std::vector<gr_complex> constellation_points(){return d_const->points();}
       std::vector<gr_complex> prototype_taps(){return d_prototype_taps;}
       std::vector<float> prototype_taps_float(){return d_prototype_taps_float;}
       std::vector<int> channel_map(){return d_channel_map;}
@@ -57,7 +52,6 @@ namespace gr {
 
     private:
       bool check_user_args(); // checks constructor parameters for validity
-      bool check_calc_params(); // check the calculated params for validity
       void print_info(); // print a short summary of the parameters
       float get_phydyas_frequency_tap(int k, int overlap);
 
@@ -65,9 +59,6 @@ namespace gr {
       int d_num_total_subcarriers; // power of 2
       int d_num_payload_sym; // number of payload symbols (one symbol consists of L subcarriers)
       int d_num_overlap_sym; // number of overlapping symbols due to the pulse shaping
-      std::string d_modulation; // name of modulation type
-      gr::digital::constellation_sptr d_const; // constellation object
-      std::string d_preamble; // name of preamble and therefore equalization and synchronization method
       int d_num_sync_sym; // number of synchronization symbols (excluding overlap)
       int d_num_preamble_sym; // number of preamble symbols (includes overlap)
       int d_num_sym_frame; // number of symbols per frame including preamble and overlap
