@@ -42,19 +42,18 @@ namespace gr {
 
       // calculate all the variables defined by the c'tor parameters
       d_num_total_subcarriers = d_channel_map.size();
-      d_num_used_subcarriers = std::accumulate(d_channel_map.begin(), d_channel_map.end(), 0);
-
-      if(d_num_used_subcarriers >= d_num_total_subcarriers){
-        std::cerr << "WARNING: Invalid number of used subcarriers" << std::endl;
-        d_num_used_subcarriers = d_num_total_subcarriers - 1;
+      d_num_used_subcarriers = 0;
+      for(int i=0; i<d_num_total_subcarriers; i++)
+      {
+          if(d_channel_map[i] != 0)
+          {
+              d_num_used_subcarriers++;
+          }
       }
 
-      int num_used_adjusted = d_num_used_subcarriers
-          - d_num_used_subcarriers % 4; // make sure it's modulo 4 so that the betas fit nicely
-      if(num_used_adjusted != d_num_used_subcarriers){
-        std::cerr << "WARNING: Number of used subcarriers has been changed to "
-            << num_used_adjusted << std::endl;
-        d_num_used_subcarriers = num_used_adjusted;
+      if(d_num_used_subcarriers >= d_num_total_subcarriers) {
+          std::cerr << "WARNING: Invalid number of used subcarriers" << std::endl;
+          d_num_used_subcarriers = d_num_total_subcarriers - 1;
       }
 
       // generate the prototype filter taps
