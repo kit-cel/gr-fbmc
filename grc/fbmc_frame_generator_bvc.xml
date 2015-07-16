@@ -4,7 +4,7 @@
   <key>fbmc_frame_generator_bvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.frame_generator_bvc($used_subcarriers, $total_subcarriers, $payload_symbols, $overlap, $channel_map, $preamble)</make>
+  <make>fbmc.frame_generator_bvc($used_subcarriers, $total_subcarriers, $payload_symbols, $payload_bits, $overlap, $channel_map, $preamble)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
@@ -25,6 +25,12 @@
   <param>
     <name>Num Payload Symbols</name>
     <key>payload_symbols</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Num Payload Bits</name>
+    <key>payload_bits</key>
     <type>int</type>
   </param>
 

@@ -32,6 +32,8 @@ namespace gr {
       int d_used_subcarriers;
       int d_total_subcarriers;
       int d_payload_symbols;
+      int d_payload_bits;
+      int d_remaining_payload_bits;
       int d_overlap;
       std::vector<std::vector<int> > d_channel_map;
       std::vector<gr_complex> d_preamble;
@@ -56,7 +58,7 @@ namespace gr {
       inline int nused_items_on_vector() const {return d_channel_map[inphase_selector()].size();};
 
      public:
-      frame_generator_bvc_impl(int used_subcarriers, int total_subcarriers, int payload_symbols, int overlap, std::vector<int> channel_map, std::vector<gr_complex> preamble);
+      frame_generator_bvc_impl(int used_subcarriers, int total_subcarriers, int payload_symbols, int payload_bits, int overlap, std::vector<int> channel_map, std::vector<gr_complex> preamble);
       ~frame_generator_bvc_impl();
 
       // Where all the action really happens

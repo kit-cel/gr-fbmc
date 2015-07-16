@@ -4,7 +4,7 @@
   <key>fbmc_deframer_vcb</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.deframer_vcb($used_subcarriers, $total_subcarriers, $num_preamble_symbols, $payload_symbols, $overlap, $channel_map)</make>
+  <make>fbmc.deframer_vcb($used_subcarriers, $total_subcarriers, $num_preamble_symbols, $payload_symbols, $payload_bits, $overlap, $channel_map)</make>
 
   <param>
     <name>Num Used Subcarriers</name>
@@ -27,6 +27,12 @@
   <param>
     <name>Num Payload Symbols</name>
     <key>payload_symbols</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Num Payload Bits</name>
+    <key>payload_bits</key>
     <type>int</type>
   </param>
 

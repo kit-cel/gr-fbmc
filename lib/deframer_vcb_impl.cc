@@ -29,24 +29,24 @@ namespace gr {
   namespace fbmc {
 
     deframer_vcb::sptr
-    deframer_vcb::make(int used_subcarriers, int total_subcarriers, int num_preamble_symbols, int payload_symbols, int overlap, std::vector<int> channel_map)
+    deframer_vcb::make(int used_subcarriers, int total_subcarriers, int num_preamble_symbols, int payload_symbols, int payload_bits, int overlap, std::vector<int> channel_map)
     {
       return gnuradio::get_initial_sptr
-        (new deframer_vcb_impl(used_subcarriers, total_subcarriers, num_preamble_symbols, payload_symbols, overlap, channel_map));
+        (new deframer_vcb_impl(used_subcarriers, total_subcarriers, num_preamble_symbols, payload_symbols, payload_bits, overlap, channel_map));
     }
 
     /*
      * The private constructor
      */
     deframer_vcb_impl::deframer_vcb_impl(int used_subcarriers, int total_subcarriers, int num_preamble_symbols,
-                                         int payload_symbols, int overlap,
+                                         int payload_symbols, int payload_bits, int overlap,
                                          std::vector<int> channel_map) :
             gr::block("deframer_vcb",
                       gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers),
                       gr::io_signature::make(1, 1, sizeof(char))),
             d_used_subcarriers(used_subcarriers), d_total_subcarriers(total_subcarriers),
-            d_payload_symbols(payload_symbols), d_overlap(overlap), d_preamble_symbols(num_preamble_symbols),
-            d_frame_position(0)
+            d_payload_symbols(payload_symbols), d_payload_bits(payload_bits), d_remaining_payload_bits(payload_bits),
+            d_overlap(overlap), d_preamble_symbols(num_preamble_symbols), d_frame_position(0)
     {
       setup_channel_map(channel_map);
       d_frame_len = d_preamble_symbols + d_overlap + d_payload_symbols + d_overlap;
@@ -99,10 +99,11 @@ namespace gr {
     }
 
     int
-    deframer_vcb_impl::extract_bytes(char* out, const gr_complex* inbuf)
+    deframer_vcb_impl::extract_bits(char* out, const gr_complex* inbuf)
     {
       const int inphase_sel = inphase_selector();
-      for(int i = 0; i < d_channel_map[inphase_sel].size(); i++){
+      int num_elements = std::min(d_channel_map[inphase_sel].size(), (unsigned long) d_remaining_payload_bits);
+      for(int i = 0; i < num_elements; i++){
         if((*(inbuf + d_channel_map[inphase_sel][i])).real() > 0.0f){
           *(out + i) = 1;
         }
@@ -131,12 +132,17 @@ namespace gr {
             if(nused_items_on_vector() > noutput_items - produced_items){
               break;
             }
-            int produced = extract_bytes(out, in);
+            int produced = extract_bits(out, in);
+            d_remaining_payload_bits -= produced;
             out += produced;
             produced_items += produced;
           }
 
           d_frame_position = (d_frame_position + 1) % d_frame_len;
+          if(d_frame_position == 0) // reset remaining payload bits for the new frame
+          {
+              d_remaining_payload_bits = d_payload_bits;
+          }
           in += d_total_subcarriers;
           ++consumed_items;
         }

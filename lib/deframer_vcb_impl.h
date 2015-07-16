@@ -32,6 +32,8 @@ namespace gr {
       int d_used_subcarriers;
       int d_total_subcarriers;
       int d_payload_symbols;
+      int d_payload_bits;
+      int d_remaining_payload_bits;
       int d_overlap;
       std::vector<std::vector<int> > d_channel_map;
       int d_preamble_symbols;
@@ -42,13 +44,13 @@ namespace gr {
 
       void setup_channel_map(std::vector<int> channel_map);
 
-      int extract_bytes(char* out, const gr_complex* inbuf);
+      int extract_bits(char* out, const gr_complex* inbuf);
 
       inline int inphase_selector() const {return (d_frame_position - d_preamble_symbols + d_overlap) % 2;};
       inline int nused_items_on_vector() const {return d_channel_map[inphase_selector()].size();};
 
      public:
-      deframer_vcb_impl(int used_subcarriers, int total_subcarriers, int num_preamble_symbols, int payload_symbols, int overlap, std::vector<int> channel_map);
+      deframer_vcb_impl(int used_subcarriers, int total_subcarriers, int num_preamble_symbols, int payload_symbols, int payload_bits, int overlap, std::vector<int> channel_map);
       ~deframer_vcb_impl();
 
       // Where all the action really happens

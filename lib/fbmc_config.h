@@ -28,13 +28,14 @@ namespace gr {
     class fbmc_config
     {
     public:
-      fbmc_config(std::vector<int> channel_map, int num_payload_sym = 102,
+      fbmc_config(std::vector<int> channel_map, int num_payload_bits = 1,
                   int num_overlap_sym = 4, int samp_rate = 1);
 
       // public get methods
       int num_used_subcarriers() {return d_num_used_subcarriers;}
       int num_total_subcarriers(){return d_num_total_subcarriers;}
       int num_payload_sym(){return d_num_payload_sym;}
+      int num_payload_bits(){return d_num_payload_bits;}
       int num_overlap_sym(){return d_num_overlap_sym;}
       int num_sync_sym(){return d_num_sync_sym;}
       int num_preamble_sym(){return d_num_preamble_sym;}
@@ -58,6 +59,7 @@ namespace gr {
       int d_num_used_subcarriers; // between 0.5 ... 1 * d_num_total_subcarriers
       int d_num_total_subcarriers; // power of 2
       int d_num_payload_sym; // number of payload symbols (one symbol consists of L subcarriers)
+      int d_num_payload_bits; // number of payload bits
       int d_num_overlap_sym; // number of overlapping symbols due to the pulse shaping
       int d_num_sync_sym; // number of synchronization symbols (excluding overlap)
       int d_num_preamble_sym; // number of preamble symbols (includes overlap)

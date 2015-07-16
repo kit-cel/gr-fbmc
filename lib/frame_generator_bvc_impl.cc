@@ -32,23 +32,24 @@ namespace gr {
   namespace fbmc {
 
     frame_generator_bvc::sptr
-    frame_generator_bvc::make(int used_subcarriers, int total_subcarriers, int payload_symbols, int overlap, std::vector<int> channel_map, std::vector<gr_complex> preamble)
+    frame_generator_bvc::make(int used_subcarriers, int total_subcarriers, int payload_symbols, int payload_bits, int overlap, std::vector<int> channel_map, std::vector<gr_complex> preamble)
     {
       return gnuradio::get_initial_sptr
-        (new frame_generator_bvc_impl(used_subcarriers, total_subcarriers, payload_symbols, overlap, channel_map, preamble));
+        (new frame_generator_bvc_impl(used_subcarriers, total_subcarriers, payload_symbols, payload_bits, overlap, channel_map, preamble));
     }
 
     /*
      * The private constructor
      */
     frame_generator_bvc_impl::frame_generator_bvc_impl(int used_subcarriers, int total_subcarriers,
-                                                       int payload_symbols, int overlap,
+                                                       int payload_symbols, int payload_bits, int overlap,
                                                        std::vector<int> channel_map,
                                                        std::vector<gr_complex> preamble) :
             gr::block("frame_generator_bvc", gr::io_signature::make(1, 1, sizeof(char)),
                       gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers)),
             d_used_subcarriers(used_subcarriers), d_total_subcarriers(total_subcarriers),
-            d_payload_symbols(payload_symbols), d_overlap(overlap), /*d_channel_map(channel_map),*/
+            d_payload_symbols(payload_symbols), d_payload_bits(payload_bits), d_remaining_payload_bits(payload_bits),
+            d_overlap(overlap), /*d_channel_map(channel_map),*/
             d_preamble(preamble), d_frame_position(0)
     {
       setup_preamble(preamble);
@@ -91,7 +92,6 @@ namespace gr {
       d_channel_map.push_back(std::vector<int>());
       d_channel_map.push_back(std::vector<int>());
 
-
       bool inphase = true;
       for(int i = 0; i < d_total_subcarriers; i++){
         if(channel_map[i] == 1){
@@ -130,7 +130,7 @@ namespace gr {
     frame_generator_bvc_impl::insert_payload(gr_complex* out, const char* inbuf)
     {
       const int inphase_sel = inphase_selector();
-      const int num_elements = d_channel_map[inphase_sel].size();
+      const int num_elements = std::min(d_channel_map[inphase_sel].size(), (unsigned long) d_remaining_payload_bits);
 
       memset(out, 0, sizeof(gr_complex) * d_total_subcarriers);
 //      for(int i = 0; i < num_elements; i++){
@@ -159,6 +159,10 @@ namespace gr {
       int produced_items = 0;
       for(int i = 0; i < noutput_items; i++) {
         if(d_frame_position < d_preamble_symbols) {
+          if(d_frame_position == 0)
+          {
+            d_remaining_payload_bits = d_payload_bits; // current frame's payload is done, reset counter for the next one
+          }
           insert_preamble_vector(out, d_frame_position);
         }
         else if(d_frame_position < d_preamble_symbols + d_overlap) {
@@ -170,6 +174,7 @@ namespace gr {
           }
 
           int consumed = insert_payload(out, in);
+          d_remaining_payload_bits -= consumed;
           in += consumed;
           consumed_items += consumed;
         }

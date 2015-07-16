@@ -32,10 +32,10 @@
 
 namespace gr {
   namespace fbmc {
-    fbmc_config::fbmc_config(std::vector<int> channel_map, int num_payload_sym,
+    fbmc_config::fbmc_config(std::vector<int> channel_map, int num_payload_bits,
                              int num_overlap_sym, int samp_rate) :
-        d_channel_map(channel_map), d_num_payload_sym(
-            num_payload_sym), d_num_overlap_sym(num_overlap_sym), d_samp_rate(samp_rate)
+        d_channel_map(channel_map), d_num_payload_bits(
+            num_payload_bits), d_num_overlap_sym(num_overlap_sym), d_samp_rate(samp_rate)
     {
       // user parameter validity check
       check_user_args();
@@ -55,6 +55,8 @@ namespace gr {
           std::cerr << "WARNING: Invalid number of used subcarriers" << std::endl;
           d_num_used_subcarriers = d_num_total_subcarriers - 1;
       }
+
+      d_num_payload_sym = std::ceil(float(d_num_payload_bits) / d_num_used_subcarriers); // PAM uses 1 bit per symbol
 
       // generate the prototype filter taps
       gen_prototype_filter();
@@ -220,8 +222,8 @@ namespace gr {
     bool
     fbmc_config::check_user_args()
     {
-      if(d_num_payload_sym < 1)
-        throw std::runtime_error(std::string("Need at least 1 payload symbol"));
+      if(d_num_payload_bits < 1)
+        throw std::runtime_error(std::string("Need at least 1 payload bit"));
       else if(d_num_overlap_sym != 4)
         throw std::runtime_error(std::string("Overlap must be 4"));
       else if(d_samp_rate <= 0)
@@ -244,24 +246,20 @@ namespace gr {
       std::cout << "Subcarrier spacing (kHz):\t" << subc_spac << std::endl;
       std::cout << "Number of used subcarriers:\t" << d_num_used_subcarriers
           << std::endl;
-      std::cout << "Occupied bandwidth (kHz):\t"
-          << float(d_samp_rate) / d_num_total_subcarriers
-              * d_num_used_subcarriers / 1000 << std::endl;
       std::cout << "Number of symbols per frame:\t" << d_num_sym_frame
           << std::endl;
       std::cout << "\t-> payload symbols:\t" << d_num_payload_sym << std::endl;
       std::cout << "\t-> sync symbols:\t" << d_num_sync_sym << std::endl;
       std::cout << "\t-> overlap guard symbols:\t" << d_num_overlap_sym
           << std::endl;
-      float tsym = float(d_num_total_subcarriers) / d_samp_rate;
+      float tsym = float(d_num_total_subcarriers) / d_samp_rate / 2;
       std::cout << "Symbol duration (ms):\t" << tsym * 1000 << std::endl;
       std::cout << "Frame duration (ms):\t" << tsym * 1000 * d_num_sym_frame
           << std::endl;
       std::cout << "Filterbank group delay:\t"
           << (d_prototype_taps.size() - 1) / 2 << std::endl;
-      int payl_bits_frame = d_num_payload_sym * d_num_used_subcarriers;
-      std::cout << "Bits per frame:\t" << payl_bits_frame << std::endl;
-      float payl_bit_rate = float(payl_bits_frame) / (tsym * d_num_sym_frame);
+      std::cout << "Bits per frame:\t" << d_num_payload_bits << std::endl;
+      float payl_bit_rate = float(d_num_payload_bits) / (tsym * d_num_sym_frame);
       std::cout << "Payload bit rate (kbps):\t" << payl_bit_rate / 1000
           << std::endl;
       std::cout << "Spectral efficiency (b/Hz):\t"
