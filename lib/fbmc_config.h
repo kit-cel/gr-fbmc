@@ -56,7 +56,7 @@ namespace gr {
       void print_info(); // print a short summary of the parameters
       float get_phydyas_frequency_tap(int k, int overlap);
 
-      int d_num_used_subcarriers; // between 0.5 ... 1 * d_num_total_subcarriers
+      int d_num_used_subcarriers;
       int d_num_total_subcarriers; // power of 2
       int d_num_payload_sym; // number of payload symbols (one symbol consists of L subcarriers)
       int d_num_payload_bits; // number of payload bits
@@ -79,9 +79,9 @@ namespace gr {
       void gen_preamble_sym(); // generates preamble symbol (frequency domain)
       void gen_ref_preamble_sym(); // generate reference preamble symbol (time domain)
       // IAM frame structure:
-      // ... || d_num_sync_sym | d_num_overlap | d_num_payload_sym | d_num_overlap || ...
-      //      |<-     d_num_preamble_sym     ->|
-      //      |<-                        d_num_frame_sym                         ->|
+      // ... || d_num_preamble_sym | d_num_overlap | d_num_payload_sym | d_num_overlap || ...
+      //      |<-     d_num_sync_sym             ->|
+      //      |<-                        d_num_sym_frame                             ->|
     };
   }
 }

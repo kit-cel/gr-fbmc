@@ -61,3 +61,4 @@ GR_ADD_TEST(qa_tx_sdft_vcc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_t
 GR_ADD_TEST(qa_rx_domain_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_rx_domain_cvc.py)
 GR_ADD_TEST(qa_frame_generator_bvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_frame_generator_bvc.py)
 GR_ADD_TEST(qa_deframer_vcb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_deframer_vcb.py)
+GR_ADD_TEST(qa_multichannel_frame_generator_bvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_multichannel_frame_generator_bvc.py)

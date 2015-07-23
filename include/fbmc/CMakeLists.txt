@@ -46,5 +46,6 @@ install(FILES
     rx_domain_kernel.h
     smt_kernel.h
     frame_generator_bvc.h
-    deframer_vcb.h DESTINATION include/fbmc
+    deframer_vcb.h
+    multichannel_frame_generator_bvc.h DESTINATION include/fbmc
 )

@@ -95,7 +95,7 @@ namespace gr {
 
             d_eof_buf = boost::circular_buffer<gr_complex>(d_overlap / 2 * d_L, 0);
 
-            d_cfo_hist = boost::circular_buffer<float>(1); // 10 is just an arbitrary value...
+            d_cfo_hist = boost::circular_buffer<float>(10); // 10 is just an arbitrary value...
             set_output_multiple(d_preamble_sym.size() + d_L); // that's what can be returned with each call to work
         }
 
@@ -144,7 +144,7 @@ namespace gr {
             for (int i = 0; i < d_cfo_hist.size(); i++)
                 cfo_sum += d_cfo_hist[i];
             float cfo_avg = cfo_sum / d_cfo_hist.size();
-            //std::cout << "cfo in: " << cfo << ", cb size: " << d_cfo_hist.size() << ", cfo avg: " << cfo_avg << std::endl;
+            std::cout << "cfo in: " << cfo << ", cb size: " << d_cfo_hist.size() << ", cfo avg: " << cfo_avg << std::endl;
             return cfo_avg;
         }
 
