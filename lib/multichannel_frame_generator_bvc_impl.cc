@@ -32,33 +32,33 @@ namespace gr {
   namespace fbmc {
 
     multichannel_frame_generator_bvc::sptr
-    multichannel_frame_generator_bvc::make(int used_subcarriers, int total_subcarriers, int payload_symbols, int payload_bits, int overlap, std::vector<int> channel_map, std::vector<gr_complex> preamble)
+    multichannel_frame_generator_bvc::make(int total_subcarriers, int payload_symbols, int payload_bits, int overlap, std::vector<int> channel_map, std::vector<gr_complex> preamble)
     {
       return gnuradio::get_initial_sptr
-          (new multichannel_frame_generator_bvc_impl(used_subcarriers, total_subcarriers, payload_symbols, payload_bits, overlap, channel_map, preamble));
+          (new multichannel_frame_generator_bvc_impl(total_subcarriers, payload_symbols, payload_bits, overlap, channel_map, preamble));
     }
 
     /*
      * The private constructor
      */
-    multichannel_frame_generator_bvc_impl::multichannel_frame_generator_bvc_impl(int used_subcarriers, int total_subcarriers,
+    multichannel_frame_generator_bvc_impl::multichannel_frame_generator_bvc_impl(int total_subcarriers,
                                                                            int payload_symbols, int payload_bits, int overlap,
                                                                            std::vector<int> channel_map,
                                                                            std::vector<gr_complex> preamble) :
         gr::block("multichannel_frame_generator_bvc", gr::io_signature::make(1, 1, sizeof(char)),
-                  gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers)),
-        d_used_subcarriers(used_subcarriers), d_total_subcarriers(total_subcarriers),
-        d_payload_symbols(payload_symbols), d_payload_bits(payload_bits),
+                  gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers * 4)),
+        d_total_subcarriers(total_subcarriers), d_payload_symbols(payload_symbols), d_payload_bits(payload_bits),
         d_overlap(overlap), d_subchannel_map(channel_map),
-        d_preamble(preamble), d_num_subchannels(4), d_blocked_subchannel(0), d_CTS(false)
+        d_preamble(preamble), d_num_subchannels(4), d_CTS(false)
     {
       // 2 times overlap because we need 'zero-symbols' after preamble and after payload.
       d_preamble_symbols = d_preamble.size() / d_total_subcarriers; // number of complete symbol vectors
       d_frame_len = d_preamble_symbols + d_payload_symbols + 2 * d_overlap;
 
       // prepare all possible preamble and channel map setups
-      setup_preamble();
+      d_preamble_buf = new gr_complex[d_num_subchannels*d_total_subcarriers*d_preamble_symbols];
       setup_channel_map();
+      d_blocked_subchannels = std::vector<bool>();
 
       pmt::pmt_t CTS_PORT = pmt::mp("CTS_in");
       message_port_register_in(CTS_PORT);
@@ -71,10 +71,7 @@ namespace gr {
      */
     multichannel_frame_generator_bvc_impl::~multichannel_frame_generator_bvc_impl()
     {
-      for(int i=0; i<d_preamble_buf.size(); i++)
-      {
-        volk_free(d_preamble_buf[i]);
-      }
+      delete[] d_preamble_buf;
     }
 
     const gr_complex multichannel_frame_generator_bvc_impl::D_CONSTELLATION[2] = {gr_complex(-1.0f / std::sqrt(2.0f), 0.0f), gr_complex(1.0f / std::sqrt(2.0f), 0.0f)};
@@ -82,13 +79,42 @@ namespace gr {
     void
     multichannel_frame_generator_bvc_impl::process_msg(pmt::pmt_t msg)
     {
-      if(!pmt::is_pair(msg))
+      if(!pmt::is_dict(msg))
       {
-        std::runtime_error("Received msg is not of type pair");
+        throw std::runtime_error("Wrong message type, expected dict");
       }
-      d_blocked_subchannel = pmt::to_long(pmt::cdr(msg));
-      d_CTS = true;
+
+      if(d_CTS) // previous frame has not been sent yet, drop it in favor of the newer one as we are obviously late
+      {
+        std::cout << "WARNING: CTS messages are stacking up, dropping previous frame" << std::endl;
+      }
+
+      int num_blocked_channels = 0;
+      d_blocked_subchannels.clear();
+      for (int i = 0; i < d_num_subchannels; i++) {
+        if (pmt::dict_ref(msg, pmt::mp(i), pmt::PMT_F) == pmt::PMT_T) {
+//          std::cout << "Channel " << i << " is blocked." << std::endl;
+          d_blocked_subchannels.push_back(true);
+          num_blocked_channels++;
+        }
+        else
+        {
+          d_blocked_subchannels.push_back(false);
+        }
+      }
+
+      if(num_blocked_channels < d_num_subchannels) // at least one subchannel must be free
+      {
+        d_CTS = true;
+        setup_preamble();
+        setup_channel_map();
+      }
+      else
+      {
+        d_CTS = false;
+      }
     }
+
     void
     multichannel_frame_generator_bvc_impl::setup_preamble()
     {
@@ -96,25 +122,21 @@ namespace gr {
         throw std::runtime_error("Parameter mismatch: size(preamble) % total_subcarriers != 0");
       }
 
-      for(int i=0; i<d_num_subchannels; i++) // prepare all 4 possibilities
+      memset(d_preamble_buf, 0, sizeof(gr_complex) * d_preamble_symbols * d_total_subcarriers * d_num_subchannels);
+      for(int i=0; i<d_preamble_symbols; i++)
       {
-        d_preamble_buf.push_back( (gr_complex*) volk_malloc(sizeof(gr_complex) * d_preamble_symbols * d_total_subcarriers * d_num_subchannels, volk_get_alignment()) );
-
-        for(int k=0; k<d_preamble_symbols; k++)
+        for(int k=0; k<d_num_subchannels; k++)
         {
-          for(int n=0; n<d_num_subchannels; n++)
+          gr_complex *dest = d_preamble_buf + i * d_total_subcarriers + k * d_total_subcarriers * d_preamble_symbols;
+          gr_complex *src = &d_preamble[0] + i * d_total_subcarriers;
+          int len = sizeof(gr_complex) * d_total_subcarriers;
+          if (d_blocked_subchannels[k]) // current index is a blocked subchannel, copy zeros (== disable channel)
           {
-            gr_complex *dest = d_preamble_buf[i]+k*d_total_subcarriers;
-            gr_complex *src = &d_preamble[0]+k*d_total_subcarriers;
-            int len = sizeof(gr_complex)*d_total_subcarriers;
-            if(k==i) // current index is the blocked subchannel, copy zeros (== disable channel)
-            {
-              memset(dest, 0, len);
-            }
-            else // current index is a used subchannel, copy preamble symbols
-            {
-              memcpy(dest, src, len);
-            }
+            memset(dest, 0, len);
+          }
+          else // current index is a used subchannel, copy preamble symbols
+          {
+            memcpy(dest, src, len);
           }
         }
       }
@@ -126,6 +148,8 @@ namespace gr {
       if(d_subchannel_map.size() != d_total_subcarriers) {
         throw std::runtime_error("Parameter mismatch: size(channel_map) != total_subcarriers");
       }
+
+      d_subchannel_map_ind.clear();
       d_subchannel_map_ind.push_back(std::vector<int>());
       d_subchannel_map_ind.push_back(std::vector<int>());
 
@@ -149,46 +173,47 @@ namespace gr {
     multichannel_frame_generator_bvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
       // always only 1 input and 1 output.
-      ninput_items_required[0] = d_payload_bits * (d_num_subchannels - 1);
+      ninput_items_required[0] = d_payload_bits * d_num_subchannels; // This could probably be reduced to d_num_subchannels - num_blocked_channels
     }
 
     inline void
-    multichannel_frame_generator_bvc_impl::insert_preamble(gr_complex* out)
+    multichannel_frame_generator_bvc_impl::insert_preamble(gr_complex*& out)
     {
-      memcpy(out, d_preamble_buf[d_blocked_subchannel] + d_total_subcarriers * d_num_subchannels * d_preamble_symbols, sizeof(gr_complex) * d_total_subcarriers * d_num_subchannels * d_preamble_symbols);
+      memcpy(out, d_preamble_buf, sizeof(gr_complex) * d_total_subcarriers * d_num_subchannels * d_preamble_symbols);
+      out += d_total_subcarriers * d_num_subchannels * d_preamble_symbols;
     }
 
     inline void
-    multichannel_frame_generator_bvc_impl::insert_padding_zeros(gr_complex* out){
+    multichannel_frame_generator_bvc_impl::insert_padding_zeros(gr_complex*& out){
       memset(out, 0, sizeof(gr_complex) * d_total_subcarriers * d_num_subchannels * d_overlap);
+      out += d_total_subcarriers * d_num_subchannels * d_overlap;
     }
 
     inline void
-    multichannel_frame_generator_bvc_impl::insert_payload(gr_complex* out, const char* inbuf)
+    multichannel_frame_generator_bvc_impl::insert_payload(gr_complex*& out, const char* inbuf)
     {
       // null output buffer
       memset(out, 0, sizeof(gr_complex) * d_total_subcarriers * d_payload_symbols * d_num_subchannels);
 
       for(int i=0; i<d_num_subchannels; i++)
       {
-        if(i == d_blocked_subchannel)
+        if(!d_blocked_subchannels[i]) // skip the blocked subchannel
         {
-          i++; // skip the blocked subchannel
-        }
-
-        int frame_pos = d_preamble_symbols + d_overlap;
-        for(int k=0; k<d_payload_symbols; k++)
-        {
-          int sel = inphase_selector(frame_pos);
-          for (int n = 0; n < d_subchannel_map_ind[sel].size(); n++)
+          int frame_pos = d_preamble_symbols + d_overlap;
+          for(int k=0; k<d_payload_symbols; k++)
           {
-            out[k * d_total_subcarriers * d_num_subchannels + // complete symbols (all subchannels)
-                 i * d_total_subcarriers +                     // complete subchannels
-                 d_subchannel_map_ind[sel][n]] = D_CONSTELLATION[*inbuf++];
+            int sel = inphase_selector(frame_pos);
+            for (int n = 0; n < d_subchannel_map_ind[sel].size(); n++)
+            {
+              out[k * d_total_subcarriers * d_num_subchannels + // complete symbols (all subchannels)
+                   i * d_total_subcarriers +                     // complete subchannels
+                   d_subchannel_map_ind[sel][n]] = D_CONSTELLATION[*inbuf++];
+            }
+            frame_pos++;
           }
-          frame_pos++;
         }
       }
+      out += d_total_subcarriers * d_payload_symbols * d_num_subchannels;
     }
 
     int
@@ -213,11 +238,7 @@ namespace gr {
 
       d_CTS = false;
 
-      // Tell runtime system how many input items we consumed on
-      // each input stream.
       consume_each(d_payload_bits*(d_num_subchannels-1));
-
-      // Tell runtime system how many output items we produced.
       return d_frame_len;
     }
 

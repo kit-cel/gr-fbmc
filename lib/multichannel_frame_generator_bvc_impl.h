@@ -29,19 +29,19 @@ namespace gr {
     class multichannel_frame_generator_bvc_impl : public multichannel_frame_generator_bvc
     {
     private:
-      int d_used_subcarriers; // per subchannel
       int d_total_subcarriers; // per subchannel
       int d_payload_symbols; // per subchannel
       int d_payload_bits; // per subchannel
       int d_overlap;
       std::vector<int> d_subchannel_map;
       std::vector<std::vector<int> > d_subchannel_map_ind;
+      std::vector<bool> d_blocked_subchannels;
+      int d_blocked_subchannel_combination;
       std::vector<gr_complex> d_preamble;
-      std::vector<gr_complex*> d_preamble_buf;
+      gr_complex* d_preamble_buf;
       int d_preamble_symbols;
       int d_frame_len;
       int d_num_subchannels;
-      int d_blocked_subchannel;
       bool d_CTS;
 
       static const gr_complex D_CONSTELLATION[2];
@@ -51,16 +51,16 @@ namespace gr {
       void setup_channel_map(); // blocked channel index ranges from 0 to d_num_subchannels-1
       std::vector<gr_complex> setup_constellation() const;
 
-      inline void insert_preamble(gr_complex* out);
+      inline void insert_preamble(gr_complex*& out);
 
-      inline void insert_padding_zeros(gr_complex* out);
+      inline void insert_padding_zeros(gr_complex*& out);
 
-      inline void insert_payload(gr_complex* out, const char* inbuf);
+      inline void insert_payload(gr_complex*& out, const char* inbuf);
 
       inline int inphase_selector(int pos) const {return (pos - d_preamble_symbols + d_overlap) % 2;};
 
     public:
-      multichannel_frame_generator_bvc_impl(int used_subcarriers, int total_subcarriers, int payload_symbols, int payload_bits, int overlap, std::vector<int> channel_map, std::vector<gr_complex> preamble);
+      multichannel_frame_generator_bvc_impl(int total_subcarriers, int payload_symbols, int payload_bits, int overlap, std::vector<int> channel_map, std::vector<gr_complex> preamble);
       ~multichannel_frame_generator_bvc_impl();
 
       // Where all the action really happens

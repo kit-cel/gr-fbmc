@@ -4,18 +4,12 @@
   <key>fbmc_multichannel_frame_generator_bvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.multichannel_frame_generator_bvc($used_subcarriers, $total_subcarriers, $payload_symbols, $payload_bits, $overlap, $channel_map, $preamble)</make>
+  <make>fbmc.multichannel_frame_generator_bvc($total_subcarriers, $payload_symbols, $payload_bits, $overlap, $channel_map, $preamble)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
-  <param>
-    <name>Num Used Subcarriers</name>
-    <key>used_subcarriers</key>
-    <type>int</type>
-  </param>
-
   <param>
     <name>Num Total Subcarriers</name>
     <key>total_subcarriers</key>
@@ -65,6 +59,6 @@
   <source>
     <name>out</name>
     <type>complex</type>
-    <vlen>$total_subcarriers</vlen>
+    <vlen>$total_subcarriers*4</vlen>
   </source>
 </block>

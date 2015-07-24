@@ -51,10 +51,10 @@ namespace gr {
           }
       }
 
-      if(d_num_used_subcarriers >= d_num_total_subcarriers) {
-          std::cerr << "WARNING: Invalid number of used subcarriers" << std::endl;
-          d_num_used_subcarriers = d_num_total_subcarriers - 1;
-      }
+//      if(d_num_used_subcarriers >= d_num_total_subcarriers) {
+//          std::cerr << "WARNING: Invalid number of used subcarriers" << std::endl;
+//          d_num_used_subcarriers = d_num_total_subcarriers - 1;
+//      }
 
       d_num_payload_sym = std::ceil(float(d_num_payload_bits) / d_num_used_subcarriers); // PAM uses 1 bit per symbol
 
