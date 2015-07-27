@@ -86,14 +86,13 @@ namespace gr {
 
       if(d_CTS) // previous frame has not been sent yet, drop it in favor of the newer one as we are obviously late
       {
-        std::cout << "WARNING: CTS messages are stacking up, dropping previous frame" << std::endl;
+        std::cout << "WARNING: CTS messages are stacking up, dropping previous CTS" << std::endl;
       }
 
       int num_blocked_channels = 0;
       d_blocked_subchannels.clear();
       for (int i = 0; i < d_num_subchannels; i++) {
         if (pmt::dict_ref(msg, pmt::mp(i), pmt::PMT_F) == pmt::PMT_T) {
-//          std::cout << "Channel " << i << " is blocked." << std::endl;
           d_blocked_subchannels.push_back(true);
           num_blocked_channels++;
         }
@@ -103,14 +102,22 @@ namespace gr {
         }
       }
 
+//      std::cout << std::endl << "CCA report: " << std::endl;
+//      for(int i = 0; i < d_num_subchannels; i++)
+//      {
+//        std::cout << " -- Channel " << i << " blocked? -> " << d_blocked_subchannels[i] << std::endl;
+//      }
+
       if(num_blocked_channels < d_num_subchannels) // at least one subchannel must be free
       {
+//        std::cout << std::endl << num_blocked_channels << " channel(s) blocked: enable CTS" << std::endl;
         d_CTS = true;
         setup_preamble();
         setup_channel_map();
       }
       else
       {
+//        std::cout << std::endl << "All channels blocked, disable CTS" << std::endl;
         d_CTS = false;
       }
     }
@@ -127,11 +134,12 @@ namespace gr {
       {
         for(int k=0; k<d_num_subchannels; k++)
         {
-          gr_complex *dest = d_preamble_buf + i * d_total_subcarriers + k * d_total_subcarriers * d_preamble_symbols;
-          gr_complex *src = &d_preamble[0] + i * d_total_subcarriers;
+          gr_complex *dest = &d_preamble_buf[i * d_total_subcarriers * d_num_subchannels + k * d_total_subcarriers];
+          gr_complex *src = &d_preamble[i * d_total_subcarriers];
           int len = sizeof(gr_complex) * d_total_subcarriers;
           if (d_blocked_subchannels[k]) // current index is a blocked subchannel, copy zeros (== disable channel)
           {
+//            std::cout << "preamble_setup(): skip subchannel " << k << std::endl;
             memset(dest, 0, len);
           }
           else // current index is a used subchannel, copy preamble symbols
@@ -212,6 +220,10 @@ namespace gr {
             frame_pos++;
           }
         }
+//        else
+//        {
+//          std::cout << "insert_payload(): skip subchannel " << i << std::endl;
+//        }
       }
       out += d_total_subcarriers * d_payload_symbols * d_num_subchannels;
     }
