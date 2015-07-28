@@ -34,9 +34,9 @@ namespace gr {
       int d_payload_bits; // per subchannel
       int d_overlap;
       std::vector<int> d_subchannel_map;
-      std::vector<std::vector<int> > d_subchannel_map_ind;
+      std::vector<int> d_subchannel_map_index;
+      std::vector<std::vector<int> > d_subchannel_map_offset;
       std::vector<bool> d_blocked_subchannels;
-      int d_blocked_subchannel_combination;
       std::vector<gr_complex> d_preamble;
       gr_complex* d_preamble_buf;
       int d_preamble_symbols;
@@ -44,7 +44,7 @@ namespace gr {
       int d_num_subchannels;
       bool d_CTS;
 
-      static const gr_complex D_CONSTELLATION[2];
+      static const float D_CONSTELLATION[2];
 
       void process_msg(pmt::pmt_t msg);
       void setup_preamble();

@@ -33,12 +33,14 @@ namespace gr {
       int d_payload_symbols;
       int d_payload_bits;
       int d_overlap;
-      std::vector<std::vector<int> > d_channel_map;
-      int d_num_subchannels;
+      std::vector<int> d_subchannel_map;
+      std::vector<int> d_subchannel_map_index;
+      std::vector<std::vector<int> > d_subchannel_map_offset;
+      static const int d_num_subchannels = 4;
       int d_preamble_symbols;
       int d_frame_len;
 
-      void setup_channel_map(std::vector<int> channel_map);
+      void setup_channel_map();
 
       int extract_bits(char* out, gr_complex* inbuf, std::vector<bool> blocked_subchannels);
       std::vector<bool> get_occupied_channels_from_tag(const gr_complex* inptr);

@@ -74,7 +74,7 @@ namespace gr {
       delete[] d_preamble_buf;
     }
 
-    const gr_complex multichannel_frame_generator_bvc_impl::D_CONSTELLATION[2] = {gr_complex(-1.0f / std::sqrt(2.0f), 0.0f), gr_complex(1.0f / std::sqrt(2.0f), 0.0f)};
+    const float multichannel_frame_generator_bvc_impl::D_CONSTELLATION[2] = {-1.0f / std::sqrt(2.0f), 1.0f / std::sqrt(2.0f)};
 
     void
     multichannel_frame_generator_bvc_impl::process_msg(pmt::pmt_t msg)
@@ -156,24 +156,47 @@ namespace gr {
         throw std::runtime_error("Parameter mismatch: size(channel_map) != total_subcarriers");
       }
 
-      d_subchannel_map_ind.clear();
-      d_subchannel_map_ind.push_back(std::vector<int>());
-      d_subchannel_map_ind.push_back(std::vector<int>());
+      // create the characteristic time-frequency pattern with alternating real and imaginary symbols
 
-      bool inphase = true;
-      for(int i = 0; i < d_total_subcarriers; i++){
-        if(d_subchannel_map[i] == 1){
-          if(inphase){
-            d_subchannel_map_ind[0].push_back(i);
-          }
-          else{
-            d_subchannel_map_ind[1].push_back(i);
-          }
-        }
-        if(i % 2 == 0){
-          inphase = !inphase;
+      // save indices of used subchannels
+      for(int i=0; i<d_subchannel_map.size(); i++)
+      {
+        if(d_subchannel_map[i] != 0) {
+          d_subchannel_map_index.push_back(i);
         }
       }
+
+      std::vector<int> subchannel_map_offset_even;
+      std::vector<int> subchannel_map_offset_odd;
+      for(int i=0; i<d_subchannel_map_index.size(); i++)
+      {
+        subchannel_map_offset_even.push_back(d_subchannel_map_index[i] % 2);
+        subchannel_map_offset_odd.push_back((d_subchannel_map_index[i]+1) % 2);
+      }
+
+      d_subchannel_map_offset.push_back(subchannel_map_offset_even);
+      d_subchannel_map_offset.push_back(subchannel_map_offset_odd);
+
+
+      // OLD STUFF
+//      d_subchannel_map_ind.clear();
+//      d_subchannel_map_ind.push_back(std::vector<int>());
+//      d_subchannel_map_ind.push_back(std::vector<int>());
+//
+//      bool inphase = true;
+//      for(int i = 0; i < d_total_subcarriers; i++){
+//        if(d_subchannel_map[i] == 1){
+//          if(inphase){
+//            d_subchannel_map_ind[0].push_back(i);
+//          }
+//          else{
+//            d_subchannel_map_ind[1].push_back(i);
+//          }
+//        }
+//        if(i % 2 == 0){
+//          inphase = !inphase;
+//        }
+//      }
     }
 
     void
@@ -202,30 +225,46 @@ namespace gr {
       // null output buffer
       memset(out, 0, sizeof(gr_complex) * d_total_subcarriers * d_payload_symbols * d_num_subchannels);
 
+      // cast output buffer pointer to float to be able to access the real and imaginary part via pointer arithmetics
+      float* outptr = (float*) out;
       for(int i=0; i<d_num_subchannels; i++)
       {
-//        int bits_written = 0;
+        int bits_written = 0;
         if(!d_blocked_subchannels[i]) // skip the blocked subchannel
         {
           int frame_pos = d_preamble_symbols + d_overlap;
-          for(int k=0; k<d_payload_symbols; k++)
+          for(int k=0; k<d_payload_symbols-1; k++) // handle all fully occupied symbols
           {
             int sel = inphase_selector(frame_pos);
-            for (int n = 0; n < d_subchannel_map_ind[sel].size(); n++)
+            for(int n = 0; n < d_subchannel_map_index.size(); n++)
             {
-              out[k * d_total_subcarriers * d_num_subchannels + // complete symbols (all subchannels)
-                   i * d_total_subcarriers +                     // complete subchannels
-                   d_subchannel_map_ind[sel][n]] = D_CONSTELLATION[*inbuf++];
-//              bits_written++;
+              outptr[ 2*(k * d_total_subcarriers * d_num_subchannels +  // complete symbols (all subchannels)
+                   i * d_total_subcarriers +                         // complete subchannels
+                   d_subchannel_map_index[n]) +                      // subcarrier index
+                   d_subchannel_map_offset[sel][n] ]                 // I/Q offset
+                   = D_CONSTELLATION[*inbuf++];
+              bits_written++;
             }
             frame_pos++;
           }
-//        std::cout << "insert_payload(): user " << i << " bits_written: " << bits_written << std::endl;
+          // handle the last, possibly only partly occupied symbol
+          int remaining_bits = d_payload_bits - bits_written;
+          int sel = inphase_selector(frame_pos);
+          for(int n=0; n<remaining_bits; n++)
+          {
+            outptr[2*((d_payload_symbols-1) * d_total_subcarriers * d_num_subchannels +  // N-1 complete symbols (all subchannels)
+                i * d_total_subcarriers +                                             // complete subchannels
+                d_subchannel_map_index[n]) +                                          // subcarrier index
+                d_subchannel_map_offset[sel][n] ]                                     // I/Q offset
+                = D_CONSTELLATION[*inbuf++];
+            bits_written++;
+          }
+//          std::cout << "insert_payload(): user " << i << " bits_written: " << bits_written << std::endl;
         }
-//        else
-//        {
+        else
+        {
 //          std::cout << "insert_payload(): skip subchannel " << i << std::endl;
-//        }
+        }
       }
       out += d_total_subcarriers * d_payload_symbols * d_num_subchannels;
     }
@@ -243,7 +282,7 @@ namespace gr {
       }
 
       const char *in = (const char *) input_items[0];
-      gr_complex *out = (gr_complex *) output_items[0];
+      gr_complex *out = (gr_complex *) output_items[0]; // interpret as float so we can write real and imaginary part using pointers
 
       insert_preamble(out);
       insert_padding_zeros(out);

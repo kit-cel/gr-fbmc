@@ -48,5 +48,7 @@ install(FILES
     frame_generator_bvc.h
     deframer_vcb.h
     multichannel_frame_generator_bvc.h
-    multichannel_deframer_vcb.h DESTINATION include/fbmc
+    multichannel_deframer_vcb.h
+    #multichannel_frame_sync_cc.h
+    DESTINATION include/fbmc
 )

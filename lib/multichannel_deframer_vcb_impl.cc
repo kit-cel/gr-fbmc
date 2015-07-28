@@ -44,11 +44,11 @@ namespace gr {
         gr::block("multichannel_deframer_vcb",
                   gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers * 4),
                   gr::io_signature::make(1, 1, sizeof(char))),
-        d_total_subcarriers(total_subcarriers), d_num_subchannels(4),
+        d_total_subcarriers(total_subcarriers),
         d_payload_symbols(payload_symbols), d_payload_bits(payload_bits),
-        d_overlap(overlap), d_preamble_symbols(num_preamble_symbols)
+        d_overlap(overlap), d_preamble_symbols(num_preamble_symbols), d_subchannel_map(channel_map)
     {
-      setup_channel_map(channel_map);
+      setup_channel_map();
       d_frame_len = d_preamble_symbols + d_overlap + d_payload_symbols + d_overlap;
 
       // can only set this in c'tor, so assume the maximum output size
@@ -69,29 +69,32 @@ namespace gr {
     }
 
     void
-    multichannel_deframer_vcb_impl::setup_channel_map(std::vector<int> channel_map)
+    multichannel_deframer_vcb_impl::setup_channel_map()
     {
-      if(channel_map.size() != d_total_subcarriers) {
+      if(d_subchannel_map.size() != d_total_subcarriers) {
         throw std::runtime_error("Parameter mismatch: size(channel_map) != total_subcarriers");
       }
-      d_channel_map.push_back(std::vector<int>());
-      d_channel_map.push_back(std::vector<int>());
 
+      // create the characteristic time-frequency pattern with alternating real and imaginary symbols
 
-      bool inphase = true;
-      for(int i = 0; i < d_total_subcarriers; i++){
-        if(channel_map[i] == 1){
-          if(inphase){
-            d_channel_map[0].push_back(i);
-          }
-          else{
-            d_channel_map[1].push_back(i);
-          }
-        }
-        if(i % 2 == 0){
-          inphase = !inphase;
+      // save indices of used subchannels
+      for(int i=0; i<d_subchannel_map.size(); i++)
+      {
+        if(d_subchannel_map[i] != 0) {
+          d_subchannel_map_index.push_back(i);
         }
       }
+
+      std::vector<int> subchannel_map_offset_even;
+      std::vector<int> subchannel_map_offset_odd;
+      for(int i=0; i<d_subchannel_map_index.size(); i++)
+      {
+        subchannel_map_offset_even.push_back(d_subchannel_map_index[i] % 2);
+        subchannel_map_offset_odd.push_back((d_subchannel_map_index[i]+1) % 2);
+      }
+
+      d_subchannel_map_offset.push_back(subchannel_map_offset_even);
+      d_subchannel_map_offset.push_back(subchannel_map_offset_odd);
     }
 
     std::vector<bool>
@@ -103,55 +106,65 @@ namespace gr {
     int
     multichannel_deframer_vcb_impl::extract_bits(char* outbuf, gr_complex* inbuf, std::vector<bool> blocked_subchannels)
     {
-      int bits_written = 0;
+      int bits_written_total = 0;
       for(int i = 0; i < d_num_subchannels; i++)
       {
+        std::cout << "deframer: extract bits: ";
+        int bits_written = 0;
         int frame_pos = d_preamble_symbols + d_payload_symbols;
-        std::cout << "blocked_subchannels[i]: " << blocked_subchannels[i] << std::endl;
-        if(!blocked_subchannels[i]) {
-          gr_complex *inptr = inbuf + i * d_total_subcarriers; // initial offset pointing to the right subchannel
+//        std::cout << "blocked_subchannels[i]: " << blocked_subchannels[i] << std::endl;
+        if(!blocked_subchannels[i])
+        {
+          float* in_cast = (float*) inbuf;
+          float *inptr = in_cast + 2 * i * d_total_subcarriers; // initial position pointing to the current subchannel
+          //FIXME : line below causes empty space in the output buffer, introduce additional counter to avoid this
           char *outptr = outbuf + i * d_payload_bits; // same as above, output frames shall appear serially in the output buffer
 
           // process fully occupied symbols
           for (int k = 0; k < d_payload_symbols - 1; k++)
           {
             int sel = inphase_selector(frame_pos++);
-            for(int n = 0; n < d_channel_map[sel].size(); n++)
+            for(int n = 0; n < d_subchannel_map_index.size(); n++)
             {
-              if(inptr[d_channel_map[sel][n]].real() > 0.0f)
+              if(inptr[2*d_subchannel_map[n] + d_subchannel_map_offset[sel][n]] > 0.0f)
               {
-                *outbuf++ = 1;
+                *outptr++ = 1;
               }
               else
               {
-                *outbuf++ = 0;
+                *outptr++ = 0;
               }
-              inptr += d_total_subcarriers * d_num_subchannels;
+              std::cout << int(*(outptr-1));
+              inptr += 2 * d_total_subcarriers * d_num_subchannels; // move inptr to the subchannel's next symbol
             }
-            bits_written += d_channel_map[sel].size();
-            std::cout << "bits_written: " << bits_written << std::endl;
+            bits_written += d_subchannel_map_index.size();
           }
 
           // process the last, possibly only partly occupied symbol
           int sel = inphase_selector(frame_pos);
           int remaining_bits = d_payload_bits - bits_written;
-          std::cout << "remaining bits: " << remaining_bits << std::endl;
+//          std::cout << "deframer: bits_written: " << bits_written << std::endl;
+//          std::cout << "deframer: remaining bits: " << remaining_bits << std::endl;
           for(int n = 0; n < remaining_bits; n++)
           {
-            if(inptr[d_channel_map[sel][n]].real() > 0.0f)
+            if(inptr[2*d_subchannel_map[n] + d_subchannel_map_offset[sel][n]] > 0.0f)
             {
-              *outbuf++ = 1;
+              *outptr++ = 1;
             }
             else
             {
-              *outbuf++ = 0;
+              *outptr++ = 0;
             }
+            std::cout << int(*(outptr-1));
           }
           bits_written += remaining_bits;
+          std::cout << std::endl;
+//          std::cout << "deframer: user " << i << " bits_written: " << bits_written << std::endl;
+          bits_written_total += bits_written;
         }
-        else{ std::cout << "extract_bits(): skip blocked channel " << i << std::endl; }
+//        else{ std::cout << "extract_bits(): skip blocked channel " << i << std::endl; }
       }
-      return bits_written;
+      return bits_written_total;
     }
 
     int
@@ -163,9 +176,10 @@ namespace gr {
       gr_complex *in = (gr_complex *) input_items[0];
       char *out = (char *) output_items[0];
 
-      // skip the preamble and the following overlap
+      std::cout << "deframer: process one frame" << std::endl;
+
+      // skip the preamble and the following overlap FIXME: make sure this works even after the filterbank
       out += d_total_subcarriers * d_num_subchannels * (d_overlap + d_preamble_symbols);
-      int frame_pos = d_preamble_symbols + d_overlap;
       std::vector<bool> blocked_subcarriers = get_occupied_channels_from_tag(in);
       int nbits = extract_bits(out, in, blocked_subcarriers);
 

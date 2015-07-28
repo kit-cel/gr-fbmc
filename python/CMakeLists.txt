@@ -63,3 +63,4 @@ GR_ADD_TEST(qa_frame_generator_bvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_D
 GR_ADD_TEST(qa_deframer_vcb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_deframer_vcb.py)
 GR_ADD_TEST(qa_multichannel_frame_generator_bvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_multichannel_frame_generator_bvc.py)
 GR_ADD_TEST(qa_multichannel_deframer_vcb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_multichannel_deframer_vcb.py)
+#GR_ADD_TEST(qa_multichannel_frame_sync_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_multichannel_frame_sync_cc.py)
