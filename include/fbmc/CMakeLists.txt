@@ -47,5 +47,6 @@ install(FILES
     smt_kernel.h
     frame_generator_bvc.h
     deframer_vcb.h
-    multichannel_frame_generator_bvc.h DESTINATION include/fbmc
+    multichannel_frame_generator_bvc.h
+    multichannel_deframer_vcb.h DESTINATION include/fbmc
 )

@@ -41,5 +41,6 @@ install(FILES
     fbmc_rx_domain_kernel.xml
     fbmc_frame_generator_bvc.xml
     fbmc_deframer_vcb.xml
-    fbmc_multichannel_frame_generator_bvc.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_multichannel_frame_generator_bvc.xml
+    fbmc_multichannel_deframer_vcb.xml DESTINATION share/gnuradio/grc/blocks
 )
