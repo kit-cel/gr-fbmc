@@ -107,6 +107,7 @@ namespace gr {
     multichannel_deframer_vcb_impl::extract_bits(char* outbuf, gr_complex* inbuf, std::vector<bool> blocked_subchannels)
     {
       int bits_written_total = 0;
+      int outframe_ctr = 0;
       for(int i = 0; i < d_num_subchannels; i++)
       {
         int bits_written = 0;
@@ -114,8 +115,8 @@ namespace gr {
         if(!blocked_subchannels[i])
         {
           float* inptr = (float*) inbuf;
-          //FIXME : line below causes empty space in the output buffer for unused subchannels, introduce additional counter to avoid this
-          char *outptr = outbuf + i * d_payload_bits; // same as above, output frames shall appear serially in the output buffer
+          char *outptr = outbuf + outframe_ctr * d_payload_bits; // same as above, output frames shall appear serially in the output buffer
+          outframe_ctr++; // only increase counter if channel is not blocked, avoiding gaps in the output buffer
 
           // process fully occupied symbols
           for (int k = 0; k < d_payload_symbols - 1; k++)
