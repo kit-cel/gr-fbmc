@@ -240,10 +240,10 @@ namespace gr {
           }
 //          std::cout << "insert_payload(): user " << i << " bits_written: " << bits_written << std::endl;
         }
-        else
-        {
-          std::cout << "framer: insert_payload(): skip subchannel " << i << std::endl;
-        }
+//        else
+//        {
+//          std::cout << "framer: insert_payload(): skip subchannel " << i << std::endl;
+//        }
       }
       out += d_total_subcarriers * d_payload_symbols * d_num_subchannels;
     }

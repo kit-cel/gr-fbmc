@@ -163,7 +163,7 @@ namespace gr {
           bits_written += remaining_bits;
           bits_written_total += bits_written;
         }
-        else{ std::cout << "deframer: extract_bits(): skip blocked channel " << i << std::endl; }
+//        else{ std::cout << "deframer: extract_bits(): skip blocked channel " << i << std::endl; }
       }
       return /*bits_written_total*/ outframe_ctr * d_payload_bits;
     }
