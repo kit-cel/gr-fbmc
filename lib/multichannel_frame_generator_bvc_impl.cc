@@ -242,7 +242,7 @@ namespace gr {
         }
         else
         {
-//          std::cout << "insert_payload(): skip subchannel " << i << std::endl;
+          std::cout << "framer: insert_payload(): skip subchannel " << i << std::endl;
         }
       }
       out += d_total_subcarriers * d_payload_symbols * d_num_subchannels;
