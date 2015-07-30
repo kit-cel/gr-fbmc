@@ -42,7 +42,7 @@ namespace gr {
                                          int payload_symbols, int payload_bits, int overlap,
                                          std::vector<int> channel_map) :
         gr::block("multichannel_deframer_vcb",
-                  gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers * 4),
+                  gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers * d_num_subchannels),
                   gr::io_signature::make(1, 1, sizeof(char))),
         d_total_subcarriers(total_subcarriers),
         d_payload_symbols(payload_symbols), d_payload_bits(payload_bits),
@@ -65,7 +65,7 @@ namespace gr {
     void
     multichannel_deframer_vcb_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
-      ninput_items_required[0] = d_frame_len * d_total_subcarriers * d_num_subchannels; // one complete frame
+      ninput_items_required[0] = d_frame_len; // one complete frame
     }
 
     void
@@ -100,7 +100,7 @@ namespace gr {
     std::vector<bool>
     multichannel_deframer_vcb_impl::get_occupied_channels_from_tag(const gr_complex* inptr)
     {
-      return std::vector<bool>(false, d_num_subchannels); // FIXME implement this
+      return std::vector<bool>(d_num_subchannels, false); // FIXME implement this
     }
 
     int
@@ -125,9 +125,9 @@ namespace gr {
             for(int n = 0; n < d_subchannel_map_index.size(); n++)
             {
               float pam_symbol = inptr[2*(k * d_total_subcarriers * d_num_subchannels +  // complete symbols (all subchannels)
-                                   i * d_total_subcarriers +                         // complete subchannels
-                                   d_subchannel_map_index[n]) +                      // subcarrier index
-                                d_subchannel_map_offset[sel][n]];
+                                       i * d_total_subcarriers +                         // complete subchannels
+                                       d_subchannel_map_index[n]) +                      // subcarrier index
+                                       d_subchannel_map_offset[sel][n]];
               if(pam_symbol > 0.0f)
               {
                 *outptr++ = 1;
@@ -164,7 +164,7 @@ namespace gr {
         }
         else{ std::cout << "extract_bits(): skip blocked channel " << i << std::endl; }
       }
-      return bits_written_total;
+      return /*bits_written_total*/ outframe_ctr * d_payload_bits;
     }
 
     int
@@ -181,7 +181,7 @@ namespace gr {
       std::vector<bool> blocked_subcarriers = get_occupied_channels_from_tag(in);
       int nbits = extract_bits(out, in, blocked_subcarriers);
 
-      consume_each(d_frame_len * d_total_subcarriers * d_num_subchannels);
+      consume_each(d_frame_len);
       return nbits;
 
     }

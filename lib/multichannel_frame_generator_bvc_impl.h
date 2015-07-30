@@ -37,11 +37,12 @@ namespace gr {
       std::vector<int> d_subchannel_map_index;
       std::vector<std::vector<int> > d_subchannel_map_offset;
       std::vector<bool> d_blocked_subchannels;
+      int d_num_used_subchannels;
       std::vector<gr_complex> d_preamble;
       gr_complex* d_preamble_buf;
       int d_preamble_symbols;
       int d_frame_len;
-      int d_num_subchannels;
+      static const int d_num_subchannels = 4;
       bool d_CTS;
 
       static const float D_CONSTELLATION[2];

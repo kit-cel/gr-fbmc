@@ -46,10 +46,10 @@ namespace gr {
                                                                            std::vector<int> channel_map,
                                                                            std::vector<gr_complex> preamble) :
         gr::block("multichannel_frame_generator_bvc", gr::io_signature::make(1, 1, sizeof(char)),
-                  gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers * 4)),
+                  gr::io_signature::make(1, 1, sizeof(gr_complex) * total_subcarriers * d_num_subchannels)),
         d_total_subcarriers(total_subcarriers), d_payload_symbols(payload_symbols), d_payload_bits(payload_bits),
-        d_overlap(overlap), d_subchannel_map(channel_map),
-        d_preamble(preamble), d_num_subchannels(4), d_CTS(false)
+        d_overlap(overlap), d_subchannel_map(channel_map), d_num_used_subchannels(0),
+        d_preamble(preamble), d_CTS(false)
     {
       // 2 times overlap because we need 'zero-symbols' after preamble and after payload.
       d_preamble_symbols = d_preamble.size() / d_total_subcarriers; // number of complete symbol vectors
@@ -89,12 +89,12 @@ namespace gr {
         std::cout << "WARNING: CTS messages are stacking up, dropping previous CTS" << std::endl;
       }
 
-      int num_blocked_channels = 0;
+      d_num_used_subchannels = d_num_subchannels;
       d_blocked_subchannels.clear();
       for (int i = 0; i < d_num_subchannels; i++) {
         if (pmt::dict_ref(msg, pmt::mp(i), pmt::PMT_F) == pmt::PMT_T) {
           d_blocked_subchannels.push_back(true);
-          num_blocked_channels++;
+          d_num_used_subchannels--;
         }
         else
         {
@@ -108,9 +108,8 @@ namespace gr {
 //        std::cout << " -- Channel " << i << " blocked? -> " << d_blocked_subchannels[i] << std::endl;
 //      }
 
-      if(num_blocked_channels < d_num_subchannels) // at least one subchannel must be free
+      if(d_num_used_subchannels > 0) // at least one subchannel must be free
       {
-//        std::cout << std::endl << num_blocked_channels << " channel(s) blocked: enable CTS" << std::endl;
         d_CTS = true;
         setup_preamble();
       }
@@ -176,27 +175,6 @@ namespace gr {
 
       d_subchannel_map_offset.push_back(subchannel_map_offset_even);
       d_subchannel_map_offset.push_back(subchannel_map_offset_odd);
-
-
-      // OLD STUFF
-//      d_subchannel_map_ind.clear();
-//      d_subchannel_map_ind.push_back(std::vector<int>());
-//      d_subchannel_map_ind.push_back(std::vector<int>());
-//
-//      bool inphase = true;
-//      for(int i = 0; i < d_total_subcarriers; i++){
-//        if(d_subchannel_map[i] == 1){
-//          if(inphase){
-//            d_subchannel_map_ind[0].push_back(i);
-//          }
-//          else{
-//            d_subchannel_map_ind[1].push_back(i);
-//          }
-//        }
-//        if(i % 2 == 0){
-//          inphase = !inphase;
-//        }
-//      }
     }
 
     void
@@ -238,6 +216,7 @@ namespace gr {
             int sel = inphase_selector(frame_pos);
             for(int n = 0; n < d_subchannel_map_index.size(); n++)
             {
+//              std::cout << "framer: write offset " << 2*(k * d_total_subcarriers * d_num_subchannels + i * d_total_subcarriers + d_subchannel_map_index[n]) + d_subchannel_map_offset[sel][n] << std::endl;
               outptr[ 2*(k * d_total_subcarriers * d_num_subchannels +  // complete symbols (all subchannels)
                    i * d_total_subcarriers +                         // complete subchannels
                    d_subchannel_map_index[n]) +                      // subcarrier index
@@ -282,7 +261,7 @@ namespace gr {
       }
 
       const char *in = (const char *) input_items[0];
-      gr_complex *out = (gr_complex *) output_items[0]; // interpret as float so we can write real and imaginary part using pointers
+      gr_complex *out = (gr_complex *) output_items[0];
 
       insert_preamble(out);
       insert_padding_zeros(out);
@@ -291,7 +270,7 @@ namespace gr {
 
       d_CTS = false;
 
-      consume_each(d_payload_bits*(d_num_subchannels-1));
+      consume_each(d_payload_bits*d_num_used_subchannels);
       return d_frame_len;
     }
 
