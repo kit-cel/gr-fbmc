@@ -100,7 +100,9 @@ namespace gr {
     std::vector<bool>
     multichannel_deframer_vcb_impl::get_occupied_channels_from_tag(const gr_complex* inptr)
     {
-      return std::vector<bool>(d_num_subchannels, false); // FIXME implement this
+      std::vector<bool> ret(d_num_subchannels, false);
+      ret[3] = true;
+      return ret; // FIXME implement this
     }
 
     int
@@ -111,7 +113,7 @@ namespace gr {
       for(int i = 0; i < d_num_subchannels; i++)
       {
         int bits_written = 0;
-        int frame_pos = d_preamble_symbols + d_payload_symbols;
+        int frame_pos = d_preamble_symbols + d_overlap;
         if(!blocked_subchannels[i])
         {
           float* inptr = (float*) inbuf;
