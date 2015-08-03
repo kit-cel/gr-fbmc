@@ -36,7 +36,7 @@
 #include "fbmc/deframer_vcb.h"
 #include "fbmc/multichannel_frame_generator_bvc.h"
 #include "fbmc/multichannel_deframer_vcb.h"
-//#include "fbmc/multichannel_frame_sync_cc.h"
+#include "fbmc/multichannel_frame_sync_cc.h"
 %}
 
 %include "../lib/fbmc_config.h"
@@ -92,5 +92,5 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, deframer_vcb);
 GR_SWIG_BLOCK_MAGIC2(fbmc, multichannel_frame_generator_bvc);
 %include "fbmc/multichannel_deframer_vcb.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, multichannel_deframer_vcb);
-//%include "fbmc/multichannel_frame_sync_cc.h"
-//GR_SWIG_BLOCK_MAGIC2(fbmc, multichannel_frame_sync_cc);
+%include "fbmc/multichannel_frame_sync_cc.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, multichannel_frame_sync_cc);
