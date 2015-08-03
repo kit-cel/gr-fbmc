@@ -84,10 +84,10 @@ namespace gr {
         throw std::runtime_error("Wrong message type, expected dict");
       }
 
-      if(d_CTS) // previous frame has not been sent yet, drop it in favor of the newer one as we are obviously late
-      {
-        std::cout << "WARNING: CTS messages are stacking up, dropping previous CTS" << std::endl;
-      }
+//      if(d_CTS) // previous frame has not been sent yet, drop it in favor of the newer one as we are obviously late
+//      {
+//        std::cout << "WARNING: CTS messages are stacking up, dropping previous CTS" << std::endl;
+//      }
 
       d_num_used_subchannels = d_num_subchannels;
       d_blocked_subchannels.clear();

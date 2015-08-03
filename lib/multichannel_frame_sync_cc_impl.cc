@@ -43,12 +43,16 @@ namespace gr {
       : gr::block("multichannel_frame_sync_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
-              d_L(L), d_nsym_frame(nsym_frame), d_preamble_sym(preamble_sym), d_step_size(step_size),
+              d_L(L), d_nsym_frame(nsym_frame), d_step_size(step_size),
               d_threshold(threshold), d_nsamp_frame(d_L * d_nsym_frame / 2)
     {
       d_search_window_fixedlag = d_nsamp_frame;
+      d_fixedlag_lookahead = 3*d_L/2;
       d_search_window_reference = d_L;
       d_search_buf = (gr_complex*) volk_malloc(sizeof(gr_complex)*(d_nsamp_frame+d_search_window_reference), volk_get_alignment());
+      interpolate_preamble(preamble_sym);
+      prepare_mixed_preambles();
+      volk_32fc_x2_conjugate_dot_prod_32fc(&d_preamble_energy, &d_interp_preamble_sym[0], &d_interp_preamble_sym[0], d_interp_preamble_sym.size());
       set_output_multiple(d_nsamp_frame); // length of one entire frame
     }
 
@@ -57,6 +61,137 @@ namespace gr {
      */
     multichannel_frame_sync_cc_impl::~multichannel_frame_sync_cc_impl()
     {
+    }
+
+    void
+    multichannel_frame_sync_cc_impl::interpolate_preamble(std::vector<gr_complex> preamble)
+    {
+      // preparations
+      int ntaps = 121;
+      float taps[121] = {-0.00024929261417128146, 2.7295618565403856e-05, 0.00030980337760411203, 0.00047427925164811313, 0.0004318858846090734, 0.00017098820535466075, -0.00022229834576137364, -0.0005814371397718787, -0.0007196675287559628, -0.0005173816462047398, 4.414816371199137e-18, 0.0006381183047778904, 0.0010926378890872002, 0.0010824397904798388, 0.0005044178105890751, -0.00046904696500860155, -0.0014173350064083934, -0.0018385483417659998, -0.0013978359056636691, -0.0001410132390446961, 0.0014490133617073298, 0.0026161817368119955, 0.0026729267556220293, 0.0013732216320931911, -0.0008742373320274055, -0.003095031948760152, -0.0041490704752504826, -0.003288743318989873, -0.0006128582172095776, 0.0028366234619170427, 0.005445413291454315, 0.005752664525061846, 0.003218530910089612, -0.001350944396108389, -0.005991968791931868, -0.008385613560676575, -0.00696625467389822, -0.0018266135593876243, 0.005064631346613169, 0.010546242818236351, 0.011647133156657219, 0.007091585546731949, -0.00179487862624228, -0.011314144358038902, -0.016821611672639847, -0.014844637364149094, -0.004982819315046072, 0.00935021135956049, 0.021877693012356758, 0.02593032643198967, 0.017544684931635857, -0.0021079706493765116, -0.026136113330721855, -0.043705884367227554, -0.043754469603300095, -0.019350994378328323, 0.02898005023598671, 0.09238900989294052, 0.15583491325378418, 0.20263129472732544, 0.21984902024269104, 0.20263129472732544, 0.15583491325378418, 0.09238900989294052, 0.02898005023598671, -0.019350994378328323, -0.043754469603300095, -0.043705884367227554, -0.026136113330721855, -0.0021079706493765116, 0.017544684931635857, 0.02593032643198967, 0.021877693012356758, 0.00935021135956049, -0.004982819315046072, -0.014844637364149094, -0.016821611672639847, -0.011314144358038902, -0.00179487862624228, 0.007091585546731949, 0.011647133156657219, 0.010546242818236351, 0.005064631346613169, -0.0018266135593876243, -0.00696625467389822, -0.008385613560676575, -0.005991968791931868, -0.001350944396108389, 0.003218530910089612, 0.005752664525061846, 0.005445413291454315, 0.0028366234619170427, -0.0006128582172095776, -0.003288743318989873, -0.0041490704752504826, -0.003095031948760152, -0.0008742373320274055, 0.0013732216320931911, 0.0026729267556220293, 0.0026161817368119955, 0.0014490133617073298, -0.0001410132390446961, -0.0013978359056636691, -0.0018385483417659998, -0.0014173350064083934, -0.00046904696500860155, 0.0005044178105890751, 0.0010824397904798388, 0.0010926378890872002, 0.0006381183047778904, 4.414816371199137e-18, -0.0005173816462047398, -0.0007196675287559628, -0.0005814371397718787, -0.00022229834576137364, 0.00017098820535466075, 0.0004318858846090734, 0.00047427925164811313, 0.00030980337760411203, 2.7295618565403856e-05, -0.00024929261417128146};
+
+      int group_delay = (ntaps-1)/2;
+      std::vector<gr_complex> tmp(ntaps+preamble.size()*d_num_subchannels, 0);
+      d_interp_preamble_sym = std::vector<gr_complex>(d_num_subchannels*preamble.size(), 0);
+
+      // upsampling
+      for(int i=0; i<preamble.size(); i++)
+      {
+        tmp[group_delay + i*d_num_subchannels] = preamble[i];
+      }
+
+      // filtering (image rejection)
+      for(int i=0; i<d_interp_preamble_sym.size(); i++)
+      {
+        volk_32fc_32f_dot_prod_32fc(&d_interp_preamble_sym[i], &tmp[i], taps, ntaps);
+      }
+    }
+
+    void
+    multichannel_frame_sync_cc_impl::prepare_mixed_preambles()
+    {
+      for(int i=0; i<d_num_subchannels; i++)
+      {
+        d_mixed_preamble.push_back(std::vector<gr_complex>(d_interp_preamble_sym.size(), 0));
+        float channel_pos = -0.5 + 1.0/(2*d_num_subchannels)*(1+2*i); // this creates evenly spaced subchannels that span the Nyquist band
+
+        for(int k=0; k < d_interp_preamble_sym.size(); k++)
+        {
+          d_mixed_preamble[i][k] = d_interp_preamble_sym[k] * exp(gr_complex(0, 2*M_PI*k*channel_pos));
+        }
+      }
+    }
+
+    bool
+    multichannel_frame_sync_cc_impl::fixed_lag_correlation(const gr_complex* in, gr_complex& corr_coef)
+    {
+      // results for auto- and crosscorrelation
+      gr_complex xcorr = 0;
+      gr_complex acorr = 0;
+
+      volk_32fc_x2_conjugate_dot_prod_32fc(&xcorr, in + d_fixedlag_lookahead, in + d_fixedlag_lookahead + d_L, d_L);
+      volk_32fc_x2_conjugate_dot_prod_32fc(&acorr, in + d_fixedlag_lookahead, in + d_fixedlag_lookahead, d_L * 2);
+
+      // acorr is calculated over two symbols, so scale accordingly
+      corr_coef = gr_complex(2, 0) * xcorr / acorr;
+      if(std::abs(corr_coef) > d_threshold){ return true; }
+      else{ return false; }
+    }
+
+    double
+    multichannel_frame_sync_cc_impl::calc_cfo(gr_complex c)
+    {
+      return -1.0 / (2 * M_PI * d_L) * arg(c); // TODO: check this
+    }
+
+    void
+    multichannel_frame_sync_cc_impl::correct_frequency_offset(double cfo_norm)
+    {
+      // possible optimization options:
+      // I) prepare vector and use VOLK for multiplication
+      // II) sin/cos representation
+      for(int i=0; i<d_nsamp_frame+d_search_window_reference; i++)
+      {
+        d_search_buf[i] *= exp(gr_complex(0, -2 * M_PI * cfo_norm * i));
+      }
+    }
+
+    bool
+    multichannel_frame_sync_cc_impl::multichannel_detection(gr_complex* buf, std::vector<gr_complex>& corr_coefs,
+                                std::vector<bool>& occupied_channels)
+    {
+      bool channel_detected = false;
+
+      gr_complex signal_energy = 0;
+      volk_32fc_x2_conjugate_dot_prod_32fc(&signal_energy, buf, buf, d_interp_preamble_sym.size());
+
+      gr_complex corr_coef = 0;
+      gr_complex dotprod = 0;
+//      std::cout << "frame_sync: reference correlation coefficients: \n";
+      for(int i=0; i<d_num_subchannels; i++)
+      {
+        volk_32fc_x2_conjugate_dot_prod_32fc(&dotprod, buf, &d_mixed_preamble[i][0], d_interp_preamble_sym.size());
+        corr_coefs.push_back(dotprod / sqrt(d_preamble_energy * signal_energy));
+        std::cout << "#" << i << ": " << abs(corr_coefs[i]) << " = " << abs(dotprod) << "/" << sqrt(d_preamble_energy * signal_energy) << std::endl;
+        if(abs(corr_coefs[i]) > d_threshold)
+        {
+          channel_detected = true;
+          occupied_channels.push_back(true);
+        }
+        else
+        {
+          occupied_channels.push_back(false);
+        }
+      }
+      return channel_detected;
+    }
+
+    void
+    multichannel_frame_sync_cc_impl::correct_phase_offset(std::vector <gr_complex> corr_coefs)
+    {
+      // average the phases of the corr_coefs
+      double angle = 0;
+      for(int i=0; i<corr_coefs.size(); i++)
+      {
+        angle+= arg(corr_coefs[i]);
+      }
+      angle /= corr_coefs.size();
+      gr_complex phi = exp(gr_complex(0, -2 * M_PI * angle)); // TODO: check this
+      volk_32fc_s32fc_multiply_32fc(d_search_buf, d_search_buf, phi, d_nsamp_frame + d_search_window_reference);
+    }
+
+    void
+    multichannel_frame_sync_cc_impl::add_channel_occupation_tag(const std::vector <bool> &occupied_channels)
+    {
+      pmt::pmt_t pmt_vec = pmt::make_vector(d_num_subchannels, pmt::PMT_F);
+      for(int i=0; i<d_num_subchannels; i++)
+      {
+        if(occupied_channels[i])
+        {
+          pmt::vector_set(pmt_vec, i, pmt::PMT_T);
+        }
+      }
+      add_item_tag(0, nitems_written(0), pmt::mp("occupied_subchannels"), pmt_vec);
     }
 
     void
@@ -79,9 +214,9 @@ namespace gr {
       // I. detect frame via fixed lag correlation
       gr_complex corr_coef;
       bool proceed = false;
-      while(consumed < d_search_window_reference - d_L) // make sure there is enough space for some reference correlation iterations
+      while(consumed < d_search_window_fixedlag - d_L) // make sure there is enough space for some reference correlation iterations
       {
-        proceed = fixed_lag_correlation(in, corr_coef);
+        proceed = fixed_lag_correlation(in+consumed, corr_coef);
         if(proceed) { break; }
         else{ consumed += d_step_size; }
       }
@@ -93,9 +228,17 @@ namespace gr {
       }
 
       // II. correct frequency offset
-      memcpy(d_search_buf, in, sizeof(gr_complex)*(d_nsamp_frame+d_search_window_reference));
+      std::cout << "frame_sync: FLC positive at " << nitems_read(0) + consumed << std::endl;
+      memcpy(d_search_buf, in+consumed, sizeof(gr_complex)*(d_nsamp_frame+d_search_window_reference));
       double normalized_cfo = calc_cfo(corr_coef);
+//      std::cout << "frame_sync: FLC correlation coefficient: " << corr_coef << std::endl;
+//      std::cout << "frame_sync: correct frequency offset: " << normalized_cfo << std::endl;
       correct_frequency_offset(normalized_cfo);
+
+      // FIXME: DEBUG OUTPUT:
+//      memcpy(out, d_search_buf, sizeof(gr_complex)*(d_nsamp_frame+d_search_window_reference));
+//      consume_each(d_nsamp_frame+d_search_window_reference);
+//      return d_nsamp_frame+d_search_window_reference;
 
       // III. detect used subchannels via reference correlations
       std::vector<bool> occupied_channels;
@@ -103,14 +246,17 @@ namespace gr {
       int pos = 0;
       while(pos < d_search_window_reference)
       {
-        proceed = multichannel_detection(out, corr_coefs, occupied_channels); // returns true if at least one subchannel was detected
-        if(proceed) { break; }
+        std::cout << pos << "/" << d_search_window_reference << std::endl;
+        proceed = multichannel_detection(d_search_buf+pos, corr_coefs, occupied_channels); // returns true if at least one subchannel was detected
+        if(proceed) { std::cout << "preamble found!" << std::endl; break; }
         else{ consumed += 1; }
         pos++;
       }
+      std::cout << "frame_sync: preamble detected: " << proceed << std::endl;
       // proceed?
       if(!proceed)
       {
+        std::cout << "no preamble found" << std::endl;
         consume_each(consumed);
         return 0;
       }

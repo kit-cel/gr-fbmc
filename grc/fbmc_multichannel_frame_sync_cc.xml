@@ -1,38 +1,40 @@
-<?xml version="1.0"?>
 <block>
-  <name>multichannel_frame_sync_cc</name>
+  <name>Multichannel Frame Synchronization</name>
   <key>fbmc_multichannel_frame_sync_cc</key>
-  <category>fbmc</category>
+  <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.multichannel_frame_sync_cc()</make>
-  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
-       Sub-nodes:
-       * name
-       * key (makes the value accessible as $keyname, e.g. in the make node)
-       * type -->
+  <make>fbmc.multichannel_frame_sync_cc($L, $nsym_frame, $preamble_sym, $step_size, $threshold)</make>
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Num subcarriers (all subchannels)</name>
+    <key>L</key>
+    <type>int</type>
   </param>
-
-  <!-- Make one 'sink' node per input. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
+  <param>
+    <name>Symbols per frame</name>
+    <key>nsym_frame</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Preamble symbol (time domain)</name>
+    <key>preamble_sym</key>
+    <type>complex_vector</type>
+  </param>
+  <param>
+    <name>Step size</name>
+    <key>step_size</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Threshold ([0,1])</name>
+    <key>threshold</key>
+    <type>float</type>
+  </param>
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
   </sink>
-
-  <!-- Make one 'source' node per output. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
   </source>
 </block>

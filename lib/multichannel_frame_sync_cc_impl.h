@@ -30,28 +30,35 @@ namespace gr {
     private:
       int d_L; // number of subcarriers including all 4 subchannels
       int d_nsym_frame; // symbols (of length L/2) per frame
-      std::vector <gr_complex> d_preamble_sym; // base band preamble symbol in time domain
+      std::vector <gr_complex> d_interp_preamble_sym; // interpolated base band preamble symbol
+      std::vector < std::vector<gr_complex> > d_mixed_preamble; // mixed preambles matching the subchannels
+      gr_complex d_preamble_energy;
       int d_step_size;
       float d_threshold; // threshold for correlation
       static const int d_overlap = 4;
       static const int d_num_subchannels = 4;
       int d_search_window_fixedlag;
+      int d_fixedlag_lookahead;
       int d_search_window_reference;
       gr_complex *d_search_buf;
       int d_nsamp_frame; // number of samples per frame
 
+      void prepare_mixed_preambles();
+
+      void interpolate_preamble(std::vector<gr_complex> preamble);
+
       double calc_cfo(gr_complex c);
 
-      void correct_frequency_offset(double cfo_norm) { }
+      void correct_frequency_offset(double cfo_norm);
 
-      void correct_phase_offset(std::vector <gr_complex> corr_coefs) { }
+      void correct_phase_offset(std::vector <gr_complex> corr_coefs);
 
-      bool fixed_lag_correlation(const gr_complex *in, gr_complex &corr_coef) { return false; }
+      bool fixed_lag_correlation(const gr_complex *in, gr_complex &corr_coef);
 
-      bool multichannel_detection(gr_complex *buf, std::vector <gr_complex> corr_coef,
-                                  std::vector <bool> &occupied_channels) { return false; }
+      bool multichannel_detection(gr_complex *buf, std::vector<gr_complex>& corr_coefs,
+                                  std::vector<bool>& occupied_channels);
 
-      void add_channel_occupation_tag(const std::vector <bool> &occupied_channels) { };
+      void add_channel_occupation_tag(const std::vector <bool> &occupied_channels);
 
     public:
       multichannel_frame_sync_cc_impl(int L, int nsym_frame, std::vector <gr_complex> preamble_sym, int step_size,
