@@ -30,7 +30,6 @@ namespace gr {
     private:
       int d_L; // number of subcarriers including all 4 subchannels
       int d_nsym_frame; // symbols (of length L/2) per frame
-      std::vector <gr_complex> d_interp_preamble_sym; // interpolated base band preamble symbol
       std::vector < std::vector<gr_complex> > d_mixed_preamble; // mixed preambles matching the subchannels
       gr_complex d_preamble_energy;
       int d_step_size;
@@ -43,9 +42,9 @@ namespace gr {
       gr_complex *d_search_buf;
       int d_nsamp_frame; // number of samples per frame
 
-      void prepare_mixed_preambles();
+      void prepare_mixed_preambles(std::vector<gr_complex> preamble, std::vector<float> taps);
 
-      void interpolate_preamble(std::vector<gr_complex> preamble);
+//      void interpolate_preamble(std::vector<gr_complex> preamble);
 
       double calc_cfo(gr_complex c);
 
@@ -61,8 +60,8 @@ namespace gr {
       void add_channel_occupation_tag(const std::vector <bool> &occupied_channels);
 
     public:
-      multichannel_frame_sync_cc_impl(int L, int nsym_frame, std::vector <gr_complex> preamble_sym, int step_size,
-                                      float threshold);
+      multichannel_frame_sync_cc_impl(int L, int nsym_frame, std::vector <gr_complex> preamble_sym,
+                                      std::vector<float> taps, int step_size, float threshold);
 
       ~multichannel_frame_sync_cc_impl();
 
