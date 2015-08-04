@@ -44,8 +44,6 @@ namespace gr {
 
       void prepare_mixed_preambles(std::vector<gr_complex> preamble, std::vector<float> taps);
 
-//      void interpolate_preamble(std::vector<gr_complex> preamble);
-
       double calc_cfo(gr_complex c);
 
       void correct_frequency_offset(double cfo_norm);
@@ -55,7 +53,7 @@ namespace gr {
       bool fixed_lag_correlation(const gr_complex *in, gr_complex &corr_coef);
 
       bool multichannel_detection(gr_complex *buf, std::vector<gr_complex>& corr_coefs,
-                                  std::vector<bool>& occupied_channels);
+                                  std::vector<bool>& occupied_channels, int& index);
 
       void add_channel_occupation_tag(const std::vector <bool> &occupied_channels);
 
