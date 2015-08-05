@@ -48,7 +48,7 @@ namespace gr {
 
       void correct_frequency_offset(double cfo_norm);
 
-      void correct_phase_offset(std::vector <gr_complex> corr_coefs);
+      void correct_phase_offset(std::vector <gr_complex> corr_coefs, int bufpos);
 
       bool fixed_lag_correlation(const gr_complex *in, gr_complex &corr_coef);
 

@@ -102,7 +102,7 @@ namespace gr {
     double
     multichannel_frame_sync_cc_impl::calc_cfo(gr_complex c)
     {
-      return -1.0 / (2 * M_PI * d_L) * arg(c); // TODO: check this
+      return -1.0 / (2 * M_PI * d_L) * arg(c);
     }
 
     void
@@ -111,6 +111,7 @@ namespace gr {
       // possible optimization options:
       // I) prepare vector and use VOLK for multiplication
       // II) sin/cos representation
+//      std::cout << "normalized CFO: " << cfo_norm << std::endl;
       for(int i=0; i<d_nsamp_frame+d_search_window_reference; i++)
       {
         d_search_buf[i] *= exp(gr_complex(0, -2 * M_PI * cfo_norm * i));
@@ -177,47 +178,23 @@ namespace gr {
         }
         return true;
       }
-
-      // OLD STUFF
-//      bool channel_detected = false;
-//      corr_coefs.clear();
-//      occupied_channels.clear();
-//
-//      gr_complex signal_energy = 0;
-//      volk_32fc_x2_conjugate_dot_prod_32fc(&signal_energy, buf, buf, d_mixed_preamble[0].size());
-//
-//      gr_complex dotprod = 0;
-////      std::cout << "frame_sync: reference correlation coefficients: \n";
-//      for(int i=0; i<d_num_subchannels; i++)
-//      {
-//        volk_32fc_x2_conjugate_dot_prod_32fc(&dotprod, buf, &d_mixed_preamble[i][0], d_mixed_preamble[i].size());
-//        corr_coefs.push_back(dotprod / sqrt(d_preamble_energy * signal_energy));
-////        std::cout << "\t#" << i << ": " << abs(corr_coefs[i]) << " = " << abs(dotprod) << "/ sqrt(" << abs(d_preamble_energy) << "*" << abs(signal_energy) << ")" << std::endl;
-//        if(abs(corr_coefs[i]) > d_threshold)
-//        {
-//          channel_detected = true;
-//          occupied_channels.push_back(true);
-//        }
-//        else
-//        {
-//          occupied_channels.push_back(false);
-//        }
-//      }
-//      return channel_detected;
     }
 
     void
-    multichannel_frame_sync_cc_impl::correct_phase_offset(std::vector <gr_complex> corr_coefs)
+    multichannel_frame_sync_cc_impl::correct_phase_offset(std::vector <gr_complex> corr_coefs, int bufpos)
     {
       // average the phases of the corr_coefs
       double angle = 0;
+//      std::cout << "phase angles: ";
       for(int i=0; i<corr_coefs.size(); i++)
       {
+//        std::cout << arg(corr_coefs[i]) << " ";
         angle+= arg(corr_coefs[i]);
       }
       angle /= corr_coefs.size();
-      gr_complex phi = exp(gr_complex(0, -2 * M_PI * angle)); // TODO: check this
-      volk_32fc_s32fc_multiply_32fc(d_search_buf, d_search_buf, phi, d_nsamp_frame + d_search_window_reference);
+//      std::cout << ", average: " << angle << std::endl;
+      gr_complex phi = exp(gr_complex(0, -angle));
+      volk_32fc_s32fc_multiply_32fc(d_search_buf + bufpos, d_search_buf + bufpos, phi, d_nsamp_frame);
     }
 
     void
@@ -271,7 +248,7 @@ namespace gr {
 //      std::cout << "FLC positive @" << nitems_read(0) + consumed << std::endl;
       memcpy(d_search_buf, in+consumed, sizeof(gr_complex)*(d_nsamp_frame+d_search_window_reference));
       double normalized_cfo = calc_cfo(corr_coef);
-      //correct_frequency_offset(normalized_cfo); // TODO: check this
+      correct_frequency_offset(normalized_cfo); // TODO: check this
 
       // III. detect used subchannels via reference correlations
       std::vector<bool> occupied_channels;
@@ -279,15 +256,6 @@ namespace gr {
       int bufpos = 0;
       proceed = multichannel_detection(d_search_buf, corr_coefs, occupied_channels, bufpos); // returns true if at least one subchannel was detected
       consumed += bufpos;
-//      while(pos < d_search_window_reference)
-//      {
-////        std::cout << pos << "/" << d_search_window_reference << " RC @" << nitems_read(0)+consumed << std::endl;
-//        proceed = multichannel_detection(d_search_buf+pos, corr_coefs, occupied_channels); // returns true if at least one subchannel was detected
-//        if(proceed) { /*std::cout << "preamble found!" << std::endl;*/ break; }
-//        else{ consumed += 1; }
-//        pos++;
-//      }
-//      std::cout << "frame_sync: preamble detected: " << proceed << std::endl;
       // proceed?
       if(!proceed)
       {
@@ -297,10 +265,10 @@ namespace gr {
       }
 
       // IV. correct remaining phase offset
-//      correct_phase_offset(corr_coefs); // TODO: this might not work properly
+      correct_phase_offset(corr_coefs, bufpos);
 
       // V. copy to output buffer and add tags denoting subchannel occupation
-      std::cout << "frame detected @" << nitems_read(0) + consumed << std::endl;
+//      std::cout << "frame detected @" << nitems_read(0) + consumed << std::endl;
       memcpy(out, d_search_buf+bufpos, sizeof(gr_complex)*d_nsamp_frame);
       add_channel_occupation_tag(occupied_channels);
 

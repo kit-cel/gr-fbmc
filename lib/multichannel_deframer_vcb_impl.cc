@@ -100,9 +100,37 @@ namespace gr {
     std::vector<bool>
     multichannel_deframer_vcb_impl::get_occupied_channels_from_tag(const gr_complex* inptr)
     {
+      // FIXME: use consistent notation for occupied/used/busy/blocked subchannels
+      std::vector<gr::tag_t> tags;
+      get_tags_in_window(tags, 0, 0, 1, pmt::mp("occupied_subchannels")); // tag must be located on the first sample
+      if(tags.empty())
+      {
+        throw std::runtime_error("No tag found");
+      }
+      if(tags.size() > 1)
+      {
+        throw std::runtime_error("Found multiple tags");
+      }
+      pmt::pmt_t vec = tags[0].value;
+      if(!pmt::is_vector(vec))
+      {
+        throw std::runtime_error("Expected a PMT vector");
+      }
+
       std::vector<bool> ret(d_num_subchannels, false);
-      ret[3] = true;
-      return ret; // FIXME implement this
+      for(int i=0; i<d_num_subchannels; i++) {
+        if (pmt::vector_ref(vec, i) == pmt::PMT_T) {
+          ret[i] = false;
+        }
+        else if (pmt::vector_ref(vec, i) == pmt::PMT_F) {
+          ret[i] = true;
+        }
+        else {
+          throw std::runtime_error("Invalid value");
+        }
+//        std::cout << "deframer: channel " << i << " used: " << ret[i] << std::endl;
+      }
+      return ret;
     }
 
     int
