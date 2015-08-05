@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::time_freq_sync_cc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int L, float threshold, int nsym_frame);
+      static sptr make(int L, float threshold, int nsym_frame, int stepsize);
     };
 
   } // namespace fbmc

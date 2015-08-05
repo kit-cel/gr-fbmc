@@ -38,9 +38,14 @@ namespace gr {
       float d_phi;
       float d_cfo;
       int d_nsamp_remaining;
+      int d_stepsize;
+
+      void enter_track_state();
+      void corr_remove_old(const gr_complex* buf, int pos);
+      void corr_add_new(const gr_complex* buf, int pos);
 
     public:
-      time_freq_sync_cc_impl(int L, float threshold, int nsym_frame);
+      time_freq_sync_cc_impl(int L, float threshold, int nsym_frame, int stepsize);
 
       ~time_freq_sync_cc_impl();
 

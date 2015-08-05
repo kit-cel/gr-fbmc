@@ -34,21 +34,21 @@ namespace gr {
     uint8_t STATE_TRACK = 2;
 
     time_freq_sync_cc::sptr
-    time_freq_sync_cc::make(int L, float threshold, int nsym_frame) {
+    time_freq_sync_cc::make(int L, float threshold, int nsym_frame, int stepsize) {
       return gnuradio::get_initial_sptr
-          (new time_freq_sync_cc_impl(L, threshold, nsym_frame));
+          (new time_freq_sync_cc_impl(L, threshold, nsym_frame, stepsize));
     }
 
     /*
      * The private constructor
      */
-    time_freq_sync_cc_impl::time_freq_sync_cc_impl(int L, float threshold, int nsym_frame)
+    time_freq_sync_cc_impl::time_freq_sync_cc_impl(int L, float threshold, int nsym_frame, int stepsize)
         : gr::block("time_freq_sync_cc",
                     gr::io_signature::make(1, 1, sizeof(gr_complex)),
                     gr::io_signature::make(1, 1, sizeof(gr_complex))),
           d_L(L), d_threshold(threshold), d_nsym_frame(nsym_frame), d_nsamp_frame(L * nsym_frame / 2), d_corrbuf(0),
           d_lookahead(3 * L / 2), d_state(STATE_STARTSEARCH), d_phi(0.0), d_nsamp_remaining(L * nsym_frame / 2),
-          d_cfo(0.0) {
+          d_cfo(0.0), d_stepsize(stepsize) {
       set_output_multiple(d_lookahead + 2 * d_L); // minimum
     }
 
@@ -61,6 +61,33 @@ namespace gr {
     void
     time_freq_sync_cc_impl::forecast(int noutput_items, gr_vector_int &ninput_items_required) {
       ninput_items_required[0] = noutput_items;
+    }
+
+    void
+    time_freq_sync_cc_impl::enter_track_state()
+    {
+      d_state = STATE_TRACK;
+      d_cfo = -1.0 / (2 * M_PI * d_L) * arg(d_corrbuf);
+      d_phi = 0.0;
+      d_nsamp_remaining = d_nsamp_frame;
+    }
+
+    void
+    time_freq_sync_cc_impl::corr_remove_old(const gr_complex *buf, int pos)
+    {
+      for(int i=0; i<d_stepsize; i++)
+      {
+        d_corrbuf -= std::conj(buf[d_lookahead + pos + i]) * buf[d_lookahead + pos + d_L + i];
+      }
+    }
+
+    void
+    time_freq_sync_cc_impl::corr_add_new(const gr_complex *buf, int pos)
+    {
+      for(int i=0; i<d_stepsize; i++)
+      {
+        d_corrbuf += std::conj(buf[d_lookahead + pos + d_L]) * buf[d_lookahead + pos + 2 * d_L];
+      }
     }
 
     int
@@ -82,33 +109,26 @@ namespace gr {
         d_corrbuf = gr_complex(2, 0) * xcorr / acorr;
         if (std::abs(d_corrbuf) > d_threshold) {
           std::cout << "time_freq_sync: frame detected @" << nitems_read(0) + consumed << std::endl;
-          d_state = STATE_TRACK;
-          d_cfo = -1.0 / (2 * M_PI * d_L) * arg(d_corrbuf);
-          d_phi = 0.0;
-          d_nsamp_remaining = d_nsamp_frame;
+          enter_track_state();
         }
         else {
-          d_corrbuf -= std::conj(in[d_lookahead]) * in[d_lookahead + d_L]; // remove oldest contribution
+          corr_remove_old(in, consumed);
           d_state = STATE_SEARCH;
-          consumed++;
-          available--;
+          consumed += d_stepsize;
+          available -= d_stepsize;
         }
       }
-      while (available > 0) {
+      while (available > d_stepsize) {
         if (d_state == STATE_SEARCH) {
-          d_corrbuf += std::conj(in[d_lookahead + consumed + d_L]) *
-                       in[d_lookahead + consumed + 2 * d_L]; // add newest contribution
+          corr_add_new(in, consumed);
           if (std::abs(d_corrbuf) > d_threshold) {
             std::cout << "time_freq_sync: frame detected @" << nitems_read(0) + consumed << std::endl;
-            d_state = STATE_TRACK;
-            d_cfo = -1.0 / (2 * M_PI * d_L) * arg(d_corrbuf);
-            d_phi = 0.0;
-            d_nsamp_remaining = d_nsamp_frame;
+            enter_track_state();
           }
           else {
-            d_corrbuf -= std::conj(in[d_lookahead + consumed]) * in[d_lookahead + consumed + d_L]; // TODO CHECK THIS
-            consumed++;
-            available--;
+            corr_remove_old(in, consumed);
+            consumed += d_stepsize;
+            available -= d_stepsize;
           }
         }
         else if (d_state == STATE_TRACK) {
