@@ -34,21 +34,21 @@ namespace gr {
     uint8_t STATE_TRACK = 2;
 
     time_freq_sync_cc::sptr
-    time_freq_sync_cc::make(int L, float threshold, int nsym_frame, int stepsize) {
+    time_freq_sync_cc::make(int L, float threshold, int nsym_frame, int stepsize, int additional_samps) {
       return gnuradio::get_initial_sptr
-          (new time_freq_sync_cc_impl(L, threshold, nsym_frame, stepsize));
+          (new time_freq_sync_cc_impl(L, threshold, nsym_frame, stepsize, additional_samps));
     }
 
     /*
      * The private constructor
      */
-    time_freq_sync_cc_impl::time_freq_sync_cc_impl(int L, float threshold, int nsym_frame, int stepsize)
+    time_freq_sync_cc_impl::time_freq_sync_cc_impl(int L, float threshold, int nsym_frame, int stepsize, int additional_samps)
         : gr::block("time_freq_sync_cc",
                     gr::io_signature::make(1, 1, sizeof(gr_complex)),
                     gr::io_signature::make(1, 1, sizeof(gr_complex))),
           d_L(L), d_threshold(threshold), d_nsym_frame(nsym_frame), d_nsamp_frame(L * nsym_frame / 2), d_corrbuf(0),
           d_lookahead(3 * L / 2), d_state(STATE_STARTSEARCH), d_phi(0.0), d_nsamp_remaining(L * nsym_frame / 2),
-          d_cfo(0.0), d_stepsize(stepsize) {
+          d_cfo(0.0), d_stepsize(stepsize), d_additional_samps(additional_samps) {
       set_output_multiple(d_lookahead + 2 * d_L); // minimum
     }
 
@@ -69,7 +69,7 @@ namespace gr {
       d_state = STATE_TRACK;
       d_cfo = -1.0 / (2 * M_PI * d_L) * arg(d_corrbuf);
       d_phi = 0.0;
-      d_nsamp_remaining = d_nsamp_frame;
+      d_nsamp_remaining = d_nsamp_frame + d_additional_samps; // return a little more to avoid cutting off the end of the frame in case of an early sync
     }
 
     void

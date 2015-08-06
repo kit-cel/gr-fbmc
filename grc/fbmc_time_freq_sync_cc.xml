@@ -3,7 +3,7 @@
   <key>fbmc_time_freq_sync_cc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.time_freq_sync_cc($L, $threshold, $nsym_frame, $stepsize)</make>
+  <make>fbmc.time_freq_sync_cc($L, $threshold, $nsym_frame, $stepsize, $addsamps)</make>
   <param>
     <name>Num subcarriers (all subchannels)</name>
     <key>L</key>
@@ -22,6 +22,11 @@
   <param>
     <name>Step size</name>
     <key>stepsize</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Additional samples</name>
+    <key>addsamps</key>
     <type>int</type>
   </param>
   <sink>
