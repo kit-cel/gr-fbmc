@@ -22,6 +22,7 @@
 #define INCLUDED_FBMC_TIME_FREQ_SYNC_CC_IMPL_H
 
 #include <fbmc/time_freq_sync_cc.h>
+#include <boost/circular_buffer.hpp>
 
 namespace gr {
   namespace fbmc {
@@ -33,17 +34,32 @@ namespace gr {
       int d_nsym_frame;
       int d_nsamp_frame;
       int d_lookahead;
-      gr_complex d_corrbuf;
+//      gr_complex d_corrbuf;
       uint8_t d_state;
       float d_phi;
       float d_cfo;
       int d_nsamp_remaining;
       int d_stepsize;
       int d_additional_samps;
+      int d_corrbuf_len;
+      boost::circular_buffer<gr_complex> d_corrbuf_num;
+      gr_complex d_corrbuf_num_sum;
+      boost::circular_buffer<gr_complex> d_corrbuf_denom1;
+      boost::circular_buffer<gr_complex> d_corrbuf_denom2;
+      gr_complex d_corrbuf_denom1_sum;
+      gr_complex d_corrbuf_denom2_sum;
 
-      void enter_track_state();
-      void corr_remove_old(const gr_complex* buf, int pos);
-      void corr_add_new(const gr_complex* buf, int pos);
+      static const uint8_t STATE_SEARCH = 0;
+      static const uint8_t STATE_TRACK = 1;
+
+      int fill_buffer(const gr_complex* inbuf);
+      void add_step_to_buffer(const gr_complex* inbuf);
+      void remove_step_from_buffer();
+      gr_complex corrbuf();
+      void enter_search_state();
+      void enter_track_state(int offset);
+//      void corr_remove_old(const gr_complex* buf, int pos);
+//      void corr_add_new(const gr_complex* buf, int pos);
 
     public:
       time_freq_sync_cc_impl(int L, float threshold, int nsym_frame, int stepsize, int additional_samps);

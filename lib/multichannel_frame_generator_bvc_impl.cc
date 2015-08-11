@@ -64,6 +64,8 @@ namespace gr {
       message_port_register_in(CTS_PORT);
       set_msg_handler(CTS_PORT, boost::bind(&multichannel_frame_generator_bvc_impl::process_msg, this, _1));
       set_output_multiple(d_frame_len);
+
+      std::cout << "WARNING: CTS warnings are disabled!" << std::endl;
     }
 
     /*
@@ -84,10 +86,10 @@ namespace gr {
         throw std::runtime_error("Wrong message type, expected dict");
       }
 
-//      if(d_CTS) // previous frame has not been sent yet, drop it in favor of the newer one as we are obviously late
-//      {
+      if(d_CTS) // previous frame has not been sent yet, drop it in favor of the newer one as we are obviously late
+      {
 //        std::cout << "WARNING: CTS messages are stacking up, dropping previous CTS" << std::endl;
-//      }
+      }
 
       d_num_used_subchannels = d_num_subchannels;
       d_blocked_subchannels.clear();

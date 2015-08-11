@@ -21,6 +21,7 @@
 
 from gnuradio import gr, gr_unittest
 from gnuradio import blocks
+import numpy as np
 import fbmc_swig as fbmc
 
 class qa_time_freq_sync_cc (gr_unittest.TestCase):
@@ -33,9 +34,16 @@ class qa_time_freq_sync_cc (gr_unittest.TestCase):
 
     def test_001_t (self):
         # set up fg
+        L = 6
+        self.src = blocks.vector_source_c(np.arange(L/2)+1, repeat=True)
+        self.head = blocks.head(gr.sizeof_gr_complex, L*10)
+        self.tfsync = fbmc.time_freq_sync_cc(L, 0.99, 10, L/2, 0)
+        self.snk = blocks.vector_sink_c()
+
+        self.tb.connect(self.src, self.head, self.tfsync, self.snk)
         self.tb.run ()
         # check data
 
 
 if __name__ == '__main__':
-    gr_unittest.run(qa_time_freq_sync_cc, "qa_time_freq_sync_cc.xml")
+    gr_unittest.run(qa_time_freq_sync_cc)
