@@ -53,7 +53,8 @@ list(APPEND fbmc_sources
     multichannel_frame_generator_bvc_impl.cc
     multichannel_deframer_vcb_impl.cc
     multichannel_frame_sync_cc_impl.cc
-    time_freq_sync_cc_impl.cc )
+    time_freq_sync_cc_impl.cc
+    phase_sync_cc_impl.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)

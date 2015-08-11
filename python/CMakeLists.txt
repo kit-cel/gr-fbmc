@@ -65,3 +65,4 @@ GR_ADD_TEST(qa_multichannel_frame_generator_bvc ${PYTHON_EXECUTABLE} ${CMAKE_CUR
 GR_ADD_TEST(qa_multichannel_deframer_vcb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_multichannel_deframer_vcb.py)
 GR_ADD_TEST(qa_multichannel_frame_sync_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_multichannel_frame_sync_cc.py)
 GR_ADD_TEST(qa_time_freq_sync_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_time_freq_sync_cc.py)
+GR_ADD_TEST(qa_phase_sync_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_phase_sync_cc.py)
