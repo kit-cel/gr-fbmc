@@ -289,7 +289,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -322,6 +322,69 @@
     <param>
       <key>step_size</key>
       <value>stepsize</value>
+    </param>
+    <param>
+      <key>nsym_frame</key>
+      <value>num_sym_frame</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value>phydyas_taps_time</value>
+    </param>
+    <param>
+      <key>threshold</key>
+      <value>threshold</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_phase_sync_cc</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(424, 483)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fbmc_phase_sync_cc_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>total_subcarriers*num_subchannels</value>
+    </param>
+    <param>
+      <key>preamble</key>
+      <value>preamble</value>
+    </param>
+    <param>
+      <key>search_window</key>
+      <value>total_subcarriers*num_subchannels/8</value>
     </param>
     <param>
       <key>nsym_frame</key>
@@ -381,6 +444,65 @@
     <param>
       <key>minoutbuf</key>
       <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_time_freq_sync_cc</key>
+    <param>
+      <key>addsamps</key>
+      <value>total_subcarriers*num_subchannels/8</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(136, 491)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fbmc_time_freq_sync_cc_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>L</key>
+      <value>total_subcarriers*num_subchannels</value>
+    </param>
+    <param>
+      <key>nsym_frame</key>
+      <value>num_sym_frame</value>
+    </param>
+    <param>
+      <key>stepsize</key>
+      <value>stepsize</value>
+    </param>
+    <param>
+      <key>threshold</key>
+      <value>threshold</value>
     </param>
   </block>
   <block>
@@ -875,14 +997,32 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>fbmc_phase_sync_cc_0</source_block_id>
+    <sink_block_id>fbmc_rx_sdft_cvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>fbmc_rx_sdft_cvc_0</source_block_id>
     <sink_block_id>blocks_skiphead_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>fbmc_time_freq_sync_cc_0</source_block_id>
+    <sink_block_id>fbmc_phase_sync_cc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>rx_signal</source_block_id>
     <sink_block_id>fbmc_multichannel_frame_sync_cc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>rx_signal</source_block_id>
+    <sink_block_id>fbmc_time_freq_sync_cc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
