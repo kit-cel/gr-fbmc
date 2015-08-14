@@ -85,6 +85,7 @@ namespace gr {
     {
       gr_complex* fft_inbuf = d_fft->get_inbuf();
       gr_complex* fft_outbuf = d_fft->get_outbuf();
+      noutput_items = noutput_items - d_overlap + 1;
       for(int items = 0; items < noutput_items; items++){
         multiply_with_taps(d_multiply_res, in, d_L, d_overlap);
         add_overlaps(fft_inbuf, d_multiply_res, d_L, d_overlap);
