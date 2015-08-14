@@ -168,7 +168,7 @@ namespace gr {
     void
     phase_sync_cc_impl::enter_search_state()
     {
-      std::cout << "phase_sync: enter SEARCH state" << std::endl;
+//      std::cout << "phase_sync: enter SEARCH state" << std::endl;
       d_state = STATE_SEARCH;
     }
 
@@ -180,13 +180,13 @@ namespace gr {
       add_channel_occupation_tag(occupied_channels);
       d_samples_to_return = d_nsamp_frame;
       d_trailing_samples = d_search_window - offset;
-      std::cout << "phase_sync: detect preamble @" << nitems_read(0) + offset << ", phi=" << d_phi << ", enter TRACK state" << std::endl;
+//      std::cout << "phase_sync: detect preamble @" << nitems_read(0) + offset << ", phi=" << d_phi << ", enter TRACK state" << std::endl;
     }
 
     void
     phase_sync_cc_impl::enter_drop_state()
     {
-      std::cout << "phase_sync: enter DROP state" << std::endl;
+//      std::cout << "phase_sync: enter DROP state" << std::endl;
       d_state = STATE_DROP;
       d_state = STATE_DROP;
       d_samples_to_drop = d_nsamp_frame;
