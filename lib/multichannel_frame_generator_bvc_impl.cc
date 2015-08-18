@@ -65,7 +65,7 @@ namespace gr {
       set_msg_handler(CTS_PORT, boost::bind(&multichannel_frame_generator_bvc_impl::process_msg, this, _1));
       set_output_multiple(d_frame_len);
 
-//      std::cout << "WARNING: CTS warnings are disabled!" << std::endl;
+      std::cout << "WARNING: CTS warnings are disabled!" << std::endl;
     }
 
     /*
@@ -88,7 +88,7 @@ namespace gr {
 
       if(d_CTS) // previous frame has not been sent yet, drop it in favor of the newer one as we are obviously late
       {
-        std::cout << "WARNING: CTS messages are stacking up, dropping previous CTS" << std::endl;
+//        std::cout << "WARNING: CTS messages are stacking up, dropping previous CTS" << std::endl;
       }
 
       d_num_used_subchannels = d_num_subchannels;

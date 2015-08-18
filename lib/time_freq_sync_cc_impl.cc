@@ -92,7 +92,7 @@ namespace gr {
       d_state = STATE_TRACK;
       d_cfo = -1.0 / (2 * M_PI * d_L) * arg(corrbuf());
       d_phi = 0.0;
-//      std::cout << "time_freq_sync: frame detected! |rho| = " << std::abs(corrbuf()) << ", cfo = " << d_cfo << ", in@" << nitems_read(0)+offset << std::endl;
+      std::cout << "time_freq_sync: frame detected! |rho| = " << std::abs(corrbuf()) << ", cfo = " << d_cfo << ", in@" << nitems_read(0)+offset << std::endl;
       d_nsamp_remaining = d_nsamp_frame + d_additional_samps; // return a little more to avoid cutting off the end of the frame in case of an early sync
 //      std::cout << "time_freq_sync: frame detected, put tag out@" << nitems_written(0) + offset << std::endl;
       add_item_tag(0, nitems_written(0), pmt::mp("frame_start"), pmt::from_long(nitems_written(0) + offset));

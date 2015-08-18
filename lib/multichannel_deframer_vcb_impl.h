@@ -22,6 +22,7 @@
 #define INCLUDED_FBMC_MULTICHANNEL_DEFRAMER_VCB_IMPL_H
 
 #include <fbmc/multichannel_deframer_vcb.h>
+#include <cstdio>
 
 namespace gr {
   namespace fbmc {
@@ -44,6 +45,8 @@ namespace gr {
 
       int extract_bits(char* out, gr_complex* inbuf, std::vector<bool> blocked_subchannels);
       std::vector<bool> get_occupied_channels_from_tag(const gr_complex* inptr);
+
+      FILE* d_file;
 
       inline int inphase_selector(int pos) const {return (pos - d_preamble_symbols + d_overlap) % 2;};
 

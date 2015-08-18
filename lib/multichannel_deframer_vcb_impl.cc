@@ -53,6 +53,11 @@ namespace gr {
 
       // can only set this in c'tor, so assume the maximum output size
       set_output_multiple(d_payload_bits * d_num_subchannels);
+
+      std::cout << "NOTE: deframer writes a debug file!" << std::endl;
+      d_file = fopen("deframer_soft.bin", "wb");
+      if(d_file == NULL)
+        throw std::runtime_error("File not open");
     }
 
     /*
@@ -60,6 +65,7 @@ namespace gr {
      */
     multichannel_deframer_vcb_impl::~multichannel_deframer_vcb_impl()
     {
+      fclose(d_file);
     }
 
     void
@@ -158,6 +164,7 @@ namespace gr {
                                        i * d_total_subcarriers +                         // complete subchannels
                                        d_subchannel_map_index[n]) +                      // subcarrier index
                                        d_subchannel_map_offset[sel][n]];
+              fwrite(&pam_symbol, sizeof(float), 1, d_file);
               if(pam_symbol > 0.0f)
               {
                 *outptr++ = 1;
