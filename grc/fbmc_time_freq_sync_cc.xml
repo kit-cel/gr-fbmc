@@ -3,7 +3,7 @@
   <key>fbmc_time_freq_sync_cc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.time_freq_sync_cc($L, $threshold, $nsym_frame, $stepsize, $addsamps)</make>
+  <make>fbmc.time_freq_sync_cc($L, $threshold, $nsym_frame, $stepsize, $addsamps, $cfo_avg)</make>
   <param>
     <name>Num subcarriers (all subchannels)</name>
     <key>L</key>
@@ -27,6 +27,11 @@
   <param>
     <name>Additional samples</name>
     <key>addsamps</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>CFO MA length</name>
+    <key>cfo_avg</key>
     <type>int</type>
   </param>
   <sink>

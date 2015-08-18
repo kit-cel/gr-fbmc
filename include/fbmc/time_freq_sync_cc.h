@@ -25,7 +25,7 @@
 #include <fbmc/api.h>
 #include <gnuradio/block.h>
 
-namespace gr {
+namespace gr{
   namespace fbmc {
 
     /*!
@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::time_freq_sync_cc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int L, float threshold, int nsym_frame, int stepsize, int additional_samps);
+      static sptr make(int L, float threshold, int nsym_frame, int stepsize, int additional_samps, int avg_cfo_len);
     };
 
   } // namespace fbmc

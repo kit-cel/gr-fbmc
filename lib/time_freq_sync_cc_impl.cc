@@ -30,22 +30,22 @@ namespace gr {
   namespace fbmc {
 
     time_freq_sync_cc::sptr
-    time_freq_sync_cc::make(int L, float threshold, int nsym_frame, int stepsize, int additional_samps) {
+    time_freq_sync_cc::make(int L, float threshold, int nsym_frame, int stepsize, int additional_samps, int avg_cfo_len) {
       return gnuradio::get_initial_sptr
-          (new time_freq_sync_cc_impl(L, threshold, nsym_frame, stepsize, additional_samps));
+          (new time_freq_sync_cc_impl(L, threshold, nsym_frame, stepsize, additional_samps, avg_cfo_len));
     }
 
     /*
      * The private constructor
      */
-    time_freq_sync_cc_impl::time_freq_sync_cc_impl(int L, float threshold, int nsym_frame, int stepsize, int additional_samps)
+    time_freq_sync_cc_impl::time_freq_sync_cc_impl(int L, float threshold, int nsym_frame, int stepsize, int additional_samps, int avg_cfo_len)
         : gr::block("time_freq_sync_cc",
                     gr::io_signature::make(1, 1, sizeof(gr_complex)),
                     gr::io_signature::make(1, 1, sizeof(gr_complex))),
           d_L(L), d_threshold(threshold), d_nsym_frame(nsym_frame), d_nsamp_frame(L * nsym_frame / 2),
           d_lookahead(3 * L / 2), d_state(STATE_SEARCH), d_phi(0.0), d_nsamp_remaining(L * nsym_frame / 2),
-          d_cfo(0.0), d_stepsize(stepsize), d_additional_samps(additional_samps), d_corrbuf_num_sum(0),
-          d_corrbuf_denom1_sum(0), d_corrbuf_denom2_sum(0)
+          d_avg_cfo(0.0), d_stepsize(stepsize), d_additional_samps(additional_samps), d_corrbuf_num_sum(0),
+          d_corrbuf_denom1_sum(0), d_corrbuf_denom2_sum(0), d_avg_cfo_len(avg_cfo_len), d_cfo_sum(0)
     {
       if(d_L % d_stepsize != 0)
       {
@@ -55,6 +55,8 @@ namespace gr {
       d_corrbuf_num.set_capacity(d_corrbuf_len);
       d_corrbuf_denom1.set_capacity(d_corrbuf_len);
       d_corrbuf_denom2.set_capacity(d_corrbuf_len);
+
+      d_cfo_hist.set_capacity(d_avg_cfo_len);
 
       enter_search_state();
 
@@ -90,12 +92,34 @@ namespace gr {
     {
 //      std::cout << "time_freq_sync: enter TRACK state" << std::endl;
       d_state = STATE_TRACK;
-      d_cfo = -1.0 / (2 * M_PI * d_L) * arg(corrbuf());
+      float new_cfo = -1.0 / (2 * M_PI * d_L) * arg(corrbuf());
+      d_avg_cfo = update_cfo(new_cfo);
       d_phi = 0.0;
-      std::cout << "time_freq_sync: frame detected! |rho| = " << std::abs(corrbuf()) << ", cfo = " << d_cfo << ", in@" << nitems_read(0)+offset << std::endl;
+      std::cout << "time_freq_sync: frame detected! |rho| = " << std::abs(corrbuf()) << ", cfo = " << d_avg_cfo << ", in@" << nitems_read(0)+offset << std::endl;
       d_nsamp_remaining = d_nsamp_frame + d_additional_samps; // return a little more to avoid cutting off the end of the frame in case of an early sync
 //      std::cout << "time_freq_sync: frame detected, put tag out@" << nitems_written(0) + offset << std::endl;
       add_item_tag(0, nitems_written(0), pmt::mp("frame_start"), pmt::from_long(nitems_written(0) + offset));
+    }
+
+    float
+    time_freq_sync_cc_impl::update_cfo(float new_cfo)
+    {
+      float new_avg_cfo = 0;
+      if(d_cfo_hist.full()) {
+        float oldest_cfo = d_cfo_hist[0];
+        d_cfo_sum -= oldest_cfo;
+        d_cfo_sum += new_cfo;
+        new_avg_cfo = d_cfo_sum/d_avg_cfo_len;
+        d_cfo_hist.push_back(new_cfo);
+      }
+      else
+      {
+        d_cfo_sum += new_cfo;
+        d_cfo_hist.push_back(new_cfo);
+        new_avg_cfo = d_cfo_sum/d_cfo_hist.size();
+        std::cout << "time_freq_sync: filling CFO averaging buffer" << std::endl;
+      }
+      return new_avg_cfo;
     }
 
     int
@@ -196,9 +220,9 @@ namespace gr {
       {
         int max_items = std::min(std::min(ninput_items[0], noutput_items), d_nsamp_remaining);
         for (int i = 0; i < max_items; i++) {
-          out[i] = in[i] * exp(gr_complex(0, -2 * M_PI * d_cfo * i + d_phi));
+          out[i] = in[i] * exp(gr_complex(0, -2 * M_PI * d_avg_cfo * i + d_phi));
         }
-        d_phi += -2 * M_PI * d_cfo * max_items;
+        d_phi += -2 * M_PI * d_avg_cfo * max_items;
         produced += max_items;
         if(d_nsamp_remaining - max_items < d_additional_samps){ // do not consume the additional samples to avoid missing the next frame
           consumed += std::max(0, d_nsamp_remaining - d_additional_samps);
