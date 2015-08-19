@@ -48,6 +48,7 @@ namespace gr {
       boost::circular_buffer<gr_complex> d_corrbuf_denom2;
       gr_complex d_corrbuf_denom1_sum;
       gr_complex d_corrbuf_denom2_sum;
+      gr_complex d_rho;
       boost::circular_buffer<float> d_cfo_hist;
       float d_cfo_sum;
       int d_avg_cfo_len;

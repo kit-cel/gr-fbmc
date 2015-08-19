@@ -45,7 +45,7 @@ namespace gr {
           d_L(L), d_threshold(threshold), d_nsym_frame(nsym_frame), d_nsamp_frame(L * nsym_frame / 2),
           d_lookahead(3 * L / 2), d_state(STATE_SEARCH), d_phi(0.0), d_nsamp_remaining(L * nsym_frame / 2),
           d_avg_cfo(0.0), d_stepsize(stepsize), d_additional_samps(additional_samps), d_corrbuf_num_sum(0),
-          d_corrbuf_denom1_sum(0), d_corrbuf_denom2_sum(0), d_avg_cfo_len(avg_cfo_len), d_cfo_sum(0)
+          d_corrbuf_denom1_sum(0), d_corrbuf_denom2_sum(0), d_avg_cfo_len(avg_cfo_len), d_cfo_sum(0), d_rho(0)
     {
       if(d_L % d_stepsize != 0)
       {
@@ -174,7 +174,12 @@ namespace gr {
       {
         throw std::runtime_error("Invalid call to corrbuf, buffers not filled");
       }
-      return d_corrbuf_num_sum/std::sqrt(d_corrbuf_denom1_sum*d_corrbuf_denom2_sum);
+      gr_complex rho = d_corrbuf_num_sum/std::sqrt(d_corrbuf_denom1_sum*d_corrbuf_denom2_sum);
+      if(std::abs(rho) < 1.0) // only use the new value, if it's in the valid range. numerical instabilites may cause erroneous values.
+      {
+        d_rho = rho;
+      }
+      return d_rho;
     }
 
     int
