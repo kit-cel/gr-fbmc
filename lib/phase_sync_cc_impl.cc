@@ -53,12 +53,19 @@ namespace gr {
       volk_32fc_x2_conjugate_dot_prod_32fc(&d_preamble_energy, &d_mixed_preamble[0][0], &d_mixed_preamble[0][0],
                                            d_mixed_preamble[0].size());
       set_tag_propagation_policy(TPP_DONT);
+
+      d_file = fopen("phase_sync.bin", "wb");
+      if(!d_file)
+      {
+        throw std::runtime_error("Couldn't open file");
+      }
     }
 
     /*
      * Our virtual destructor.
      */
     phase_sync_cc_impl::~phase_sync_cc_impl() {
+      fclose(d_file);
     }
 
     void
@@ -89,11 +96,16 @@ namespace gr {
     {
       // average the phases of the corr_coefs
       double angle = 0;
+      std::cout << "phase_sync: coeffs ";
       for(int i=0; i<corr_coefs.size(); i++)
       {
+        double tmp = arg(corr_coefs[i]);
+        printf("%f<%f, ", std::abs(corr_coefs[i]), tmp);
+        fwrite(&tmp, sizeof(double), 1, d_file);
         angle+= arg(corr_coefs[i]);
       }
       angle /= corr_coefs.size();
+      std::cout << ". avg angle: " << angle << std::endl;
       return exp(gr_complex(0, -angle));
     }
 

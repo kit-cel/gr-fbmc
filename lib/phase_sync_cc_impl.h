@@ -22,6 +22,7 @@
 #define INCLUDED_FBMC_PHASE_SYNC_CC_IMPL_H
 
 #include <fbmc/phase_sync_cc.h>
+#include <cstdio>
 
 namespace gr {
   namespace fbmc {
@@ -43,6 +44,8 @@ namespace gr {
       int d_samples_to_return;
       int d_trailing_samples;
       gr_complex d_phi;
+
+      FILE* d_file;
 
       static const uint8_t STATE_SEARCH = 0;
       static const uint8_t STATE_TRACK = 1;
