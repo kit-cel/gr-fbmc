@@ -269,6 +269,7 @@ namespace gr {
       insert_padding_zeros(out);
       insert_payload(out, in);
       insert_padding_zeros(out);
+      insert_padding_zeros(out);
 
       d_CTS = false;
 
