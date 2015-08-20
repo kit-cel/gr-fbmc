@@ -138,6 +138,7 @@ namespace gr {
       if (index == 0 and corr_sum[0].real() < d_threshold /
                                               d_num_subchannels) // make sure index has been moved or is already at peak position
       {
+        std::cout << "phase_sync: No preamble found in search window" << std::endl;
         return false;
       }
       else {
