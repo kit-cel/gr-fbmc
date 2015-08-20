@@ -53,7 +53,7 @@ namespace gr {
     {
       // 2 times overlap because we need 'zero-symbols' after preamble and after payload.
       d_preamble_symbols = d_preamble.size() / d_total_subcarriers; // number of complete symbol vectors
-      d_frame_len = d_preamble_symbols + d_payload_symbols + 2 * d_overlap;
+      d_frame_len = d_preamble_symbols + d_payload_symbols + 3 * d_overlap;
 
       // prepare preamble buffer and subchannel map
       d_preamble_buf = new gr_complex[d_num_subchannels*d_total_subcarriers*d_preamble_symbols];

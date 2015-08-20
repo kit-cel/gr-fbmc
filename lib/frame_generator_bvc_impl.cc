@@ -56,7 +56,7 @@ namespace gr {
       setup_channel_map(channel_map);
 
       // 2 times overlap because we need 'zero-symbols' after preamble and after payload.
-      d_frame_len = d_preamble_symbols + d_payload_symbols + 2 * d_overlap;
+      d_frame_len = d_preamble_symbols + d_payload_symbols + 3 * d_overlap;
       set_output_multiple(2);
     }
 

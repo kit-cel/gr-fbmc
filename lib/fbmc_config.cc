@@ -70,7 +70,7 @@ namespace gr {
       d_num_preamble_sym = d_preamble_sym.size() / d_num_total_subcarriers; // another num_overlap_sym is needed to clear the filter registers
       d_num_sync_sym = d_num_overlap_sym
           + d_preamble_sym.size() / d_num_total_subcarriers; // num_overlap_sym is needed to settle the filters
-      d_num_sym_frame = d_num_sync_sym + d_num_payload_sym + d_num_overlap_sym; // total symbols per frame
+      d_num_sym_frame = d_num_sync_sym + d_num_payload_sym + 2*d_num_overlap_sym; // total symbols per frame
 
       // print a short summary of the parameters to stdout
       print_info();
