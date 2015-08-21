@@ -49,7 +49,7 @@ namespace gr {
         d_overlap(overlap), d_preamble_symbols(num_preamble_symbols), d_subchannel_map(channel_map)
     {
       setup_channel_map();
-      d_frame_len = d_preamble_symbols + d_overlap + d_payload_symbols + d_overlap;
+      d_frame_len = d_preamble_symbols + d_overlap + d_payload_symbols + 2*d_overlap;
 
       // can only set this in c'tor, so assume the maximum output size
       set_output_multiple(d_payload_bits * d_num_subchannels);
