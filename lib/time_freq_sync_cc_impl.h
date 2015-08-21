@@ -72,6 +72,8 @@ namespace gr {
     public:
       time_freq_sync_cc_impl(int L, float threshold, int nsym_frame, int stepsize, int additional_samps, int avg_cfo_len);
 
+      float cfo(){return d_avg_cfo;}
+
       ~time_freq_sync_cc_impl();
 
       // Where all the action really happens

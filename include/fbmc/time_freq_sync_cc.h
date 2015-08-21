@@ -47,6 +47,8 @@ namespace gr{
        * creating new instances.
        */
       static sptr make(int L, float threshold, int nsym_frame, int stepsize, int additional_samps, int avg_cfo_len);
+
+      virtual float cfo() = 0;
     };
 
   } // namespace fbmc

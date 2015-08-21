@@ -105,7 +105,7 @@ namespace gr {
     void
     time_freq_sync_cc_impl::enter_track_state(int offset)
     {
-      std::cout << "time_freq_sync: enter TRACK state" << std::endl;
+//      std::cout << "time_freq_sync: enter TRACK state" << std::endl;
       d_state = STATE_TRACK;
       float new_cfo = -1.0 / (2 * M_PI * d_L) * arg(corrbuf());
       if(std::abs(new_cfo) < 5e3/20e6) // reject unplausible values. USRPs are tuned to the same frequency, offset should be < 1kHz
@@ -120,7 +120,7 @@ namespace gr {
 
       //DEBUG file output
       float cfo_20mhz = new_cfo*20e6;
-      std::cout << "write: " << fwrite(&cfo_20mhz, sizeof(float), 1, d_file_cfo) << std::endl;
+      fwrite(&cfo_20mhz, sizeof(float), 1, d_file_cfo);
       cfo_20mhz = d_avg_cfo*20e6;
       fwrite(&cfo_20mhz, sizeof(float), 1, d_file_avg_cfo);
     }
