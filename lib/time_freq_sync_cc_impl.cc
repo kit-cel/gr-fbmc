@@ -56,7 +56,7 @@ namespace gr {
       {
         throw std::runtime_error("time_freq_sync: threshold must be >=0.94 in order to estimate the CFO correctly");
       }
-      
+
       d_corrbuf_len = d_L/d_stepsize;
       d_corrbuf_num.set_capacity(d_corrbuf_len);
       d_corrbuf_denom1.set_capacity(d_corrbuf_len);
@@ -67,12 +67,21 @@ namespace gr {
       enter_search_state();
 
       set_output_multiple(d_lookahead + 2 * d_L); // minimum
+
+      d_file_cfo = fopen("time_freq_cfo.bin", "wb");
+      d_file_avg_cfo = fopen("time_freq_avg_cfo.bin", "wb");
+      if(d_file_cfo == NULL or d_file_avg_cfo == NULL)
+      {
+        throw std::runtime_error("Could not open files");
+      }
     }
 
     /*
      * Our virtual destructor.
      */
     time_freq_sync_cc_impl::~time_freq_sync_cc_impl() {
+      fclose(d_file_cfo);
+      fclose(d_file_avg_cfo);
     }
 
     void
@@ -96,15 +105,24 @@ namespace gr {
     void
     time_freq_sync_cc_impl::enter_track_state(int offset)
     {
-//      std::cout << "time_freq_sync: enter TRACK state" << std::endl;
+      std::cout << "time_freq_sync: enter TRACK state" << std::endl;
       d_state = STATE_TRACK;
       float new_cfo = -1.0 / (2 * M_PI * d_L) * arg(corrbuf());
-      d_avg_cfo = update_cfo(new_cfo);
+      if(std::abs(new_cfo) < 5e3/20e6) // reject unplausible values. USRPs are tuned to the same frequency, offset should be < 1kHz
+      {
+        d_avg_cfo = update_cfo(new_cfo);
+      }
       d_phi = 0.0;
 //      std::cout << "time_freq_sync: frame detected! |rho| = " << std::abs(corrbuf()) << ", cfo = " << d_avg_cfo << ", in@" << nitems_read(0)+offset << std::endl;
       d_nsamp_remaining = d_nsamp_frame + d_additional_samps; // return a little more to avoid cutting off the end of the frame in case of an early sync
 //      std::cout << "time_freq_sync: frame detected, put tag out@" << nitems_written(0) + offset << std::endl;
       add_item_tag(0, nitems_written(0), pmt::mp("frame_start"), pmt::from_long(nitems_written(0) + offset));
+
+      //DEBUG file output
+      float cfo_20mhz = new_cfo*20e6;
+      std::cout << "write: " << fwrite(&cfo_20mhz, sizeof(float), 1, d_file_cfo) << std::endl;
+      cfo_20mhz = d_avg_cfo*20e6;
+      fwrite(&cfo_20mhz, sizeof(float), 1, d_file_avg_cfo);
     }
 
     float

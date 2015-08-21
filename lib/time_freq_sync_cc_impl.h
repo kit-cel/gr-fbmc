@@ -23,6 +23,7 @@
 
 #include <fbmc/time_freq_sync_cc.h>
 #include <boost/circular_buffer.hpp>
+#include <cstdio>
 
 namespace gr {
   namespace fbmc {
@@ -55,6 +56,9 @@ namespace gr {
 
       static const uint8_t STATE_SEARCH = 0;
       static const uint8_t STATE_TRACK = 1;
+
+      FILE* d_file_cfo;
+      FILE* d_file_avg_cfo;
 
       int fill_buffer(const gr_complex* inbuf);
       void add_step_to_buffer(const gr_complex* inbuf);
