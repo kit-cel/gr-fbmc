@@ -96,16 +96,16 @@ namespace gr {
     {
       // average the phases of the corr_coefs
       double angle = 0;
-//      std::cout << "phase_sync: coeffs ";
+      std::cout << "phase_sync: coeffs ";
       for(int i=0; i<corr_coefs.size(); i++)
       {
         double tmp = arg(corr_coefs[i]);
-//        printf("%f<%f, ", std::abs(corr_coefs[i]), tmp);
+        printf("%f<%f, ", std::abs(corr_coefs[i]), tmp);
         fwrite(&tmp, sizeof(double), 1, d_file);
         angle+= arg(corr_coefs[i]);
       }
       angle /= corr_coefs.size();
-//      std::cout << ". avg angle: " << angle << std::endl;
+      std::cout << ". avg angle: " << angle << std::endl;
       return exp(gr_complex(0, -angle));
     }
 
@@ -130,7 +130,7 @@ namespace gr {
           corr_sum[i] += corr_vec[i][k];
         }
         corr_sum[i] = std::abs(corr_sum[i]);
-        if (i > 0 and corr_sum[i].real() > corr_sum[index].real() and corr_sum[i].real() > d_threshold / d_num_subchannels) {
+        if (i > 0 and corr_sum[i].real() > corr_sum[index].real() and corr_sum[i].real() > d_threshold / std::sqrt(d_num_subchannels)) {
           index = i;
         }
       }
@@ -193,7 +193,7 @@ namespace gr {
       add_channel_occupation_tag(occupied_channels);
       d_samples_to_return = d_nsamp_frame;
       d_trailing_samples = d_search_window - offset;
-      std::cout << "phase_sync: frame detected. offset from estimated frame start: " << offset << std::endl;
+      std::cout << "phase_sync: frame with " << corr_coefs.size() << " subchannels detected. offset from estimated frame start: " << offset << std::endl;
 //      std::cout << "phase_sync: detect preamble @" << nitems_read(0) + offset << ", phi=" << d_phi << ", enter TRACK state" << std::endl;
     }
 
