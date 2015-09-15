@@ -117,6 +117,108 @@
     </param>
   </block>
   <block>
+    <key>blocks_file_sink</key>
+    <param>
+      <key>append</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>file</key>
+      <value>/home/wunsch/src/dyspan15_5gssc/gr-dyspan/apps/postsync.bin</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(736, 651)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_file_sink_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>unbuffered</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_file_sink</key>
+    <param>
+      <key>append</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>file</key>
+      <value>/home/wunsch/src/dyspan15_5gssc/gr-dyspan/apps/presync.bin</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(352, 667)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_file_sink_0_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>unbuffered</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_skiphead</key>
     <param>
       <key>alias</key>
@@ -399,7 +501,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(424, 483)</value>
+      <value>(432, 491)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1088,6 +1190,12 @@
   </connection>
   <connection>
     <source_block_id>fbmc_phase_sync_cc_0</source_block_id>
+    <sink_block_id>blocks_file_sink_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_phase_sync_cc_0</source_block_id>
     <sink_block_id>fbmc_rx_sdft_cvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
@@ -1101,6 +1209,12 @@
   <connection>
     <source_block_id>fbmc_time_freq_sync_cc_0</source_block_id>
     <sink_block_id>fbmc_phase_sync_cc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>rx_signal</source_block_id>
+    <sink_block_id>blocks_file_sink_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

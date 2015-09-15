@@ -179,6 +179,17 @@ namespace gr {
     }
 
     void
+    phase_sync_cc_impl::add_corrcoef_tag(const std::vector <gr_complex> &corrcoefs)
+    {
+      pmt::pmt_t pmt_vec = pmt::make_c32vector(corrcoefs.size(), 0);
+      for(int i=0; i<corrcoefs.size(); i++)
+      {
+        pmt::c32vector_set(pmt_vec, i, corrcoefs[i]);
+      }
+      add_item_tag(0, nitems_written(0), pmt::mp("corr_coefs"), pmt_vec);
+    }
+
+    void
     phase_sync_cc_impl::enter_search_state()
     {
 //      std::cout << "phase_sync: enter SEARCH state" << std::endl;
@@ -191,6 +202,8 @@ namespace gr {
       d_state = STATE_TRACK;
       d_phi = calc_phase_offset(corr_coefs);
       add_channel_occupation_tag(occupied_channels);
+      add_corrcoef_tag(corr_coefs);
+      add_corrcoef_tag(corr_coefs);
       d_samples_to_return = d_nsamp_frame;
       d_trailing_samples = d_search_window - offset;
       std::cout << "phase_sync: frame with " << corr_coefs.size() << " subchannels detected. offset from estimated frame start: " << offset << std::endl;
@@ -240,7 +253,8 @@ namespace gr {
       {
         if(d_samples_to_return > 0) { // return frame
           int max_items_return = std::min(d_samples_to_return, std::min(ninput_items[0] - consumed, noutput_items));
-          volk_32fc_s32fc_multiply_32fc(out, in + consumed, d_phi, max_items_return);
+//          volk_32fc_s32fc_multiply_32fc(out, in + consumed, d_phi, max_items_return);
+          memcpy(out, in+consumed, max_items_return*sizeof(gr_complex));
           consumed += max_items_return;
           produced += max_items_return;
           d_samples_to_return -= max_items_return;

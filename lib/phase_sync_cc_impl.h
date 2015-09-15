@@ -43,6 +43,7 @@ namespace gr {
       int d_samples_to_drop;
       int d_samples_to_return;
       int d_trailing_samples;
+      std::vector<gr_complex> d_phivec;
       gr_complex d_phi;
 
       FILE* d_file;
@@ -59,6 +60,8 @@ namespace gr {
                                   std::vector <bool> &occupied_channels, int &index);
 
       void add_channel_occupation_tag(const std::vector <bool> &occupied_channels);
+
+      void add_corrcoef_tag(const std::vector <gr_complex> &corr_coefs);
 
       void enter_search_state();
 

@@ -40,11 +40,15 @@ namespace gr {
       static const int d_num_subchannels = 4;
       int d_preamble_symbols;
       int d_frame_len;
+      std::vector<gr_complex> d_corrcoefs;
 
       void setup_channel_map();
 
+      void correct_phase_offset(gr_complex* buf, std::vector<bool> blocked_subchannels);
+
       int extract_bits(char* out, gr_complex* inbuf, std::vector<bool> blocked_subchannels);
       std::vector<bool> get_occupied_channels_from_tag(const gr_complex* inptr);
+      void get_corrcoefs_from_tag(const gr_complex* inptr);
 
       FILE* d_file;
 

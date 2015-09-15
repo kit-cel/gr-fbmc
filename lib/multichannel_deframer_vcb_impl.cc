@@ -24,6 +24,7 @@
 
 #include <gnuradio/io_signature.h>
 #include "multichannel_deframer_vcb_impl.h"
+#include <volk/volk.h>
 
 namespace gr {
   namespace fbmc {
@@ -139,6 +140,53 @@ namespace gr {
       return ret;
     }
 
+    void
+    multichannel_deframer_vcb_impl::get_corrcoefs_from_tag(const gr_complex* inptr)
+    {
+      std::vector<gr::tag_t> tags;
+      get_tags_in_window(tags, 0, 0, 1, pmt::mp("corr_coefs")); // tag must be located on the first sample
+      if(tags.empty())
+      {
+        throw std::runtime_error("No tag found");
+      }
+      if(tags.size() > 1)
+      {
+        throw std::runtime_error("Found multiple tags");
+      }
+      pmt::pmt_t vec = tags[0].value;
+      if(!pmt::is_vector(vec))
+      {
+        throw std::runtime_error("Expected a PMT vector");
+      }
+
+      d_corrcoefs.clear();
+      int len = pmt::length(vec);
+      for(int i=0; i<len; i++)
+      {
+        d_corrcoefs.push_back(gr_complex(pmt::to_complex(pmt::vector_ref(vec, i))));
+      }
+    }
+
+    void
+    multichannel_deframer_vcb_impl::correct_phase_offset(gr_complex* buf, std::vector<bool> blocked_subchannels)
+    {
+      int subchannel_ctr = 0;
+      for(int i=0; i<d_num_subchannels; i++)
+      {
+        gr_complex* startptr = buf + (d_preamble_symbols + d_overlap)*d_total_subcarriers*d_num_subchannels;
+        if(!blocked_subchannels[i])
+        {
+          gr_complex phi = d_corrcoefs[subchannel_ctr]/std::abs(d_corrcoefs[subchannel_ctr]);
+          for(int k=0; k<d_payload_symbols; k++)
+          {
+            gr_complex* pos = startptr+k*d_total_subcarriers*d_num_subchannels + i*d_total_subcarriers;
+            volk_32fc_s32fc_multiply_32fc(pos, pos, phi, d_total_subcarriers);
+          }
+          subchannel_ctr++;
+        }
+      }
+    }
+
     int
     multichannel_deframer_vcb_impl::extract_bits(char* outbuf, gr_complex* inbuf, std::vector<bool> blocked_subchannels)
     {
@@ -215,6 +263,8 @@ namespace gr {
       // skip the preamble and the following overlap FIXME: make sure this works even after the filterbank
       in += d_total_subcarriers * d_num_subchannels * (d_overlap + d_preamble_symbols);
       std::vector<bool> blocked_subcarriers = get_occupied_channels_from_tag(in);
+      get_corrcoefs_from_tag(in);
+      correct_phase_offset(in, blocked_subcarriers);
       int nbits = extract_bits(out, in, blocked_subcarriers);
 
       consume_each(d_frame_len);
