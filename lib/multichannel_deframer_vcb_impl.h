@@ -50,7 +50,8 @@ namespace gr {
       std::vector<bool> get_occupied_channels_from_tag(const gr_complex* inptr);
       void get_corrcoefs_from_tag(const gr_complex* inptr);
 
-      FILE* d_file;
+      FILE* d_file1;
+      FILE* d_file2;
 
       inline int inphase_selector(int pos) const {return (pos - d_preamble_symbols + d_overlap) % 2;};
 

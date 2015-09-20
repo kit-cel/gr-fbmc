@@ -43,7 +43,6 @@ namespace gr {
       int d_samples_to_drop;
       int d_samples_to_return;
       int d_trailing_samples;
-      std::vector<gr_complex> d_phivec;
       gr_complex d_phi;
 
       FILE* d_file;

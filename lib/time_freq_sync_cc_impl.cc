@@ -68,20 +68,20 @@ namespace gr {
 
       set_output_multiple(d_lookahead + 2 * d_L); // minimum
 
-      d_file_cfo = fopen("time_freq_cfo.bin", "wb");
-      d_file_avg_cfo = fopen("time_freq_avg_cfo.bin", "wb");
-      if(d_file_cfo == NULL or d_file_avg_cfo == NULL)
-      {
-        throw std::runtime_error("Could not open files");
-      }
+      // d_file_cfo = fopen("time_freq_cfo.bin", "wb");
+      // d_file_avg_cfo = fopen("time_freq_avg_cfo.bin", "wb");
+      // if(d_file_cfo == NULL or d_file_avg_cfo == NULL)
+      // {
+      //   throw std::runtime_error("Could not open files");
+      // }
     }
 
     /*
      * Our virtual destructor.
      */
     time_freq_sync_cc_impl::~time_freq_sync_cc_impl() {
-      fclose(d_file_cfo);
-      fclose(d_file_avg_cfo);
+      // fclose(d_file_cfo);
+      // fclose(d_file_avg_cfo);
     }
 
     void
@@ -113,16 +113,16 @@ namespace gr {
         d_avg_cfo = update_cfo(new_cfo);
       }
       d_phi = 0.0;
-//      std::cout << "time_freq_sync: frame detected! |rho| = " << std::abs(corrbuf()) << ", cfo = " << d_avg_cfo << ", in@" << nitems_read(0)+offset << std::endl;
+     // std::cout << "time_freq_sync: frame detected! |rho| = " << std::abs(corrbuf()) << ", cfo = " << d_avg_cfo << ", in@" << nitems_read(0)+offset << std::endl;
       d_nsamp_remaining = d_nsamp_frame + d_additional_samps; // return a little more to avoid cutting off the end of the frame in case of an early sync
 //      std::cout << "time_freq_sync: frame detected, put tag out@" << nitems_written(0) + offset << std::endl;
       add_item_tag(0, nitems_written(0), pmt::mp("frame_start"), pmt::from_long(nitems_written(0) + offset));
 
       //DEBUG file output
       float cfo_20mhz = new_cfo*20e6;
-      fwrite(&cfo_20mhz, sizeof(float), 1, d_file_cfo);
+      // fwrite(&cfo_20mhz, sizeof(float), 1, d_file_cfo);
       cfo_20mhz = d_avg_cfo*20e6;
-      fwrite(&cfo_20mhz, sizeof(float), 1, d_file_avg_cfo);
+      // fwrite(&cfo_20mhz, sizeof(float), 1, d_file_avg_cfo);
     }
 
     float
@@ -252,6 +252,7 @@ namespace gr {
           out[i] = in[i] * exp(gr_complex(0, -2 * M_PI * d_avg_cfo * i + d_phi));
         }
         d_phi += -2 * M_PI * d_avg_cfo * max_items;
+        // memcpy(out, in, max_items);
         produced += max_items;
         if(d_nsamp_remaining - max_items < d_additional_samps){ // do not consume the additional samples to avoid missing the next frame
           consumed += std::max(0, d_nsamp_remaining - d_additional_samps);
@@ -264,7 +265,6 @@ namespace gr {
           enter_search_state();
         }
       }
-
       consume_each(consumed);
       return produced;
     }

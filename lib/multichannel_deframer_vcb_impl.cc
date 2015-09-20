@@ -56,8 +56,9 @@ namespace gr {
       set_output_multiple(d_payload_bits * d_num_subchannels);
 
       std::cout << "NOTE: deframer writes a debug file!" << std::endl;
-      d_file = fopen("deframer_soft.bin", "wb");
-      if(d_file == NULL)
+      d_file1 = fopen("deframer_complex.bin", "wb");
+      d_file2 = fopen("deframer_mag.bin", "wb");
+      if(d_file1 == NULL || d_file2 == NULL)
         throw std::runtime_error("File not open");
     }
 
@@ -66,7 +67,8 @@ namespace gr {
      */
     multichannel_deframer_vcb_impl::~multichannel_deframer_vcb_impl()
     {
-      fclose(d_file);
+      fclose(d_file1);
+      fclose(d_file2);
     }
 
     void
@@ -154,17 +156,20 @@ namespace gr {
         throw std::runtime_error("Found multiple tags");
       }
       pmt::pmt_t vec = tags[0].value;
-      if(!pmt::is_vector(vec))
+      if(!pmt::is_c32vector(vec))
       {
-        throw std::runtime_error("Expected a PMT vector");
+        throw std::runtime_error("Expected a C32 PMT vector");
       }
 
       d_corrcoefs.clear();
       int len = pmt::length(vec);
+      // std::cout << "deframer: extracted phases: ";
       for(int i=0; i<len; i++)
       {
-        d_corrcoefs.push_back(gr_complex(pmt::to_complex(pmt::vector_ref(vec, i))));
+        d_corrcoefs.push_back(pmt::c32vector_ref(vec, i));
+        // std::cout << std::arg(d_corrcoefs[i]) << " ";
       }
+      // std::cout << std::endl;
     }
 
     void
@@ -173,10 +178,10 @@ namespace gr {
       int subchannel_ctr = 0;
       for(int i=0; i<d_num_subchannels; i++)
       {
-        gr_complex* startptr = buf + (d_preamble_symbols + d_overlap)*d_total_subcarriers*d_num_subchannels;
+        gr_complex* startptr = buf;
         if(!blocked_subchannels[i])
         {
-          gr_complex phi = d_corrcoefs[subchannel_ctr]/std::abs(d_corrcoefs[subchannel_ctr]);
+          gr_complex phi = std::conj(d_corrcoefs[subchannel_ctr]/std::abs(d_corrcoefs[subchannel_ctr]));
           for(int k=0; k<d_payload_symbols; k++)
           {
             gr_complex* pos = startptr+k*d_total_subcarriers*d_num_subchannels + i*d_total_subcarriers;
@@ -212,7 +217,7 @@ namespace gr {
                                        i * d_total_subcarriers +                         // complete subchannels
                                        d_subchannel_map_index[n]) +                      // subcarrier index
                                        d_subchannel_map_offset[sel][n]];
-              fwrite(&pam_symbol, sizeof(float), 1, d_file);
+              // fwrite(&pam_symbol, sizeof(float), 1, d_file);
               if(pam_symbol > 0.0f)
               {
                 *outptr++ = 1;
@@ -260,12 +265,26 @@ namespace gr {
       gr_complex *in = (gr_complex *) input_items[0];
       char *out = (char *) output_items[0];
 
+      //write debug files
+      for(int i=0; i<d_frame_len; i++)
+      {
+        float tmp = std::abs(in[i]);
+        fwrite(&tmp, sizeof(float), 1, d_file1);
+      }
+      fwrite(in, sizeof(gr_complex), d_frame_len, d_file2);
+
       // skip the preamble and the following overlap FIXME: make sure this works even after the filterbank
       in += d_total_subcarriers * d_num_subchannels * (d_overlap + d_preamble_symbols);
       std::vector<bool> blocked_subcarriers = get_occupied_channels_from_tag(in);
       get_corrcoefs_from_tag(in);
       correct_phase_offset(in, blocked_subcarriers);
       int nbits = extract_bits(out, in, blocked_subcarriers);
+
+      // std::cout << "deframer: consume " << d_frame_len << ", return " << nbits << std::endl;
+      // std::cout << "deframer bits: ";
+      // for(int i=0; i<10; i++)
+      //   std::cout << int(out[i]) << " ";
+      // std::cout << std::endl;
 
       consume_each(d_frame_len);
       return nbits;

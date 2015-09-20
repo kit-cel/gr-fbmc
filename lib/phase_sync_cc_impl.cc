@@ -203,7 +203,6 @@ namespace gr {
       d_phi = calc_phase_offset(corr_coefs);
       add_channel_occupation_tag(occupied_channels);
       add_corrcoef_tag(corr_coefs);
-      add_corrcoef_tag(corr_coefs);
       d_samples_to_return = d_nsamp_frame;
       d_trailing_samples = d_search_window - offset;
       std::cout << "phase_sync: frame with " << corr_coefs.size() << " subchannels detected. offset from estimated frame start: " << offset << std::endl;
@@ -253,7 +252,7 @@ namespace gr {
       {
         if(d_samples_to_return > 0) { // return frame
           int max_items_return = std::min(d_samples_to_return, std::min(ninput_items[0] - consumed, noutput_items));
-//          volk_32fc_s32fc_multiply_32fc(out, in + consumed, d_phi, max_items_return);
+          // volk_32fc_s32fc_multiply_32fc(out, in + consumed, d_phi, max_items_return);
           memcpy(out, in+consumed, max_items_return*sizeof(gr_complex));
           consumed += max_items_return;
           produced += max_items_return;
@@ -287,7 +286,7 @@ namespace gr {
         throw std::runtime_error("Invalid state");
       }
 
-//      std::cout << "phase_sync: consume " << consumed << ", return " << produced << std::endl;
+      // std::cout << "phase_sync: consume " << consumed << ", return " << produced << std::endl;
       consume_each(consumed);
       return produced;
     }
