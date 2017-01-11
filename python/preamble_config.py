@@ -18,11 +18,14 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 #
+#
+# Chung, Wonsuk ; Kim, Chanhong ; Choi, Sooyong ; Hong, Daesik:
+# Synchronization Sequence Design for FBMC/OQAM Systems Bd. 15, IEEE (2016), Nr. 10, S. 7199 – 7211
 
 import numpy as np
 
 class preamble_config:
-    def __init__(self, taps, N, L, pos=3, u=1, q=4, A=1.0):
+    def __init__(self, taps, N, L, pos=4, u=1, q=4, A=1.0, fft_len=2**13):
         """
         Calculates preamble with independent Zadoff-Chu sequence
         :param taps: Filter taps of length O*N
@@ -32,6 +35,7 @@ class preamble_config:
         :param u: Parameter for ZC sequence
         :param q: Parameter for ZC sequence
         :param A: Amplitude of ZC sequence
+        :param fft_len: Length of zero-padded FFT during frequency sync
         """
         self.h = np.reshape(taps, (-1, N//2))
         self.N = N
@@ -41,6 +45,7 @@ class preamble_config:
         self.q = q
         self.A = A
         self.c = self.build_preamble_symbols()
+        self.Z_fft = np.fft.fft(self.get_zadoff_chu(self.N), fft_len)
 
     def get_zadoff_chu(self, length):
         """ Returns Zadoff-Chu sequence of length """
@@ -82,5 +87,8 @@ class preamble_config:
         c = 2/self.l/self.N * np.fft.fft(C[0] + 1j*C[1])  # c_2n^R
         return c
 
-    def get_preamble(self):
+    def get_preamble_symbols(self):
         return self.c
+
+    def get_cazac_fft(self):
+        return self.Z_fft

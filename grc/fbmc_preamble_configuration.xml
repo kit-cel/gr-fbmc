@@ -5,8 +5,8 @@
     <key>cazac_preamble_config</key>
     <category>FBMC</category>
     <import>import fbmc</import>
-    <var_make>self.$(id) = $(id) = fbmc.preamble_config(taps=$taps, N=$N, L=$L, pos=$pos, u=$u, q=$q, A=$A)</var_make>
-    <var_value>fbmc.preamble_config(taps=$taps, N=$N, L=$L, pos=$pos, u=$u, q=$q, A=$A)</var_value>
+    <var_make>self.$(id) = $(id) = fbmc.preamble_config(taps=$taps, N=$N, L=$L, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_make>
+    <var_value>fbmc.preamble_config(taps=$taps, N=$N, L=$L, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_value>
     <make></make>
     <param>
         <name>Filter Taps</name>
@@ -29,7 +29,7 @@
     <param>
         <name>Block position</name>
         <key>pos</key>
-        <value>3</value>
+        <value>4</value>
         <type>int</type>
     </param>
     <param>
@@ -49,6 +49,12 @@
         <key>A</key>
         <value>1.0</value>
         <type>float</type>
+    </param>
+    <param>
+        <name>Analysis FFT length</name>
+        <key>fft_len</key>
+        <value>2**13</value>
+        <type>int</type>
     </param>
     <doc>
     Use Zadoff-Chu sequence to build an FBMC based preamble of length N
