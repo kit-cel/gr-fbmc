@@ -25,7 +25,7 @@
 import numpy as np
 
 class preamble_config:
-    def __init__(self, taps, N, L, pos=4, u=1, q=4, A=1.0, fft_len=2**13):
+    def __init__(self, taps, N, L, pilot_A, pilot_timestep, pilot_carriers, pos=4, u=1, q=4, A=1.0, fft_len=2**13):
         """
         Calculates preamble with independent Zadoff-Chu sequence
         :param taps: Filter taps of length O*N
@@ -37,10 +37,14 @@ class preamble_config:
         :param A: Amplitude of ZC sequence
         :param fft_len: Length of zero-padded FFT during frequency sync
         """
+        assert pilot_timestep >= 4, "Min. pilot timstep is 4 when compensation with aux pilots is used"
         self.h = np.reshape(taps, (-1, N//2))
         self.N = N
         self.k = pos
         self.L = L
+        self.pilot_A = pilot_A
+        self.pilot_timestep = pilot_timestep
+        self.pilot_carriers = pilot_carriers
         self.u = u
         self.q = q
         self.A = A
@@ -92,3 +96,12 @@ class preamble_config:
 
     def get_cazac_fft(self):
         return self.Z_fft
+
+    def get_pilot_amplitude(self):
+        return self.pilot_A
+
+    def get_pilot_timestep(self):
+        return self.pilot_timestep
+
+    def get_pilot_carriers(self):
+        return self.pilot_carriers

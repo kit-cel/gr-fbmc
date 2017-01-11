@@ -5,8 +5,8 @@
     <key>cazac_preamble_config</key>
     <category>FBMC</category>
     <import>import fbmc</import>
-    <var_make>self.$(id) = $(id) = fbmc.preamble_config(taps=$taps, N=$N, L=$L, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_make>
-    <var_value>fbmc.preamble_config(taps=$taps, N=$N, L=$L, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_value>
+    <var_make>self.$(id) = $(id) = fbmc.preamble_config(taps=$taps, N=$N, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_make>
+    <var_value>fbmc.preamble_config(taps=$taps, N=$N, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_value>
     <make></make>
     <param>
         <name>Filter Taps</name>
@@ -25,6 +25,24 @@
         <key>L</key>
         <value>255</value>
         <type>int</type>
+    </param>
+    <param>
+        <name>Pilot amplitude</name>
+        <key>pilot_A</key>
+        <value>1.0</value>
+        <type>float</type>
+    </param>
+    <param>
+        <name>Pilot time step</name>
+        <key>pilot_timestep</key>
+        <value>4</value>
+        <type>int</type>
+    </param>
+    <param>
+        <name>Pilot carrier map</name>
+        <key>pilot_carriers</key>
+        <value>range(0, $N, 20)</value>
+        <type>int_vector</type>
     </param>
     <param>
         <name>Block position</name>

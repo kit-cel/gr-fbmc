@@ -51,5 +51,6 @@ install(FILES
     multichannel_deframer_vcb.h
     multichannel_frame_sync_cc.h
     time_freq_sync_cc.h
-    phase_sync_cc.h DESTINATION include/fbmc
+    phase_sync_cc.h
+    subchannel_frame_generator_bvc.h DESTINATION include/fbmc
 )
