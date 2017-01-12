@@ -24,7 +24,7 @@
 
 import numpy as np
 
-class preamble_config:
+class sync_config:
     def __init__(self, taps, N, L, pilot_A, pilot_timestep, pilot_carriers, pos=4, u=1, q=4, A=1.0, fft_len=2**13):
         """
         Calculates preamble with independent Zadoff-Chu sequence

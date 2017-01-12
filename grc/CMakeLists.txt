@@ -45,7 +45,7 @@ install(FILES
     fbmc_multichannel_deframer_vcb.xml
     fbmc_multichannel_frame_sync_cc.xml
     fbmc_time_freq_sync_cc.xml
-    fbmc_preamble_configuration.xml
+    fbmc_sync_configuration.xml
     fbmc_phase_sync_cc.xml
     fbmc_subchannel_frame_generator_bvc.xml DESTINATION share/gnuradio/grc/blocks
 )

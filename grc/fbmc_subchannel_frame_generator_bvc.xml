@@ -1,38 +1,51 @@
-<?xml version="1.0"?>
 <block>
-  <name>subchannel_frame_generator_bvc</name>
+  <name>Subchannel Frame Generator</name>
   <key>fbmc_subchannel_frame_generator_bvc</key>
-  <category>[fbmc]</category>
+  <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.subchannel_frame_generator_bvc($subcarriers, $payload_symbols, $payload_bits, $overlap, $subchannels, $preamble_symbols)</make>
-  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
-       Sub-nodes:
-       * name
-       * key (makes the value accessible as $keyname, e.g. in the make node)
-       * type -->
+  <make>fbmc.subchannel_frame_generator_bvc($subcarriers, $payload_bits, $overlap, $preamble_symbols, $pilot_amp, $pilot_timestep, $pilot_carriers)</make>
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <type>int</type>
   </param>
-
-  <!-- Make one 'sink' node per input. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
+  <param>
+    <name>Payload_bits</name>
+    <key>payload_bits</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Overlap</name>
+    <key>overlap</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Preamble_symbols</name>
+    <key>preamble_symbols</key>
+    <type>complex_vector</type>
+  </param>
+  <param>
+    <name>Pilot_amp</name>
+    <key>pilot_amp</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Pilot_timestep</name>
+    <key>pilot_timestep</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Pilot_carriers</name>
+    <key>pilot_carriers</key>
+    <type>int_vector</type>
+  </param>
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>byte</type>
   </sink>
-
-  <!-- Make one 'source' node per output. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>float</type>
+    <vlen>$subcarriers</vlen>
   </source>
 </block>

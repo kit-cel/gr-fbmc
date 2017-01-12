@@ -46,6 +46,7 @@ from fbmc_swig import *
 
 # import any pure python here
 #
+from sync_config import sync_config
 
 # ----------------------------------------------------------------
 # Tail of workaround

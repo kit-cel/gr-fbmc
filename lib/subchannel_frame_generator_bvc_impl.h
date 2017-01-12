@@ -30,21 +30,30 @@ namespace gr {
     {
      private:
       // Nothing to declare in this block.
-      void insert_preamble(gr_complex*& out);
-      void insert_pilots(gr_complex*& out);
-      void insert_payload(gr_complex*& out, const char* inbuf);
-      int d_subcarriers, d_payload_symbols, d_payload_bits, d_overlap, d_subchannels, d_frame_len, d_pilot_timestep;
+      void insert_preamble();
+      void insert_pilots();
+      void insert_payload(const char* inbuf);
+      void insert_aux_pilots(const unsigned int N, const unsigned int K);
+
+      void init_freq_time_frame();
+      void write_output(float*& out);
+
+      int d_subcarriers, d_payload_symbols, d_payload_bits, d_overlap, d_frame_len, d_pilot_timestep;
       float d_pilot_amp;
-      std::vector<float> d_preamble_symbols;
+      std::vector<gr_complex> d_preamble_symbols;
       std::vector<int> d_pilot_carriers;
+      static const float d_weights_ee[3][7];
+      static const float d_weights_eo[3][7];
+      static const float d_weights_oe[3][7];
+      static const float d_weights_oo[3][7];
+      std::vector<std::vector<float> > d_freq_time_frame;
 
       static const float D_CONSTELLATION[2];
 
      public:
-      subchannel_frame_generator_bvc_impl(int subcarriers, int payload_symbols,
+      subchannel_frame_generator_bvc_impl(int subcarriers,
                                           int payload_bits, int overlap,
-                                          int subchannels,
-                                          std::vector<float> preamble_symbols,
+                                          std::vector<gr_complex> preamble_symbols,
                                           float pilot_amp, int pilot_timestep,
                                           std::vector<int> pilot_carriers);
       ~subchannel_frame_generator_bvc_impl();

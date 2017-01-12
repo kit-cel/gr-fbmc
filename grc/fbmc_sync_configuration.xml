@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 
 <block>
-    <name>CAZAC Preamble Configuration</name>
-    <key>cazac_preamble_config</key>
+    <name>Sync Configuration</name>
+    <key>sync_config</key>
     <category>FBMC</category>
     <import>import fbmc</import>
-    <var_make>self.$(id) = $(id) = fbmc.preamble_config(taps=$taps, N=$N, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_make>
-    <var_value>fbmc.preamble_config(taps=$taps, N=$N, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_value>
+    <var_make>self.$(id) = $(id) = fbmc.sync_config(taps=$taps, N=$N, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_make>
+    <var_value>fbmc.sync_config(taps=$taps, N=$N, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_value>
     <make></make>
     <param>
         <name>Filter Taps</name>

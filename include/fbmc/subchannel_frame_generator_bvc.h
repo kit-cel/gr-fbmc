@@ -46,10 +46,9 @@ namespace gr {
        * class. fbmc::subchannel_frame_generator_bvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int subcarriers, int payload_symbols,
+      static sptr make(int subcarriers,
                        int payload_bits, int overlap,
-                       int subchannels,
-                       std::vector<float> preamble_symbols,
+                       std::vector<gr_complex> preamble_symbols,
                        float pilot_amp, int pilot_timestep,
                        std::vector<int> pilot_carriers);
     };
