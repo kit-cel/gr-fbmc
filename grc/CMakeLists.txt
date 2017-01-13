@@ -47,5 +47,6 @@ install(FILES
     fbmc_time_freq_sync_cc.xml
     fbmc_sync_configuration.xml
     fbmc_phase_sync_cc.xml
-    fbmc_subchannel_frame_generator_bvc.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_subchannel_frame_generator_bvc.xml
+    fbmc_rx_freq_despread_cvc.xml DESTINATION share/gnuradio/grc/blocks
 )
