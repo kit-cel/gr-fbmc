@@ -132,21 +132,21 @@ namespace gr {
     void
     subchannel_frame_generator_bvc_impl::insert_aux_pilots(const unsigned int N, const unsigned int K) {
       float curr_int = 0.0;  // current interference
-      float** weights;
+      const float (*weights)[7];
       if(N % 2 == 0) {
         if(K % 2 == 0) {
-          weights = (float**)d_weights_ee;
+          weights = d_weights_ee;
         }
         else {
-          weights = (float**)d_weights_eo;
+          weights = d_weights_eo;
         }
       }
       else {
         if(K % 2 == 0) {
-          weights = (float**)d_weights_oe;
+          weights = d_weights_oe;
         }
         else {
-          weights = (float**)d_weights_oo;
+          weights = d_weights_oo;
         }
       }
       // sum up interference to expect in pilot
@@ -154,7 +154,6 @@ namespace gr {
         for(unsigned int c = 0; c < 7; c++) {
           // check if weight pos is inside the freq/time frame
           if (K-3+c >= 0 && K-3+c < d_frame_len) {
-            std::cout << "K=" << K << " N=" << N << " r=" << r << " c=" << c << std::endl;
             curr_int += d_freq_time_frame[(N-1+r+d_subcarriers)%d_subcarriers][K-3+c] * weights[r][c];
           }
         }
