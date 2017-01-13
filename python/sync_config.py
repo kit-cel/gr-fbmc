@@ -20,7 +20,7 @@
 #
 #
 # Chung, Wonsuk ; Kim, Chanhong ; Choi, Sooyong ; Hong, Daesik:
-# Synchronization Sequence Design for FBMC/OQAM Systems Bd. 15, IEEE (2016), Nr. 10, S. 7199 – 7211
+# Synchronization Sequence Design for FBMC/OQAM Systems Bd. 15, IEEE (2016), Nr. 10, S. 7199 - 721]
 
 import numpy as np
 
@@ -64,7 +64,7 @@ class sync_config:
     def get_c_sequence(self):
         h = self.h
         k = self.k
-        Z_tilde = self.get_compensated_zadoff_chu(self.N)
+        Z_tilde = self.get_compensated_zadoff_chu(self.N//2)
         C1 = np.empty(self.N//2, dtype=complex)
         C2 = np.empty(self.N//2, dtype=complex)
 
@@ -88,7 +88,7 @@ class sync_config:
             a_{2n, 2m'+1} = c_n^I
         """
         C = self.get_c_sequence()
-        c = 2/self.l/self.N * np.fft.fft(C[0] + 1j*C[1])  # c_2n^R
+        c = 2/self.N * np.fft.fft(C[0] + 1j*C[1])  # c_2n^R
         return c
 
     def get_preamble_symbols(self):
@@ -105,3 +105,5 @@ class sync_config:
 
     def get_pilot_carriers(self):
         return self.pilot_carriers
+
+#a = sync_config(taps=np.ones(32*4), N=32, L=31, pilot_A=1.0, pilot_timestep=4, pilot_carriers=range(0,32,5), pos=4, u=1, q=4, A=1.0, fft_len=2**13)

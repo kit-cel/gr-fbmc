@@ -48,7 +48,7 @@ namespace gr {
                                                                              std::vector<int> pilot_carriers)
       : gr::block("subchannel_frame_generator_bvc",
               gr::io_signature::make(1, 1, sizeof(char)),
-              gr::io_signature::make(1, 1, sizeof(float) * subcarriers)),
+              gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers)),
         d_subcarriers(subcarriers), d_payload_bits(payload_bits),
         d_overlap(overlap), d_preamble_symbols(preamble_symbols), d_pilot_amp(pilot_amp),
         d_pilot_timestep(pilot_timestep), d_pilot_carriers(pilot_carriers)
@@ -101,10 +101,11 @@ namespace gr {
     }
 
     void
-    subchannel_frame_generator_bvc_impl::write_output(float*& out) {
+    subchannel_frame_generator_bvc_impl::write_output(gr_complex*& out) {
+      float* outbuf = (float*)out;
       for(unsigned int k = 0; k < d_frame_len; k++) {
         for(unsigned int n = 0; n < d_subcarriers; n++) {
-          out[k*d_subcarriers + n] = d_freq_time_frame[n][k];
+          outbuf[k*d_subcarriers + n] = d_freq_time_frame[n][k];
         }
       }
     }
@@ -151,8 +152,10 @@ namespace gr {
       // sum up interference to expect in pilot
       for(unsigned int r = 0; r < 3; r++) {
         for(unsigned int c = 0; c < 7; c++) {
+          // check if weight pos is inside the freq/time frame
           if (K-3+c >= 0 && K-3+c < d_frame_len) {
-            curr_int += d_freq_time_frame[(N-1+r)%d_subcarriers][K-3+c] * weights[r][c];
+            std::cout << "K=" << K << " N=" << N << " r=" << r << " c=" << c << std::endl;
+            curr_int += d_freq_time_frame[(N-1+r+d_subcarriers)%d_subcarriers][K-3+c] * weights[r][c];
           }
         }
       }
@@ -161,11 +164,10 @@ namespace gr {
     }
 
     void
-    subchannel_frame_generator_bvc_impl::insert_payload(const char* inbuf)
+    subchannel_frame_generator_bvc_impl::insert_payload(const char* inbuf, unsigned int* bits_written)
     {
       // build vector of usable carriers for data
       std::vector<int> data_carriers;
-      int bits_written = 0;
       for (int i = 0; i < d_subcarriers; i++) {
         if (std::find(d_pilot_carriers.begin(), d_pilot_carriers.end(), i) == d_pilot_carriers.end()) {
           data_carriers.push_back(i);
@@ -174,32 +176,30 @@ namespace gr {
 
       // fill preamble symbols with data in gaps
       for (int k = 0; k < 2; k++) {
-        for (int n = 0; n < d_subcarriers/2; n++) {
+        for (int n = 0; n < (d_subcarriers-1)/2; n++) {
           // fill uneven carriers with data
           d_freq_time_frame[2*n+1][k] = D_CONSTELLATION[*inbuf++];
+          (*bits_written)++;
       }
 
       // fill remaining symbols with data
-      for (int k = 2; k < d_frame_len - 1; k++) {
-        // case: we hit a symbol occupied with pilots
-        if((k-2) % d_pilot_timestep == 0) {
+      for (int k = 2; k < d_frame_len; k++) {
+        // case: we hit a symbol occupied with pilots or aux pilots
+        if((k-2) % d_pilot_timestep == 0 || (k-2) % d_pilot_timestep == 1) {
           for (std::vector<int>::iterator it = data_carriers.begin(); it != data_carriers.end(); ++it) {
             d_freq_time_frame[*it][k] = D_CONSTELLATION[*inbuf++];
-            bits_written++;
+            (*bits_written)++;
+            if(*bits_written == d_payload_bits) break;
           }
         }
         // case: no pilots in this symbol, fill all carriers with data
         else {
             for (int n = 0; n < d_subcarriers; n++) {
               d_freq_time_frame[n][k] = D_CONSTELLATION[*inbuf++];
-              bits_written++;
+              (*bits_written)++;
+              if(*bits_written == d_payload_bits) break;
             }
           }
-        }
-        // fill last carrier
-        for (int n = 0; bits_written <= d_payload_bits; n++) {
-          d_freq_time_frame[n][d_frame_len - 1] = D_CONSTELLATION[*inbuf++];
-          bits_written++;
         }
       }
     }
@@ -218,11 +218,12 @@ namespace gr {
                        gr_vector_void_star &output_items)
     {
       const char *in = (const char *) input_items[0];
-      float *out = (float *) output_items[0];
+      gr_complex *out = (gr_complex *) output_items[0];
+      unsigned int bits_written = 0;
       // clear freq/time matrix
       init_freq_time_frame();
       // Do <+signal processing+>
-      insert_payload(in);
+      insert_payload(in, &bits_written);
       insert_preamble();
       insert_pilots();
       write_output(out);

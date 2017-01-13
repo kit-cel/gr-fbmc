@@ -45,7 +45,7 @@
   </sink>
   <source>
     <name>out</name>
-    <type>float</type>
+    <type>complex</type>
     <vlen>$subcarriers</vlen>
   </source>
 </block>

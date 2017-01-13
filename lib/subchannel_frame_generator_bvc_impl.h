@@ -32,11 +32,11 @@ namespace gr {
       // Nothing to declare in this block.
       void insert_preamble();
       void insert_pilots();
-      void insert_payload(const char* inbuf);
+      void insert_payload(const char* inbuf, unsigned int* bits_written);
       void insert_aux_pilots(const unsigned int N, const unsigned int K);
 
       void init_freq_time_frame();
-      void write_output(float*& out);
+      void write_output(gr_complex*& out);
 
       int d_subcarriers, d_payload_symbols, d_payload_bits, d_overlap, d_frame_len, d_pilot_timestep;
       float d_pilot_amp;

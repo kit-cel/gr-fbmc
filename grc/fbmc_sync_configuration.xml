@@ -2,7 +2,7 @@
 
 <block>
     <name>Sync Configuration</name>
-    <key>sync_config</key>
+    <key>variable_sync_config</key>
     <category>FBMC</category>
     <import>import fbmc</import>
     <var_make>self.$(id) = $(id) = fbmc.sync_config(taps=$taps, N=$N, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_make>
@@ -63,7 +63,7 @@
         <type>int</type>
     </param>
     <param>
-        <name>Amplitude</name>
+        <name>CAZAC Amplitude</name>
         <key>A</key>
         <value>1.0</value>
         <type>float</type>
@@ -75,7 +75,9 @@
         <type>int</type>
     </param>
     <doc>
-    Use Zadoff-Chu sequence to build an FBMC based preamble of length N
-    https://en.wikipedia.org/wiki/Zadoff%E2%80%93Chu_sequence
+Use Zadoff-Chu sequence to build an FBMC based preamble of length N for preamble
+https://en.wikipedia.org/wiki/Zadoff%E2%80%93Chu_sequence
+
+Set rectangular pilot positions and parameters.
     </doc>
 </block>
