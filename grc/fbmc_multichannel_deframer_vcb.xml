@@ -45,7 +45,7 @@
   <sink>
     <name>in</name>
     <type>complex</type>
-    <vlen>$total_subcarriers*4</vlen>
+    <vlen>$total_subcarriers</vlen>
   </sink>
 
   <source>

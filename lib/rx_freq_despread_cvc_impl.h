@@ -22,6 +22,11 @@
 #define INCLUDED_FBMC_RX_FREQ_DESPREAD_CVC_IMPL_H
 
 #include <fbmc/rx_freq_despread_cvc.h>
+#include <gnuradio/fft/fft.h>
+#include <Eigen/Dense>
+
+typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrixf;
+typedef Eigen::Matrix<gr_complex, Eigen::Dynamic, Eigen::Dynamic> Matrixc;
 
 namespace gr {
   namespace fbmc {
@@ -29,7 +34,16 @@ namespace gr {
     class rx_freq_despread_cvc_impl : public rx_freq_despread_cvc
     {
      private:
-      int d_subcarriers;
+      int d_subcarriers, d_pilot_timestep, d_o;
+      float d_pilot_amplitude;
+      std::vector<int> d_pilot_carriers;
+      std::vector<float> d_prototype_taps;
+      gr::fft::fft_complex* d_fft;
+      Matrixf d_G;
+      Matrixf spreading_matrix();
+      Matrixc d_channel;
+      void write_output(gr_complex* out, Matrixc in);
+      void channel_estimation(Matrixc R);
 
      public:
       rx_freq_despread_cvc_impl(std::vector<float> taps, int subcarriers, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers);

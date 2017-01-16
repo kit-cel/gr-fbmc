@@ -86,6 +86,7 @@ set(GRC_BLOCKS_DIR      ${GR_PKG_DATA_DIR}/grc/blocks)
 # Find gnuradio build dependencies
 ########################################################################
 find_package(CppUnit)
+find_package(Eigen3 REQUIRED)
 
 # Search for GNU Radio and its components and versions. Add any
 # components required to the list of GR_REQUIRED_COMPONENTS (in all
@@ -110,6 +111,7 @@ include_directories(
     ${CPPUNIT_INCLUDE_DIRS}
     ${GNURADIO_ALL_INCLUDE_DIRS}
     ${FFTW3F_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIR}
 )
 
 link_directories(

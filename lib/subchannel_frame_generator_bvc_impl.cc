@@ -225,7 +225,7 @@ namespace gr {
       insert_payload(in, &bits_written);
       insert_preamble();
       insert_pilots();
-      write_output(out);
+      write_output(out);  // TODO phase rotation
       // Tell runtime system how many input items we consumed on
       // each input stream.
       consume_each (d_payload_bits);
