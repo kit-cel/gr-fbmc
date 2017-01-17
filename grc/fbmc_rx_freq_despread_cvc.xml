@@ -1,5 +1,5 @@
 <block>
-  <name>Rx Freq Despread</name>
+  <name>Rx Freq Despread and EQ</name>
   <key>fbmc_rx_freq_despread_cvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>

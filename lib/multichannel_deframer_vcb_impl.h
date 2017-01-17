@@ -37,7 +37,7 @@ namespace gr {
       std::vector<int> d_subchannel_map;
       std::vector<int> d_subchannel_map_index;
       std::vector<std::vector<int> > d_subchannel_map_offset;
-      static const int d_num_subchannels = 4;
+      static const int d_num_subchannels = 1;
       int d_preamble_symbols;
       int d_frame_len;
       std::vector<gr_complex> d_corrcoefs;
