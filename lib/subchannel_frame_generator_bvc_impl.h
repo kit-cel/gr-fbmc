@@ -46,7 +46,7 @@ namespace gr {
       static const float d_weights_eo[3][7];
       static const float d_weights_oe[3][7];
       static const float d_weights_oo[3][7];
-      std::vector<std::vector<float> > d_freq_time_frame;
+      std::vector<std::vector<gr_complex> > d_freq_time_frame;
 
       static const float D_CONSTELLATION[2];
 

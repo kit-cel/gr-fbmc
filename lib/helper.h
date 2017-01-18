@@ -12,15 +12,15 @@ typedef Eigen::Matrix<gr_complex, Eigen::Dynamic, Eigen::Dynamic> Matrixc;
 
 namespace gr {
   namespace fbmc {
-    class interp2d {
+    class helper {
     private:
       std::vector<int> d_x_coord, d_y_coord;
       Matrixc d_data;
       int d_x_min, d_x_max, d_y_min, d_y_max;
 
     public:
-      interp2d(std::vector<int> y_coord);
-      ~interp2d();
+      helper(std::vector<int> y_coord);
+      ~helper();
       gr_complex interp1d(gr_complex v1, gr_complex v2, int v2pos, int valpos);
       gr_complex get_value(int x, int y);
       void set_params(std::vector<int> x_coord, Matrixc data);

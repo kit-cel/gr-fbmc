@@ -19,21 +19,23 @@
  */
 
 
-#include "interp2d.h"
+#include "helper.h"
 
 namespace gr {
   namespace fbmc {
-    interp2d::interp2d(std::vector<int> y_coord) :
+    helper::helper(std::vector<int> y_coord) :
     d_y_coord(y_coord)
     {
+      // find index borders in y direction
       d_y_min = *std::min_element(d_y_coord.begin(), d_y_coord.end());
       d_y_max = *std::max_element(d_y_coord.begin(), d_y_coord.end());
     }
 
-    interp2d::~interp2d() {}
+    helper::~helper() {}
 
     void
-    interp2d::set_params(std::vector<int> x_coord, Matrixc data) {
+    helper::set_params(std::vector<int> x_coord, Matrixc data) {
+      // x is only known during one work function, so it has to be reset every time
       d_x_coord = x_coord;
       d_data = data;
       if(d_x_coord.size() != data.cols()) {
@@ -47,7 +49,8 @@ namespace gr {
     }
 
     gr_complex
-    interp2d::interp1d(gr_complex v1, gr_complex v2, int v2pos, int valpos) {
+    helper::interp1d(gr_complex v1, gr_complex v2, int v2pos, int valpos) {
+      // 1d linear interpolation between two points
       if(v2pos < valpos) {
         throw std::runtime_error("interp1d: requested value outside interpolation range");
       }
@@ -56,7 +59,7 @@ namespace gr {
     }
 
     gr_complex
-    interp2d::get_value(int x, int y) {
+    helper::get_value(int x, int y) {
       gr_complex result;
       if(x > d_x_max || x < d_x_min || y < d_y_min || y > d_y_max) {
         // extrapolation range

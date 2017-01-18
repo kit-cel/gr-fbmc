@@ -23,6 +23,7 @@
 #endif
 
 #include <gnuradio/io_signature.h>
+
 #include "rx_freq_despread_cvc_impl.h"
 
 namespace gr {
@@ -48,7 +49,7 @@ namespace gr {
       d_o = (d_prototype_taps.size() + 1) / 2;  // overlap factor
       d_fft = new gr::fft::fft_complex(d_subcarriers * d_o, true);
       d_G = spreading_matrix();
-      d_interpolator = new interp2d(pilot_carriers);
+      d_interpolator = new helper(pilot_carriers);
     }
 
     /*
@@ -95,6 +96,11 @@ namespace gr {
       return result;
     }
 
+    float
+    rx_freq_despread_cvc_impl::linear_regr_elev(std::vector<gr_complex> symbols) {
+      std::arg(symbols[0]);
+    }
+
     void
     rx_freq_despread_cvc_impl::write_output(gr_complex* out, Matrixc in) {
       for(unsigned int k = 0; k < in.cols(); k++) {
@@ -136,6 +142,43 @@ namespace gr {
       return R_eq;
     }
 
+    float
+    rx_freq_despread_cvc_impl::fine_freq_sync() {
+      std::vector<gr_complex> mean = matrix_mean(d_channel, 0);
+
+    }
+
+    float
+    rx_freq_despread_cvc_impl::fine_time_sync() {
+
+    }
+
+    std::vector<gr_complex>
+    rx_freq_despread_cvc_impl::matrix_mean(Matrixc matrix, int axis) {
+      std::vector<gr_complex> result;
+      if(axis == 0) { // rowwise
+        for(unsigned int k = 0; k < matrix.cols(); k++) {
+          gr_complex mean(0, 0);
+          for (unsigned int n = 0; n < matrix.rows(); n++) {
+            mean += matrix(n, k);
+          }
+          mean /= gr_complex(matrix.rows(), 0);
+          result.push_back(mean);
+        }
+      }
+      else { // columnwise
+        for(unsigned int n = 0; n < matrix.rows(); n++) {
+          gr_complex mean(0, 0);
+          for (unsigned int k = 0; k < matrix.cols(); k++) {
+            mean += matrix(n, k);
+          }
+          mean /= gr_complex(matrix.cols(), 0);
+          result.push_back(mean);
+        }
+      }
+      return result;
+    }
+
     int
     rx_freq_despread_cvc_impl::general_work (int noutput_items,
                        gr_vector_int &ninput_items,
@@ -169,6 +212,7 @@ namespace gr {
       // 2nd despread with equalized symbols
       d_matrix = d_G * R;
       // TODO fine freq / timing estimation
+
       write_output(out, d_matrix);
       // Tell runtime system how many input items we consumed on
       // each input stream.

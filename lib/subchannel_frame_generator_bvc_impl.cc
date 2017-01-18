@@ -96,16 +96,21 @@ namespace gr {
 
     void
     subchannel_frame_generator_bvc_impl::init_freq_time_frame() {
-      std::vector<std::vector<float> > init(d_subcarriers, std::vector<float>(d_frame_len));
+      std::vector<std::vector<gr_complex> > init(d_subcarriers, std::vector<gr_complex>(d_frame_len));
       d_freq_time_frame = init;
     }
 
     void
     subchannel_frame_generator_bvc_impl::write_output(gr_complex*& out) {
-      float* outbuf = (float*)out;
+      gr_complex phase_rot(0, 1);
       for(unsigned int k = 0; k < d_frame_len; k++) {
         for(unsigned int n = 0; n < d_subcarriers; n++) {
-          outbuf[k*d_subcarriers + n] = d_freq_time_frame[n][k];
+          if((k+n) % 2 != 0) {
+            out[k*d_subcarriers + n] = phase_rot * d_freq_time_frame[n][k];
+          }
+          else {
+            out[k*d_subcarriers + n] = d_freq_time_frame[n][k];
+          }
         }
       }
     }
@@ -131,7 +136,7 @@ namespace gr {
 
     void
     subchannel_frame_generator_bvc_impl::insert_aux_pilots(const unsigned int N, const unsigned int K) {
-      float curr_int = 0.0;  // current interference
+      gr_complex curr_int(0,0);  // current interference
       const float (*weights)[7];
       if(N % 2 == 0) {
         if(K % 2 == 0) {
@@ -159,7 +164,7 @@ namespace gr {
         }
       }
       // insert aux pilot p relative to pilot in time domain
-      d_freq_time_frame[N][K+1] = -1.0 / weights[1][2] * curr_int;
+      d_freq_time_frame[N][K+1] = gr_complex(-1.0 / weights[1][2], 0) * curr_int;
     }
 
     void
@@ -225,7 +230,7 @@ namespace gr {
       insert_payload(in, &bits_written);
       insert_preamble();
       insert_pilots();
-      write_output(out);  // TODO phase rotation
+      write_output(out);
       // Tell runtime system how many input items we consumed on
       // each input stream.
       consume_each (d_payload_bits);

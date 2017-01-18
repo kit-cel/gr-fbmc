@@ -24,7 +24,7 @@
 #include <fbmc/rx_freq_despread_cvc.h>
 #include <gnuradio/fft/fft.h>
 #include <Eigen/Dense>
-#include "interp2d.h"
+#include "helper.h"
 
 typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrixf;
 typedef Eigen::Matrix<gr_complex, Eigen::Dynamic, Eigen::Dynamic> Matrixc;
@@ -46,7 +46,11 @@ namespace gr {
       void write_output(gr_complex* out, Matrixc in);
       void channel_estimation(Matrixc R);
       Matrixc equalize(Matrixc R);
-      interp2d* d_interpolator;
+      std::vector<gr_complex> matrix_mean(Matrixc matrix, int axis);
+      float fine_freq_sync();
+      float fine_time_sync();
+      float linear_regr_elev(std::vector<gr_complex> symbols);
+      helper* d_interpolator;
 
      public:
       rx_freq_despread_cvc_impl(std::vector<float> taps, int subcarriers, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers);
