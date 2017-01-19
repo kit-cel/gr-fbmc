@@ -49,8 +49,7 @@ namespace gr {
       std::vector<gr_complex> matrix_mean(Matrixc matrix, int axis);
       float fine_freq_sync();
       float fine_time_sync();
-      float linear_regr_elev(std::vector<gr_complex> symbols);
-      helper* d_interpolator;
+      helper* d_helper;
 
      public:
       rx_freq_despread_cvc_impl(std::vector<float> taps, int subcarriers, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers);

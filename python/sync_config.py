@@ -88,7 +88,7 @@ class sync_config:
             a_{2n, 2m'+1} = c_n^I
         """
         C = self.get_c_sequence()
-        c = 2/self.N * np.fft.fft(C[0] + 1j*C[1])  # c_2n^R
+        c = 2.0/self.N * np.fft.fft(C[0] + 1j*C[1])  # c_2n^R
         return c
 
     def get_preamble_symbols(self):

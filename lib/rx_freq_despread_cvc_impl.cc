@@ -49,7 +49,7 @@ namespace gr {
       d_o = (d_prototype_taps.size() + 1) / 2;  // overlap factor
       d_fft = new gr::fft::fft_complex(d_subcarriers * d_o, true);
       d_G = spreading_matrix();
-      d_interpolator = new helper(pilot_carriers);
+      d_helper = new helper(pilot_carriers);
     }
 
     /*
@@ -58,7 +58,7 @@ namespace gr {
     rx_freq_despread_cvc_impl::~rx_freq_despread_cvc_impl()
     {
       delete d_fft;
-      delete d_interpolator;
+      delete d_helper;
     }
 
     void
@@ -96,11 +96,6 @@ namespace gr {
       return result;
     }
 
-    float
-    rx_freq_despread_cvc_impl::linear_regr_elev(std::vector<gr_complex> symbols) {
-      std::arg(symbols[0]);
-    }
-
     void
     rx_freq_despread_cvc_impl::write_output(gr_complex* out, Matrixc in) {
       for(unsigned int k = 0; k < in.cols(); k++) {
@@ -133,10 +128,10 @@ namespace gr {
       for(unsigned int i = 2; i < R.cols(); i += d_pilot_timestep) {
         pilot_times.push_back(i);
       }
-      d_interpolator->set_params(pilot_times, d_channel);
+      d_helper->set_params(pilot_times, d_channel);
       for(unsigned int k = 0; k < R.cols(); k++) {
         for(unsigned int n = 0; n < R.rows(); n++) {
-          R_eq(n, k) = d_interpolator->get_value(k, n);
+          R_eq(n, k) = d_helper->get_value(k, n);
         }
       }
       return R_eq;
@@ -145,12 +140,29 @@ namespace gr {
     float
     rx_freq_despread_cvc_impl::fine_freq_sync() {
       std::vector<gr_complex> mean = matrix_mean(d_channel, 0);
-
+      std::vector<float> phase;
+      // build phase vector
+      for(unsigned int i = 0; i < mean.size(); i++) {
+        phase.push_back(d_helper->unwrap(std::arg(mean[i])));
+      }
+      d_helper->reset_angle();
+      float f_o = d_helper->linear_regression(phase)[0];
+      f_o /= 2*M_PI*d_subcarriers;
+      return f_o;
     }
 
     float
     rx_freq_despread_cvc_impl::fine_time_sync() {
-
+      std::vector<gr_complex> mean = matrix_mean(d_channel, 1);
+      std::vector<float> phase;
+      // build phase vector
+      for(unsigned int i = 0; i < mean.size(); i++) {
+        phase.push_back(d_helper->unwrap(std::arg(mean[i])));
+      }
+      d_helper->reset_angle();
+      float t_o = d_helper->linear_regression(phase)[0];
+      t_o /= 2*M_PI;
+      return t_o;
     }
 
     std::vector<gr_complex>

@@ -66,6 +66,7 @@ namespace gr {
     }
 
     const float subchannel_frame_generator_bvc_impl::D_CONSTELLATION[2] = {-1.0f / std::sqrt(2.0f), 1.0f / std::sqrt(2.0f)};
+    //const float subchannel_frame_generator_bvc_impl::D_CONSTELLATION[2] = {-0.5f , 0.5f }; // better to read in console
     const float subchannel_frame_generator_bvc_impl::d_weights_ee[3][7] = {
         {4.29311317e-02f, -1.24972423e-01f, -2.05796767e-01f, 2.39276696e-01f, 2.05796767e-01f, -1.24972423e-01f, -4.29311317e-02f},
         {-6.67270408e-02f, 0.00000000e+00f, 5.64445506e-01f, 0.00000000e+00f, 0.000000000000f, 0.00000000e+00f, -6.67270408e-02f},
@@ -96,20 +97,19 @@ namespace gr {
 
     void
     subchannel_frame_generator_bvc_impl::init_freq_time_frame() {
-      std::vector<std::vector<gr_complex> > init(d_subcarriers, std::vector<gr_complex>(d_frame_len));
+      std::vector<std::vector<float> > init(d_subcarriers, std::vector<float>(d_frame_len));
       d_freq_time_frame = init;
     }
 
     void
     subchannel_frame_generator_bvc_impl::write_output(gr_complex*& out) {
-      gr_complex phase_rot(0, 1);
       for(unsigned int k = 0; k < d_frame_len; k++) {
         for(unsigned int n = 0; n < d_subcarriers; n++) {
           if((k+n) % 2 != 0) {
-            out[k*d_subcarriers + n] = phase_rot * d_freq_time_frame[n][k];
+            out[k*d_subcarriers + n] = gr_complex(0, d_freq_time_frame[n][k]);
           }
           else {
-            out[k*d_subcarriers + n] = d_freq_time_frame[n][k];
+            out[k*d_subcarriers + n] = gr_complex(d_freq_time_frame[n][k], 0);
           }
         }
       }
@@ -136,7 +136,7 @@ namespace gr {
 
     void
     subchannel_frame_generator_bvc_impl::insert_aux_pilots(const unsigned int N, const unsigned int K) {
-      gr_complex curr_int(0,0);  // current interference
+      float curr_int = 0.0;  // current interference
       const float (*weights)[7];
       if(N % 2 == 0) {
         if(K % 2 == 0) {
@@ -164,7 +164,7 @@ namespace gr {
         }
       }
       // insert aux pilot p relative to pilot in time domain
-      d_freq_time_frame[N][K+1] = gr_complex(-1.0 / weights[1][2], 0) * curr_int;
+      d_freq_time_frame[N][K+1] = -1.0 / weights[1][2] * curr_int;
     }
 
     void
@@ -180,7 +180,7 @@ namespace gr {
 
       // fill preamble symbols with data in gaps
       for (int k = 0; k < 2; k++) {
-        for (int n = 0; n < (d_subcarriers-1)/2; n++) {
+        for (int n = 0; n < d_subcarriers/2; n++) {
           // fill uneven carriers with data
           d_freq_time_frame[2*n+1][k] = D_CONSTELLATION[*inbuf++];
           (*bits_written)++;
@@ -231,6 +231,13 @@ namespace gr {
       insert_preamble();
       insert_pilots();
       write_output(out);
+      /*int n = 0;
+      for(unsigned int i = 0; i < d_payload_bits; i++) {
+        std::cout << out[i] << ", ";
+        n++;
+        if(n % d_subcarriers == 0 ) { std::cout << std::endl; }
+      }
+      std::cout << std::endl;*/
       // Tell runtime system how many input items we consumed on
       // each input stream.
       consume_each (d_payload_bits);

@@ -20,6 +20,7 @@
 
 
 #include "helper.h"
+#include <numeric>
 
 namespace gr {
   namespace fbmc {
@@ -29,9 +30,38 @@ namespace gr {
       // find index borders in y direction
       d_y_min = *std::min_element(d_y_coord.begin(), d_y_coord.end());
       d_y_max = *std::max_element(d_y_coord.begin(), d_y_coord.end());
+      d_prev_angle = 0.0;
     }
 
     helper::~helper() {}
+
+    void
+    helper::reset_angle() {
+      d_prev_angle = 0.0;
+    }
+
+    std::vector<float>
+    helper::linear_regression(std::vector<float> data) {
+      // return vector of {a, b} with linear regression line ax+b for y data points
+      std::vector<float> x;
+      for(unsigned int i = 0; i < data.size(); i++) {
+        x.push_back(i);
+      }
+      float x_mean = (data.size()-1)/2.0;
+      float y_mean = std::accumulate(data.begin(), data.end(), 0.0)/data.size();
+      std::for_each(x.begin(), x.end(), [&](float& d) { d -= x_mean;}); // x-x_mean
+      std::for_each(data.begin(), data.end(), [&](float& d) { d -= y_mean;}); // y-y_mean
+      float var_x = 0.0;
+      for(unsigned int i = 0; i < x.size(); i++) {
+        var_x += x[i] * x[i];
+      }
+      float cov = 0.0;
+      for(unsigned int i = 0; i < x.size(); i++) {
+        cov += x[i] * data[i];
+      }
+      std::vector<float> result {cov/var_x, y_mean-cov/var_x * x_mean};
+      return result;
+    }
 
     void
     helper::set_params(std::vector<int> x_coord, Matrixc data) {
