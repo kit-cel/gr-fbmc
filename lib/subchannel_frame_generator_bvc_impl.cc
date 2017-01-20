@@ -61,7 +61,7 @@ namespace gr {
       }
       d_payload_symbols = (int)std::ceil(d_payload_bits / (d_subcarriers - (d_pilot_carriers.size() / d_pilot_timestep)));
 
-      d_frame_len = 2 + d_payload_symbols;  // FIXME why? correct?
+      d_frame_len = 2 + d_payload_symbols;
       set_output_multiple(d_frame_len);
     }
 
@@ -137,7 +137,7 @@ namespace gr {
     void
     subchannel_frame_generator_bvc_impl::insert_aux_pilots(const unsigned int N, const unsigned int K) {
       float curr_int = 0.0;  // current interference
-      const float (*weights)[7];
+      const float (*weights)[7];  // TODO is this correct?
       if(N % 2 == 0) {
         if(K % 2 == 0) {
           weights = d_weights_ee;
@@ -159,6 +159,7 @@ namespace gr {
         for(unsigned int c = 0; c < 7; c++) {
           // check if weight pos is inside the freq/time frame
           if (K-3+c >= 0 && K-3+c < d_frame_len) {
+            // add d_subcarriers to ensure positive index when using modulo
             curr_int += d_freq_time_frame[(N-1+r+d_subcarriers)%d_subcarriers][K-3+c] * weights[r][c];
           }
         }

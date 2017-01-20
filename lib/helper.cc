@@ -90,46 +90,60 @@ namespace gr {
 
     gr_complex
     helper::get_value(int x, int y) {
-      gr_complex result;
-      if(x > d_x_max || x < d_x_min || y < d_y_min || y > d_y_max) {
-        // extrapolation range
-        int x_extrap, y_extrap;
-        if(x < d_x_min) {
-          x_extrap = d_x_min;
-        }
-        else { x_extrap = d_x_max; }
-        if( y < d_y_min ) {
-          y_extrap = d_y_min;
-        }
-        else { y_extrap = d_y_max; }
-        return d_data(y_extrap, x_extrap);
-      }
-      int xstart, ystart;
-      gr_complex interpx1, interpx2;
+      int xstart = -1; // -1 as extrapolation flag
+      int ystart = -1;
+      // find x base value leq to desired x
       for(unsigned int i = 0; i < d_x_coord.size(); i++) {
-        if (d_x_coord[i] <= x) {
-          xstart = i;
+        if (d_x_coord[i] > x) {
+          break;
         }
+        xstart = i;
       }
+      // find y base value leq to desired y
       for(unsigned int i = 0; i < d_y_coord.size(); i++) {
-        if (d_y_coord[i] <= y) {
-          ystart = i;
+        if (d_y_coord[i] > y) {
+          break;
+        }
+        ystart = i;
+      }
+      if(xstart == d_x_coord.size()-1 || xstart ==  -1) { // case: x extrapolation
+        xstart = (xstart == -1) ? 0 : xstart;
+        if (ystart == d_y_coord.size() - 1 || ystart == -1) { // case: y extrapolation
+          ystart = (ystart == -1) ? 0 : ystart;
+          return d_data(ystart, xstart); // simple extrapolation
+        } else { // case: y interpolation
+          return interp1d(d_data(ystart, xstart), // upper base value
+                          d_data(ystart + 1, xstart), // lower base value
+                          d_y_coord[ystart + 1] - d_y_coord[ystart], // x difference between two bases
+                          y - d_y_coord[ystart]); // x difference between requested index and base
         }
       }
-      interpx1 = interp1d(d_data(ystart, xstart), // upper left base value
-                          d_data(ystart, xstart+1), // upper right base value
-                          d_x_coord[xstart+1] - d_x_coord[xstart], // x difference between two bases
-                          x-d_x_coord[xstart]); // x difference between requested index and base
+      else { // case: x interpolation
+        if (ystart == d_y_coord.size() - 1 || ystart == -1) { // case: y extrapolation
+          ystart = (ystart == -1) ? 0 : ystart;
+          return interp1d(d_data(ystart, xstart), // left base value
+                          d_data(ystart, xstart + 1), // right base value
+                          d_x_coord[xstart + 1] - d_x_coord[xstart], // x difference between two bases
+                          x - d_x_coord[xstart]); // x difference between requested index and base
+        }
+        else { // case: y interpolation
+          gr_complex interpx1, interpx2;
+          interpx1 = interp1d(d_data(ystart, xstart), // upper left base value
+                              d_data(ystart, xstart + 1), // upper right base value
+                              d_x_coord[xstart + 1] - d_x_coord[xstart], // x difference between two bases
+                              x - d_x_coord[xstart]); // x difference between requested index and base
 
-      interpx2 = interp1d(d_data(ystart+1, xstart), // lower left base value
-                          d_data(ystart+1, xstart+1), // lower right base value
-                          d_x_coord[xstart+1] - d_x_coord[xstart], // x difference between two bases
-                          x-d_x_coord[xstart]); // x difference between requested index and base
+          interpx2 = interp1d(d_data(ystart + 1, xstart), // lower left base value
+                              d_data(ystart + 1, xstart + 1), // lower right base value
+                              d_x_coord[xstart + 1] - d_x_coord[xstart], // x difference between two bases
+                              x - d_x_coord[xstart]); // x difference between requested index and base
 
-      return interp1d(interpx1, // interpolated upper value for desired x
-                      interpx2, // interpolated lower value for desired x
-                      d_y_coord[ystart+1] - d_y_coord[ystart], // y difference between two bases
-                      y-d_y_coord[ystart]); // y difference between requested index and base
+          return interp1d(interpx1, // interpolated upper value for desired x
+                          interpx2, // interpolated lower value for desired x
+                          d_y_coord[ystart + 1] - d_y_coord[ystart], // y difference between two bases
+                          y - d_y_coord[ystart]); // y difference between requested index and base
+        }
+      }
     }
   }
 }

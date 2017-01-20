@@ -49,6 +49,7 @@ namespace gr {
       d_o = (d_prototype_taps.size() + 1) / 2;  // overlap factor
       d_fft = new gr::fft::fft_complex(d_subcarriers * d_o, true);
       d_G = spreading_matrix();
+
       d_helper = new helper(pilot_carriers);
     }
 
@@ -87,7 +88,7 @@ namespace gr {
       for(unsigned int n = 1; n < d_subcarriers; n++) {
         for(unsigned int k = 0; k < d_subcarriers * d_o; k++) {
           result(n, k) = 0.0;
-          if (k >= offset && k <= offset+d_prototype_taps.size()) {
+          if (k >= offset && k < offset+d_prototype_taps.size()) {
             result(n, k) = d_prototype_taps[k-offset];
           }
         }
@@ -109,7 +110,6 @@ namespace gr {
     rx_freq_despread_cvc_impl::channel_estimation(Matrixc R) {
       unsigned int K = (R.cols()-2)/d_pilot_timestep + 1; // number of symbols containing pilots
       Matrixc estimate(d_pilot_carriers.size(), K);
-
       for(unsigned int k = 0; k < K; k++) {
         int i = 0;
         for (std::vector<int>::iterator it = d_pilot_carriers.begin(); it != d_pilot_carriers.end(); ++it) {
@@ -201,15 +201,15 @@ namespace gr {
       gr_complex *out = (gr_complex *) output_items[0];
 
       // Do <+signal processing+>
-      int num_symbols = 2*(ninput_items[0]-1)/d_subcarriers;  // number of symbols in received blop
+      int num_symbols = 2*(ninput_items[0]-1)/d_subcarriers;  // number of symbols in received frame
       Matrixc R(d_o * d_subcarriers, num_symbols);  // spread receive matrix (freq * time)
       // do symbol wise fft and build matrix
       gr_complex fft_result[d_o*d_subcarriers];
-      for(unsigned int k = 0; k <= num_symbols; k++) {
+      for(unsigned int k = 0; k < num_symbols; k++) {
+        memcpy(d_fft->get_inbuf(), &in[k*d_subcarriers/2], d_o * d_subcarriers);
+        d_fft->execute();
+        memcpy(fft_result, d_fft->get_outbuf(), d_o*d_subcarriers);
         for(unsigned int n = 0; n < d_o * d_subcarriers; n++) {
-          memcpy(d_fft->get_inbuf(), &in[k*d_subcarriers/2], d_o * d_subcarriers);
-          d_fft->execute();
-          memcpy(fft_result, d_fft->get_outbuf(), d_o*d_subcarriers);
           R(n, k) = fft_result[n];
         }
       }
@@ -218,14 +218,23 @@ namespace gr {
       Matrixc d_matrix(d_subcarriers, num_symbols);
       d_matrix = d_G * R;
       // estimate channel with pilots
-      channel_estimation(d_matrix);
+      //channel_estimation(d_matrix);
       // equalize spread matrix
-      R = equalize(R);
+      //R = equalize(R);
       // 2nd despread with equalized symbols
-      d_matrix = d_G * R;
+      //d_matrix = d_G * R;
       // TODO fine freq / timing estimation
 
       write_output(out, d_matrix);
+
+      int n = 0;
+      for(unsigned int i = 0; i < d_subcarriers * num_symbols; i++) {
+        std::cout << out[i] << ", ";
+        n++;
+        if(n % d_subcarriers == 0 ) { std::cout << std::endl; }
+      }
+      std::cout << std::endl;
+
       // Tell runtime system how many input items we consumed on
       // each input stream.
       consume_each (d_subcarriers * num_symbols);
