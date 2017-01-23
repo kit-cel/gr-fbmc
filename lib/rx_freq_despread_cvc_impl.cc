@@ -30,22 +30,24 @@ namespace gr {
   namespace fbmc {
 
     rx_freq_despread_cvc::sptr
-    rx_freq_despread_cvc::make(std::vector<float> taps, int subcarriers, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers)
+    rx_freq_despread_cvc::make(std::vector<float> taps, int subcarriers, int payload_bits, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers)
     {
       return gnuradio::get_initial_sptr
-        (new rx_freq_despread_cvc_impl(taps, subcarriers, pilot_amplitude, pilot_timestep, pilot_carriers));
+        (new rx_freq_despread_cvc_impl(taps, subcarriers, payload_bits, pilot_amplitude, pilot_timestep, pilot_carriers));
     }
 
     /*
      * The private constructor
      */
-    rx_freq_despread_cvc_impl::rx_freq_despread_cvc_impl(std::vector<float> taps, int subcarriers, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers)
+    rx_freq_despread_cvc_impl::rx_freq_despread_cvc_impl(std::vector<float> taps, int subcarriers, int payload_bits, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers)
       : gr::block("rx_freq_despread_cvc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers)),
         d_prototype_taps(taps), d_subcarriers(subcarriers), d_pilot_amplitude(pilot_amplitude),
-        d_pilot_timestep(pilot_timestep), d_pilot_carriers(pilot_carriers)
+        d_pilot_timestep(pilot_timestep), d_pilot_carriers(pilot_carriers), d_payload_bits(payload_bits)
     {
+      d_frame_len = d_payload_bits / (d_subcarriers - d_pilot_carriers.size()/d_pilot_timestep) + 1;
+      d_frame_items = d_subcarriers * (d_o + (d_frame_len - 1) / 2);
       d_o = (d_prototype_taps.size() + 1) / 2;  // overlap factor
       d_fft = new gr::fft::fft_complex(d_subcarriers * d_o, true);
       d_G = spreading_matrix();
@@ -57,6 +59,7 @@ namespace gr {
         std::cout << std::endl;
       }*/
       d_helper = new helper(pilot_carriers);
+      set_output_multiple(d_frame_len);
     }
 
     /*
@@ -71,6 +74,7 @@ namespace gr {
     void
     rx_freq_despread_cvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
+
       /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
       ninput_items_required[0] = (noutput_items - 1) * d_subcarriers/2 + d_subcarriers*d_o;
     }
@@ -103,17 +107,14 @@ namespace gr {
       return result;
     }
 
-    int
+    void
     rx_freq_despread_cvc_impl::write_output(gr_complex* out, int end) {
-      int written = 0;
       for(unsigned int k = 0; k < d_matrix.cols(); k++) {
         for(unsigned int n = 0; n < d_matrix.rows(); n++) {
           if(k*d_matrix.rows()+n >= end) { break ;}
           out[k*d_matrix.rows()+n] = d_matrix(n, k);
-          written++;
         }
       }
-      return written;
     }
 
     void
@@ -211,21 +212,21 @@ namespace gr {
       gr_complex *out = (gr_complex *) output_items[0];
 
       // Do <+signal processing+>
-      int num_symbols = 2*(ninput_items[0]-1)/d_subcarriers;  // number of symbols in received frame
-      Matrixc R(d_o * d_subcarriers, num_symbols);  // spread receive matrix (freq * time)
+      Matrixc R(d_o * d_subcarriers, d_frame_len);  // spread receive matrix (freq * time)
       // do symbol wise fft and build matrix
       gr_complex fft_result[d_o*d_subcarriers];
-      for(unsigned int k = 0; k < num_symbols; k++) {
+      float normalize = std::sqrt(d_subcarriers * d_o)/5.0;
+      for(unsigned int k = 0; k < d_frame_len; k++) {
         memcpy(d_fft->get_inbuf(), &in[k*d_subcarriers/2], d_o * d_subcarriers*sizeof(gr_complex));
         d_fft->execute();
         memcpy(fft_result, d_fft->get_outbuf(), d_o*d_subcarriers*sizeof(gr_complex));
         for(unsigned int n = 0; n < d_o * d_subcarriers; n++) {
-          R(n, k) = fft_result[n];
+          R(n, k) = fft_result[n] / normalize;
         }
       }
 
       // despread
-      Matrixc curr_data(d_subcarriers, num_symbols);
+      Matrixc curr_data(d_subcarriers, d_frame_len);
       d_matrix = curr_data;
       /*std::cout << "========= R ==========" << std::endl;
       for(int n = 0; n < R.rows(); n++) {
@@ -245,22 +246,23 @@ namespace gr {
       //d_matrix = d_G * R;
       // TODO fine freq / timing estimation
 
-      int bits_written = write_output(out, noutput_items * d_subcarriers);
+      write_output(out, noutput_items * d_subcarriers);
 
       int n = 0;
-      for(unsigned int i = 0; i < d_subcarriers * num_symbols; i++) {
+      for(unsigned int i = 0; i < d_subcarriers * d_frame_len; i++) {
+        if(n % d_subcarriers == 0 ) { std::cout << n/d_subcarriers << ": "; }
         std::cout << out[i] << ", ";
         n++;
         if(n % d_subcarriers == 0 ) { std::cout << std::endl; }
       }
-      std::cout << std::endl;
+      std::cout << "==========================================================" << std::endl;
 
       // Tell runtime system how many input items we consumed on
       // each input stream.
-      consume_each (d_subcarriers * (d_o + (num_symbols-1)/2));
+      consume_each (d_frame_items);
 
       // Tell runtime system how many output items we produced.
-      return bits_written / d_subcarriers;
+      return d_frame_len;  // FIXME floor correct?
     }
 
   } /* namespace fbmc */

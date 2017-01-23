@@ -59,7 +59,7 @@ namespace gr {
       if(d_subcarriers/2 != preamble_symbols.size()) {
         throw std::length_error("Preamble symbols need to be length N/2");
       }
-      d_payload_symbols = (int)std::ceil(d_payload_bits / (d_subcarriers - (d_pilot_carriers.size() / d_pilot_timestep)));
+      d_payload_symbols = (int)std::ceil((d_payload_bits-d_subcarriers) / (d_subcarriers - (d_pilot_carriers.size() / d_pilot_timestep)));
 
       d_frame_len = 2 + d_payload_symbols;
       set_output_multiple(d_frame_len);
@@ -213,7 +213,7 @@ namespace gr {
     subchannel_frame_generator_bvc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
       /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
-      ninput_items_required[0] = d_payload_bits;  // FIXME correct forecast
+      ninput_items_required[0] = d_payload_bits;
     }
 
     int
@@ -232,16 +232,17 @@ namespace gr {
       insert_preamble();
       insert_pilots();
       write_output(out);
-      /*int n = 0;
-      for(unsigned int i = 0; i < d_payload_bits; i++) {
+      int n = 0;
+      /* for(unsigned int i = 0; i < d_frame_len * d_subcarriers; i++) {
+        if(n % d_subcarriers == 0 ) { std::cout << n/d_subcarriers << ": "; }
         std::cout << out[i] << ", ";
         n++;
         if(n % d_subcarriers == 0 ) { std::cout << std::endl; }
       }
-      std::cout << std::endl;*/
+      std::cout << "=====================================" << std::endl; */
       // Tell runtime system how many input items we consumed on
       // each input stream.
-      consume_each (d_payload_bits);
+      consume_each (bits_written);
 
       // Tell runtime system how many output items we produced.
       return d_frame_len;

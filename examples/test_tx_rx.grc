@@ -1042,7 +1042,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>2</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1070,7 +1070,7 @@
     </param>
     <param>
       <key>samples_per_second</key>
-      <value>10000</value>
+      <value>1000</value>
     </param>
     <param>
       <key>type</key>
@@ -1220,6 +1220,10 @@
     <param>
       <key>minoutbuf</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>payload_bits</key>
+      <value>cfg.num_payload_bits()</value>
     </param>
     <param>
       <key>pilot_amplitude</key>

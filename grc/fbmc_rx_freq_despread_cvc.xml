@@ -3,7 +3,7 @@
   <key>fbmc_rx_freq_despread_cvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.rx_freq_despread_cvc($taps, $subcarriers, $pilot_amplitude, $pilot_timestep, $pilot_carriers)</make>
+  <make>fbmc.rx_freq_despread_cvc($taps, $subcarriers, $payload_bits, $pilot_amplitude, $pilot_timestep, $pilot_carriers)</make>
   <param>
     <name>Taps</name>
     <key>taps</key>
@@ -12,6 +12,11 @@
   <param>
     <name>Subcarriers</name>
     <key>subcarriers</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Payload bits</name>
+    <key>payload_bits</key>
     <type>int</type>
   </param>
   <param>

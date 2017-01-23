@@ -10,7 +10,7 @@
     <type>int</type>
   </param>
   <param>
-    <name>Payload_bits</name>
+    <name>Payload bits</name>
     <key>payload_bits</key>
     <type>int</type>
   </param>

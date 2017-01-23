@@ -35,7 +35,7 @@ namespace gr {
     class rx_freq_despread_cvc_impl : public rx_freq_despread_cvc
     {
      private:
-      int d_subcarriers, d_pilot_timestep, d_o;
+      int d_subcarriers, d_pilot_timestep, d_o, d_payload_bits, d_frame_len, d_frame_items;
       float d_pilot_amplitude;
       std::vector<int> d_pilot_carriers;
       std::vector<float> d_prototype_taps;
@@ -44,7 +44,7 @@ namespace gr {
       Matrixc d_matrix;
       Matrixf spreading_matrix();
       Matrixc d_channel;
-      int write_output(gr_complex* out, int end);
+      void write_output(gr_complex* out, int end);
       void channel_estimation(Matrixc R);
       Matrixc equalize(Matrixc R);
       std::vector<gr_complex> matrix_mean(Matrixc matrix, int axis);
@@ -53,7 +53,7 @@ namespace gr {
       helper* d_helper;
 
      public:
-      rx_freq_despread_cvc_impl(std::vector<float> taps, int subcarriers, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers);
+      rx_freq_despread_cvc_impl(std::vector<float> taps, int subcarriers, int payload_bits, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers);
       ~rx_freq_despread_cvc_impl();
 
       // Where all the action really happens
