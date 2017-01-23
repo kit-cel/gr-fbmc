@@ -49,7 +49,13 @@ namespace gr {
       d_o = (d_prototype_taps.size() + 1) / 2;  // overlap factor
       d_fft = new gr::fft::fft_complex(d_subcarriers * d_o, true);
       d_G = spreading_matrix();
-
+      /*std::cout << "========= G ==========" << std::endl;
+      for(int n = 0; n < d_G.rows(); n++) {
+        for(int k = 0; k < d_G.cols(); k++) {
+          std::cout << d_G(n, k) << ", ";
+        }
+        std::cout << std::endl;
+      }*/
       d_helper = new helper(pilot_carriers);
     }
 
@@ -97,13 +103,17 @@ namespace gr {
       return result;
     }
 
-    void
-    rx_freq_despread_cvc_impl::write_output(gr_complex* out, Matrixc in) {
-      for(unsigned int k = 0; k < in.cols(); k++) {
-        for(unsigned int n = 0; n < in.rows(); n++) {
-          out[k*in.rows()+n] = in(n, k);
+    int
+    rx_freq_despread_cvc_impl::write_output(gr_complex* out, int end) {
+      int written = 0;
+      for(unsigned int k = 0; k < d_matrix.cols(); k++) {
+        for(unsigned int n = 0; n < d_matrix.rows(); n++) {
+          if(k*d_matrix.rows()+n >= end) { break ;}
+          out[k*d_matrix.rows()+n] = d_matrix(n, k);
+          written++;
         }
       }
+      return written;
     }
 
     void
@@ -206,16 +216,26 @@ namespace gr {
       // do symbol wise fft and build matrix
       gr_complex fft_result[d_o*d_subcarriers];
       for(unsigned int k = 0; k < num_symbols; k++) {
-        memcpy(d_fft->get_inbuf(), &in[k*d_subcarriers/2], d_o * d_subcarriers);
+        memcpy(d_fft->get_inbuf(), &in[k*d_subcarriers/2], d_o * d_subcarriers*sizeof(gr_complex));
         d_fft->execute();
-        memcpy(fft_result, d_fft->get_outbuf(), d_o*d_subcarriers);
+        memcpy(fft_result, d_fft->get_outbuf(), d_o*d_subcarriers*sizeof(gr_complex));
         for(unsigned int n = 0; n < d_o * d_subcarriers; n++) {
           R(n, k) = fft_result[n];
         }
       }
 
       // despread
-      Matrixc d_matrix(d_subcarriers, num_symbols);
+      Matrixc curr_data(d_subcarriers, num_symbols);
+      d_matrix = curr_data;
+      /*std::cout << "========= R ==========" << std::endl;
+      for(int n = 0; n < R.rows(); n++) {
+        for(int k = 0; k < R.cols(); k++) {
+          std::cout << R(n, k) << ", ";
+        }
+        std::cout << std::endl;
+      }
+      throw std::runtime_error("Stop; Can't touch this!");*/
+
       d_matrix = d_G * R;
       // estimate channel with pilots
       //channel_estimation(d_matrix);
@@ -225,7 +245,7 @@ namespace gr {
       //d_matrix = d_G * R;
       // TODO fine freq / timing estimation
 
-      write_output(out, d_matrix);
+      int bits_written = write_output(out, noutput_items * d_subcarriers);
 
       int n = 0;
       for(unsigned int i = 0; i < d_subcarriers * num_symbols; i++) {
@@ -237,10 +257,10 @@ namespace gr {
 
       // Tell runtime system how many input items we consumed on
       // each input stream.
-      consume_each (d_subcarriers * num_symbols);
+      consume_each (d_subcarriers * (d_o + (num_symbols-1)/2));
 
       // Tell runtime system how many output items we produced.
-      return num_symbols;
+      return bits_written / d_subcarriers;
     }
 
   } /* namespace fbmc */

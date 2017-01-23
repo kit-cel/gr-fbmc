@@ -41,9 +41,10 @@ namespace gr {
       std::vector<float> d_prototype_taps;
       gr::fft::fft_complex* d_fft;
       Matrixf d_G;
+      Matrixc d_matrix;
       Matrixf spreading_matrix();
       Matrixc d_channel;
-      void write_output(gr_complex* out, Matrixc in);
+      int write_output(gr_complex* out, int end);
       void channel_estimation(Matrixc R);
       Matrixc equalize(Matrixc R);
       std::vector<gr_complex> matrix_mean(Matrixc matrix, int axis);
