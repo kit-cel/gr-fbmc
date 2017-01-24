@@ -112,7 +112,12 @@ namespace gr {
       for(unsigned int k = 0; k < d_matrix.cols(); k++) {
         for(unsigned int n = 0; n < d_matrix.rows(); n++) {
           if(k*d_matrix.rows()+n >= end) { break ;}
-          out[k*d_matrix.rows()+n] = d_matrix(n, k);
+          if((k+n) % 2 != 0) {
+            out[k * d_matrix.rows() + n] = gr_complex(d_matrix(n, k).imag(), -d_matrix(n, k).real());
+          }
+          else {
+            out[k*d_matrix.rows()+n] = d_matrix(n, k);
+          }
         }
       }
     }
@@ -210,7 +215,7 @@ namespace gr {
     {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
-
+j
       // Do <+signal processing+>
       Matrixc R(d_o * d_subcarriers, d_frame_len);  // spread receive matrix (freq * time)
       // do symbol wise fft and build matrix
