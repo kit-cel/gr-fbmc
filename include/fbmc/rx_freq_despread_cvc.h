@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::rx_freq_despread_cvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(std::vector<float> taps, int subcarriers, int payload_bits, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers);
+      static sptr make(std::vector<float> taps, int subcarriers, int bands, int payload_bits, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers);
     };
 
   } // namespace fbmc

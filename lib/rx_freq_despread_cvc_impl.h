@@ -35,7 +35,7 @@ namespace gr {
     class rx_freq_despread_cvc_impl : public rx_freq_despread_cvc
     {
      private:
-      int d_subcarriers, d_pilot_timestep, d_o, d_payload_bits, d_frame_len, d_frame_items;
+      int d_subcarriers, d_pilot_timestep, d_o, d_payload_bits, d_frame_len, d_frame_items, d_bands;
       float d_pilot_amplitude;
       std::vector<int> d_pilot_carriers;
       std::vector<float> d_prototype_taps;
@@ -53,7 +53,7 @@ namespace gr {
       helper* d_helper;
 
      public:
-      rx_freq_despread_cvc_impl(std::vector<float> taps, int subcarriers, int payload_bits, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers);
+      rx_freq_despread_cvc_impl(std::vector<float> taps, int subcarriers, int bands, int payload_bits, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers);
       ~rx_freq_despread_cvc_impl();
 
       // Where all the action really happens

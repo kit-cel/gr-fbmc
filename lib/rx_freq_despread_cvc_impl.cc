@@ -30,28 +30,36 @@ namespace gr {
   namespace fbmc {
 
     rx_freq_despread_cvc::sptr
-    rx_freq_despread_cvc::make(std::vector<float> taps, int subcarriers, int payload_bits, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers)
+    rx_freq_despread_cvc::make(std::vector<float> taps, int subcarriers, int bands, int payload_bits, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers)
     {
       return gnuradio::get_initial_sptr
-        (new rx_freq_despread_cvc_impl(taps, subcarriers, payload_bits, pilot_amplitude, pilot_timestep, pilot_carriers));
+        (new rx_freq_despread_cvc_impl(taps, subcarriers, bands, payload_bits, pilot_amplitude, pilot_timestep, pilot_carriers));
     }
 
     /*
      * The private constructor
      */
-    rx_freq_despread_cvc_impl::rx_freq_despread_cvc_impl(std::vector<float> taps, int subcarriers, int payload_bits, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers)
+    rx_freq_despread_cvc_impl::rx_freq_despread_cvc_impl(std::vector<float> taps, int subcarriers, int bands, int payload_bits, float pilot_amplitude, int pilot_timestep, std::vector<int> pilot_carriers)
       : gr::block("rx_freq_despread_cvc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
-              gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers)),
+              gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands)),
         d_prototype_taps(taps), d_subcarriers(subcarriers), d_pilot_amplitude(pilot_amplitude),
-        d_pilot_timestep(pilot_timestep), d_pilot_carriers(pilot_carriers), d_payload_bits(payload_bits)
+        d_pilot_timestep(pilot_timestep), d_payload_bits(payload_bits), d_bands(bands)
     {
       d_frame_len = (int)std::ceil((d_payload_bits-d_subcarriers) / (d_subcarriers - (d_pilot_carriers.size() / d_pilot_timestep))) + 2;
 
       d_o = (d_prototype_taps.size() + 1) / 2;  // overlap factor
-      d_frame_items = d_subcarriers * (d_o + (d_frame_len - 1) / 2);
+      d_frame_items = d_subcarriers * (d_o * d_bands + (d_frame_len - 1) / 2);
       //std::cout << "d_frame_len = " << d_frame_len << " d_frame_items = " << d_frame_items << std::endl;
-      d_fft = new gr::fft::fft_complex(d_subcarriers * d_o, true);
+      for(int b = 0; b < d_bands; b++) {
+        std::for_each(pilot_carriers.begin(), pilot_carriers.end(), [&](int &c) {
+          d_pilot_carriers.push_back(c);
+          //std::cout << c << std::endl;
+          c += d_subcarriers;
+        });
+      }
+
+      d_fft = new gr::fft::fft_complex(d_subcarriers * d_o * d_bands, true);
       d_G = spreading_matrix();
       /*std::cout << "========= G ==========" << std::endl;
       for(int n = 0; n < d_G.rows(); n++) {
@@ -59,8 +67,8 @@ namespace gr {
           std::cout << d_G(n, k) << ", ";
         }
         std::cout << std::endl;
-      }*/
-      d_helper = new helper(pilot_carriers);
+      } */
+      d_helper = new helper(d_pilot_carriers);
       set_output_multiple(d_frame_len);
     }
 
@@ -83,22 +91,22 @@ namespace gr {
 
     Matrixf
     rx_freq_despread_cvc_impl::spreading_matrix() {
-      Matrixf result(d_subcarriers, d_subcarriers * d_o);
+      Matrixf result(d_subcarriers* d_bands, d_subcarriers * d_o* d_bands);
       // build first row
-      for(unsigned int k = 0; k < d_subcarriers * d_o; k++) {
+      for(unsigned int k = 0; k < d_subcarriers * d_o* d_bands; k++) {
         result(0, k) = 0.0;
       }
       for(unsigned int k = 0; k < d_prototype_taps.size(); k++) {
         if(k < d_prototype_taps.size()/2) {
-          result(0, d_subcarriers * d_o - d_prototype_taps.size()/2 + k) = d_prototype_taps[k];
+          result(0, d_subcarriers * d_o* d_bands - d_prototype_taps.size()/2 + k) = d_prototype_taps[k];
         }
         else {
           result(0, k - d_prototype_taps.size()/2) = d_prototype_taps[k];
         }
       }
       int offset = 1;
-      for(unsigned int n = 1; n < d_subcarriers; n++) {
-        for(unsigned int k = 0; k < d_subcarriers * d_o; k++) {
+      for(unsigned int n = 1; n < d_subcarriers * d_bands; n++) {
+        for(unsigned int k = 0; k < d_subcarriers * d_o * d_bands; k++) {
           result(n, k) = 0.0;
           if (k >= offset && k < offset+d_prototype_taps.size()) {
             result(n, k) = d_prototype_taps[k-offset];
@@ -114,6 +122,7 @@ namespace gr {
       for(unsigned int k = 0; k < d_matrix.cols(); k++) {
         for(unsigned int n = 0; n < d_matrix.rows(); n++) {
           if(k*d_matrix.rows()+n >= end) { break ;}
+          // TODO phase shift in next block, delete here
           if((k+n) % 2 != 0) {
             out[k * d_matrix.rows() + n] = gr_complex(d_matrix(n, k).imag(), -d_matrix(n, k).real());
           }
@@ -224,21 +233,21 @@ namespace gr {
       gr_complex *out = (gr_complex *) output_items[0];
 
       // Do <+signal processing+>
-      Matrixc R(d_o * d_subcarriers, d_frame_len);  // spread receive matrix (freq * time)
+      Matrixc R(d_o * d_subcarriers * d_bands, d_frame_len);  // spread receive matrix (freq * time)
       // do symbol wise fft and build matrix
-      gr_complex fft_result[d_o*d_subcarriers];
-      float normalize = std::sqrt(d_subcarriers * d_o)/5.0;
+      gr_complex fft_result[d_o * d_subcarriers * d_bands];
+      float normalize = std::sqrt(d_subcarriers * d_o * d_bands)/5.0;
       for(unsigned int k = 0; k < d_frame_len; k++) {
-        memcpy(d_fft->get_inbuf(), &in[k*d_subcarriers/2], d_o * d_subcarriers*sizeof(gr_complex));
+        memcpy(d_fft->get_inbuf(), &in[k*d_subcarriers/2], d_o * d_subcarriers * d_bands *sizeof(gr_complex));
         d_fft->execute();
-        memcpy(fft_result, d_fft->get_outbuf(), d_o*d_subcarriers*sizeof(gr_complex));
-        for(unsigned int n = 0; n < d_o * d_subcarriers; n++) {
+        memcpy(fft_result, d_fft->get_outbuf(), d_o*d_subcarriers* d_bands *sizeof(gr_complex));
+        for(unsigned int n = 0; n < d_o * d_subcarriers * d_bands; n++) {
           R(n, k) = fft_result[n] / normalize;
         }
       }
 
       // despread
-      Matrixc curr_data(d_subcarriers, d_frame_len);
+      Matrixc curr_data(d_subcarriers * d_bands, d_frame_len);
       d_matrix = curr_data;
       /*std::cout << "========= R ==========" << std::endl;
       for(int n = 0; n < R.rows(); n++) {
