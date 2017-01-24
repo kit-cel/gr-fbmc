@@ -243,7 +243,7 @@ namespace gr {
       // Tell runtime system how many input items we consumed on
       // each input stream.
       consume_each (bits_written);
-
+      //std::cout << "subchan_frame_gen: consume " << bits_written << " produce " << d_frame_len << std::endl;
       // Tell runtime system how many output items we produced.
       return d_frame_len;
     }

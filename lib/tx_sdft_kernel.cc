@@ -30,8 +30,8 @@
 namespace gr {
   namespace fbmc {
 
-    tx_sdft_kernel::tx_sdft_kernel(const std::vector<float> &taps, int L) :
-        smt_kernel(taps, L)
+    tx_sdft_kernel::tx_sdft_kernel(const std::vector<float> &taps, int L, int symbols) :
+        smt_kernel(taps, L), d_symbols(symbols)
     {
       // make sure we calculate the correct overlap size!
       int overlap = (taps.size() - 1) / L;
@@ -77,15 +77,18 @@ namespace gr {
     tx_sdft_kernel::generic_work(gr_complex* out, const gr_complex* in,
                                  int noutput_items)
     {
-      int available_vectors = noutput_items / (d_L / 2);
+      //int available_vectors = noutput_items / (d_L / 2);
       int finished_items = 0;
-      for(int i = 0; i < available_vectors; i++){
+      for(int i = 0; i < d_symbols; i++){
         finished_items += process_one_vector(out, in);
         out += (d_L / 2);
         in += d_L;
       }
 
-      return finished_items;
+      memcpy(out, d_add_buf, sizeof(gr_complex) * d_L * (overlap() - 0.5));
+      memset(d_add_buf, 0, sizeof(gr_complex) * ((d_overlap + 1) * d_L));
+      return (finished_items- d_L/2) + d_L * overlap();
+      //return finished_items;
     }
 
     inline int

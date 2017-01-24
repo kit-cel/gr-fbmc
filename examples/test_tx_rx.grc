@@ -1046,7 +1046,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(828, 544)</value>
+      <value>(856, 548)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1358,6 +1358,10 @@
     <param>
       <key>minoutbuf</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>symbols</key>
+      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
     </param>
   </block>
   <block>

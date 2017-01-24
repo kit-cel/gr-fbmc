@@ -35,7 +35,7 @@ namespace gr {
     class FBMC_API tx_sdft_kernel: public smt_kernel
     {
     public:
-      tx_sdft_kernel(const std::vector<float> &taps, int L);
+      tx_sdft_kernel(const std::vector<float> &taps, int L, int symbols);
       ~tx_sdft_kernel();
 
       int
@@ -45,6 +45,7 @@ namespace gr {
       using smt_kernel::L;
       using smt_kernel::overlap;
       using smt_kernel::taps;
+      int symbols(){return d_symbols;};
       int fft_size(){return d_fft->inbuf_length();};
 
     protected:
@@ -52,6 +53,7 @@ namespace gr {
 
     private:
       float* d_taps_al;
+      int d_symbols;
 
       gr::fft::fft_complex* d_fft;
 

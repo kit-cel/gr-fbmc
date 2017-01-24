@@ -46,9 +46,11 @@ namespace gr {
         d_prototype_taps(taps), d_subcarriers(subcarriers), d_pilot_amplitude(pilot_amplitude),
         d_pilot_timestep(pilot_timestep), d_pilot_carriers(pilot_carriers), d_payload_bits(payload_bits)
     {
-      d_frame_len = d_payload_bits / (d_subcarriers - d_pilot_carriers.size()/d_pilot_timestep) + 1;
-      d_frame_items = d_subcarriers * (d_o + (d_frame_len - 1) / 2);
+      d_frame_len = (int)std::ceil((d_payload_bits-d_subcarriers) / (d_subcarriers - (d_pilot_carriers.size() / d_pilot_timestep))) + 2;
+
       d_o = (d_prototype_taps.size() + 1) / 2;  // overlap factor
+      d_frame_items = d_subcarriers * (d_o + (d_frame_len - 1) / 2);
+      //std::cout << "d_frame_len = " << d_frame_len << " d_frame_items = " << d_frame_items << std::endl;
       d_fft = new gr::fft::fft_complex(d_subcarriers * d_o, true);
       d_G = spreading_matrix();
       /*std::cout << "========= G ==========" << std::endl;
@@ -76,7 +78,7 @@ namespace gr {
     {
 
       /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
-      ninput_items_required[0] = (noutput_items - 1) * d_subcarriers/2 + d_subcarriers*d_o;
+      ninput_items_required[0] = d_frame_items;
     }
 
     Matrixf
@@ -215,7 +217,7 @@ namespace gr {
     {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
-j
+
       // Do <+signal processing+>
       Matrixc R(d_o * d_subcarriers, d_frame_len);  // spread receive matrix (freq * time)
       // do symbol wise fft and build matrix
@@ -265,6 +267,7 @@ j
       // Tell runtime system how many input items we consumed on
       // each input stream.
       consume_each (d_frame_items);
+      //std::cout << "rx_freq_despread: consume " << d_frame_items << " produce " << d_frame_len << std::endl;
 
       // Tell runtime system how many output items we produced.
       return d_frame_len;  // FIXME floor correct?

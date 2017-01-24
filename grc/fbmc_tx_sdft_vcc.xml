@@ -4,7 +4,7 @@
   <key>fbmc_tx_sdft_vcc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.tx_sdft_vcc($taps, $osr)</make>
+  <make>fbmc.tx_sdft_vcc($taps, $osr, $symbols)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
@@ -22,6 +22,11 @@
     <type>int</type>
   </param>
 
+  <param>
+    <name>Symbols per frame</name>
+    <key>symbols</key>
+    <type>int</type>
+  </param>
   <!-- Make one 'sink' node per input. Sub-nodes:
        * name (an identifier for the GUI)
        * type

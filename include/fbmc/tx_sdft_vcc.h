@@ -32,7 +32,7 @@ namespace gr {
      * \ingroup fbmc
      *
      */
-    class FBMC_API tx_sdft_vcc : virtual public gr::sync_interpolator
+    class FBMC_API tx_sdft_vcc : virtual public gr::block
     {
     public:
       typedef boost::shared_ptr<tx_sdft_vcc> sptr;
@@ -53,7 +53,7 @@ namespace gr {
        * creating new instances.
        */
       static sptr
-      make(std::vector<float> taps, int L);
+      make(std::vector<float> taps, int L, int frames = 0);
     };
 
   } // namespace fbmc
