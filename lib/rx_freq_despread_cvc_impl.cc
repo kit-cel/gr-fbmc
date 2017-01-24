@@ -132,8 +132,10 @@ namespace gr {
         int i = 0;
         for (std::vector<int>::iterator it = d_pilot_carriers.begin(); it != d_pilot_carriers.end(); ++it) {
           estimate(i, k) = R(*it, k * d_pilot_timestep + 2) / d_pilot_amplitude;  // channel estimation
+          //std::cout << estimate(i, k) << ", ";
           i++;
         }
+        //std::cout << std::endl;
       }
       d_channel = estimate;
     }
@@ -150,9 +152,12 @@ namespace gr {
       for(unsigned int k = 0; k < R.cols(); k++) {
         for(unsigned int n = 0; n < R.rows(); n++) {
           R_eq(n, k) = d_helper->get_value(k, n);
+          //std::cout << R_eq(n, k) << ", ";
         }
+        //std::cout << std::endl;
       }
-      return R_eq;
+      //std::cout << "Channel: " << R_eq(0, 2) << std::endl;
+      return R.cwiseQuotient(R_eq);
     }
 
     float
@@ -246,23 +251,23 @@ namespace gr {
 
       d_matrix = d_G * R;
       // estimate channel with pilots
-      //channel_estimation(d_matrix);
+      channel_estimation(d_matrix);
       // equalize spread matrix
-      //R = equalize(R);
+      R = equalize(R);
       // 2nd despread with equalized symbols
-      //d_matrix = d_G * R;
+      d_matrix = d_G * R;
       // TODO fine freq / timing estimation
 
       write_output(out, noutput_items * d_subcarriers);
 
-      int n = 0;
+      /* int n = 0;
       for(unsigned int i = 0; i < d_subcarriers * d_frame_len; i++) {
         if(n % d_subcarriers == 0 ) { std::cout << n/d_subcarriers << ": "; }
         std::cout << out[i] << ", ";
         n++;
         if(n % d_subcarriers == 0 ) { std::cout << std::endl; }
       }
-      std::cout << "==========================================================" << std::endl;
+      std::cout << "==========================================================" << std::endl; */
 
       // Tell runtime system how many input items we consumed on
       // each input stream.
