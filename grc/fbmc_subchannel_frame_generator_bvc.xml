@@ -3,10 +3,15 @@
   <key>fbmc_subchannel_frame_generator_bvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.subchannel_frame_generator_bvc($subcarriers, $payload_bits, $overlap, $preamble_symbols, $pilot_amp, $pilot_timestep, $pilot_carriers)</make>
+  <make>fbmc.subchannel_frame_generator_bvc($subcarriers, $guards, $payload_bits, $overlap, $preamble_symbols, $pilot_amp, $pilot_timestep, $pilot_carriers)</make>
   <param>
     <name>Subcarriers</name>
     <key>subcarriers</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Guard carriers (per side)</name>
+    <key>guards</key>
     <type>int</type>
   </param>
   <param>

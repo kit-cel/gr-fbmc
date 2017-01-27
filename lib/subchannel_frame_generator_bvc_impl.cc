@@ -29,19 +29,19 @@ namespace gr {
   namespace fbmc {
 
     subchannel_frame_generator_bvc::sptr
-    subchannel_frame_generator_bvc::make(int subcarriers, int payload_bits, int overlap,
+    subchannel_frame_generator_bvc::make(int subcarriers, int guard_carriers, int payload_bits, int overlap,
                                          std::vector<gr_complex> preamble_symbols, float pilot_amp, int pilot_timestep,
                                          std::vector<int> pilot_carriers)
     {
       return gnuradio::get_initial_sptr
-        (new subchannel_frame_generator_bvc_impl(subcarriers, payload_bits, overlap,
+        (new subchannel_frame_generator_bvc_impl(subcarriers, guard_carriers, payload_bits, overlap,
                                                  preamble_symbols, pilot_amp, pilot_timestep, pilot_carriers));
     }
 
     /*
      * The private constructor
      */
-    subchannel_frame_generator_bvc_impl::subchannel_frame_generator_bvc_impl(int subcarriers,
+    subchannel_frame_generator_bvc_impl::subchannel_frame_generator_bvc_impl(int subcarriers, int guard_carriers,
                                                                              int payload_bits, int overlap,
                                                                              std::vector<gr_complex> preamble_symbols,
                                                                              float pilot_amp, int pilot_timestep,
@@ -51,7 +51,7 @@ namespace gr {
               gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers)),
         d_subcarriers(subcarriers), d_payload_bits(payload_bits),
         d_overlap(overlap), d_preamble_symbols(preamble_symbols), d_pilot_amp(pilot_amp),
-        d_pilot_timestep(pilot_timestep), d_pilot_carriers(pilot_carriers)
+        d_pilot_timestep(pilot_timestep), d_pilot_carriers(pilot_carriers), d_guard_carriers(guard_carriers)
     {
       if(d_subcarriers % 2 != 0) {
         throw std::length_error("Subcarriers must be an even number");
@@ -59,11 +59,18 @@ namespace gr {
       if(d_subcarriers/2 != preamble_symbols.size()) {
         throw std::length_error("Preamble symbols need to be length N/2");
       }
+      if(std::find_if(d_pilot_carriers.begin(), d_pilot_carriers.end(), [this](int& carr) {
+        return (carr < d_guard_carriers || carr >= d_subcarriers-d_guard_carriers);
+      }) != d_pilot_carriers.end()) {
+        throw std::length_error("Pilot carriers configured in guard bands!");
+      }
       d_payload_symbols = (int)std::ceil((d_payload_bits-d_subcarriers) / (d_subcarriers - (d_pilot_carriers.size() / d_pilot_timestep)));
 
       d_frame_len = 2 + d_payload_symbols;
       set_output_multiple(d_frame_len);
     }
+
+
 
     const float subchannel_frame_generator_bvc_impl::D_CONSTELLATION[2] = {-1.0f / std::sqrt(2.0f), 1.0f / std::sqrt(2.0f)};
     //const float subchannel_frame_generator_bvc_impl::D_CONSTELLATION[2] = {-0.5f , 0.5f }; // better to read in console
@@ -118,9 +125,9 @@ namespace gr {
     void
     subchannel_frame_generator_bvc_impl::insert_preamble()
     {
-      for(unsigned int i = 0; i < d_preamble_symbols.size(); i++) {
-        d_freq_time_frame[2*i][0] = d_preamble_symbols[i].real();
-        d_freq_time_frame[2*i][1] = d_preamble_symbols[i].imag();
+      for(int i = (d_guard_carriers + 1) & ~1; i < d_subcarriers - d_guard_carriers; i += 2) {
+        d_freq_time_frame[i][0] = d_preamble_symbols[i/2].real();
+        d_freq_time_frame[i][1] = d_preamble_symbols[i/2].imag();
       }
     }
 
@@ -171,21 +178,24 @@ namespace gr {
     void
     subchannel_frame_generator_bvc_impl::insert_payload(const char* inbuf, unsigned int* bits_written)
     {
+
       // build vector of usable carriers for data
       std::vector<int> data_carriers;
-      for (int i = 0; i < d_subcarriers; i++) {
+      for (int i = d_guard_carriers; i < d_subcarriers-d_guard_carriers; i++) {
         if (std::find(d_pilot_carriers.begin(), d_pilot_carriers.end(), i) == d_pilot_carriers.end()) {
           data_carriers.push_back(i);
         }
       }
 
-      // fill preamble symbols with data in gaps
+
+      /*// fill preamble symbols with data in gaps
       for (int k = 0; k < 2; k++) {
-        for (int n = 0; n < d_subcarriers/2; n++) {
+        for (int n = 0; n < d_subcarriers / 2; n++) {
           // fill uneven carriers with data
-          d_freq_time_frame[2*n+1][k] = D_CONSTELLATION[*inbuf++];
+          d_freq_time_frame[2 * n + 1][k] = D_CONSTELLATION[*inbuf++];
           (*bits_written)++;
-      }
+        }
+      } */
 
       // fill remaining symbols with data
       for (int k = 2; k < d_frame_len; k++) {
@@ -199,12 +209,11 @@ namespace gr {
         }
         // case: no pilots in this symbol, fill all carriers with data
         else {
-            for (int n = 0; n < d_subcarriers; n++) {
+            for (int n = d_guard_carriers; n < d_subcarriers-d_guard_carriers; n++) {
               d_freq_time_frame[n][k] = D_CONSTELLATION[*inbuf++];
               (*bits_written)++;
               if(*bits_written == d_payload_bits) break;
             }
-          }
         }
       }
     }
