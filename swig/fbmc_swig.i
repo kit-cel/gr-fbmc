@@ -41,6 +41,7 @@
 #include "fbmc/phase_sync_cc.h"
 #include "fbmc/subchannel_frame_generator_bvc.h"
 #include "fbmc/rx_freq_despread_cvc.h"
+#include "fbmc/subchannel_deframer_vcb.h"
 %}
 
 %include "../lib/fbmc_config.h"
@@ -106,3 +107,5 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, phase_sync_cc);
 GR_SWIG_BLOCK_MAGIC2(fbmc, subchannel_frame_generator_bvc);
 %include "fbmc/rx_freq_despread_cvc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, rx_freq_despread_cvc);
+%include "fbmc/subchannel_deframer_vcb.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, subchannel_deframer_vcb);

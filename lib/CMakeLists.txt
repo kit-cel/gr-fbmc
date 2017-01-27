@@ -57,7 +57,8 @@ list(APPEND fbmc_sources
     time_freq_sync_cc_impl.cc
     phase_sync_cc_impl.cc
     subchannel_frame_generator_bvc_impl.cc
-    rx_freq_despread_cvc_impl.cc )
+    rx_freq_despread_cvc_impl.cc
+    subchannel_deframer_vcb_impl.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)
