@@ -29,21 +29,22 @@ namespace gr {
     namespace fbmc {
 
         sliding_fft_cvc::sptr
-        sliding_fft_cvc::make(int subcarriers, int overlap, int symbols, int bands) {
+        sliding_fft_cvc::make(int subcarriers, int overlap, int bands, int frame_len) {
             return gnuradio::get_initial_sptr
-                    (new sliding_fft_cvc_impl(subcarriers, overlap, symbols, bands));
+                    (new sliding_fft_cvc_impl(subcarriers, overlap, bands, frame_len));
         }
 
         /*
          * The private constructor
          */
-        sliding_fft_cvc_impl::sliding_fft_cvc_impl(int subcarriers, int overlap, int symbols, int bands)
+        sliding_fft_cvc_impl::sliding_fft_cvc_impl(int subcarriers, int overlap, int bands, int frame_len)
                 : gr::block("sliding_fft_cvc",
                             gr::io_signature::make(1, 1, sizeof(gr_complex)),
                             gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * overlap * bands)),
-                  d_subcarriers(subcarriers), d_overlap(overlap), d_symbols(symbols), d_bands(bands)
+                  d_subcarriers(subcarriers), d_overlap(overlap), d_bands(bands), d_frame_len(frame_len)
         {
             d_fft = new gr::fft::fft_complex(d_subcarriers * d_overlap * d_bands, true);
+            set_output_multiple(d_frame_len);
         }
 
         /*
@@ -56,7 +57,7 @@ namespace gr {
         void
         sliding_fft_cvc_impl::forecast(int noutput_items, gr_vector_int &ninput_items_required) {
             /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
-            ninput_items_required[0] = noutput_items * d_subcarriers * d_bands * d_overlap;
+            ninput_items_required[0] = d_subcarriers * d_bands * d_overlap * d_frame_len;
         }
 
         int
@@ -67,7 +68,7 @@ namespace gr {
             const gr_complex *in = (const gr_complex *) input_items[0];
             gr_complex *out = (gr_complex *) output_items[0];
 
-            int d_full_symbols = ninput_items[0]/(d_subcarriers*d_bands*d_overlap);
+            int d_full_symbols = d_frame_len;
             // Do <+signal processing+>
             gr_complex fft_result[d_overlap * d_subcarriers * d_bands];
             float normalize = std::sqrt(d_subcarriers * d_overlap * d_bands) / 5.0;
@@ -82,10 +83,10 @@ namespace gr {
             }
             // Tell runtime system how many input items we consumed on
             // each input stream.
-            consume_each(d_full_symbols *d_subcarriers * d_bands * d_overlap);
+            consume_each(d_frame_len * d_subcarriers/2);
 
             // Tell runtime system how many output items we produced.
-            return d_full_symbols;
+            return d_frame_len;
         }
 
     } /* namespace fbmc */

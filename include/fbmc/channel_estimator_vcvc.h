@@ -19,11 +19,11 @@
  */
 
 
-#ifndef INCLUDED_FBMC_SLIDING_FFT_CVC_H
-#define INCLUDED_FBMC_SLIDING_FFT_CVC_H
+#ifndef INCLUDED_FBMC_CHANNEL_ESTIMATOR_VCVC_H
+#define INCLUDED_FBMC_CHANNEL_ESTIMATOR_VCVC_H
 
 #include <fbmc/api.h>
-#include <gnuradio/block.h>
+#include <gnuradio/sync_block.h>
 
 namespace gr {
   namespace fbmc {
@@ -33,24 +33,24 @@ namespace gr {
      * \ingroup fbmc
      *
      */
-    class FBMC_API sliding_fft_cvc : virtual public gr::block
+    class FBMC_API channel_estimator_vcvc : virtual public gr::sync_block
     {
      public:
-      typedef boost::shared_ptr<sliding_fft_cvc> sptr;
+      typedef boost::shared_ptr<channel_estimator_vcvc> sptr;
 
       /*!
-       * \brief Return a shared_ptr to a new instance of fbmc::sliding_fft_cvc.
+       * \brief Return a shared_ptr to a new instance of fbmc::channel_estimator_vcvc.
        *
-       * To avoid accidental use of raw pointers, fbmc::sliding_fft_cvc's
+       * To avoid accidental use of raw pointers, fbmc::channel_estimator_vcvc's
        * constructor is in a private implementation
-       * class. fbmc::sliding_fft_cvc::make is the public interface for
+       * class. fbmc::channel_estimator_vcvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int subcarriers, int overlap, int bands, int frame_len);
+      static sptr make(int subcarriers, std::vector<float>& taps, float pilot_amp, int pilot_timestep, std::vector<int>& pilot_carriers);
     };
 
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_SLIDING_FFT_CVC_H */
+#endif /* INCLUDED_FBMC_CHANNEL_ESTIMATOR_VCVC_H */
 

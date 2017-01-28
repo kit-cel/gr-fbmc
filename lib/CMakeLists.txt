@@ -59,7 +59,8 @@ list(APPEND fbmc_sources
     subchannel_frame_generator_bvc_impl.cc
     rx_freq_despread_cvc_impl.cc
     subchannel_deframer_vcb_impl.cc
-    sliding_fft_cvc_impl.cc )
+    sliding_fft_cvc_impl.cc
+    channel_estimator_vcvc_impl.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)

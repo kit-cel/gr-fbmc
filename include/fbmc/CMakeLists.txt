@@ -55,5 +55,6 @@ install(FILES
     subchannel_frame_generator_bvc.h
     rx_freq_despread_cvc.h
     subchannel_deframer_vcb.h
-    sliding_fft_cvc.h DESTINATION include/fbmc
+    sliding_fft_cvc.h
+    channel_estimator_vcvc.h DESTINATION include/fbmc
 )

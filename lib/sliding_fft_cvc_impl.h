@@ -29,11 +29,11 @@ namespace gr {
 
         class sliding_fft_cvc_impl : public sliding_fft_cvc {
         private:
-            int d_symbols, d_subcarriers, d_overlap, d_bands;
+            int d_subcarriers, d_overlap, d_bands, d_frame_len;
             gr::fft::fft_complex *d_fft;
 
         public:
-            sliding_fft_cvc_impl(int subcarriers, int overlap, int symbols, int bands);
+            sliding_fft_cvc_impl(int subcarriers, int overlap, int bands, int frame_len);
 
             ~sliding_fft_cvc_impl();
 

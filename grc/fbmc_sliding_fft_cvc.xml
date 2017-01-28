@@ -3,7 +3,7 @@
   <key>fbmc_sliding_fft_cvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.sliding_fft_cvc($subcarriers, $overlap, $symbols, $bands)</make>
+  <make>fbmc.sliding_fft_cvc($subcarriers, $overlap, $bands)</make>
   <param>
     <name>Subcarriers per Subband</name>
     <key>subcarriers</key>
@@ -12,11 +12,6 @@
   <param>
     <name>Overlap factor</name>
     <key>overlap</key>
-    <type>int</type>
-  </param>
-  <param>
-    <name>Symbols per Frame</name>
-    <key>symbols</key>
     <type>int</type>
   </param>
   <param>
