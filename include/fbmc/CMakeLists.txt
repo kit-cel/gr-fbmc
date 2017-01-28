@@ -54,5 +54,6 @@ install(FILES
     phase_sync_cc.h
     subchannel_frame_generator_bvc.h
     rx_freq_despread_cvc.h
-    subchannel_deframer_vcb.h DESTINATION include/fbmc
+    subchannel_deframer_vcb.h
+    sliding_fft_cvc.h DESTINATION include/fbmc
 )
