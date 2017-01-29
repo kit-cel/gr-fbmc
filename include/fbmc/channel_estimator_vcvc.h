@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::channel_estimator_vcvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int subcarriers, std::vector<float>& taps, float pilot_amp, int pilot_timestep, std::vector<int>& pilot_carriers);
+      static sptr make(int frame_len, int subcarriers, std::vector<float>& taps, float pilot_amp, int pilot_timestep, std::vector<int>& pilot_carriers);
     };
 
   } // namespace fbmc

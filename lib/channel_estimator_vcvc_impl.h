@@ -23,6 +23,7 @@
 
 #include <fbmc/channel_estimator_vcvc.h>
 #include <Eigen/Dense>
+#include "helper.h"
 
 typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrixf;
 typedef Eigen::Matrix<gr_complex, Eigen::Dynamic, Eigen::Dynamic> Matrixc;
@@ -32,18 +33,22 @@ namespace gr {
 
         class channel_estimator_vcvc_impl : public channel_estimator_vcvc {
         private:
-            int d_subcarriers, d_pilot_timestep, d_o, d_missing_symbols;
+            int d_subcarriers, d_pilot_timestep, d_o, d_frame_len;
             std::vector<float> d_taps;
             std::vector<int> d_pilot_carriers;
             float d_pilot_amp;
             Matrixf d_G;
             Matrixc d_channel;
             Matrixc d_current_symbols;
+            helper* d_helper;
 
             Matrixf spreading_matrix();
+            void channel_estimation(Matrixc R);
+            Matrixc interpolate_channel();
+            void write_output(gr_complex* out, Matrixc d_matrix);
 
         public:
-            channel_estimator_vcvc_impl(int subcarriers, std::vector<float> &taps, float pilot_amp, int pilot_timestep,
+            channel_estimator_vcvc_impl(int frame_len, int subcarriers, std::vector<float> &taps, float pilot_amp, int pilot_timestep,
                                         std::vector<int> &pilot_carriers);
 
             ~channel_estimator_vcvc_impl();
