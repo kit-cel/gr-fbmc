@@ -51,5 +51,6 @@ install(FILES
     fbmc_rx_freq_despread_cvc.xml
     fbmc_subchannel_deframer_vcb.xml
     fbmc_sliding_fft_cvc.xml
-    fbmc_channel_estimator_vcvc.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_channel_estimator_vcvc.xml
+    fbmc_channel_equalizer_vcvc.xml DESTINATION share/gnuradio/grc/blocks
 )

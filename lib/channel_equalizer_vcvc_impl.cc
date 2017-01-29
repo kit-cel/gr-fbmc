@@ -1,0 +1,108 @@
+/* -*- c++ -*- */
+/* 
+ * Copyright 2017 <+YOU OR YOUR COMPANY+>.
+ * 
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3, or (at your option)
+ * any later version.
+ * 
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this software; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <gnuradio/io_signature.h>
+#include "channel_equalizer_vcvc_impl.h"
+#include <volk/volk.h>
+
+namespace gr {
+    namespace fbmc {
+
+        channel_equalizer_vcvc::sptr
+        channel_equalizer_vcvc::make(int frame_len, int overlap, int pilot_timestep, std::vector<int> &pilot_carriers,
+                                     int subcarriers, std::vector<float> taps, float pilot_amplitude) {
+            return gnuradio::get_initial_sptr
+                    (new channel_equalizer_vcvc_impl(frame_len, overlap, pilot_timestep, pilot_carriers, subcarriers,
+                                                     taps, pilot_amplitude));
+        }
+
+        /*
+         * The private constructor
+         */
+        channel_equalizer_vcvc_impl::channel_equalizer_vcvc_impl(int frame_len, int overlap, int pilot_timestep,
+                                                                 std::vector<int> &pilot_carriers, int subcarriers,
+                                                                 std::vector<float> taps, float pilot_amplitude)
+                : gr::sync_block("channel_equalizer_vcvc",
+                                 gr::io_signature::make(2, 2, sizeof(gr_complex) * subcarriers * overlap),
+                                 gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers)),
+                  d_frame_len(frame_len), d_pilot_timestep(pilot_timestep), d_subcarriers(subcarriers),
+                  d_pilot_amp(pilot_amplitude),
+                  d_pilot_carriers(pilot_carriers), d_taps(taps), d_o(overlap) {
+            set_output_multiple(d_frame_len);
+            d_G = spreading_matrix();
+        }
+
+        /*
+         * Our virtual destructor.
+         */
+        channel_equalizer_vcvc_impl::~channel_equalizer_vcvc_impl() {
+        }
+
+        Matrixf
+        channel_equalizer_vcvc_impl::spreading_matrix() {
+            Matrixf result(d_subcarriers, d_subcarriers *d_o);
+            // build first row
+            for (unsigned int k = 0; k < d_subcarriers * d_o; k++) {
+                result(0, k) = 0.0;
+            }
+            for (unsigned int k = 0; k < d_taps.size(); k++) {
+                if (k < d_taps.size() / 2) {
+                    result(0, d_subcarriers * d_o - d_taps.size() / 2 + k) = d_taps[k];
+                } else {
+                    result(0, k - d_taps.size() / 2) = d_taps[k];
+                }
+            }
+            int offset = 1;
+            for (unsigned int n = 1; n < d_subcarriers; n++) {
+                for (unsigned int k = 0; k < d_subcarriers * d_o; k++) {
+                    result(n, k) = 0.0;
+                    if (k >= offset && k < offset + d_taps.size()) {
+                        result(n, k) = d_taps[k - offset];
+                    }
+                }
+                offset += d_o;
+            }
+            return result;
+        }
+
+        int
+        channel_equalizer_vcvc_impl::work(int noutput_items,
+                                          gr_vector_const_void_star &input_items,
+                                          gr_vector_void_star &output_items) {
+            const gr_complex *in = (const gr_complex *) input_items[0];
+            const gr_complex *chan = (const gr_complex *) input_items[1];
+            gr_complex *out = (gr_complex *) output_items[0];
+
+            // Do <+signal processing+>
+            gr_complex temp[d_frame_len * d_subcarriers * d_o];
+            //volk(temp, in, chan, sizeof(gr_complex)*d_subcarriers*d_o);
+
+
+            // Tell runtime system how many output items we produced.
+            return noutput_items;
+        }
+
+    } /* namespace fbmc */
+} /* namespace gr */
+
