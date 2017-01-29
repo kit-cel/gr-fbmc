@@ -24,8 +24,8 @@
 #include <fbmc/channel_equalizer_vcvc.h>
 #include <Eigen/Dense>
 
-typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrixf;
-typedef Eigen::Matrix<gr_complex, Eigen::Dynamic, Eigen::Dynamic> Matrixc;
+typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> Matrixf;
+typedef Eigen::Matrix<gr_complex, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> Matrixc;
 
 namespace gr {
     namespace fbmc {
@@ -38,6 +38,7 @@ namespace gr {
             float d_pilot_amp;
             Matrixf d_G;
             Matrixf spreading_matrix();
+            void write_output(gr_complex* out, Matrixc data);
 
         public:
             channel_equalizer_vcvc_impl(int frame_len, int overlap, int pilot_timestep, std::vector<int> &pilot_carriers,

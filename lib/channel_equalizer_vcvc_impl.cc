@@ -86,6 +86,13 @@ namespace gr {
             return result;
         }
 
+        void
+        channel_equalizer_vcvc_impl::write_output(gr_complex* out, Matrixc data) {
+            for (int i = 0; i < data.size(); i++) {
+                out[i] = *(data.data() + i);
+            }
+        }
+
         int
         channel_equalizer_vcvc_impl::work(int noutput_items,
                                           gr_vector_const_void_star &input_items,
@@ -95,12 +102,22 @@ namespace gr {
             gr_complex *out = (gr_complex *) output_items[0];
 
             // Do <+signal processing+>
-            gr_complex temp[d_frame_len * d_subcarriers * d_o];
+            Matrixc R(d_subcarriers * d_o, d_frame_len);
+            Matrixc R_est(d_subcarriers * d_o, d_frame_len);
+            Matrixc data(d_subcarriers, d_frame_len);
             //volk(temp, in, chan, sizeof(gr_complex)*d_subcarriers*d_o);
-
+            for(int i = 0; i < R.size(); i++) {
+                *(R.data() + i) = in[i];
+            }
+            for(int i = 0; i < R_est.size(); i++) {
+                *(R_est.data() + i) = chan[i];
+            }
+            R = R.cwiseQuotient(R_est); // zero forcing :(
+            data = d_G * R; // despreading
+            write_output(out, data);
 
             // Tell runtime system how many output items we produced.
-            return noutput_items;
+            return d_frame_len;
         }
 
     } /* namespace fbmc */
