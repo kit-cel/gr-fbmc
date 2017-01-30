@@ -44,6 +44,7 @@
 #include "fbmc/sliding_fft_cvc.h"
 #include "fbmc/channel_estimator_vcvc.h"
 #include "fbmc/channel_equalizer_vcvc.h"
+#include "fbmc/subchannel_deframer_vcb.h"
 %}
 
 %include "../lib/fbmc_config.h"
@@ -116,3 +117,5 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, sliding_fft_cvc);
 GR_SWIG_BLOCK_MAGIC2(fbmc, channel_estimator_vcvc);
 %include "fbmc/channel_equalizer_vcvc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, channel_equalizer_vcvc);
+%include "fbmc/subchannel_deframer_vcb.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, subchannel_deframer_vcb);

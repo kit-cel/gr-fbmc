@@ -72,3 +72,4 @@ GR_ADD_TEST(qa_rx_freq_despread_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_
 GR_ADD_TEST(qa_sliding_fft_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_sliding_fft_cvc.py)
 GR_ADD_TEST(qa_channel_estimator_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_channel_estimator_vcvc.py)
 GR_ADD_TEST(qa_channel_equalizer_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_channel_equalizer_vcvc.py)
+GR_ADD_TEST(qa_subchannel_deframer_vcb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_subchannel_deframer_vcb.py)
