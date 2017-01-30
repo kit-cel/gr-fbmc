@@ -33,7 +33,8 @@ list(APPEND fbmc_sources
     output_commutator_vcc_impl.cc
     simple_frame_generator_vcvc_impl.cc
     input_commutator_cvc_impl.cc
-	helper.cc
+	phase_helper.cc
+	interp2d.cc
     combine_iq_vcvc_impl.cc
     parallel_to_serial_vcc_impl.cc
     symbols_to_bits_cb_impl.cc

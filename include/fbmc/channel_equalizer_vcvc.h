@@ -46,7 +46,8 @@ namespace gr {
        * class. fbmc::channel_equalizer_vcvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int frame_len, int overlap, int pilot_timestep, std::vector<int>& pilot_carriers, int bands, std::vector<float> taps, float pilot_amplitude);
+      static sptr make(int frame_len, int overlap, int bands, int pilot_timestep, std::vector<int> pilot_carriers,
+                       int subcarriers, std::vector<float> taps, float pilot_amplitude);
     };
 
   } // namespace fbmc

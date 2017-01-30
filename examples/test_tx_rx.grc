@@ -842,7 +842,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(116, 564)</value>
+      <value>(16, 524)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -901,7 +901,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1164, 450)</value>
+      <value>(744, 450)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -948,7 +948,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1460, 604)</value>
+      <value>(1388, 592)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -991,7 +991,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(336, 364)</value>
+      <value>(228, 376)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1046,7 +1046,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(856, 548)</value>
+      <value>(540, 584)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1101,7 +1101,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(408, 496)</value>
+      <value>(180, 544)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1144,7 +1144,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(124, 482)</value>
+      <value>(16, 450)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1184,7 +1184,153 @@
     </param>
   </block>
   <block>
-    <key>fbmc_rx_freq_despread_cvc</key>
+    <key>fbmc_channel_equalizer_vcvc</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1156, 550)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fbmc_channel_equalizer_vcvc_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>cfg.num_overlap_sym()</value>
+    </param>
+    <param>
+      <key>pilot_amplitude</key>
+      <value>sync.get_pilot_amplitude()</value>
+    </param>
+    <param>
+      <key>pilot_carriers</key>
+      <value>sync.get_pilot_carriers()</value>
+    </param>
+    <param>
+      <key>pilot_timestep</key>
+      <value>sync.get_pilot_timestep()</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value>cfg.phydyas_frequency_taps(cfg.num_overlap_sym())</value>
+    </param>
+    <param>
+      <key>bands</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>subcarriers</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_channel_estimator_vcvc</key>
+    <param>
+      <key>bands</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(916, 686)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fbmc_channel_estimator_vcvc_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>cfg.num_overlap_sym()</value>
+    </param>
+    <param>
+      <key>pilot_amp</key>
+      <value>sync.get_pilot_amplitude()</value>
+    </param>
+    <param>
+      <key>pilot_carriers</key>
+      <value>sync.get_pilot_carriers()</value>
+    </param>
+    <param>
+      <key>pilot_timestep</key>
+      <value>sync.get_pilot_timestep()</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value>np.array(cfg.phydyas_frequency_taps(cfg.num_overlap_sym()))</value>
+    </param>
+    <param>
+      <key>subcarriers</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
+    </param>
+  </block>
+  <block>
+    <key>fbmc_sliding_fft_cvc</key>
+    <param>
+      <key>bands</key>
+      <value>1</value>
+    </param>
     <param>
       <key>alias</key>
       <value></value>
@@ -1203,7 +1349,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1204, 576)</value>
+      <value>(732, 570)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1211,7 +1357,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>fbmc_rx_freq_despread_cvc_0</value>
+      <value>fbmc_sliding_fft_cvc_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1222,32 +1368,16 @@
       <value>0</value>
     </param>
     <param>
-      <key>bands</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>payload_bits</key>
-      <value>cfg.num_payload_bits()</value>
-    </param>
-    <param>
-      <key>pilot_amplitude</key>
-      <value>sync.get_pilot_amplitude()</value>
-    </param>
-    <param>
-      <key>pilot_carriers</key>
-      <value>sync.get_pilot_carriers()</value>
-    </param>
-    <param>
-      <key>pilot_timestep</key>
-      <value>sync.get_pilot_timestep()</value>
+      <key>overlap</key>
+      <value>cfg.num_overlap_sym()</value>
     </param>
     <param>
       <key>subcarriers</key>
       <value>cfg.num_total_subcarriers()</value>
     </param>
     <param>
-      <key>taps</key>
-      <value>cfg.phydyas_frequency_taps(4)</value>
+      <key>frame_len</key>
+      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
     </param>
   </block>
   <block>
@@ -1270,7 +1400,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(588, 310)</value>
+      <value>(384, 328)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1345,7 +1475,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(576, 536)</value>
+      <value>(344, 570)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1470,7 +1600,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1376, 430)</value>
+      <value>(924, 430)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1823,7 +1953,7 @@
   </connection>
   <connection>
     <source_block_id>blocks_throttle_1</source_block_id>
-    <sink_block_id>fbmc_rx_freq_despread_cvc_0</sink_block_id>
+    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -1840,8 +1970,26 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fbmc_rx_freq_despread_cvc_0</source_block_id>
+    <source_block_id>fbmc_channel_equalizer_vcvc_0</source_block_id>
     <sink_block_id>blocks_null_sink_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_channel_estimator_vcvc_0</source_block_id>
+    <sink_block_id>fbmc_channel_equalizer_vcvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>1</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_sliding_fft_cvc_0</source_block_id>
+    <sink_block_id>fbmc_channel_equalizer_vcvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_sliding_fft_cvc_0</source_block_id>
+    <sink_block_id>fbmc_channel_estimator_vcvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

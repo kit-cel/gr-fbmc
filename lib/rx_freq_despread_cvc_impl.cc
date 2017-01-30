@@ -68,7 +68,7 @@ namespace gr {
         }
         std::cout << std::endl;
       } */
-      d_helper = new helper(d_pilot_carriers);
+      d_helper = new interp2d(d_pilot_carriers);
       set_output_multiple(d_frame_len);
     }
 
@@ -160,7 +160,7 @@ namespace gr {
       d_helper->set_params(pilot_times, d_channel);
       for(unsigned int k = 0; k < R.cols(); k++) {
         for(unsigned int n = 0; n < R.rows(); n++) {
-          R_eq(n, k) = d_helper->get_value(k, n);
+          R_eq(n, k) = d_helper->interpolate(k, n);
           //std::cout << R_eq(n, k) << ", ";
         }
         //std::cout << std::endl;
@@ -175,12 +175,12 @@ namespace gr {
       std::vector<float> phase;
       // build phase vector
       for(unsigned int i = 0; i < mean.size(); i++) {
-        phase.push_back(d_helper->unwrap(std::arg(mean[i])));
+      //  phase.push_back(d_helper->unwrap(std::arg(mean[i])));
       }
-      d_helper->reset_angle();
-      float f_o = d_helper->linear_regression(phase)[0];
-      f_o /= 2*M_PI*d_subcarriers;
-      return f_o;
+      //d_helper->reset_angle();
+      //float f_o = d_helper->linear_regression(phase)[0];
+      //f_o /= 2*M_PI*d_subcarriers;
+      return 0;
     }
 
     float
@@ -189,12 +189,12 @@ namespace gr {
       std::vector<float> phase;
       // build phase vector
       for(unsigned int i = 0; i < mean.size(); i++) {
-        phase.push_back(d_helper->unwrap(std::arg(mean[i])));
+       // phase.push_back(d_helper->unwrap(std::arg(mean[i])));
       }
-      d_helper->reset_angle();
-      float t_o = d_helper->linear_regression(phase)[0];
-      t_o /= 2*M_PI;
-      return t_o;
+     // d_helper->reset_angle();
+      //float t_o = d_helper->linear_regression(phase)[0];
+     // t_o /= 2*M_PI;
+      return 0;
     }
 
     std::vector<gr_complex>

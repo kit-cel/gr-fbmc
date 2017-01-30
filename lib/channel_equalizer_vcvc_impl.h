@@ -32,7 +32,7 @@ namespace gr {
 
         class channel_equalizer_vcvc_impl : public channel_equalizer_vcvc {
         private:
-            int d_frame_len, d_pilot_timestep, d_subcarriers, d_o;
+            int d_frame_len, d_pilot_timestep, d_subcarriers, d_o, d_bands;
             std::vector<int> d_pilot_carriers;
             std::vector<float> d_taps;
             float d_pilot_amp;
@@ -41,7 +41,7 @@ namespace gr {
             void write_output(gr_complex* out, Matrixc data);
 
         public:
-            channel_equalizer_vcvc_impl(int frame_len, int overlap, int pilot_timestep, std::vector<int> &pilot_carriers,
+            channel_equalizer_vcvc_impl(int frame_len, int overlap, int bands, int pilot_timestep, std::vector<int> pilot_carriers,
                                         int subcarriers, std::vector<float> taps, float pilot_amplitude);
 
             ~channel_equalizer_vcvc_impl();

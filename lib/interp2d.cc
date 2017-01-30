@@ -19,52 +19,22 @@
  */
 
 
-#include "helper.h"
-#include <numeric>
+#include "interp2d.h"
 
 namespace gr {
   namespace fbmc {
-    helper::helper(std::vector<int> y_coord) :
+    interp2d::interp2d(std::vector<int> y_coord) :
     d_y_coord(y_coord)
     {
       // find index borders in y direction
       d_y_min = *std::min_element(d_y_coord.begin(), d_y_coord.end());
       d_y_max = *std::max_element(d_y_coord.begin(), d_y_coord.end());
-      d_prev_angle = 0.0;
     }
 
-    helper::~helper() {}
+    interp2d::~interp2d() {}
 
     void
-    helper::reset_angle() {
-      d_prev_angle = 0.0;
-    }
-
-    std::vector<float>
-    helper::linear_regression(std::vector<float> data) {
-      // return vector of {a, b} with linear regression line ax+b for y data points
-      std::vector<float> x;
-      for(unsigned int i = 0; i < data.size(); i++) {
-        x.push_back(i);
-      }
-      float x_mean = (data.size()-1)/2.0;
-      float y_mean = std::accumulate(data.begin(), data.end(), 0.0)/data.size();
-      std::for_each(x.begin(), x.end(), [&](float& d) { d -= x_mean;}); // x-x_mean
-      std::for_each(data.begin(), data.end(), [&](float& d) { d -= y_mean;}); // y-y_mean
-      float var_x = 0.0;
-      for(unsigned int i = 0; i < x.size(); i++) {
-        var_x += x[i] * x[i];
-      }
-      float cov = 0.0;
-      for(unsigned int i = 0; i < x.size(); i++) {
-        cov += x[i] * data[i];
-      }
-      std::vector<float> result {cov/var_x, y_mean-cov/var_x * x_mean};
-      return result;
-    }
-
-    void
-    helper::set_params(std::vector<int> x_coord, Matrixc data) {
+    interp2d::set_params(std::vector<int> x_coord, Matrixc data) {
       // x is only known during one work function, so it has to be reset every time
       d_x_coord = x_coord;
       d_data = data;
@@ -79,7 +49,7 @@ namespace gr {
     }
 
     gr_complex
-    helper::interp1d(gr_complex v1, gr_complex v2, int v2pos, int valpos) {
+    interp2d::interp1d(gr_complex v1, gr_complex v2, int v2pos, int valpos) {
       // 1d linear interpolation between two points
       if(v2pos < valpos) {
         throw std::runtime_error("interp1d: requested value outside interpolation range");
@@ -89,7 +59,7 @@ namespace gr {
     }
 
     gr_complex
-    helper::get_value(int x, int y) {
+    interp2d::interpolate(int x, int y) {
       int xstart = -1; // -1 as extrapolation flag
       int ystart = -1;
       // find x base value leq to desired x

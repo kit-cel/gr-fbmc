@@ -23,43 +23,49 @@
 
 #include <fbmc/channel_estimator_vcvc.h>
 #include <Eigen/Dense>
-#include "helper.h"
+#include "interp2d.h"
+#include "phase_helper.h"
 
-typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrixf;
-typedef Eigen::Matrix<gr_complex, Eigen::Dynamic, Eigen::Dynamic> Matrixc;
+typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> Matrixf;
+typedef Eigen::Matrix<gr_complex, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> Matrixc;
 
 namespace gr {
-    namespace fbmc {
+  namespace fbmc {
 
-        class channel_estimator_vcvc_impl : public channel_estimator_vcvc {
-        private:
-            int d_subcarriers, d_pilot_timestep, d_o, d_frame_len;
-            std::vector<float> d_taps;
-            std::vector<int> d_pilot_carriers;
-            float d_pilot_amp;
-            Matrixf d_G;
-            Matrixc d_channel;
-            Matrixc d_current_symbols;
-            helper* d_helper;
+    class channel_estimator_vcvc_impl : public channel_estimator_vcvc {
+    private:
+      int d_subcarriers, d_pilot_timestep, d_o, d_frame_len, d_bands;
+      std::vector<float> d_taps;
+      std::vector<int> d_pilot_carriers;
+      float d_pilot_amp;
+      Matrixf d_G;
+      Matrixc d_channel;
+      Matrixc d_R;
+      interp2d *d_interpolator;
+      phase_helper *d_helper;
 
-            Matrixf spreading_matrix();
-            void channel_estimation(Matrixc R);
-            Matrixc interpolate_channel();
-            void write_output(gr_complex* out, Matrixc d_matrix);
+      Matrixf spreading_matrix();
+      void channel_estimation(Matrixc R);
+      Matrixc interpolate_channel();
+      void write_output(gr_complex *out, Matrixc d_matrix);
+      float fine_freq_sync();
+      float fine_time_sync();
+      std::vector<gr_complex> matrix_mean(Matrixc matrix, int axis);
 
-        public:
-            channel_estimator_vcvc_impl(int frame_len, int subcarriers, std::vector<float> &taps, float pilot_amp, int pilot_timestep,
-                                        std::vector<int> &pilot_carriers);
+    public:
+      channel_estimator_vcvc_impl(int frame_len, int subcarriers, int overlap, int bands, std::vector<float> taps,
+                                  float pilot_amp, int pilot_timestep,
+                                  std::vector<int> pilot_carriers);
 
-            ~channel_estimator_vcvc_impl();
+      ~channel_estimator_vcvc_impl();
 
-            // Where all the action really happens
-            int work(int noutput_items,
-                     gr_vector_const_void_star &input_items,
-                     gr_vector_void_star &output_items);
-        };
+      // Where all the action really happens
+      int work(int noutput_items,
+               gr_vector_const_void_star &input_items,
+               gr_vector_void_star &output_items);
+    };
 
-    } // namespace fbmc
+  } // namespace fbmc
 } // namespace gr
 
 #endif /* INCLUDED_FBMC_CHANNEL_ESTIMATOR_VCVC_IMPL_H */
