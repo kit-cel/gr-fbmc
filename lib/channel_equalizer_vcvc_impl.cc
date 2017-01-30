@@ -62,14 +62,14 @@ namespace gr {
 
     Matrixf
     channel_equalizer_vcvc_impl::spreading_matrix() {
-      Matrixf result(d_subcarriers, d_subcarriers * d_o * d_bands);
+      Matrixf result(d_subcarriers * d_bands, d_subcarriers * d_o * d_bands);
       // build first row
       for (unsigned int k = 0; k < d_subcarriers * d_o * d_bands; k++) {
         result(0, k) = 0.0;
       }
       for (unsigned int k = 0; k < d_taps.size(); k++) {
         if (k < d_taps.size() / 2) {
-          result(0, d_subcarriers * d_o - d_taps.size() / 2 + k) = d_taps[k];
+          result(0, d_subcarriers * d_o * d_bands - d_taps.size() / 2 + k) = d_taps[k];
         } else {
           result(0, k - d_taps.size() / 2) = d_taps[k];
         }
@@ -118,12 +118,18 @@ namespace gr {
       R = R.cwiseQuotient(R_est); // zero forcing :( */
       data = d_G * R; // despreading
       write_output(out, data);
-      for(int i = 0; i < R.size(); i++) {
+      int row = 1;
+      for(int i = 0; i < data.size(); i++) {
+        if(i % d_subcarriers == 0) {
+          std::cout << row << ": ";
+        }
         std::cout << out[i] << ", ";
         if((i+1) % d_subcarriers == 0) {
           std::cout << std::endl;
+          row++;
         }
       }
+      std::cout << "==================================================" << std::endl;
 
 
       // Tell runtime system how many output items we produced.

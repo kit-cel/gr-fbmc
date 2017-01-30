@@ -686,7 +686,7 @@
     </param>
     <param>
       <key>pilot_carriers</key>
-      <value>range(2, cfg.num_total_subcarriers()-2, 10)</value>
+      <value>range(0, cfg.num_total_subcarriers(), 10)</value>
     </param>
     <param>
       <key>pilot_timestep</key>
@@ -1042,7 +1042,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>2</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1408,7 +1408,7 @@
     </param>
     <param>
       <key>guards</key>
-      <value>2</value>
+      <value>0</value>
     </param>
     <param>
       <key>id</key>

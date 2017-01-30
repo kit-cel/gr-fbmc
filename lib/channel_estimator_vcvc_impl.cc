@@ -180,7 +180,7 @@ namespace gr {
     void
     channel_estimator_vcvc_impl::write_output(gr_complex *out, Matrixc d_matrix) {
       for (int i = 0; i < d_matrix.size(); i++) {
-        out[i] = gr_complex(1, 0);//*(d_matrix.data() + i);
+        out[i] = gr_complex(1, 0);//*(d_matrix.data() + i); FIXME dont pass ones
       }
     }
 

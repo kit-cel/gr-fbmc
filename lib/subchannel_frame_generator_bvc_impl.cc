@@ -72,7 +72,7 @@ namespace gr {
 
 
 
-    const float subchannel_frame_generator_bvc_impl::D_CONSTELLATION[2] = {-1.0f / std::sqrt(2.0f), 1.0f / std::sqrt(2.0f)};
+    const float subchannel_frame_generator_bvc_impl::D_CONSTELLATION[2] = {-1.0f / std::sqrt(2.0f), 1.0f / std::sqrt(2.0f)}; //std::sqrt(2.0f)
     //const float subchannel_frame_generator_bvc_impl::D_CONSTELLATION[2] = {-0.5f , 0.5f }; // better to read in console
     const float subchannel_frame_generator_bvc_impl::d_weights_ee[3][7] = {
         {4.29311317e-02f, -1.24972423e-01f, -2.05796767e-01f, 2.39276696e-01f, 2.05796767e-01f, -1.24972423e-01f, -4.29311317e-02f},
