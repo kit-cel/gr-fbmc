@@ -47,13 +47,20 @@ namespace gr {
         : gr::sync_block("channel_estimator_vcvc",
                          gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands * overlap),
                          gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands * overlap)),
-          d_subcarriers(subcarriers), d_taps(taps), d_pilot_carriers(pilot_carriers), d_pilot_amp(pilot_amp),
+          d_subcarriers(subcarriers), d_taps(taps), d_pilot_amp(pilot_amp),
           d_pilot_timestep(pilot_timestep), d_frame_len(frame_len), d_o(overlap), d_bands(bands)
     {
       set_output_multiple(d_frame_len);
       d_R.resize(d_subcarriers * d_o * d_bands, d_frame_len);
       d_G = spreading_matrix();
-      d_interpolator = new interp2d(d_pilot_carriers);
+      for(int b = 0; b < d_bands; b++) {
+        std::for_each(pilot_carriers.begin(), pilot_carriers.end(), [&](int &c) {
+          d_pilot_carriers.push_back(c + b*d_subcarriers);
+        });
+      }
+      std::vector<int> spread_pilots(d_pilot_carriers.size());
+      std::transform(d_pilot_carriers.begin(), d_pilot_carriers.end(), spread_pilots.begin(), std::bind1st(std::multiplies<int>(),d_o));
+      d_interpolator = new interp2d(spread_pilots);
       d_helper = new phase_helper();
     }
 
@@ -172,7 +179,9 @@ namespace gr {
       for (unsigned int k = 0; k < d_R.cols(); k++) {
         for (unsigned int n = 0; n < d_R.rows(); n++) {
           R_eq(n, k) = d_interpolator->interpolate(k, n);
+          //std::cout << R_eq(n, k) << ", ";
         }
+        //std::cout << std::endl << std::endl;
       }
       return R_eq;
     }
@@ -180,7 +189,7 @@ namespace gr {
     void
     channel_estimator_vcvc_impl::write_output(gr_complex *out, Matrixc d_matrix) {
       for (int i = 0; i < d_matrix.size(); i++) {
-        out[i] = gr_complex(1, 0);//*(d_matrix.data() + i); FIXME dont pass ones
+        out[i] = *(d_matrix.data() + i);
       }
     }
 
@@ -195,8 +204,8 @@ namespace gr {
         *(d_R.data() + i) = in[i];
       }
 
-      Matrixc curr_data(d_subcarriers / d_o, d_frame_len);
-      Matrixc result(d_subcarriers, d_frame_len);
+      Matrixc curr_data(d_subcarriers * d_bands, d_frame_len);
+      Matrixc result(d_subcarriers * d_bands * d_o, d_frame_len);
       curr_data = d_G * d_R;
       // estimate channel with pilots
       channel_estimation(curr_data);
