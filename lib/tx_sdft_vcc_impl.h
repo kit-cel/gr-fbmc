@@ -33,22 +33,17 @@ namespace gr {
       // Nothing to declare in this block.
 
     public:
-      tx_sdft_vcc_impl(std::vector<float> taps, int L, int frames);
+      tx_sdft_vcc_impl(std::vector<float> taps, int L);
       ~tx_sdft_vcc_impl();
 
       int L(){return tx_sdft_kernel::L();};
       int overlap(){return tx_sdft_kernel::overlap();};
-      int symbols(){return tx_sdft_kernel::symbols();};
       std::vector<float> taps(){return tx_sdft_kernel::taps();};
 
 // Where all the action really happens
-
-      void forecast (int noutput_items, gr_vector_int &ninput_items_required);
       int
-      general_work(int noutput_items,
-                   gr_vector_int &ninput_items,
-                   gr_vector_const_void_star &input_items,
-                   gr_vector_void_star &output_items);
+      work(int noutput_items, gr_vector_const_void_star &input_items,
+           gr_vector_void_star &output_items);
     };
 
   } // namespace fbmc

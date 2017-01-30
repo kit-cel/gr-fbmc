@@ -69,7 +69,7 @@ namespace gr {
       // initialize kernel
       for(int i=0; i<d_num_subchannels; i++)
       {
-        tx_sdft_kernel kernel(taps, d_L, 0);
+        tx_sdft_kernel kernel(taps, d_L);
         int nsym_preamble = preamble.size()/(d_L/d_num_subchannels);
         int nsym_sync = nsym_preamble + d_overlap;
         std::vector<gr_complex> symbols(d_L*nsym_sync, 0);

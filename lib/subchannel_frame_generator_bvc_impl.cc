@@ -241,8 +241,8 @@ namespace gr {
       insert_preamble();
       insert_pilots();
       write_output(out);
-      int n = 0;
-      /* for(unsigned int i = 0; i < d_frame_len * d_subcarriers; i++) {
+      /*int n = 0;
+      for(unsigned int i = 0; i < d_frame_len * d_subcarriers; i++) {
         if(n % d_subcarriers == 0 ) { std::cout << n/d_subcarriers << ": "; }
         std::cout << out[i] << ", ";
         n++;

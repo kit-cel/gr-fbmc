@@ -89,9 +89,20 @@ namespace gr {
 
     void
     channel_equalizer_vcvc_impl::write_output(gr_complex *out, Matrixc data) {
-      for (int i = 0; i < data.size(); i++) {
-        out[i] = *(data.data() + i);
+      for(unsigned int k = 0; k < data.cols(); k++) {
+        for(unsigned int n = 0; n < data.rows(); n++) {
+          // TODO phase shift in next block, delete here
+          if((k+n) % 2 != 0) {
+            out[k * data.rows() + n] = gr_complex(data(n, k).imag(), 0);
+          }
+          else {
+            out[k*data.rows()+n] = gr_complex(data(n, k).real(), 0);
+          }
+        }
       }
+      /*for (int i = 0; i < data.size(); i++) {
+        out[i] = *(data.data() + i);
+      }*/
     }
 
     int
@@ -118,7 +129,7 @@ namespace gr {
       R = R.cwiseQuotient(R_est); // zero forcing :( */
       data = d_G * R; // despreading
       write_output(out, data);
-      int row = 1;
+      /*int row = 1;
       for(int i = 0; i < data.size(); i++) {
         if(i % d_subcarriers == 0) {
           std::cout << row << ": ";
@@ -129,7 +140,7 @@ namespace gr {
           row++;
         }
       }
-      std::cout << "==================================================" << std::endl;
+      std::cout << "==================================================" << std::endl; */
 
 
       // Tell runtime system how many output items we produced.

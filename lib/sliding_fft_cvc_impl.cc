@@ -83,7 +83,7 @@ namespace gr {
             }
             // Tell runtime system how many input items we consumed on
             // each input stream.
-            consume_each(d_subcarriers*d_overlap*d_bands + (d_frame_len-1) * d_subcarriers/2);
+            consume_each(d_frame_len * d_subcarriers/2);
 
             // Tell runtime system how many output items we produced.
             return d_frame_len;

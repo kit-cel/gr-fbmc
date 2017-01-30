@@ -1,5 +1,5 @@
 <block>
-  <name>Channel Equalizer</name>
+  <name>Channel Equalizer and Despread</name>
   <key>fbmc_channel_equalizer_vcvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>

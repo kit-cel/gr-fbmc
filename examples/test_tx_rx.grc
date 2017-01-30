@@ -405,7 +405,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>32</value>
+      <value>128</value>
     </param>
   </block>
   <block>
@@ -635,7 +635,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>np.concatenate(([0,]*2, [1,]*12, [0,]*2))</value>
+      <value>np.concatenate(([0,]*2, [1,]*60, [0,]*2))</value>
     </param>
   </block>
   <block>
@@ -650,7 +650,7 @@
     </param>
     <param>
       <key>A</key>
-      <value>1.0 *10**(-tx_att_db/20)</value>
+      <value>1.0  *10**(-tx_att_db/20)</value>
     </param>
     <param>
       <key>L</key>
@@ -838,7 +838,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -897,7 +897,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -987,7 +987,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>2</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1042,11 +1042,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(540, 584)</value>
+      <value>(556, 576)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1181,6 +1181,65 @@
     <param>
       <key>vector</key>
       <value>np.concatenate((np.random.randint(0, 255, 4096, dtype=int), np.zeros(1000, dtype=int)))</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_vector_source_x</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(20, 630)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_vector_source_x_1</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+    <param>
+      <key>repeat</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>tags</key>
+      <value>[]</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>vector</key>
+      <value>(170, 170)</value>
     </param>
   </block>
   <block>
@@ -1497,10 +1556,6 @@
       <key>minoutbuf</key>
       <value>0</value>
     </param>
-    <param>
-      <key>symbols</key>
-      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
-    </param>
   </block>
   <block>
     <key>import</key>
@@ -1596,7 +1651,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1965,6 +2020,12 @@
   </connection>
   <connection>
     <source_block_id>blocks_vector_source_x_0</source_block_id>
+    <sink_block_id>blocks_unpack_k_bits_bb_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_vector_source_x_1</source_block_id>
     <sink_block_id>blocks_unpack_k_bits_bb_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
