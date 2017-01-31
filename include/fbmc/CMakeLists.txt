@@ -53,7 +53,6 @@ install(FILES
     time_freq_sync_cc.h
     phase_sync_cc.h
     subchannel_frame_generator_bvc.h
-    rx_freq_despread_cvc.h
     sliding_fft_cvc.h
     channel_estimator_vcvc.h
     channel_equalizer_vcvc.h

@@ -68,7 +68,6 @@ GR_ADD_TEST(qa_multichannel_frame_sync_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_S
 GR_ADD_TEST(qa_time_freq_sync_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_time_freq_sync_cc.py)
 GR_ADD_TEST(qa_phase_sync_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_phase_sync_cc.py)
 GR_ADD_TEST(qa_subchannel_frame_generator_bvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_subchannel_frame_generator_bvc.py)
-GR_ADD_TEST(qa_rx_freq_despread_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_rx_freq_despread_cvc.py)
 GR_ADD_TEST(qa_sliding_fft_cvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_sliding_fft_cvc.py)
 GR_ADD_TEST(qa_channel_estimator_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_channel_estimator_vcvc.py)
 GR_ADD_TEST(qa_channel_equalizer_vcvc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_channel_equalizer_vcvc.py)

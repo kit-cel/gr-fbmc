@@ -58,7 +58,6 @@ list(APPEND fbmc_sources
     time_freq_sync_cc_impl.cc
     phase_sync_cc_impl.cc
     subchannel_frame_generator_bvc_impl.cc
-    rx_freq_despread_cvc_impl.cc
     sliding_fft_cvc_impl.cc
     channel_estimator_vcvc_impl.cc
     channel_equalizer_vcvc_impl.cc
