@@ -188,8 +188,8 @@ namespace gr {
       }
      // std::cout << "Size: " << d_curr_frame.size() << ", " << d_curr_frame[0].size() << std::endl;
 
-      /*extract_payload(out, &bits_written);
-      for (int i = 0; i < bits_written; ++i) {
+      extract_payload(out, &bits_written);
+      /*for (int i = 0; i < bits_written; ++i) {
         std::cout << (int)old[i] << " ";
       }
       if(bits_written > 0) {std::cout << std::endl << std::endl;} */
