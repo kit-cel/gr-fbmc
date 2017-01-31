@@ -89,7 +89,7 @@ namespace gr {
 
     void
     channel_equalizer_vcvc_impl::write_output(gr_complex *out, Matrixc data) {
-      for(unsigned int k = 0; k < data.cols(); k++) {
+      /*for(unsigned int k = 0; k < data.cols(); k++) {
         for(unsigned int n = 0; n < data.rows(); n++) {
           // TODO phase shift in next block, delete here
           if((k+n) % 2 != 0) {
@@ -99,10 +99,10 @@ namespace gr {
             out[k*data.rows()+n] = gr_complex(data(n, k).real(), 0);
           }
         }
-      }
-      /*for (int i = 0; i < data.size(); i++) {
+      } */
+      for (int i = 0; i < data.size(); i++) {
         out[i] = *(data.data() + i);
-      }*/
+      }
     }
 
     int

@@ -29,18 +29,23 @@ namespace gr {
     class subchannel_deframer_vcb_impl : public subchannel_deframer_vcb
     {
      private:
-      int d_subcarriers, d_bands, d_symbols, d_pilot_timestep;
+      int d_subcarriers, d_bands, d_symbols, d_pilot_timestep, d_guard_carriers;
       float d_threshold;
       std::vector<gr_complex> d_preamble;
       std::vector<int> d_pilot_carriers;
       std::vector<bool> d_used_bands;
 
       std::vector<gr_complex> extract_preamble(const gr_complex* in, int band);
+      std::vector<std::vector<gr_complex> > d_curr_frame;
       void detect_used_bands(const gr_complex* in);
-      float correlate(std::vector<gr_complex> received);
+      float correlate(const std::vector<gr_complex> &received);
+      void extract_payload(char* out, unsigned int* bits_written);
+      inline char demod(gr_complex sym, int iq);
 
      public:
-      subchannel_deframer_vcb_impl(int subcarriers, int bands, float threshold, std::vector<gr_complex> preamble, int symbols, std::vector<int> pilot_carriers, int pilot_timestep);
+      subchannel_deframer_vcb_impl(int subcarriers, int bands, int guard, float threshold,
+                                   std::vector<gr_complex> preamble, int symbols, std::vector<int> pilot_carriers,
+                                   int pilot_timestep);
       ~subchannel_deframer_vcb_impl();
 
       // Where all the action really happens

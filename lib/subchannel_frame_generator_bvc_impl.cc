@@ -125,7 +125,7 @@ namespace gr {
     void
     subchannel_frame_generator_bvc_impl::insert_preamble()
     {
-      for(int i = (d_guard_carriers + 1) & ~1; i < d_subcarriers - d_guard_carriers; i += 2) {
+      for(int i = d_guard_carriers + (d_guard_carriers & 1); i < d_subcarriers - d_guard_carriers; i += 2) {
         d_freq_time_frame[i][0] = d_preamble_symbols[i/2].real();
         d_freq_time_frame[i][1] = d_preamble_symbols[i/2].imag();
       }
