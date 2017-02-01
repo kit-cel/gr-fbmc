@@ -161,8 +161,10 @@ namespace gr {
         int i = 0;
         for (std::vector<int>::iterator it = d_pilot_carriers.begin(); it != d_pilot_carriers.end(); ++it) {
           estimate(i, k) = R(*it, k * d_pilot_timestep + 2) / d_pilot_amp;  // channel estimation
+          //std::cout << estimate(i, k) << ", ";
           i++;
         }
+        //std::cout << std::endl;
       }
       d_channel = estimate;
     }
