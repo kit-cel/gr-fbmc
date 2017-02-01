@@ -56,5 +56,6 @@ install(FILES
     sliding_fft_cvc.h
     channel_estimator_vcvc.h
     channel_equalizer_vcvc.h
-    subchannel_deframer_vcb.h DESTINATION include/fbmc
+    subchannel_deframer_vcb.h
+    tx_dummy_mixer_cc.h DESTINATION include/fbmc
 )

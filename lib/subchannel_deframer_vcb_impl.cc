@@ -106,7 +106,7 @@ namespace gr {
       for(int b = 0; b < d_bands; b++) {
         curr_preamble = extract_preamble(in, b);
         d_used_bands[b] = correlate(curr_preamble) >= d_threshold;
-       //if(d_used_bands[b]) { std::cout<< "Band " << b << " in use (" << correlate(curr_preamble) << ")" << std::endl; }
+        //if(d_used_bands[b]) { std::cout<< "Band " << b << " in use (" << correlate(curr_preamble) << ")" << std::endl; }
       }
     }
 

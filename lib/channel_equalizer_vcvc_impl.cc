@@ -52,6 +52,12 @@ namespace gr {
           d_pilot_carriers(pilot_carriers), d_taps(taps), d_o(overlap) {
       set_output_multiple(d_frame_len);
       d_G = spreading_matrix();
+      /*for (int i = 0; i < d_G.rows(); ++i) {
+        for (int j = 0; j < d_G.cols(); ++j) {
+          std::cout << d_G(i, j) << " ";
+        }
+        std::cout << std::endl;
+      } */
     }
 
     /*
@@ -129,19 +135,18 @@ namespace gr {
       R = R.cwiseQuotient(R_est); // zero forcing :( */
       data = d_G * R; // despreading
       write_output(out, data);
-      /*int row = 1;
+      /* int row = 1;
       for(int i = 0; i < data.size(); i++) {
-        if(i % d_subcarriers == 0) {
+        if(i % (d_subcarriers*d_bands) == 0) {
           std::cout << row << ": ";
         }
         std::cout << out[i] << ", ";
-        if((i+1) % d_subcarriers == 0) {
+        if((i+1) % (d_subcarriers*d_bands) == 0) {
           std::cout << std::endl;
           row++;
         }
       }
       std::cout << "==================================================" << std::endl; */
-
 
       // Tell runtime system how many output items we produced.
       return d_frame_len;

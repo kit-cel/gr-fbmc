@@ -61,7 +61,8 @@ list(APPEND fbmc_sources
     sliding_fft_cvc_impl.cc
     channel_estimator_vcvc_impl.cc
     channel_equalizer_vcvc_impl.cc
-    subchannel_deframer_vcb_impl.cc )
+    subchannel_deframer_vcb_impl.cc
+    tx_dummy_mixer_cc_impl.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)

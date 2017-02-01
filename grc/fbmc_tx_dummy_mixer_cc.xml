@@ -1,0 +1,40 @@
+<block>
+  <name>Tx Dummy Mixer</name>
+  <key>fbmc_tx_dummy_mixer_cc</key>
+  <category>FBMC</category>
+  <import>import fbmc</import>
+  <make>fbmc.tx_dummy_mixer_cc($bands, $bandwidth, $symbols, $subcarriers, $samp_rate)</make>
+  <param>
+    <name>Bands</name>
+    <key>bands</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Bandwidth</name>
+    <key>bandwidth</key>
+    <type>real</type>
+  </param>
+  <param>
+    <name>Symbols</name>
+    <key>symbols</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Samp_rate</name>
+    <key>samp_rate</key>
+    <type>float</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>
