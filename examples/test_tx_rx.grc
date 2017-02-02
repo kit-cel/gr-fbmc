@@ -823,6 +823,33 @@
     </param>
   </block>
   <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1324, 304)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>variable_0</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>analog_noise_source_x</key>
     <param>
       <key>amp</key>
@@ -842,7 +869,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -952,7 +979,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1070,7 +1097,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>4*4*16</value>
+      <value>4*16</value>
     </param>
   </block>
   <block>
@@ -1089,7 +1116,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1556,7 +1583,7 @@
     </param>
     <param>
       <key>vector</key>
-      <value>(171, 205, 239)</value>
+      <value>(255, 255)</value>
     </param>
   </block>
   <block>
@@ -1619,7 +1646,7 @@
     </param>
     <param>
       <key>bands</key>
-      <value>4</value>
+      <value>1</value>
     </param>
     <param>
       <key>subcarriers</key>
@@ -1634,7 +1661,7 @@
     <key>fbmc_channel_estimator_vcvc</key>
     <param>
       <key>bands</key>
-      <value>4</value>
+      <value>1</value>
     </param>
     <param>
       <key>alias</key>
@@ -1705,7 +1732,7 @@
     <key>fbmc_sliding_fft_cvc</key>
     <param>
       <key>bands</key>
-      <value>4</value>
+      <value>1</value>
     </param>
     <param>
       <key>alias</key>
@@ -1816,7 +1843,7 @@
     </param>
     <param>
       <key>bands</key>
-      <value>4</value>
+      <value>1</value>
     </param>
     <param>
       <key>subcarriers</key>
@@ -1922,7 +1949,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2024,7 +2051,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>2</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2161,7 +2188,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>fftsize</key>
@@ -3019,7 +3046,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>4*4*16</value>
+      <value>4*16</value>
     </param>
     <param>
       <key>x_axis_label</key>
@@ -3074,7 +3101,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>fbw</key>
@@ -3248,6 +3275,12 @@
   <connection>
     <source_block_id>fbmc_tx_dummy_mixer_cc_0</source_block_id>
     <sink_block_id>fir_filter_xxx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_tx_sdft_vcc_0</source_block_id>
+    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

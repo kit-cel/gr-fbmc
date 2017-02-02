@@ -37,6 +37,7 @@ namespace gr {
     public:
       tx_sdft_kernel(const std::vector<float> &taps, int L);
       ~tx_sdft_kernel();
+      inline void ifftshift(gr_complex* in);
 
       int
       generic_work(gr_complex* out, const gr_complex* in, int noutput_items);

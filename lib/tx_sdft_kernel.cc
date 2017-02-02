@@ -93,6 +93,7 @@ namespace gr {
                                        const gr_complex* inbuf)
     {
       memcpy(d_fft->get_inbuf(), inbuf, sizeof(gr_complex) * d_L); // get data into FFT
+      ifftshift(d_fft->get_inbuf());
       d_fft->execute(); // execute FFT. Get one vector.
       multiply_with_taps(d_multiply_res, d_fft->get_outbuf());
       return calculate_sum_result(outbuf, d_multiply_res);
@@ -110,6 +111,19 @@ namespace gr {
         volk_32fc_32f_multiply_32fc(outbuf + d_L * i, inbuf,
                                     d_taps_al + d_L * i, d_L);
       }
+    }
+
+    inline void
+    tx_sdft_kernel::ifftshift(gr_complex* in) {
+      // do ifftshift
+      int fft_len =d_L;
+      int tmpbuflen = fft_len/2;
+      gr_complex tmpbuf[tmpbuflen];
+      memcpy(tmpbuf, &in[fft_len - tmpbuflen], sizeof(gr_complex) * (tmpbuflen));
+      memcpy(&in[tmpbuflen], in,
+             sizeof(gr_complex) * (fft_len - tmpbuflen));
+      memcpy(in, tmpbuf,
+             sizeof(gr_complex) * (tmpbuflen));
     }
 
     /*

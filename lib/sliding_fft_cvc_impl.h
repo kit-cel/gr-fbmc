@@ -31,6 +31,7 @@ namespace gr {
         private:
             int d_subcarriers, d_overlap, d_bands, d_frame_len;
             gr::fft::fft_complex *d_fft;
+          void fftshift(gr_complex* in);
 
         public:
             sliding_fft_cvc_impl(int subcarriers, int overlap, int bands, int frame_len);

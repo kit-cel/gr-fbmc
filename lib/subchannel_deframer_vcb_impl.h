@@ -35,9 +35,9 @@ namespace gr {
       std::vector<int> d_pilot_carriers;
       std::vector<bool> d_used_bands;
 
-      std::vector<gr_complex> extract_preamble(const gr_complex* in, int band);
+      std::vector<gr_complex> extract_preamble(int band);
       std::vector<std::vector<gr_complex> > d_curr_frame;
-      void detect_used_bands(const gr_complex* in);
+      void detect_used_bands();
       float correlate(const std::vector<gr_complex> &received);
       void extract_payload(char* out, unsigned int* bits_written);
       inline char demod(gr_complex sym, int iq);

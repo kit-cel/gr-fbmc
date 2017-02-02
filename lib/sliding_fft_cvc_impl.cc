@@ -55,6 +55,19 @@ namespace gr {
         }
 
         void
+        sliding_fft_cvc_impl::fftshift(gr_complex *in) {
+          // do fftshift
+          int fft_len = d_overlap * d_subcarriers * d_bands;
+          int tmpbuflen = fft_len / 2;
+          gr_complex tmpbuf[tmpbuflen];
+          memcpy(tmpbuf, in, sizeof(gr_complex) * (tmpbuflen));
+          memcpy(in, &in[tmpbuflen],
+                 sizeof(gr_complex) * (fft_len - tmpbuflen));
+          memcpy(&in[tmpbuflen], tmpbuf,
+                 sizeof(gr_complex) * (fft_len - tmpbuflen));
+        }
+
+        void
         sliding_fft_cvc_impl::forecast(int noutput_items, gr_vector_int &ninput_items_required) {
             /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
             ninput_items_required[0] = d_subcarriers * d_bands * d_overlap * d_frame_len;
@@ -77,6 +90,7 @@ namespace gr {
                        d_overlap * d_subcarriers * d_bands * sizeof(gr_complex));
                 d_fft->execute();
                 memcpy(fft_result, d_fft->get_outbuf(), d_overlap * d_subcarriers * d_bands * sizeof(gr_complex));
+                fftshift(fft_result);
                 for (unsigned int n = 0; n < d_overlap * d_subcarriers * d_bands; n++) {
                     *out++ = fft_result[n] / normalize;
                 }
