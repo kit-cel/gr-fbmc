@@ -135,7 +135,7 @@ namespace gr {
       R = R.cwiseQuotient(R_est); // zero forcing :( */
       data = d_G * R; // despreading
       write_output(out, data);
-      /* int row = 1;
+      /*int row = 1;
       for(int i = 0; i < data.size(); i++) {
         if(i % (d_subcarriers*d_bands) == 0) {
           std::cout << row << ": ";
@@ -146,7 +146,7 @@ namespace gr {
           row++;
         }
       }
-      std::cout << "==================================================" << std::endl; */
+      std::cout << "==================================================" << std::endl;*/
 
       // Tell runtime system how many output items we produced.
       return d_frame_len;

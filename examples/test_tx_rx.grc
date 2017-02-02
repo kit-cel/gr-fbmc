@@ -82,6 +82,33 @@
     </param>
   </block>
   <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1324, 304)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>bands</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>4</value>
+    </param>
+  </block>
+  <block>
     <key>variable_configuration_new</key>
     <param>
       <key>chanmap</key>
@@ -447,7 +474,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -767,7 +794,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>0.6</value>
+      <value>1</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -823,37 +850,10 @@
     </param>
   </block>
   <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1324, 304)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>variable_0</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>analog_noise_source_x</key>
     <param>
       <key>amp</key>
-      <value>0.01</value>
+      <value>0.001</value>
     </param>
     <param>
       <key>alias</key>
@@ -1097,7 +1097,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>4*16</value>
+      <value>16*bands*4</value>
     </param>
   </block>
   <block>
@@ -1583,7 +1583,7 @@
     </param>
     <param>
       <key>vector</key>
-      <value>(255, 255)</value>
+      <value>(0, 0)</value>
     </param>
   </block>
   <block>
@@ -1606,7 +1606,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1156, 550)</value>
+      <value>(1156, 544)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1646,7 +1646,7 @@
     </param>
     <param>
       <key>bands</key>
-      <value>1</value>
+      <value>bands</value>
     </param>
     <param>
       <key>subcarriers</key>
@@ -1661,7 +1661,7 @@
     <key>fbmc_channel_estimator_vcvc</key>
     <param>
       <key>bands</key>
-      <value>1</value>
+      <value>bands</value>
     </param>
     <param>
       <key>alias</key>
@@ -1732,7 +1732,7 @@
     <key>fbmc_sliding_fft_cvc</key>
     <param>
       <key>bands</key>
-      <value>1</value>
+      <value>bands</value>
     </param>
     <param>
       <key>alias</key>
@@ -1752,7 +1752,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(752, 572)</value>
+      <value>(748, 564)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1799,7 +1799,7 @@
     </param>
     <param>
       <key>threshold</key>
-      <value>0.8</value>
+      <value>0.1</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -1843,7 +1843,7 @@
     </param>
     <param>
       <key>bands</key>
-      <value>1</value>
+      <value>bands</value>
     </param>
     <param>
       <key>subcarriers</key>
@@ -1949,11 +1949,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(496, 512)</value>
+      <value>(492, 492)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2192,7 +2192,7 @@
     </param>
     <param>
       <key>fftsize</key>
-      <value>1024</value>
+      <value>256</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2428,7 +2428,7 @@
     </param>
     <param>
       <key>wintype</key>
-      <value>firdes.WIN_BLACKMAN_hARRIS</value>
+      <value>firdes.WIN_RECTANGULAR</value>
     </param>
     <param>
       <key>label</key>
@@ -2791,7 +2791,7 @@
     </param>
     <param>
       <key>update_time</key>
-      <value>0.10</value>
+      <value>10</value>
     </param>
     <param>
       <key>ylabel</key>
@@ -3046,7 +3046,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>4*16</value>
+      <value>16*bands*4</value>
     </param>
     <param>
       <key>x_axis_label</key>
@@ -3066,7 +3066,7 @@
     </param>
     <param>
       <key>ymax</key>
-      <value>2</value>
+      <value>8</value>
     </param>
     <param>
       <key>ymin</key>
@@ -3101,7 +3101,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>fbw</key>
@@ -3149,18 +3149,6 @@
   <connection>
     <source_block_id>analog_random_source_x_0</source_block_id>
     <sink_block_id>blocks_unpack_k_bits_bb_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_add_xx_0</source_block_id>
-    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_add_xx_0</source_block_id>
-    <sink_block_id>qtgui_freq_sink_x_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3274,13 +3262,19 @@
   </connection>
   <connection>
     <source_block_id>fbmc_tx_dummy_mixer_cc_0</source_block_id>
+    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_tx_dummy_mixer_cc_0</source_block_id>
     <sink_block_id>fir_filter_xxx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>fbmc_tx_sdft_vcc_0</source_block_id>
-    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
+    <sink_block_id>qtgui_freq_sink_x_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

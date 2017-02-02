@@ -86,7 +86,7 @@ namespace gr {
             gr_complex fft_result[d_overlap * d_subcarriers * d_bands];
             float normalize = std::sqrt(d_subcarriers * d_overlap * d_bands) / 5.0;
             for (unsigned int k = 0; k < d_full_symbols; k++) {
-                memcpy(d_fft->get_inbuf(), &in[k * d_subcarriers / 2],
+                memcpy(d_fft->get_inbuf(), &in[k * d_bands * d_subcarriers / 2],
                        d_overlap * d_subcarriers * d_bands * sizeof(gr_complex));
                 d_fft->execute();
                 memcpy(fft_result, d_fft->get_outbuf(), d_overlap * d_subcarriers * d_bands * sizeof(gr_complex));
@@ -97,7 +97,7 @@ namespace gr {
             }
             // Tell runtime system how many input items we consumed on
             // each input stream.
-            consume_each(d_frame_len * d_subcarriers/2);
+            consume_each(d_frame_len * d_bands * d_subcarriers/2);
 
             // Tell runtime system how many output items we produced.
             return d_frame_len;
