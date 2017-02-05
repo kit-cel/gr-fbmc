@@ -120,19 +120,10 @@ namespace gr {
       gr_complex *out = (gr_complex *) output_items[0];
 
       // Do <+signal processing+>
-      gr_complex temp[d_subcarriers * d_bands * d_o * d_frame_len];
-      volk_32fc_x2_divide_32fc(temp, in, chan, d_bands * d_subcarriers * d_o * d_frame_len); // zero forcing
-      Matrixc data(d_subcarriers * d_bands, d_frame_len);
       Matrixc R(d_subcarriers * d_o * d_bands, d_frame_len);
-      //Matrixc R_est(d_subcarriers * d_o*d_bands, d_frame_len);
-      for (int i = 0; i < R.size(); i++) {
-        *(R.data() + i) = temp[i];
-      }
-      /*
-      for(int i = 0; i < R_est.size(); i++) {
-          *(R_est.data() + i) = chan[i];
-      }
-      R = R.cwiseQuotient(R_est); // zero forcing :( */
+      volk_32fc_x2_divide_32fc(R.data(), in, chan, d_bands * d_subcarriers * d_o * d_frame_len); // zero forcing
+      Matrixc data(d_subcarriers * d_bands, d_frame_len);
+
       data = d_G * R; // despreading
       write_output(out, data);
       /*int row = 1;
