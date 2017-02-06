@@ -48,8 +48,8 @@ namespace gr {
       void channel_estimation(Matrixc R);
       Matrixc interpolate_channel();
       void write_output(gr_complex *out, Matrixc d_matrix);
-      float fine_freq_sync();
-      float fine_time_sync();
+      double fine_freq_sync();
+      double fine_time_sync();
       std::vector<gr_complex> matrix_mean(Matrixc matrix, int axis);
 
     public:

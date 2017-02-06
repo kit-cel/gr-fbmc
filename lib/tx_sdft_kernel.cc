@@ -113,19 +113,6 @@ namespace gr {
       }
     }
 
-    inline void
-    tx_sdft_kernel::ifftshift(gr_complex* in) {
-      // do ifftshift
-      int fft_len =d_L;
-      int tmpbuflen = fft_len/2;
-      gr_complex tmpbuf[tmpbuflen];
-      memcpy(tmpbuf, &in[fft_len - tmpbuflen], sizeof(gr_complex) * (tmpbuflen));
-      memcpy(&in[tmpbuflen], in,
-             sizeof(gr_complex) * (fft_len - tmpbuflen));
-      memcpy(in, tmpbuf,
-             sizeof(gr_complex) * (tmpbuflen));
-    }
-
     /*
      * use internal buffer to sum up result and copy completed samples to out buffer.
      */

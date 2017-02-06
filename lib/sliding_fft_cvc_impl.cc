@@ -24,6 +24,7 @@
 
 #include <gnuradio/io_signature.h>
 #include "sliding_fft_cvc_impl.h"
+#include <volk/volk.h>
 
 namespace gr {
     namespace fbmc {
@@ -45,6 +46,9 @@ namespace gr {
         {
             d_fft = new gr::fft::fft_complex(d_subcarriers * d_overlap * d_bands, true);
             set_output_multiple(d_frame_len);
+            if(subcarriers % 2 != 0) {
+                throw std::runtime_error("sliding_fft_cvc: Subcarriers not an even number!");
+            }
         }
 
         /*
@@ -83,17 +87,19 @@ namespace gr {
 
             int d_full_symbols = d_frame_len;
             // Do <+signal processing+>
-            gr_complex fft_result[d_overlap * d_subcarriers * d_bands];
-            float normalize = static_cast<float>(std::sqrt(d_subcarriers * d_overlap * d_bands) / 5.0);
+            //gr_complex fft_result[d_overlap * d_subcarriers * d_bands];
+            float normalize = static_cast<float>(5.0/std::sqrt(d_subcarriers * d_overlap * d_bands));
             for (unsigned int k = 0; k < d_full_symbols; k++) {
                 memcpy(d_fft->get_inbuf(), &in[k * d_bands * d_subcarriers / 2],
                        d_overlap * d_subcarriers * d_bands * sizeof(gr_complex));
                 d_fft->execute();
-                memcpy(fft_result, d_fft->get_outbuf(), d_overlap * d_subcarriers * d_bands * sizeof(gr_complex));
-                fftshift(fft_result);
-                for (unsigned int n = 0; n < d_overlap * d_subcarriers * d_bands; n++) {
-                    *out++ = fft_result[n] / normalize;
-                }
+                //memcpy(fft_result, d_fft->get_outbuf(), d_overlap * d_subcarriers * d_bands * sizeof(gr_complex));
+                fftshift(d_fft->get_outbuf());
+                volk_32fc_s32fc_multiply_32fc(out++, d_fft->get_outbuf(), normalize,
+                                              static_cast<unsigned int>(d_overlap * d_subcarriers * d_bands));
+                //for (unsigned int n = 0; n < d_overlap * d_subcarriers * d_bands; n++) {
+                //    *out++ = fft_result[n] / normalize;
+                //}
             }
             // Tell runtime system how many input items we consumed on
             // each input stream.

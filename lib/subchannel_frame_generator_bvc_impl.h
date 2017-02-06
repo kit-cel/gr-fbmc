@@ -41,7 +41,7 @@ namespace gr {
       int d_subcarriers, d_payload_symbols, d_payload_bits, d_overlap, d_frame_len, d_pilot_timestep, d_guard_carriers;
       float d_pilot_amp;
       std::vector<gr_complex> d_preamble_symbols;
-      std::vector<int> d_pilot_carriers;
+      std::vector<int> d_pilot_carriers, d_data_carriers;
       static const float d_weights_ee[3][7];
       static const float d_weights_eo[3][7];
       static const float d_weights_oe[3][7];

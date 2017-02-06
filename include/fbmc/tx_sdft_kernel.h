@@ -37,7 +37,17 @@ namespace gr {
     public:
       tx_sdft_kernel(const std::vector<float> &taps, int L);
       ~tx_sdft_kernel();
-      inline void ifftshift(gr_complex* in);
+      inline void ifftshift(gr_complex* in) {
+          // do ifftshift
+          int fft_len = d_L;
+          int tmpbuflen = fft_len / 2;
+          gr_complex tmpbuf[tmpbuflen];
+          memcpy(tmpbuf, &in[fft_len - tmpbuflen], sizeof(gr_complex) * (tmpbuflen));
+          memcpy(&in[tmpbuflen], in,
+                 sizeof(gr_complex) * (fft_len - tmpbuflen));
+          memcpy(in, tmpbuf,
+                 sizeof(gr_complex) * (tmpbuflen));
+      }
 
       int
       generic_work(gr_complex* out, const gr_complex* in, int noutput_items);

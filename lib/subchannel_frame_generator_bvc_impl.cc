@@ -27,7 +27,6 @@
 
 namespace gr {
   namespace fbmc {
-
     subchannel_frame_generator_bvc::sptr
     subchannel_frame_generator_bvc::make(int subcarriers, int guard_carriers, int payload_bits, int overlap,
                                          std::vector<gr_complex> preamble_symbols, float pilot_amp, int pilot_timestep,
@@ -65,7 +64,12 @@ namespace gr {
         throw std::length_error("Pilot carriers configured in guard bands!");
       }
       d_payload_symbols = (int)std::ceil((d_payload_bits-d_subcarriers) / (d_subcarriers - (d_pilot_carriers.size() / d_pilot_timestep)));
-
+      // build vector of usable carriers for data
+      for (int i = d_guard_carriers; i < d_subcarriers-d_guard_carriers; i++) {
+        if (std::find(d_pilot_carriers.begin(), d_pilot_carriers.end(), i) == d_pilot_carriers.end()) {
+          d_data_carriers.push_back(i);
+        }
+      }
       d_frame_len = 2 + d_payload_symbols;
       set_output_multiple(d_frame_len);
     }
@@ -104,7 +108,8 @@ namespace gr {
 
     void
     subchannel_frame_generator_bvc_impl::init_freq_time_frame() {
-      std::vector<std::vector<float> > init(d_subcarriers, std::vector<float>(d_frame_len));
+      std::vector<std::vector<float> > init(static_cast<unsigned long>(d_subcarriers),
+                                            std::vector<float>(static_cast<unsigned long>(d_frame_len)));
       d_freq_time_frame = init;
     }
 
@@ -136,7 +141,7 @@ namespace gr {
       for (unsigned int k = 2; k < d_frame_len - 1; k += d_pilot_timestep) {
         for (std::vector<int>::iterator it = d_pilot_carriers.begin(); it != d_pilot_carriers.end(); ++it) {
           d_freq_time_frame[*it][k] = d_pilot_amp;
-          insert_aux_pilots(*it, k);
+          insert_aux_pilots(static_cast<unsigned int>(*it), k);
         }
       }
     }
@@ -172,22 +177,12 @@ namespace gr {
         }
       }
       // insert aux pilot p relative to pilot in time domain
-      d_freq_time_frame[N][K+1] = -1.0 / weights[1][2] * curr_int;
+      d_freq_time_frame[N][K+1] = static_cast<float>(-1.0 / weights[1][2] * curr_int);
     }
 
     void
     subchannel_frame_generator_bvc_impl::insert_payload(const char* inbuf, unsigned int* bits_written)
     {
-
-      // build vector of usable carriers for data
-      std::vector<int> data_carriers;
-      for (int i = d_guard_carriers; i < d_subcarriers-d_guard_carriers; i++) {
-        if (std::find(d_pilot_carriers.begin(), d_pilot_carriers.end(), i) == d_pilot_carriers.end()) {
-          data_carriers.push_back(i);
-        }
-      }
-
-
       /*// fill preamble symbols with data in gaps
       for (int k = 0; k < 2; k++) {
         for (int n = 0; n < d_subcarriers / 2; n++) {
@@ -201,7 +196,7 @@ namespace gr {
       for (int k = 2; k < d_frame_len; k++) {
         // case: we hit a symbol occupied with pilots or aux pilots
         if((k-2) % d_pilot_timestep == 0 || (k-2) % d_pilot_timestep == 1) {
-          for (std::vector<int>::iterator it = data_carriers.begin(); it != data_carriers.end(); ++it) {
+          for (std::vector<int>::iterator it = d_data_carriers.begin(); it != d_data_carriers.end(); ++it) {
             d_freq_time_frame[*it][k] = D_CONSTELLATION[*inbuf++];
             (*bits_written)++;
             if(*bits_written == d_payload_bits) break;

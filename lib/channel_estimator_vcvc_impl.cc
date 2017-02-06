@@ -125,37 +125,37 @@ namespace gr {
       return result;
     }
 
-    float
+    double
     channel_estimator_vcvc_impl::fine_freq_sync() {
       std::vector<gr_complex> mean = matrix_mean(d_channel, 0);
-      std::vector<float> phase;
+      std::vector<double> phase;
       // build phase vector
       for(unsigned int i = 0; i < mean.size(); i++) {
         phase.push_back(d_helper->unwrap(std::arg(mean[i])));
       }
       d_helper->reset_angle();
-      float f_o = d_helper->linear_regression(phase)[0];
+      double f_o = d_helper->linear_regression(phase)[0];
       f_o /= 2*M_PI*d_subcarriers;
       return f_o;
     }
 
-    float
+    double
     channel_estimator_vcvc_impl::fine_time_sync() {
       std::vector<gr_complex> mean = matrix_mean(d_channel, 1);
-      std::vector<float> phase;
+      std::vector<double> phase;
       // build phase vector
       for(unsigned int i = 0; i < mean.size(); i++) {
         phase.push_back(d_helper->unwrap(std::arg(mean[i])));
       }
       d_helper->reset_angle();
-      float t_o = d_helper->linear_regression(phase)[0];
+      double t_o = d_helper->linear_regression(phase)[0];
       t_o /= 2*M_PI;
       return t_o;
     }
 
     void
     channel_estimator_vcvc_impl::channel_estimation(Matrixc R) {
-      unsigned int K = (R.cols() - 2) / d_pilot_timestep + 1; // number of symbols containing pilots
+      long K = (R.cols() - 2) / d_pilot_timestep + 1; // number of symbols containing pilots
       Matrixc estimate(d_pilot_carriers.size(), K);
       for (unsigned int k = 0; k < K; k++) {
         int i = 0;
@@ -174,7 +174,7 @@ namespace gr {
       // vector of symbol indexes with pilots
       std::vector<int> pilot_times;
       Matrixc R_eq(d_R.rows(), d_R.cols());
-      for (unsigned int i = 2; i < d_R.cols(); i += d_pilot_timestep) {
+      for (int i = 2; i < d_R.cols(); i += d_pilot_timestep) {
         pilot_times.push_back(i);
       }
       d_interpolator->set_params(pilot_times, d_channel);

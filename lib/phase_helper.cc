@@ -20,6 +20,7 @@
 
 
 #include "phase_helper.h"
+#include <numeric>
 
 namespace gr {
   namespace fbmc {
@@ -35,26 +36,26 @@ namespace gr {
       d_prev_angle = 0.0;
     }
 
-    std::vector<float>
-    phase_helper::linear_regression(std::vector<float> data) {
+    std::vector<double>
+    phase_helper::linear_regression(std::vector<double> data) {
       // return vector of {a, b} with linear regression line ax+b for y data points
-      std::vector<float> x;
+      std::vector<double> x;
       for(unsigned int i = 0; i < data.size(); i++) {
         x.push_back(i);
       }
-      float x_mean = (data.size()-1)/2.0;
-      float y_mean = std::accumulate(data.begin(), data.end(), 0.0)/data.size();
-      std::for_each(x.begin(), x.end(), [&](float& d) { d -= x_mean;}); // x-x_mean
-      std::for_each(data.begin(), data.end(), [&](float& d) { d -= y_mean;}); // y-y_mean
-      float var_x = 0.0;
+      double x_mean = (data.size()-1)/2.0;
+      double y_mean = std::accumulate(data.begin(), data.end(), 0.0)/data.size();
+      std::for_each(x.begin(), x.end(), [&](double& d) { d -= x_mean;}); // x-x_mean
+      std::for_each(data.begin(), data.end(), [&](double& d) { d -= y_mean;}); // y-y_mean
+      double var_x = 0.0;
       for(unsigned int i = 0; i < x.size(); i++) {
         var_x += x[i] * x[i];
       }
-      float cov = 0.0;
+      double cov = 0.0;
       for(unsigned int i = 0; i < x.size(); i++) {
         cov += x[i] * data[i];
       }
-      std::vector<float> result {cov/var_x, y_mean-cov/var_x * x_mean};
+      std::vector<double> result {cov/var_x, y_mean-cov/var_x * x_mean};
       return result;
     }
   }

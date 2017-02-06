@@ -12,24 +12,24 @@ namespace gr {
   namespace fbmc {
     class phase_helper {
     private:
-      float d_prev_angle;
+      double d_prev_angle;
 
-      inline float
-      constrainAngle(float x){
+      inline double
+      constrainAngle(double x){
         x = fmod(x + M_PI,2*M_PI);
         if (x < 0)
           x += 2*M_PI;
         return x - M_PI;
       }
 
-      inline float
-      angleConv(float angle){
+      inline double
+      angleConv(double angle){
         return fmod(constrainAngle(angle),2*M_PI);
       }
 
-      inline float
-      angleDiff(float a, float b){
-        float dif = fmod(b - a + M_PI,2*M_PI);
+      inline double
+      angleDiff(double a, double b){
+        double dif = fmod(b - a + M_PI, 2 * M_PI);
         if (dif < 0)
           dif += 2*M_PI;
         return dif - M_PI;
@@ -38,12 +38,12 @@ namespace gr {
     public:
       phase_helper();
       ~phase_helper();
-      std::vector<float> linear_regression(std::vector<float> data);
+      std::vector<double> linear_regression(std::vector<double> data);
       void reset_angle();
 
-      inline float
-      unwrap(float newAngle){
-        float new_angle = d_prev_angle - angleDiff(newAngle,angleConv(d_prev_angle));
+      inline double
+      unwrap(double newAngle){
+        double new_angle = d_prev_angle - angleDiff(newAngle, angleConv(d_prev_angle));
         d_prev_angle = new_angle;
         return new_angle;
       }

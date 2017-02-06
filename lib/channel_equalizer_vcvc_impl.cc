@@ -121,7 +121,8 @@ namespace gr {
 
       // Do <+signal processing+>
       Matrixc R(d_subcarriers * d_o * d_bands, d_frame_len);
-      volk_32fc_x2_divide_32fc(R.data(), in, chan, d_bands * d_subcarriers * d_o * d_frame_len); // zero forcing
+      volk_32fc_x2_divide_32fc(R.data(), in, chan,
+                               static_cast<unsigned int>(d_bands * d_subcarriers * d_o * d_frame_len)); // zero forcing
       Matrixc data(d_subcarriers * d_bands, d_frame_len);
 
       data = d_G * R; // despreading
