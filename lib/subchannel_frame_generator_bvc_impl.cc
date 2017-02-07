@@ -243,7 +243,7 @@ namespace gr {
         n++;
         if(n % d_subcarriers == 0 ) { std::cout << std::endl; }
       }
-      std::cout << "=====================================" << std::endl; */
+      std::cout << "=====================================" << std::endl;*/
       // Tell runtime system how many input items we consumed on
       // each input stream.
       consume_each (bits_written);

@@ -108,6 +108,7 @@ namespace gr {
 
             // Tell runtime system how many output items we produced.
             return d_frame_len;
+            return d_frame_len;
         }
 
     } /* namespace fbmc */

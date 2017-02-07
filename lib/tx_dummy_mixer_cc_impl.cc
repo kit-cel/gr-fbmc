@@ -53,7 +53,7 @@ namespace gr {
       }
       d_phase = lv_cmake(1, 0);
       d_curr_band = 0;
-      d_max = 200;
+      d_max = -1;
       d_counter = 0;
     }
 

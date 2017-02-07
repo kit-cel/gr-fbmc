@@ -155,12 +155,18 @@ namespace gr {
 
     void
     channel_estimator_vcvc_impl::channel_estimation(Matrixc R) {
+      gr_complex pilot_sym;
       long K = (R.cols() - 2) / d_pilot_timestep + 1; // number of symbols containing pilots
       Matrixc estimate(d_pilot_carriers.size(), K);
       for (unsigned int k = 0; k < K; k++) {
         int i = 0;
         for (std::vector<int>::iterator it = d_pilot_carriers.begin(); it != d_pilot_carriers.end(); ++it) {
-          estimate(i, k) = R(*it, k * d_pilot_timestep + 2) / d_pilot_amp;  // channel estimation
+          if((k*d_pilot_timestep+*it) % 2 == 0) {
+            pilot_sym = R(*it, k * d_pilot_timestep + 2);
+          } else {
+            pilot_sym = gr_complex(R(*it, k * d_pilot_timestep + 2).imag(), -R(*it, k * d_pilot_timestep + 2).real());
+          }
+          estimate(i, k) = pilot_sym / d_pilot_amp;  // channel estimation
           //std::cout << estimate(i, k) << ", ";
           i++;
         }
@@ -191,7 +197,7 @@ namespace gr {
     void
     channel_estimator_vcvc_impl::write_output(gr_complex *out, Matrixc d_matrix) {
       for (int i = 0; i < d_matrix.size(); i++) {
-        out[i] = gr_complex(1, 0);//*(d_matrix.data() + i);
+        out[i] = *(d_matrix.data() + i);
       }
     }
 

@@ -122,9 +122,9 @@ namespace gr {
       gr_complex *out = (gr_complex *) output_items[0];
 
       // Do <+signal processing+>
-      memcpy(d_R.data(), in, sizeof(gr_complex) * d_bands * d_subcarriers * d_o * d_frame_len);
-      //volk_32fc_x2_divide_32fc(d_R.data(), in, chan,
-      //                         static_cast<unsigned int>(d_bands * d_subcarriers * d_o * d_frame_len)); // zero forcing
+      //memcpy(d_R.data(), in, sizeof(gr_complex) * d_bands * d_subcarriers * d_o * d_frame_len);
+      volk_32fc_x2_divide_32fc(d_R.data(), in, chan,
+                                static_cast<unsigned int>(d_bands * d_subcarriers * d_o * d_frame_len)); // zero forcing
       d_data = d_G * d_R; // despreading
       write_output(out, d_data);
       /*int row = 1;
@@ -138,7 +138,7 @@ namespace gr {
           row++;
         }
       }
-      std::cout << "==================================================" << std::endl; */
+      std::cout << "==================================================" << std::endl;*/
 
       // Tell runtime system how many output items we produced.
       return d_frame_len;
