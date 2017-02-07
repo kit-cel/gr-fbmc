@@ -95,8 +95,9 @@ namespace gr {
                 d_fft->execute();
                 //memcpy(fft_result, d_fft->get_outbuf(), d_overlap * d_subcarriers * d_bands * sizeof(gr_complex));
                 fftshift(d_fft->get_outbuf());
-                volk_32fc_s32fc_multiply_32fc(out++, d_fft->get_outbuf(), normalize,
+                volk_32fc_s32fc_multiply_32fc(out, d_fft->get_outbuf(), normalize,
                                               static_cast<unsigned int>(d_overlap * d_subcarriers * d_bands));
+                out += d_overlap * d_subcarriers * d_bands;
                 //for (unsigned int n = 0; n < d_overlap * d_subcarriers * d_bands; n++) {
                 //    *out++ = fft_result[n] / normalize;
                 //}
