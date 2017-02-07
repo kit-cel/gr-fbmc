@@ -432,7 +432,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>32</value>
+      <value>128</value>
     </param>
   </block>
   <block>
@@ -662,7 +662,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>np.concatenate(([0,]*2, [1,]*12, [0,]*2))</value>
+      <value>np.concatenate(([0,]*2, [1,]*60, [0,]*2))</value>
     </param>
   </block>
   <block>
@@ -713,7 +713,7 @@
     </param>
     <param>
       <key>pilot_carriers</key>
-      <value>range(2, cfg.num_total_subcarriers(), 5)</value>
+      <value>range(2, cfg.num_total_subcarriers()-2, 10)</value>
     </param>
     <param>
       <key>pilot_timestep</key>
@@ -873,7 +873,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(660, 798)</value>
+      <value>(512, 842)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -983,7 +983,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(664, 684)</value>
+      <value>(704, 684)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1097,7 +1097,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>16*bands*4</value>
+      <value>cfg.num_total_subcarriers()*bands*4</value>
     </param>
   </block>
   <block>
@@ -2055,7 +2055,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(316, 800)</value>
+      <value>(360, 744)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3046,7 +3046,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>16*bands*4</value>
+      <value>cfg.num_total_subcarriers()*bands*4</value>
     </param>
     <param>
       <key>x_axis_label</key>
