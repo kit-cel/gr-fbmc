@@ -37,6 +37,7 @@ namespace gr {
             std::vector<float> d_taps;
             float d_pilot_amp;
             Matrixf d_G;
+            Matrixc d_R, d_data;
             Matrixf spreading_matrix();
             void write_output(gr_complex* out, Matrixc data);
 

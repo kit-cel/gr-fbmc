@@ -105,7 +105,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>1</value>
+      <value>4</value>
     </param>
   </block>
   <block>
@@ -1073,7 +1073,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1929,11 +1929,11 @@
     <key>fbmc_tx_dummy_mixer_cc</key>
     <param>
       <key>bands</key>
-      <value>4</value>
+      <value>bands</value>
     </param>
     <param>
       <key>bandwidth</key>
-      <value>2.5e6</value>
+      <value>samp_rate/bands</value>
     </param>
     <param>
       <key>alias</key>
@@ -1949,7 +1949,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2834,11 +2834,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1200, 408)</value>
+      <value>(1200, 400)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -3066,7 +3066,7 @@
     </param>
     <param>
       <key>ymax</key>
-      <value>8</value>
+      <value>4</value>
     </param>
     <param>
       <key>ymin</key>
@@ -3101,7 +3101,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>fbw</key>
@@ -3109,7 +3109,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(336, 520)</value>
+      <value>(312, 500)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3121,7 +3121,7 @@
     </param>
     <param>
       <key>interp</key>
-      <value>4</value>
+      <value>bands</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -3273,13 +3273,7 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fbmc_tx_sdft_vcc_0</source_block_id>
-    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fbmc_tx_sdft_vcc_0</source_block_id>
+    <source_block_id>fbmc_tx_dummy_mixer_cc_0</source_block_id>
     <sink_block_id>qtgui_freq_sink_x_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>

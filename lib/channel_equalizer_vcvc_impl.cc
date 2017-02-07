@@ -52,6 +52,8 @@ namespace gr {
           d_pilot_carriers(pilot_carriers), d_taps(taps), d_o(overlap) {
       set_output_multiple(d_frame_len);
       d_G = spreading_matrix();
+      d_R.resize(d_subcarriers * d_o * d_bands, d_frame_len);
+      d_data.resize(d_subcarriers * d_bands, d_frame_len);
       /*for (int i = 0; i < d_G.rows(); ++i) {
         for (int j = 0; j < d_G.cols(); ++j) {
           std::cout << d_G(i, j) << " ";
@@ -120,15 +122,13 @@ namespace gr {
       gr_complex *out = (gr_complex *) output_items[0];
 
       // Do <+signal processing+>
-      Matrixc R(d_subcarriers * d_o * d_bands, d_frame_len);
-      volk_32fc_x2_divide_32fc(R.data(), in, chan,
-                               static_cast<unsigned int>(d_bands * d_subcarriers * d_o * d_frame_len)); // zero forcing
-      Matrixc data(d_subcarriers * d_bands, d_frame_len);
-
-      data = d_G * R; // despreading
-      write_output(out, data);
+      memcpy(d_R.data(), in, sizeof(gr_complex) * d_bands * d_subcarriers * d_o * d_frame_len);
+      //volk_32fc_x2_divide_32fc(d_R.data(), in, chan,
+      //                         static_cast<unsigned int>(d_bands * d_subcarriers * d_o * d_frame_len)); // zero forcing
+      d_data = d_G * d_R; // despreading
+      write_output(out, d_data);
       /*int row = 1;
-      for(int i = 0; i < data.size(); i++) {
+      for(int i = 0; i < d_data.size(); i++) {
         if(i % (d_subcarriers*d_bands) == 0) {
           std::cout << row << ": ";
         }
