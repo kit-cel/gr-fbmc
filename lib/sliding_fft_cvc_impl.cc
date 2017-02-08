@@ -45,7 +45,7 @@ namespace gr {
                   d_subcarriers(subcarriers), d_overlap(overlap), d_bands(bands), d_frame_len(frame_len)
         {
             d_fft = new gr::fft::fft_complex(d_subcarriers * d_overlap * d_bands, true);
-            set_output_multiple(d_frame_len);
+            //set_output_multiple(d_frame_len);
             if(subcarriers % 2 != 0) {
                 throw std::runtime_error("sliding_fft_cvc: Subcarriers not an even number!");
             }
@@ -74,7 +74,7 @@ namespace gr {
         void
         sliding_fft_cvc_impl::forecast(int noutput_items, gr_vector_int &ninput_items_required) {
             /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
-            ninput_items_required[0] = d_subcarriers * d_bands * d_overlap * d_frame_len;
+            ninput_items_required[0] = d_bands * d_subcarriers * (d_overlap + (noutput_items-1)/2);
         }
 
         int
@@ -85,7 +85,9 @@ namespace gr {
             const gr_complex *in = (const gr_complex *) input_items[0];
             gr_complex *out = (gr_complex *) output_items[0];
 
-            int d_full_symbols = d_frame_len;
+            int d_full_symbols = std::min(2 * (ninput_items[0]/(d_bands * d_subcarriers) - d_overlap) + 1,
+            noutput_items); // choose what is the limiting value
+
             // Do <+signal processing+>
             //gr_complex fft_result[d_overlap * d_subcarriers * d_bands];
             float normalize = static_cast<float>(5.0/std::sqrt(d_subcarriers * d_overlap * d_bands));
@@ -104,11 +106,10 @@ namespace gr {
             }
             // Tell runtime system how many input items we consumed on
             // each input stream.
-            consume_each(d_frame_len * d_bands * d_subcarriers/2);
+            consume_each(d_full_symbols * d_bands * d_subcarriers/2);
 
             // Tell runtime system how many output items we produced.
-            return d_frame_len;
-            return d_frame_len;
+            return d_full_symbols;
         }
 
     } /* namespace fbmc */

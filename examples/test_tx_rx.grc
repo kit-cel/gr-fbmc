@@ -261,7 +261,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>128</value>
+      <value>32</value>
     </param>
   </block>
   <block>
@@ -432,7 +432,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>128</value>
+      <value>32</value>
     </param>
   </block>
   <block>
@@ -662,7 +662,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>np.concatenate(([0,]*2, [1,]*60, [0,]*2))</value>
+      <value>np.concatenate(([0,]*2, [1,]*12, [0,]*2))</value>
     </param>
   </block>
   <block>
@@ -1681,7 +1681,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(916, 686)</value>
+      <value>(916, 718)</value>
     </param>
     <param>
       <key>_rotation</key>
