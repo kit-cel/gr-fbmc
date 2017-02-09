@@ -85,7 +85,7 @@ namespace gr {
             const gr_complex *in = (const gr_complex *) input_items[0];
             gr_complex *out = (gr_complex *) output_items[0];
 
-            int d_full_symbols = std::min(2 * (ninput_items[0]/(d_bands * d_subcarriers) - d_overlap) + 1,
+            int d_full_symbols = std::min(2 * (ninput_items[0]/(d_bands * d_subcarriers) - d_overlap) + 1, // input items
             noutput_items); // choose what is the limiting value
 
             // Do <+signal processing+>

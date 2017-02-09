@@ -34,23 +34,26 @@ namespace gr {
 
     class channel_estimator_vcvc_impl : public channel_estimator_vcvc {
     private:
-      int d_subcarriers, d_pilot_timestep, d_o, d_frame_len, d_bands;
+      int d_subcarriers, d_pilot_timestep, d_o, d_frame_len, d_bands, d_curr_symbol;
       std::vector<float> d_taps;
-      std::vector<int> d_pilot_carriers;
+      std::vector<int> d_pilot_carriers, d_spread_pilots;
       float d_pilot_amp;
       Matrixf d_G;
-      Matrixc d_channel;
+      Matrixc d_curr_pilot;
       Matrixc d_R;
+      Matrixc d_prev_pilot;
       interp2d *d_interpolator;
       phase_helper *d_helper;
+      bool d_pilot_stored;
 
       Matrixf spreading_matrix();
-      void channel_estimation(Matrixc R);
-      Matrixc interpolate_channel();
+      void interpolate_time(std::vector<Matrixc>& queue);
+      void interpolate_freq(Matrixc estimate);
       void write_output(gr_complex *out, Matrixc d_matrix);
-      double fine_freq_sync();
-      double fine_time_sync();
-      std::vector<gr_complex> matrix_mean(Matrixc matrix, int axis);
+      Matrixc concatenate(std::vector<Matrixc>& queue);
+      //double fine_freq_sync();
+      //double fine_time_sync();
+      //std::vector<gr_complex> matrix_mean(Matrixc matrix, int axis);
 
     public:
       channel_estimator_vcvc_impl(int frame_len, int subcarriers, int overlap, int bands, std::vector<float> taps,

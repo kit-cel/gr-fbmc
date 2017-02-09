@@ -20,11 +20,11 @@ namespace gr {
       int d_x_min, d_x_max, d_y_min, d_y_max;
 
     public:
-      interp2d(std::vector<int> y_coord);
+      interp2d();
       ~interp2d();
       gr_complex interp1d(gr_complex v1, gr_complex v2, int v2pos, int valpos);
       gr_complex interpolate(int x, int y);
-      void set_params(std::vector<int> x_coord, Matrixc data);
+      void set_params(std::vector<int> x_coord, std::vector<int> y_coord, Matrixc data);
     };
   }
 }

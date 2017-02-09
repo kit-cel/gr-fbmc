@@ -50,18 +50,23 @@ namespace gr {
           d_subcarriers(subcarriers), d_taps(taps), d_pilot_amp(pilot_amp),
           d_pilot_timestep(pilot_timestep), d_frame_len(frame_len), d_o(overlap), d_bands(bands)
     {
-      set_output_multiple(d_frame_len);
-      d_R.resize(d_subcarriers * d_o * d_bands, d_frame_len);
+      d_curr_symbol = 0; // frame position
+      d_pilot_stored = false; // was there a pilot already?
+      d_prev_pilot.resize(d_subcarriers * d_bands * d_o, 1);
+      d_curr_pilot.resize(d_subcarriers * d_bands * d_o, 1);
+      d_R.resize(d_subcarriers * d_o * d_bands, d_frame_len); //receive data
       d_G = spreading_matrix();
+      // freq positions of pilots
       for(int b = 0; b < d_bands; b++) {
         std::for_each(pilot_carriers.begin(), pilot_carriers.end(), [&](int &c) {
           d_pilot_carriers.push_back(c + b*d_subcarriers);
         });
       }
-      std::vector<int> spread_pilots(d_pilot_carriers.size());
-      std::transform(d_pilot_carriers.begin(), d_pilot_carriers.end(), spread_pilots.begin(), std::bind1st(std::multiplies<int>(),d_o));
-      d_interpolator = new interp2d(spread_pilots);
-      d_helper = new phase_helper();
+      d_spread_pilots.resize(d_pilot_carriers.size());
+      std::transform(d_pilot_carriers.begin(), d_pilot_carriers.end(), d_spread_pilots.begin(), std::bind1st(std::multiplies<int>(),d_o));
+      d_interpolator = new interp2d();
+      d_helper = new phase_helper(); // phase unwrap etc.
+      set_output_multiple(d_pilot_timestep);
     }
 
     /*
@@ -99,7 +104,7 @@ namespace gr {
       return result;
     }
 
-    std::vector<gr_complex>
+    /*std::vector<gr_complex>
     channel_estimator_vcvc_impl::matrix_mean(Matrixc matrix, int axis) {
       std::vector<gr_complex> result;
       if(axis == 0) { // rowwise
@@ -151,51 +156,65 @@ namespace gr {
       double t_o = d_helper->linear_regression(phase)[0];
       t_o /= 2*M_PI;
       return t_o;
+    }*/
+
+    void
+    channel_estimator_vcvc_impl::interpolate_freq(Matrixc estimate) {
+      std::vector<int> times {0};
+      Matrixc pilots(d_pilot_carriers.size(), 1);
+      for (int i = 0; i < d_pilot_carriers.size(); ++i) {
+        pilots(i, 0) = estimate(d_pilot_carriers[i], 0);
+      }
+      // interpolate in frequency direction
+      d_interpolator->set_params(times, d_spread_pilots, pilots);
+      for (unsigned int n = 0; n < d_curr_pilot.rows(); n++) {
+        d_curr_pilot(n, 0) = d_interpolator->interpolate(0, n);
+
+        //std::cout << d_curr_pilot (n, 0) << " ";
+      }
+      //std::cout << std::endl;
     }
 
     void
-    channel_estimator_vcvc_impl::channel_estimation(Matrixc R) {
-      gr_complex pilot_sym;
-      long K = (R.cols() - 2) / d_pilot_timestep + 1; // number of symbols containing pilots
-      Matrixc estimate(d_pilot_carriers.size(), K);
-      for (unsigned int k = 0; k < K; k++) {
-        int i = 0;
-        for (std::vector<int>::iterator it = d_pilot_carriers.begin(); it != d_pilot_carriers.end(); ++it) {
-          if((k*d_pilot_timestep+*it) % 2 == 0) {
-            pilot_sym = R(*it, k * d_pilot_timestep + 2);
-          } else {
-            pilot_sym = gr_complex(R(*it, k * d_pilot_timestep + 2).imag(), -R(*it, k * d_pilot_timestep + 2).real());
-          }
-          estimate(i, k) = pilot_sym / d_pilot_amp;  // channel estimation
-          //std::cout << estimate(i, k) << ", ";
-          i++;
-        }
-        //std::cout << std::endl;
+    channel_estimator_vcvc_impl::interpolate_time(std::vector<Matrixc>& queue) {
+      int interpol_span = d_pilot_timestep;
+      if(d_curr_symbol == 2) { // first pilot per frame
+        interpol_span = d_frame_len - std::floor((d_frame_len-2)/d_pilot_timestep) * d_pilot_timestep;
       }
-      d_channel = estimate;
+      std::vector<int> times {0, interpol_span};
+      std::vector<int> freqs(d_curr_pilot.size());
+      std::iota(freqs.begin(), freqs.end(), 0);
+      Matrixc snippet(d_prev_pilot.rows(), d_prev_pilot.cols()+d_curr_pilot.cols());
+      snippet << d_prev_pilot, d_curr_pilot;
+      Matrixc interp(d_R.rows(), interpol_span);
+      d_interpolator->set_params(times, freqs, snippet);
+      for (int k = 0; k < interpol_span; k++) {
+        for (int n = 0; n < interp.rows(); n++) {
+          interp(n, k) = d_interpolator->interpolate(k+1, n);
+          if(std::abs(d_curr_pilot(n, 0)) < 0.5) {
+            std::cout << "(" << n << "," << "KACKE" << ") " << std::endl;
+          }
+        }
+      }
+      queue.push_back(interp);
     }
 
     Matrixc
-    channel_estimator_vcvc_impl::interpolate_channel() {
-      // vector of symbol indexes with pilots
-      std::vector<int> pilot_times;
-      Matrixc R_eq(d_R.rows(), d_R.cols());
-      for (int i = 2; i < d_R.cols(); i += d_pilot_timestep) {
-        pilot_times.push_back(i);
+    channel_estimator_vcvc_impl::concatenate(std::vector<Matrixc>& queue) {
+      int cols = 0;
+      for (int i = 0; i < queue.size(); ++i) {
+        cols += queue[i].cols();
       }
-      d_interpolator->set_params(pilot_times, d_channel);
-      for (unsigned int k = 0; k < d_R.cols(); k++) {
-        for (unsigned int n = 0; n < d_R.rows(); n++) {
-          R_eq(n, k) = d_interpolator->interpolate(k, n);
-          //std::cout << R_eq(n, k) << ", ";
-        }
-        //std::cout << std::endl << std::endl;
+      Matrixc result(d_subcarriers * d_o * d_bands, cols);
+      for (int i = 0; i < queue.size(); ++i) {
+        result << queue[i];
       }
-      return R_eq;
+      return result;
     }
 
     void
     channel_estimator_vcvc_impl::write_output(gr_complex *out, Matrixc d_matrix) {
+
       for (int i = 0; i < d_matrix.size(); i++) {
         out[i] = *(d_matrix.data() + i);
       }
@@ -208,19 +227,65 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
+      if(!d_pilot_stored && noutput_items < 3) { // no pilot received -> cannot do anything
+        return 0;
+      }
+
+      // receive matrix
+      d_R.resize(d_subcarriers * d_o * d_bands, noutput_items);
+
+      // fill matrix with input data
       for (int i = 0; i < d_R.size(); i++) {
         *(d_R.data() + i) = in[i];
       }
 
-      Matrixc curr_data(d_subcarriers * d_bands, d_frame_len);
-      Matrixc result(d_subcarriers * d_bands * d_o, d_frame_len);
+      Matrixc curr_data(d_subcarriers * d_bands, noutput_items);
+      Matrixc result;
+      std::vector<Matrixc> queue;
+      // despread for current data
       curr_data = d_G * d_R;
-      // estimate channel with pilots
-      channel_estimation(curr_data);
-      result = interpolate_channel();
+
+      /*int row = d_curr_symbol;
+      for(int i = 0; i < curr_data.size(); i++) {
+        if(i % (d_subcarriers*d_bands) == 0) {
+          std::cout << row << ": ";
+        }
+        std::cout << *(curr_data.data() + i) << ", ";
+        if((i+1) % (d_subcarriers*d_bands) == 0) {
+          std::cout << std::endl;
+          row++;
+        }
+        if(row == 17) {
+          row = 0;
+        }
+      }
+      std::cout << "==================================================" << std::endl;*/
+
+      for (int j = 0; j < curr_data.cols(); j++) {
+        if((d_curr_symbol-2) % d_pilot_timestep == 0) { // hit
+          interpolate_freq(curr_data.col(j)); // this writes d_curr_pilot
+          if(d_pilot_stored) {
+            interpolate_time(queue);
+          } else { // we have not received other pilots yet - only extrapolation is possible
+            for (int i = 0; i < 3; ++i) {
+              queue.push_back(d_curr_pilot); // 0 order extrapolation in time direction
+            }
+          }
+          d_prev_pilot = d_curr_pilot;
+          d_pilot_stored = true;
+        }
+        //std::cout << d_curr_symbol << ": " << curr_data(0, j) << std::endl;
+        d_curr_symbol++;
+        if(d_curr_symbol == d_frame_len) {
+          d_curr_symbol = 0;
+        }
+      }
+      result = concatenate(queue);
       write_output(out, result);
       // Tell runtime system how many output items we produced.
-      return d_frame_len;
+      d_curr_symbol = std::floor((d_curr_symbol-2)/d_pilot_timestep)*d_pilot_timestep + 3;
+      return result.cols();
+
     }
 
   } /* namespace fbmc */

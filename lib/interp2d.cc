@@ -23,20 +23,17 @@
 
 namespace gr {
   namespace fbmc {
-    interp2d::interp2d(std::vector<int> y_coord) :
-    d_y_coord(y_coord)
+    interp2d::interp2d()
     {
-      // find index borders in y direction
-      d_y_min = *std::min_element(d_y_coord.begin(), d_y_coord.end());
-      d_y_max = *std::max_element(d_y_coord.begin(), d_y_coord.end());
     }
 
     interp2d::~interp2d() {}
 
     void
-    interp2d::set_params(std::vector<int> x_coord, Matrixc data) {
+    interp2d::set_params(std::vector<int> x_coord, std::vector<int> y_coord, Matrixc data) {
       // x is only known during one work function, so it has to be reset every time
       d_x_coord = x_coord;
+      d_y_coord = y_coord;
       d_data = data;
       if(d_x_coord.size() != data.cols()) {
         throw std::runtime_error("interp2d: Size of x coords has to be width of data matrix");
@@ -44,6 +41,9 @@ namespace gr {
       if(d_y_coord.size() != data.rows()) {
         throw std::runtime_error("interp2d: Size of y corrds has to be height of data matrix");
       }
+      // find index borders in y direction
+      d_y_min = *std::min_element(d_y_coord.begin(), d_y_coord.end());
+      d_y_max = *std::max_element(d_y_coord.begin(), d_y_coord.end());
       d_x_min = *std::min_element(d_x_coord.begin(), d_x_coord.end());
       d_x_max = *std::max_element(d_x_coord.begin(), d_x_coord.end());
     }
