@@ -34,7 +34,7 @@ namespace gr {
 
     class channel_estimator_vcvc_impl : public channel_estimator_vcvc {
     private:
-      int d_subcarriers, d_pilot_timestep, d_o, d_frame_len, d_bands, d_curr_symbol;
+      int d_subcarriers, d_pilot_timestep, d_o, d_frame_len, d_bands, d_curr_symbol, d_items_produced;
       std::vector<float> d_taps;
       std::vector<int> d_pilot_carriers, d_spread_pilots;
       float d_pilot_amp;
@@ -49,8 +49,7 @@ namespace gr {
       Matrixf spreading_matrix();
       void interpolate_time(std::vector<Matrixc>& queue);
       void interpolate_freq(Matrixc estimate);
-      void write_output(gr_complex *out, Matrixc d_matrix);
-      Matrixc concatenate(std::vector<Matrixc>& queue);
+      void write_output(gr_complex *out, std::vector<Matrixc>& queue);
       //double fine_freq_sync();
       //double fine_time_sync();
       //std::vector<gr_complex> matrix_mean(Matrixc matrix, int axis);

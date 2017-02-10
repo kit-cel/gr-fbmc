@@ -165,7 +165,6 @@ namespace gr {
       for (int i = 0; i < d_pilot_carriers.size(); i++) {
         pilots(i, 0) = estimate(d_pilot_carriers[i], 0);
         if(std::abs(pilots(i, 0)) < 0.5) {
-          std::cout << d_curr_symbol << ": " << pilots(i, 0) << std::endl;
         }
       }
       // interpolate in frequency direction
@@ -173,7 +172,6 @@ namespace gr {
       for (unsigned int n = 0; n < d_curr_pilot.rows(); n++) {
         d_curr_pilot(n, 0) = d_interpolator->interpolate(0, n);
       }
-      //std::cout << std::endl;
     }
 
     void
@@ -192,29 +190,20 @@ namespace gr {
       for (int k = 0; k < interpol_span; k++) {
         for (int n = 0; n < interp.rows(); n++) {
           interp(n, k) = d_interpolator->interpolate(k+1, n);
+          if(std::abs(interp(n, k)) < 0.5) {
+            std::cout << d_curr_symbol << ": " <<interp(n, k) << std::endl;
+          }
         }
+        d_items_produced++;
       }
       queue.push_back(interp);
     }
 
-    Matrixc
-    channel_estimator_vcvc_impl::concatenate(std::vector<Matrixc>& queue) {
-      int cols = 0;
-      for (int i = 0; i < queue.size(); i++) {
-        cols += queue[i].cols();
-      }
-      Matrixc result(d_subcarriers * d_o * d_bands, cols);
-      for (int i = 0; i < queue.size(); i++) {
-        result << queue[i];
-      }
-      return result;
-    }
-
     void
-    channel_estimator_vcvc_impl::write_output(gr_complex *out, Matrixc d_matrix) {
-
-      for (int i = 0; i < d_matrix.size(); i++) {
-        out[i] = *(d_matrix.data() + i);
+    channel_estimator_vcvc_impl::write_output(gr_complex *out, std::vector<Matrixc>& queue) {
+      for (int i = 0; i < queue.size(); i++) {
+        memcpy(out, queue[i].data(), queue[i].size() * sizeof(gr_complex));
+        out += queue[i].size();
       }
     }
 
@@ -224,40 +213,16 @@ namespace gr {
                                       gr_vector_void_star &output_items) {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
-
-      if(!d_pilot_stored && noutput_items < 3) { // no pilot received -> cannot do anything
-        return 0;
-      }
-
+      d_items_produced = 0;
       // receive matrix
       d_R.resize(d_subcarriers * d_o * d_bands, noutput_items);
 
       // fill matrix with input data
-      for (int i = 0; i < d_R.size(); i++) {
-        *(d_R.data() + i) = in[i];
-      }
+      memcpy(d_R.data(), in, sizeof(gr_complex) * d_subcarriers * d_o * d_bands * noutput_items);
 
       Matrixc curr_data(d_subcarriers * d_bands, noutput_items);
-      Matrixc result;
       std::vector<Matrixc> queue;
-      // despread for current data
       curr_data = d_G * d_R;
-
-      /*int row = d_curr_symbol;
-      for(int i = 0; i < curr_data.size(); i++) {
-        if(i % (d_subcarriers*d_bands) == 0) {
-          std::cout << row << ": ";
-        }
-        std::cout << *(curr_data.data() + i) << ", ";
-        if((i+1) % (d_subcarriers*d_bands) == 0) {
-          std::cout << std::endl;
-          row++;
-        }
-        if(row == 17) {
-          row = 0;
-        }
-      }
-      std::cout << "==================================================" << std::endl;*/
 
       for (int j = 0; j < curr_data.cols(); j++) {
         if((d_curr_symbol-2) % d_pilot_timestep == 0) { // hit
@@ -267,6 +232,7 @@ namespace gr {
           } else { // we have not received other pilots yet - only extrapolation is possible
             for (int i = 0; i < 3; i++) {
               queue.push_back(d_curr_pilot); // 0 order extrapolation in time direction
+              d_items_produced++;
             }
           }
           d_prev_pilot = d_curr_pilot;
@@ -278,17 +244,15 @@ namespace gr {
           d_curr_symbol = 0;
         }
       }
-      result = concatenate(queue);
-      write_output(out, result);
-      // Tell runtime system how many output items we produced.
-      if(d_curr_symbol < 2) {
-        d_curr_symbol = std::floor((d_frame_len-2)/d_pilot_timestep)*d_pilot_timestep + 3;
-      } else {
-        d_curr_symbol = std::floor((d_curr_symbol - 2) / d_pilot_timestep) * d_pilot_timestep + 3;
-      }
-      std::cout << "return " << result.cols() << "(symbol " << d_curr_symbol << ")" << std::endl;
-      return result.cols();
 
+      write_output(out, queue);
+      // Tell runtime system how many output items we produced.
+      if(d_curr_symbol < 3) {
+        d_curr_symbol = ((d_frame_len-2)/d_pilot_timestep)*d_pilot_timestep + 3;
+      } else {
+        d_curr_symbol = ((d_curr_symbol - 3) / d_pilot_timestep) * d_pilot_timestep + 3;
+      }
+      return d_items_produced;
     }
 
   } /* namespace fbmc */
