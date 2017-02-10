@@ -55,7 +55,6 @@ namespace gr {
       d_prev_pilot.resize(d_subcarriers * d_bands * d_o, 1);
       d_curr_pilot.resize(d_subcarriers * d_bands * d_o, 1);
       d_R.resize(d_subcarriers * d_o * d_bands, d_frame_len); //receive data
-      d_G = spreading_matrix();
       // freq positions of pilots
       for(int b = 0; b < d_bands; b++) {
         std::for_each(pilot_carriers.begin(), pilot_carriers.end(), [&](int &c) {
@@ -162,15 +161,17 @@ namespace gr {
     channel_estimator_vcvc_impl::interpolate_freq(Matrixc estimate) {
       std::vector<int> times {0};
       Matrixc pilots(d_pilot_carriers.size(), 1);
-      for (int i = 0; i < d_pilot_carriers.size(); ++i) {
+
+      for (int i = 0; i < d_pilot_carriers.size(); i++) {
         pilots(i, 0) = estimate(d_pilot_carriers[i], 0);
+        if(std::abs(pilots(i, 0)) < 0.5) {
+          std::cout << d_curr_symbol << ": " << pilots(i, 0) << std::endl;
+        }
       }
       // interpolate in frequency direction
       d_interpolator->set_params(times, d_spread_pilots, pilots);
       for (unsigned int n = 0; n < d_curr_pilot.rows(); n++) {
         d_curr_pilot(n, 0) = d_interpolator->interpolate(0, n);
-
-        //std::cout << d_curr_pilot (n, 0) << " ";
       }
       //std::cout << std::endl;
     }
@@ -191,9 +192,6 @@ namespace gr {
       for (int k = 0; k < interpol_span; k++) {
         for (int n = 0; n < interp.rows(); n++) {
           interp(n, k) = d_interpolator->interpolate(k+1, n);
-          if(std::abs(d_curr_pilot(n, 0)) < 0.5) {
-            std::cout << "(" << n << "," << "KACKE" << ") " << std::endl;
-          }
         }
       }
       queue.push_back(interp);
@@ -202,11 +200,11 @@ namespace gr {
     Matrixc
     channel_estimator_vcvc_impl::concatenate(std::vector<Matrixc>& queue) {
       int cols = 0;
-      for (int i = 0; i < queue.size(); ++i) {
+      for (int i = 0; i < queue.size(); i++) {
         cols += queue[i].cols();
       }
       Matrixc result(d_subcarriers * d_o * d_bands, cols);
-      for (int i = 0; i < queue.size(); ++i) {
+      for (int i = 0; i < queue.size(); i++) {
         result << queue[i];
       }
       return result;
@@ -267,7 +265,7 @@ namespace gr {
           if(d_pilot_stored) {
             interpolate_time(queue);
           } else { // we have not received other pilots yet - only extrapolation is possible
-            for (int i = 0; i < 3; ++i) {
+            for (int i = 0; i < 3; i++) {
               queue.push_back(d_curr_pilot); // 0 order extrapolation in time direction
             }
           }
@@ -283,7 +281,12 @@ namespace gr {
       result = concatenate(queue);
       write_output(out, result);
       // Tell runtime system how many output items we produced.
-      d_curr_symbol = std::floor((d_curr_symbol-2)/d_pilot_timestep)*d_pilot_timestep + 3;
+      if(d_curr_symbol < 2) {
+        d_curr_symbol = std::floor((d_frame_len-2)/d_pilot_timestep)*d_pilot_timestep + 3;
+      } else {
+        d_curr_symbol = std::floor((d_curr_symbol - 2) / d_pilot_timestep) * d_pilot_timestep + 3;
+      }
+      std::cout << "return " << result.cols() << "(symbol " << d_curr_symbol << ")" << std::endl;
       return result.cols();
 
     }

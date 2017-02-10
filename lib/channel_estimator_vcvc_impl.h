@@ -38,7 +38,7 @@ namespace gr {
       std::vector<float> d_taps;
       std::vector<int> d_pilot_carriers, d_spread_pilots;
       float d_pilot_amp;
-      Matrixf d_G;
+      const Matrixf d_G = spreading_matrix();
       Matrixc d_curr_pilot;
       Matrixc d_R;
       Matrixc d_prev_pilot;
