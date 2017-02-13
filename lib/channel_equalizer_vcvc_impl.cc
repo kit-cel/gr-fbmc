@@ -50,10 +50,8 @@ namespace gr {
           d_frame_len(frame_len), d_pilot_timestep(pilot_timestep), d_subcarriers(subcarriers),
           d_pilot_amp(pilot_amplitude), d_bands(bands),
           d_pilot_carriers(pilot_carriers), d_taps(taps), d_o(overlap) {
-      set_output_multiple(d_frame_len);
+      //set_output_multiple(d_frame_len);
       d_G = spreading_matrix();
-      d_R.resize(d_subcarriers * d_o * d_bands, d_frame_len);
-      d_data.resize(d_subcarriers * d_bands, d_frame_len);
       /*for (int i = 0; i < d_G.rows(); ++i) {
         for (int j = 0; j < d_G.cols(); ++j) {
           std::cout << d_G(i, j) << " ";
@@ -121,15 +119,12 @@ namespace gr {
       const gr_complex *chan = (const gr_complex *) input_items[1];
       gr_complex *out = (gr_complex *) output_items[0];
 
-      for (int i = 0; i < noutput_items; ++i) {
-        if(std::abs(chan[i]) < 0.5) {
-          //std::cout << chan[i] << " ";
-        }
-      }
       // Do <+signal processing+>
+      d_R.resize(d_subcarriers * d_o * d_bands, noutput_items);
+      d_data.resize(d_subcarriers * d_bands, noutput_items);
       //memcpy(d_R.data(), in, sizeof(gr_complex) * d_bands * d_subcarriers * d_o * d_frame_len);
       volk_32fc_x2_divide_32fc(d_R.data(), in, chan,
-                                static_cast<unsigned int>(d_bands * d_subcarriers * d_o * d_frame_len)); // zero forcing
+                                static_cast<unsigned int>(d_bands * d_subcarriers * d_o * noutput_items)); // zero forcing
       d_data = d_G * d_R; // despreading
       write_output(out, d_data);
       /*int row = 0;
@@ -146,7 +141,7 @@ namespace gr {
       std::cout << "==================================================" << std::endl;*/
 
       // Tell runtime system how many output items we produced.
-      return d_frame_len;
+      return noutput_items;
     }
 
   } /* namespace fbmc */

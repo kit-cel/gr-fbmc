@@ -853,7 +853,7 @@
     <key>analog_noise_source_x</key>
     <param>
       <key>amp</key>
-      <value>0</value>
+      <value>0.01</value>
     </param>
     <param>
       <key>alias</key>
@@ -1583,7 +1583,7 @@
     </param>
     <param>
       <key>vector</key>
-      <value>(255, 255)</value>
+      <value>(171, 205, 239)</value>
     </param>
   </block>
   <block>
@@ -1606,7 +1606,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1156, 544)</value>
+      <value>(1156, 550)</value>
     </param>
     <param>
       <key>_rotation</key>
