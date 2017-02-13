@@ -190,9 +190,6 @@ namespace gr {
       for (int k = 0; k < interpol_span; k++) {
         for (int n = 0; n < interp.rows(); n++) {
           interp(n, k) = d_interpolator->interpolate(k+1, n);
-          if(std::abs(interp(n, k)) < 0.5) {
-            std::cout << d_curr_symbol << ": " <<interp(n, k) << std::endl;
-          }
         }
         d_items_produced++;
       }
