@@ -5,8 +5,8 @@
     <key>variable_sync_config</key>
     <category>FBMC</category>
     <import>import fbmc</import>
-    <var_make>self.$(id) = $(id) = fbmc.sync_config(taps=$taps, N=$N, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_make>
-    <var_value>fbmc.sync_config(taps=$taps, N=$N, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_value>
+    <var_make>self.$(id) = $(id) = fbmc.sync_config(taps=$taps, N=$N, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, subbands=$bands, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_make>
+    <var_value>fbmc.sync_config(taps=$taps, N=$N, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, subbands=$bands, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len)</var_value>
     <make></make>
     <param>
         <name>Filter Taps</name>
@@ -18,6 +18,12 @@
         <name>Subcarriers</name>
         <key>N</key>
         <value>256</value>
+        <type>int</type>
+    </param>
+    <param>
+        <name>Number of Subbands</name>
+        <key>bands</key>
+        <value>1</value>
         <type>int</type>
     </param>
     <param>

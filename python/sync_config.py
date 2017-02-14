@@ -25,7 +25,7 @@
 import numpy as np
 
 class sync_config:
-    def __init__(self, taps, N, L, pilot_A, pilot_timestep, pilot_carriers, pos=4, u=1, q=4, A=1.0, fft_len=2**13):
+    def __init__(self, taps, N, L, pilot_A, pilot_timestep, pilot_carriers, subbands=1, pos=4, u=1, q=4, A=1.0, fft_len=2**13):
         """
         Calculates preamble with independent Zadoff-Chu sequence
         :param taps: Filter taps of length O*N
@@ -48,6 +48,7 @@ class sync_config:
         self.u = u
         self.q = q
         self.A = A
+        self.subbands = subbands
         self.c = self.build_preamble_symbols()
         self.Z_fft = np.fft.fft(self.get_zadoff_chu(self.N), fft_len)
 
@@ -90,6 +91,13 @@ class sync_config:
         C = self.get_c_sequence()
         c = 2.0/self.N * np.fft.fft(C[0] + 1j*C[1])  # c_2n^R
         return c
+
+    def get_fir_sequence(self):
+        zc = self.get_zadoff_chu(self.N//2)
+        zc_freq = np.fft.fftshift(np.fft.fft(zc))
+        zc_freq = np.tile(zc_freq, self.subbands)
+        zc = np.fft.ifft(np.fft.ifftshift(zc_freq))
+        return np.conj(np.fliplr(zc)) # needed for fir correlation
 
     def get_preamble_symbols(self):
         return self.c

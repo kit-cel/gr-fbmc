@@ -325,6 +325,10 @@
       <value>sync</value>
     </param>
     <param>
+      <key>bands</key>
+      <value>bands</value>
+    </param>
+    <param>
       <key>pilot_A</key>
       <value>1.0</value>
     </param>
