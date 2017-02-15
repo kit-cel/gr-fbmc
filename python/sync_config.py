@@ -92,13 +92,18 @@ class sync_config:
         c = 2.0/self.N * np.fft.fft(C[0] + 1j*C[1])  # c_2n^R
         return c
 
-    def get_fir_sequence(self, band):
+    def get_fir_sequences(self):
         zc = self.get_zadoff_chu(self.N//2)
         zc_freq = np.fft.fftshift(np.fft.fft(zc))
-        zc_freq = np.concatenate((zc_freq, np.zeros(3*self.N//2))) # time interpolation
-        zc_freq = np.roll(zc_freq, self.N//2 * band) # freq shift
-        zc = np.fft.ifft(np.fft.ifftshift(zc_freq))
-        return np.conj(np.fliplr(zc)) # needed for fir correlation
+        zc_freq0 = np.concatenate((zc_freq, np.zeros(3*self.N//2))) # time interpolation
+        zc_freq1 = np.roll(zc_freq0, self.N//2 * 1) # freq shift
+        zc_freq2 = np.roll(zc_freq0, self.N//2 * 2) # freq shift
+        zc_freq3 = np.roll(zc_freq0, self.N//2 * 3) # freq shift
+        zc0 = np.conj(np.fliplr(np.fft.ifft(np.fft.ifftshift(zc_freq0))))
+        zc1 = np.conj(np.fliplr(np.fft.ifft(np.fft.ifftshift(zc_freq1))))
+        zc2 = np.conj(np.fliplr(np.fft.ifft(np.fft.ifftshift(zc_freq2))))
+        zc3 = np.conj(np.fliplr(np.fft.ifft(np.fft.ifftshift(zc_freq3))))
+        return np.concatenate((zc0, zc1, zc2, zc3))
 
     def get_preamble_symbols(self):
         return self.c
