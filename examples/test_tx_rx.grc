@@ -198,7 +198,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>32</value>
+      <value>32*4</value>
     </param>
   </block>
   <block>
@@ -279,7 +279,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>np.concatenate(([0,]*2, [1,]*12, [0,]*2))</value>
+      <value>np.concatenate(([0,]*2, [1,]*60, [0,]*2))</value>
     </param>
   </block>
   <block>
@@ -384,7 +384,7 @@
     <key>analog_noise_source_x</key>
     <param>
       <key>amp</key>
-      <value>0.00001</value>
+      <value>0.005</value>
     </param>
     <param>
       <key>alias</key>
@@ -608,7 +608,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(980, 504)</value>
+      <value>(980, 444)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -647,7 +647,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -660,53 +660,6 @@
     <param>
       <key>id</key>
       <value>blocks_message_debug_0</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_null_sink</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>bus_conns</key>
-      <value>[[0,],]</value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1740, 598)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_null_sink_0</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>byte</value>
-    </param>
-    <param>
-      <key>num_inputs</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
     </param>
   </block>
   <block>
@@ -1216,7 +1169,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(916, 718)</value>
+      <value>(948, 716)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1287,7 +1240,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(748, 564)</value>
+      <value>(784, 564)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1334,7 +1287,7 @@
     </param>
     <param>
       <key>threshold</key>
-      <value>0.8</value>
+      <value>0.9</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -1342,7 +1295,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1460, 550)</value>
+      <value>(1460, 544)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1715,7 +1668,7 @@
     </param>
     <param>
       <key>average</key>
-      <value>0.05</value>
+      <value>1.0</value>
     </param>
     <param>
       <key>axislabels</key>
@@ -1747,7 +1700,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>fftsize</key>
@@ -2397,7 +2350,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1200, 400)</value>
+      <value>(1200, 396)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -2625,7 +2578,7 @@
     </param>
     <param>
       <key>ymax</key>
-      <value>4</value>
+      <value>1</value>
     </param>
     <param>
       <key>ymin</key>
@@ -2655,6 +2608,12 @@
   <connection>
     <source_block_id>blocks_add_xx_0</source_block_id>
     <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_add_xx_0</source_block_id>
+    <sink_block_id>qtgui_freq_sink_x_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2745,12 +2704,6 @@
   <connection>
     <source_block_id>fbmc_sliding_fft_cvc_0</source_block_id>
     <sink_block_id>fbmc_channel_estimator_vcvc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fbmc_subchannel_deframer_vcb_0</source_block_id>
-    <sink_block_id>blocks_null_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

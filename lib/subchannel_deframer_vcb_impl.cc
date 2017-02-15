@@ -78,9 +78,10 @@ namespace gr {
 
     std::vector<gr_complex>
     subchannel_deframer_vcb_impl::extract_preamble(int band) {
+
       std::vector<gr_complex> result;
-      for (int j = band * d_subcarriers + d_guard_carriers;
-           j < band * d_subcarriers + d_subcarriers - d_guard_carriers; j += 2) {
+      for (int j = band * d_subcarriers + ((d_guard_carriers+1) & ~1); // this rounds up to the next even integer
+           j < band * d_subcarriers + d_subcarriers - ((d_guard_carriers+1) & ~1); j += 2) {
         result.push_back(gr_complex(d_curr_frame[0][j].real(), d_curr_frame[1][j].imag()));
       }
 
@@ -97,18 +98,19 @@ namespace gr {
 
     double
     subchannel_deframer_vcb_impl::correlate(const std::vector<gr_complex> &received) {
-      std::vector<float> abs_square(d_preamble.size());
-      volk_32fc_magnitude_squared_32f(&abs_square[0], &d_preamble[(d_guard_carriers + 1) / 2],
-                                      static_cast<unsigned int>(received.size() - (d_guard_carriers + 1) / 2));
-      double energy = std::accumulate(abs_square.begin(), abs_square.end(), 0.0);
+      //std::vector<float> abs_square(received.size());
+      //volk_32fc_magnitude_squared_32f(&abs_square[0], &received[0], static_cast<unsigned int>(received.size()));
+      double energy = 0.0;//std::accumulate(abs_square.begin(), abs_square.end(), 0.0);
 
-      gr_complex correlation[received.size() - d_guard_carriers];
+      gr_complex correlation[received.size()];
       volk_32fc_x2_multiply_conjugate_32fc(&correlation[0], &d_preamble[(d_guard_carriers + 1) / 2], &received[0],
                                            static_cast<unsigned int>(received.size()));
       //std::cout << d_preamble.size() << ", " << received.size() << std::endl;
       gr_complex corr_result = gr_complex(0, 0);
       for (int i = 0; i < received.size(); i++) {
         corr_result += correlation[i];
+        energy += std::sqrt(std::abs(received[i]) * std::abs(received[i]) * std::abs(d_preamble[i+(d_guard_carriers + 1) / 2]) *
+                  std::abs(d_preamble[i+(d_guard_carriers + 1) / 2]));
       }
       //std::cout << std::abs(corr_result) << ", " << energy << std::endl;
       return std::abs(corr_result) / energy;

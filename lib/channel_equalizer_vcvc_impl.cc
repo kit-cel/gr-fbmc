@@ -119,6 +119,7 @@ namespace gr {
       const gr_complex *chan = (const gr_complex *) input_items[1];
       gr_complex *out = (gr_complex *) output_items[0];
 
+
       // Do <+signal processing+>
       d_R.resize(d_subcarriers * d_o * d_bands, noutput_items);
       d_data.resize(d_subcarriers * d_bands, noutput_items);
@@ -141,6 +142,7 @@ namespace gr {
       std::cout << "==================================================" << std::endl;*/
 
       // Tell runtime system how many output items we produced.
+
       return noutput_items;
     }
 

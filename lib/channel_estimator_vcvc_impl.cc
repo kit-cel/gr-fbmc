@@ -65,7 +65,7 @@ namespace gr {
       std::transform(d_pilot_carriers.begin(), d_pilot_carriers.end(), d_spread_pilots.begin(), std::bind1st(std::multiplies<int>(),d_o));
       d_interpolator = new interp2d();
       d_helper = new phase_helper(); // phase unwrap etc.
-      set_output_multiple(d_pilot_timestep);
+      set_output_multiple(d_frame_len - std::floor((d_frame_len-2)/d_pilot_timestep) * d_pilot_timestep);
     }
 
     /*
