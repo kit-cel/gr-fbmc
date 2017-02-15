@@ -92,10 +92,11 @@ class sync_config:
         c = 2.0/self.N * np.fft.fft(C[0] + 1j*C[1])  # c_2n^R
         return c
 
-    def get_fir_sequence(self):
+    def get_fir_sequence(self, band):
         zc = self.get_zadoff_chu(self.N//2)
         zc_freq = np.fft.fftshift(np.fft.fft(zc))
-        zc_freq = np.tile(zc_freq, self.subbands)
+        zc_freq = np.concatenate((zc_freq, np.zeros(3*self.N//2))) # time interpolation
+        zc_freq = np.roll(zc_freq, self.N//2 * band) # freq shift
         zc = np.fft.ifft(np.fft.ifftshift(zc_freq))
         return np.conj(np.fliplr(zc)) # needed for fir correlation
 
