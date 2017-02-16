@@ -93,6 +93,7 @@ class sync_config:
         return c
 
     def get_fir_sequences(self):
+        """Returns list of lists containing FIR filter taps for time correlation with time input signal"""
         zc = self.get_zadoff_chu(self.N//2)
         zc_freq = np.fft.fftshift(np.fft.fft(zc))
         zc_freq0 = np.concatenate((zc_freq, np.zeros(3*self.N//2))) # time interpolation
@@ -119,5 +120,9 @@ class sync_config:
 
     def get_pilot_carriers(self):
         return self.pilot_carriers
+
+    def get_moving_average_taps(self, length):
+        """Taps for moving average FIR filter with given length"""
+        return [1.0/length for n in range(length)]
 
 #a = sync_config(taps=np.ones(32*4), N=32, L=31, pilot_A=1.0, pilot_timestep=4, pilot_carriers=range(0,32,5), pos=4, u=1, q=4, A=1.0, fft_len=2**13)
