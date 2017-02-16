@@ -103,7 +103,7 @@ class sync_config:
         zc1 = np.conj(np.fliplr(np.fft.ifft(np.fft.ifftshift(zc_freq1))))
         zc2 = np.conj(np.fliplr(np.fft.ifft(np.fft.ifftshift(zc_freq2))))
         zc3 = np.conj(np.fliplr(np.fft.ifft(np.fft.ifftshift(zc_freq3))))
-        return np.concatenate((zc0, zc1, zc2, zc3))
+        return [zc0, zc1, zc2, zc3]
 
     def get_preamble_symbols(self):
         return self.c
