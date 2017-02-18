@@ -52,5 +52,6 @@ install(FILES
     fbmc_channel_estimator_vcvc.xml
     fbmc_channel_equalizer_vcvc.xml
     fbmc_subchannel_deframer_vcb.xml
-    fbmc_tx_dummy_mixer_cc.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_tx_dummy_mixer_cc.xml
+    fbmc_cazac_sync_cc.xml DESTINATION share/gnuradio/grc/blocks
 )

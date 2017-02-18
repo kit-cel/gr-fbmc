@@ -24,6 +24,7 @@
 
 #include <gnuradio/io_signature.h>
 #include "channel_estimator_vcvc_impl.h"
+#include <numeric>
 
 namespace gr {
   namespace fbmc {

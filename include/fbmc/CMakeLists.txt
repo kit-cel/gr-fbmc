@@ -57,5 +57,6 @@ install(FILES
     channel_estimator_vcvc.h
     channel_equalizer_vcvc.h
     subchannel_deframer_vcb.h
-    tx_dummy_mixer_cc.h DESTINATION include/fbmc
+    tx_dummy_mixer_cc.h
+    cazac_sync_cc.h DESTINATION include/fbmc
 )
