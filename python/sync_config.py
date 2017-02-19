@@ -100,11 +100,11 @@ class sync_config:
         zc_freq1 = np.roll(zc_freq0, self.N//2 * 1) # freq shift
         zc_freq2 = np.roll(zc_freq0, self.N//2 * 2) # freq shift
         zc_freq3 = np.roll(zc_freq0, self.N//2 * 3) # freq shift
-        zc0 = np.conj(np.fliplr(np.fft.ifft(np.fft.ifftshift(zc_freq0))))
-        zc1 = np.conj(np.fliplr(np.fft.ifft(np.fft.ifftshift(zc_freq1))))
-        zc2 = np.conj(np.fliplr(np.fft.ifft(np.fft.ifftshift(zc_freq2))))
-        zc3 = np.conj(np.fliplr(np.fft.ifft(np.fft.ifftshift(zc_freq3))))
-        return [zc0, zc1, zc2, zc3]
+        zc0 = np.conj(np.flipud(np.fft.ifft(np.fft.ifftshift(zc_freq0))))
+        zc1 = np.conj(np.flipud(np.fft.ifft(np.fft.ifftshift(zc_freq1))))
+        zc2 = np.conj(np.flipud(np.fft.ifft(np.fft.ifftshift(zc_freq2))))
+        zc3 = np.conj(np.flipud(np.fft.ifft(np.fft.ifftshift(zc_freq3))))
+        return [zc0.tolist(), zc1.tolist(), zc2.tolist(), zc3.tolist()]
 
     def get_preamble_symbols(self):
         return self.c

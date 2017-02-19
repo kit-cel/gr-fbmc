@@ -1,38 +1,50 @@
-<?xml version="1.0"?>
 <block>
-  <name>cazac_sync_cc</name>
+  <name>Emergency Sync</name>
   <key>fbmc_cazac_sync_cc</key>
-  <category>[fbmc]</category>
+  <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.cazac_sync_cc($frame_len, $threshold, $zc_seqs)</make>
-  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
-       Sub-nodes:
-       * name
-       * key (makes the value accessible as $keyname, e.g. in the make node)
-       * type -->
+  <make>fbmc.cazac_sync_cc($subcarriers, $bands, $overlap, $frame_len, $threshold, $zc_seqs, $zc_fft)</make>
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <type>int</type>
   </param>
-
-  <!-- Make one 'sink' node per input. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
+  <param>
+    <name>Bands</name>
+    <key>bands</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Overlap</name>
+    <key>overlap</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Correlation threshold</name>
+    <key>threshold</key>
+    <type>real</type>
+  </param>
+  <param>
+    <name>Symbols per frame</name>
+    <key>frame_len</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Mixed ZC sequences</name>
+    <key>zc_seqs</key>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>ZC FFT sequence</name>
+    <key>zc_fft</key>
+    <type>complex_vector</type>
+  </param>
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
   </sink>
-
-  <!-- Make one 'source' node per output. Sub-nodes:
-       * name (an identifier for the GUI)
-       * type
-       * vlen
-       * optional (set to 1 for optional inputs) -->
   <source>
     <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
   </source>
 </block>

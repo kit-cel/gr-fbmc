@@ -23,32 +23,43 @@
 
 #include <fbmc/cazac_sync_cc.h>
 #include <gnuradio/fft/fft.h>
+#include <volk/volk.h>
 
 namespace gr {
   namespace fbmc {
 
-    class cazac_sync_cc_impl : public cazac_sync_cc
-    {
-     private:
-      int d_frame_len, d_subcarriers, d_bands, d_o;
+    class cazac_sync_cc_impl : public cazac_sync_cc {
+    private:
+      int d_frame_len, d_subcarriers, d_bands, d_o, d_curr_sample, d_fft_len;
       float d_threshold;
+      bool d_synced;
       std::vector<std::vector<gr_complex> > d_zc_seqs;
-      fft::fft_complex* d_fft;
+      std::vector<gr_complex> d_zc_fft;
+      fft::fft_complex *d_fft;
+      lv_32fc_t d_phase, d_phase_increment;
 
+      void zero_pad(std::vector<gr_complex> *vector, int len);
 
-      int time_sync(const gr_complex* in);
+      void circshift(std::vector<gr_complex> *vector, int shift);
 
-     public:
-      cazac_sync_cc_impl(int subcarriers, int bands, int overlap, int frame_len, float threshold, std::vector<std::vector<gr_complex> >& zc_seqs);
+      int time_sync(const gr_complex *in);
+
+      void freq_sync(const gr_complex *out);
+      void freq_correction(gr_complex *out, int length);
+
+    public:
+      cazac_sync_cc_impl(int subcarriers, int bands, int overlap, int frame_len, float threshold,
+                         std::vector<std::vector<gr_complex> > zc_seqs, std::vector<gr_complex> zc_fft);
+
       ~cazac_sync_cc_impl();
 
       // Where all the action really happens
-      void forecast (int noutput_items, gr_vector_int &ninput_items_required);
+      void forecast(int noutput_items, gr_vector_int &ninput_items_required);
 
       int general_work(int noutput_items,
-           gr_vector_int &ninput_items,
-           gr_vector_const_void_star &input_items,
-           gr_vector_void_star &output_items);
+                       gr_vector_int &ninput_items,
+                       gr_vector_const_void_star &input_items,
+                       gr_vector_void_star &output_items);
     };
 
   } // namespace fbmc

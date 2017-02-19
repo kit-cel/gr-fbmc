@@ -514,7 +514,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(704, 684)</value>
+      <value>(656, 684)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1075,6 +1075,73 @@
     </param>
   </block>
   <block>
+    <key>fbmc_cazac_sync_cc</key>
+    <param>
+      <key>bands</key>
+      <value>bands</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>threshold</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(708, 742)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fbmc_cazac_sync_cc_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>zc_seqs</key>
+      <value>sync.get_fir_sequences()</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>cfg.num_overlap_sym()</value>
+    </param>
+    <param>
+      <key>subcarriers</key>
+      <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
+    </param>
+    <param>
+      <key>zc_fft</key>
+      <value>sync.get_cazac_fft()</value>
+    </param>
+  </block>
+  <block>
     <key>fbmc_channel_equalizer_vcvc</key>
     <param>
       <key>alias</key>
@@ -1441,7 +1508,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(516, 596)</value>
+      <value>(412, 600)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2607,7 +2674,7 @@
   </connection>
   <connection>
     <source_block_id>blocks_add_xx_0</source_block_id>
-    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
+    <sink_block_id>fbmc_cazac_sync_cc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2674,6 +2741,12 @@
   <connection>
     <source_block_id>blocks_vector_source_x_1</source_block_id>
     <sink_block_id>blocks_unpack_k_bits_bb_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_cazac_sync_cc_0</source_block_id>
+    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::cazac_sync_cc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int subcarriers, int bands, int overlap, int frame_len, float threshold, std::vector<std::vector<gr_complex> >& zc_seqs);
+      static sptr make(int subcarriers, int bands, int overlap, int frame_len, float threshold, std::vector<std::vector<gr_complex> > zc_seqs, std::vector<gr_complex> zc_fft);
     };
 
   } // namespace fbmc
