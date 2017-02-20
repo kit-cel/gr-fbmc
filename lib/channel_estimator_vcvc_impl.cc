@@ -160,19 +160,16 @@ namespace gr {
 
     void
     channel_estimator_vcvc_impl::interpolate_freq(Matrixc estimate) {
+      for (int j = 0; j < estimate.rows(); ++j) {
+      }
       std::vector<int> times {0};
       Matrixc pilots(d_pilot_carriers.size(), 1);
 
       for (int i = 0; i < d_pilot_carriers.size(); i++) {
         pilots(i, 0) = estimate(d_pilot_carriers[i], 0);
-        if(std::abs(pilots(i, 0)) < 0.5) {
-        }
       }
       // interpolate in frequency direction
-      d_interpolator->set_params(times, d_spread_pilots, pilots);
-      for (unsigned int n = 0; n < d_curr_pilot.rows(); n++) {
-        d_curr_pilot(n, 0) = d_interpolator->interpolate(0, n);
-      }
+      d_curr_pilot = d_interpolator->interp1d(d_spread_pilots, d_R.rows(), pilots);
     }
 
     void
@@ -186,14 +183,8 @@ namespace gr {
       std::iota(freqs.begin(), freqs.end(), 0);
       Matrixc snippet(d_prev_pilot.rows(), d_prev_pilot.cols()+d_curr_pilot.cols());
       snippet << d_prev_pilot, d_curr_pilot;
-      Matrixc interp(d_R.rows(), interpol_span);
-      d_interpolator->set_params(times, freqs, snippet);
-      for (int k = 0; k < interpol_span; k++) {
-        for (int n = 0; n < interp.rows(); n++) {
-          interp(n, k) = d_interpolator->interpolate(k+1, n);
-        }
-        d_items_produced++;
-      }
+      Matrixc interp = d_interpolator->interpolate(interpol_span, d_R.rows(), snippet);
+      d_items_produced += interpol_span;
       queue.push_back(interp);
     }
 

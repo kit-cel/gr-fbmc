@@ -384,7 +384,7 @@
     <key>analog_noise_source_x</key>
     <param>
       <key>amp</key>
-      <value>0.005</value>
+      <value>0.00</value>
     </param>
     <param>
       <key>alias</key>
@@ -514,7 +514,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(656, 684)</value>
+      <value>(492, 688)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -874,11 +874,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(44, 292)</value>
+      <value>(584, 660)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -902,11 +902,11 @@
     </param>
     <param>
       <key>samples_per_second</key>
-      <value>samp_rate/100</value>
+      <value>samp_rate</value>
     </param>
     <param>
       <key>type</key>
-      <value>byte</value>
+      <value>complex</value>
     </param>
     <param>
       <key>vlen</key>
@@ -1307,7 +1307,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(784, 564)</value>
+      <value>(812, 568)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1508,7 +1508,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(412, 600)</value>
+      <value>(300, 596)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1610,7 +1610,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(360, 744)</value>
+      <value>(248, 748)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2674,19 +2674,7 @@
   </connection>
   <connection>
     <source_block_id>blocks_add_xx_0</source_block_id>
-    <sink_block_id>fbmc_cazac_sync_cc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_add_xx_0</source_block_id>
-    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_add_xx_0</source_block_id>
-    <sink_block_id>qtgui_freq_sink_x_0</sink_block_id>
+    <sink_block_id>blocks_throttle_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2728,13 +2716,19 @@
   </connection>
   <connection>
     <source_block_id>blocks_throttle_0</source_block_id>
-    <sink_block_id>fbmc_subchannel_frame_generator_bvc_0</sink_block_id>
+    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_throttle_0</source_block_id>
+    <sink_block_id>qtgui_freq_sink_x_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>blocks_unpack_k_bits_bb_0</source_block_id>
-    <sink_block_id>blocks_throttle_0</sink_block_id>
+    <sink_block_id>fbmc_subchannel_frame_generator_bvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -20,6 +20,7 @@
 
 
 #include "interp2d.h"
+#include <iostream>
 
 namespace gr {
   namespace fbmc {
@@ -27,93 +28,98 @@ namespace gr {
     {
     }
 
-    interp2d::~interp2d() {}
+    interp2d::~interp2d() {
 
-    void
-    interp2d::set_params(std::vector<int> x_coord, std::vector<int> y_coord, Matrixc data) {
-      // x is only known during one work function, so it has to be reset every time
-      d_x_coord = x_coord;
-      d_y_coord = y_coord;
-      d_data = data;
-      if(d_x_coord.size() != data.cols()) {
-        throw std::runtime_error("interp2d: Size of x coords has to be width of data matrix");
-      }
-      if(d_y_coord.size() != data.rows()) {
-        throw std::runtime_error("interp2d: Size of y corrds has to be height of data matrix");
-      }
-      // find index borders in y direction
-      d_y_min = *std::min_element(d_y_coord.begin(), d_y_coord.end());
-      d_y_max = *std::max_element(d_y_coord.begin(), d_y_coord.end());
-      d_x_min = *std::min_element(d_x_coord.begin(), d_x_coord.end());
-      d_x_max = *std::max_element(d_x_coord.begin(), d_x_coord.end());
     }
 
-    gr_complex
-    interp2d::interp1d(gr_complex v1, gr_complex v2, int v2pos, int valpos) {
-      // 1d linear interpolation between two points
-      if(v2pos < valpos) {
-        throw std::runtime_error("interp1d: requested value outside interpolation range");
+    Matrixc
+    interp2d::interp1d(std::vector<int> pilot_carriers, int span, Matrixc symbol) {
+      Matrixc result(span, 1);
+      double x[pilot_carriers.size()];
+      double y_real[symbol.rows()],  y_imag[symbol.rows()];
+      for (int i = 0; i < pilot_carriers.size(); i++) {
+        x[i] = static_cast<double>(pilot_carriers[i]);
       }
-      gr_complex a = (v2 - v1)/gr_complex(v2pos, 0);
-      return a*gr_complex(valpos, 0) + v1;
+      for (int i = 0; i < symbol.rows(); i++) {
+        y_real[i] = symbol(i, 0).real();
+        y_imag[i] = symbol(i, 0).imag();
+      }
+
+      gsl_interp_accel *acc = gsl_interp_accel_alloc ();
+      gsl_spline *spline_real = gsl_spline_alloc (gsl_interp_linear, pilot_carriers.size());
+      gsl_spline *spline_imag = gsl_spline_alloc (gsl_interp_linear, pilot_carriers.size());
+      gsl_spline_init (spline_real, x, y_real, pilot_carriers.size());
+      gsl_spline_init (spline_imag, x, y_imag, pilot_carriers.size());
+      for (int n = 0; n < span; ++n) {
+        if(n <= *std::min_element(pilot_carriers.begin(), pilot_carriers.end())) {
+          result(n, 0) = symbol(0, 0); // extrapolation
+
+        }
+        else if(n >= *std::max_element(pilot_carriers.begin(), pilot_carriers.end())) {
+          result(n, 0) = symbol(symbol.rows()-1, 0); // extrapolation
+        }
+        else {
+          result(n, 0) = gr_complex(gsl_spline_eval(spline_real, n, acc),
+                                    gsl_spline_eval(spline_imag, n, acc));
+        }
+      }
+
+
+      gsl_spline_free (spline_real);
+      gsl_spline_free (spline_imag);
+      gsl_interp_accel_free (acc);
+
+      return result;
     }
 
-    gr_complex
-    interp2d::interpolate(int x, int y) {
-      int xstart = -1; // -1 as extrapolation flag
-      int ystart = -1;
-      // find x base value leq to desired x
-      for(unsigned int i = 0; i < d_x_coord.size(); i++) {
-        if (d_x_coord[i] > x) {
-          break;
-        }
-        xstart = i;
-      }
-      // find y base value leq to desired y
-      for(unsigned int i = 0; i < d_y_coord.size(); i++) {
-        if (d_y_coord[i] > y) {
-          break;
-        }
-        ystart = i;
-      }
-      if(xstart == d_x_coord.size()-1 || xstart ==  -1) { // case: x extrapolation
-        xstart = (xstart == -1) ? 0 : xstart;
-        if (ystart == d_y_coord.size() - 1 || ystart == -1) { // case: y extrapolation
-          ystart = (ystart == -1) ? 0 : ystart;
-          return d_data(ystart, xstart); // simple extrapolation
-        } else { // case: y interpolation
-          return interp1d(d_data(ystart, xstart), // upper base value
-                          d_data(ystart + 1, xstart), // lower base value
-                          d_y_coord[ystart + 1] - d_y_coord[ystart], // x difference between two bases
-                          y - d_y_coord[ystart]); // x difference between requested index and base
-        }
-      }
-      else { // case: x interpolation
-        if (ystart == d_y_coord.size() - 1 || ystart == -1) { // case: y extrapolation
-          ystart = (ystart == -1) ? 0 : ystart;
-          return interp1d(d_data(ystart, xstart), // left base value
-                          d_data(ystart, xstart + 1), // right base value
-                          d_x_coord[xstart + 1] - d_x_coord[xstart], // x difference between two bases
-                          x - d_x_coord[xstart]); // x difference between requested index and base
-        }
-        else { // case: y interpolation
-          gr_complex interpx1, interpx2;
-          interpx1 = interp1d(d_data(ystart, xstart), // upper left base value
-                              d_data(ystart, xstart + 1), // upper right base value
-                              d_x_coord[xstart + 1] - d_x_coord[xstart], // x difference between two bases
-                              x - d_x_coord[xstart]); // x difference between requested index and base
+    Matrixc
+    interp2d::interpolate(int spanx, int spany, Matrixc pilots) {
+      Matrixc result(spany, spanx);
 
-          interpx2 = interp1d(d_data(ystart + 1, xstart), // lower left base value
-                              d_data(ystart + 1, xstart + 1), // lower right base value
-                              d_x_coord[xstart + 1] - d_x_coord[xstart], // x difference between two bases
-                              x - d_x_coord[xstart]); // x difference between requested index and base
+      // fill pilot coordinate arrays
+      const double xa[] {0.0, static_cast<double>(spanx)};
+      double ya[spany];
+      for (int y = 0; y < spany; y++) {
+        ya[y] = y;
+      }
 
-          return interp1d(interpx1, // interpolated upper value for desired x
-                          interpx2, // interpolated lower value for desired x
-                          d_y_coord[ystart + 1] - d_y_coord[ystart], // y difference between two bases
-                          y - d_y_coord[ystart]); // y difference between requested index and base
+      gsl_interp_accel *xacc = gsl_interp_accel_alloc();
+      gsl_interp_accel *yacc = gsl_interp_accel_alloc();
+
+      const size_t nx = sizeof(xa) / sizeof(double); /* x grid points */
+      const size_t ny = sizeof(ya) / sizeof(double); /* y grid points */
+      double *za_real = (double*)malloc(nx * ny * sizeof(double));
+      double *za_imag = (double*)malloc(nx * ny * sizeof(double));
+      gsl_interp2d *spline_real = gsl_interp2d_alloc(d_T, nx, ny);
+      gsl_interp2d *spline_imag = gsl_interp2d_alloc(d_T, nx, ny);
+
+      /* set z grid values */
+      for (int k = 0; k < pilots.cols(); k++) {
+        for (int n = 0; n < pilots.rows(); ++n) {
+          gsl_interp2d_set(spline_real, za_real, k, n, pilots(n,k).real());
+          gsl_interp2d_set(spline_imag, za_imag, k, n, pilots(n,k).imag());
         }
       }
+      /* initialize interpolation */
+
+      gsl_interp2d_init(spline_real, xa, ya, za_real, nx, ny);
+      gsl_interp2d_init(spline_imag, xa, ya, za_imag, nx, ny);
+
+      /* interpolate N values in x and y and print out grid for plotting */
+      for (int k = 0; k < result.cols(); k++) {
+        for (int n = 0; n < result.rows(); n++) {
+          result(n, k) = gr_complex(gsl_interp2d_eval_extrap(spline_real, xa, ya, za_real, k+1, n, xacc, yacc),
+                                    gsl_interp2d_eval_extrap(spline_imag, xa, ya, za_imag, k+1, n, xacc, yacc));
+        }
+      }
+      gsl_interp_accel_free(xacc);
+      gsl_interp_accel_free(yacc);
+      gsl_interp2d_free(spline_real);
+      gsl_interp2d_free(spline_imag);
+      free(za_real);
+      free(za_imag);
+
+      return result;
     }
   }
 }

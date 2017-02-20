@@ -8,6 +8,8 @@
 #include <gnuradio/io_signature.h>
 #include <Eigen/Dense>
 #include <cmath>
+#include <gsl/gsl_interp2d.h>
+#include <gsl/gsl_spline.h>
 
 typedef Eigen::Matrix<gr_complex, Eigen::Dynamic, Eigen::Dynamic> Matrixc;
 
@@ -15,16 +17,13 @@ namespace gr {
   namespace fbmc {
     class interp2d {
     private:
-      std::vector<int> d_x_coord, d_y_coord;
-      Matrixc d_data;
-      int d_x_min, d_x_max, d_y_min, d_y_max;
+      const gsl_interp2d_type *d_T = gsl_interp2d_bilinear; // liniear interpolation
 
     public:
       interp2d();
       ~interp2d();
-      gr_complex interp1d(gr_complex v1, gr_complex v2, int v2pos, int valpos);
-      gr_complex interpolate(int x, int y);
-      void set_params(std::vector<int> x_coord, std::vector<int> y_coord, Matrixc data);
+      Matrixc interpolate(int spanx, int spany, Matrixc pilots);
+      Matrixc interp1d(std::vector<int> pilot_carriers, int span, Matrixc symbol);
     };
   }
 }
