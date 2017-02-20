@@ -198,7 +198,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>32*4</value>
+      <value>32*8</value>
     </param>
   </block>
   <block>
@@ -279,7 +279,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>np.concatenate(([0,]*2, [1,]*60, [0,]*2))</value>
+      <value>np.concatenate(([0,]*2, [1,]*124, [0,]*2))</value>
     </param>
   </block>
   <block>
@@ -874,7 +874,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>2</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -902,7 +902,7 @@
     </param>
     <param>
       <key>samples_per_second</key>
-      <value>samp_rate</value>
+      <value>1000</value>
     </param>
     <param>
       <key>type</key>
@@ -1303,7 +1303,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>

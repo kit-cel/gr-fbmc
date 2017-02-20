@@ -37,9 +37,11 @@ namespace gr {
             std::vector<float> d_taps;
             float d_pilot_amp;
             Matrixf d_G;
-            Matrixc d_R, d_data;
+            Matrixc d_data;
+            std::vector<gr_complex> d_R;
             Matrixf spreading_matrix();
             void write_output(gr_complex* out, Matrixc data);
+            void despread(gr_complex* out, std::vector<gr_complex> R, int noutput_items);
 
         public:
             channel_equalizer_vcvc_impl(int frame_len, int overlap, int bands, int pilot_timestep, std::vector<int> pilot_carriers,

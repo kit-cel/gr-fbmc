@@ -111,6 +111,25 @@ namespace gr {
       }
     }
 
+    void
+    channel_equalizer_vcvc_impl::despread(gr_complex* out, std::vector<gr_complex> R, int noutput_items) {
+      gr_complex first[2*d_o-1];
+      std::vector<gr_complex> temp(2*d_o-1);
+      for (int k = 0; k < noutput_items; k++) {
+        // first symbol
+        memcpy(first, &R[(k+1) * d_subcarriers * d_bands * d_o - 1 - d_o], (d_o-1) * sizeof(gr_complex));
+        memcpy(&first[d_o-1], &R[k * d_subcarriers * d_bands * d_o], d_o * sizeof(gr_complex));
+        volk_32fc_32f_multiply_32fc(&temp[0], first, &d_taps[0], 2*d_o-1);
+        out++[0] = std::accumulate(temp.begin(), temp.end(), gr_complex(0, 0));
+        for (int n = 1; n < d_subcarriers * d_bands; n += d_o) {
+          volk_32fc_32f_multiply_32fc(&temp[0], &R[n + d_subcarriers * d_bands * k], &d_taps[0], 2*d_o-1);
+          out[0] = std::accumulate(temp.begin(), temp.end(), gr_complex(0, 0));
+          std::cout << out[0] << ", ";
+          out++;
+        }
+      }
+    }
+
     int
     channel_equalizer_vcvc_impl::work(int noutput_items,
                                       gr_vector_const_void_star &input_items,
@@ -121,13 +140,12 @@ namespace gr {
 
 
       // Do <+signal processing+>
-      d_R.resize(d_subcarriers * d_o * d_bands, noutput_items);
-      d_data.resize(d_subcarriers * d_bands, noutput_items);
-      //memcpy(d_R.data(), in, sizeof(gr_complex) * d_bands * d_subcarriers * d_o * d_frame_len);
-      volk_32fc_x2_divide_32fc(d_R.data(), in, chan,
+      d_R.resize(d_subcarriers * d_bands * d_o * noutput_items);
+      //memcpy(d_R.data(), in, sizeof(gr_complex) * d_bands * d_subcarriers * d_o * noutput_items);
+      volk_32fc_x2_divide_32fc(&d_R[0], in, chan,
                                 static_cast<unsigned int>(d_bands * d_subcarriers * d_o * noutput_items)); // zero forcing
-      d_data = d_G * d_R; // despreading
-      write_output(out, d_data);
+      despread(out, d_R, noutput_items);//d_G * d_R; // despreading
+      //write_output(out, d_data);
       /*int row = 0;
       for(int i = 0; i < d_data.size(); i++) {
         if(i % (d_subcarriers*d_bands) == 0) {
