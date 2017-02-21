@@ -198,7 +198,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>32*8</value>
+      <value>32*4</value>
     </param>
   </block>
   <block>
@@ -279,7 +279,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>np.concatenate(([0,]*2, [1,]*124, [0,]*2))</value>
+      <value>np.concatenate(([0,]*2, [1,]*60, [0,]*2))</value>
     </param>
   </block>
   <block>
@@ -404,7 +404,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(512, 842)</value>
+      <value>(432, 990)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -628,7 +628,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>cfg.num_total_subcarriers()*bands*4</value>
+      <value>cfg.num_total_subcarriers()*bands</value>
     </param>
   </block>
   <block>
@@ -902,7 +902,7 @@
     </param>
     <param>
       <key>samples_per_second</key>
-      <value>1000</value>
+      <value>100000</value>
     </param>
     <param>
       <key>type</key>
@@ -2625,7 +2625,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>cfg.num_total_subcarriers()*bands*4</value>
+      <value>cfg.num_total_subcarriers()*bands</value>
     </param>
     <param>
       <key>x_axis_label</key>
@@ -2752,6 +2752,12 @@
   </connection>
   <connection>
     <source_block_id>fbmc_channel_equalizer_vcvc_0</source_block_id>
+    <sink_block_id>blocks_complex_to_mag_1</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_channel_equalizer_vcvc_0</source_block_id>
     <sink_block_id>fbmc_subchannel_deframer_vcb_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
@@ -2761,12 +2767,6 @@
     <sink_block_id>fbmc_channel_equalizer_vcvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>1</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fbmc_sliding_fft_cvc_0</source_block_id>
-    <sink_block_id>blocks_complex_to_mag_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>fbmc_sliding_fft_cvc_0</source_block_id>

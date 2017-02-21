@@ -52,6 +52,7 @@ namespace gr {
           d_pilot_carriers(pilot_carriers), d_taps(taps), d_o(overlap) {
       //set_output_multiple(d_frame_len);
       d_G = spreading_matrix();
+      std::cout << d_G.rows() << std::endl;
       /*for (int i = 0; i < d_G.rows(); ++i) {
         for (int j = 0; j < d_G.cols(); ++j) {
           std::cout << d_G(i, j) << " ";
@@ -114,18 +115,21 @@ namespace gr {
     void
     channel_equalizer_vcvc_impl::despread(gr_complex* out, std::vector<gr_complex> R, int noutput_items) {
       gr_complex first[2*d_o-1];
-      std::vector<gr_complex> temp(2*d_o-1);
+      //std::vector<gr_complex> temp(2*d_o-1);
       for (int k = 0; k < noutput_items; k++) {
         // first symbol
-        memcpy(first, &R[(k+1) * d_subcarriers * d_bands * d_o - 1 - d_o], (d_o-1) * sizeof(gr_complex));
+        memcpy(first, &R[(k+1) * d_subcarriers * d_bands * d_o - d_o+1], (d_o-1) * sizeof(gr_complex));
         memcpy(&first[d_o-1], &R[k * d_subcarriers * d_bands * d_o], d_o * sizeof(gr_complex));
-        volk_32fc_32f_multiply_32fc(&temp[0], first, &d_taps[0], 2*d_o-1);
-        out++[0] = std::accumulate(temp.begin(), temp.end(), gr_complex(0, 0));
-        for (int n = 1; n < d_subcarriers * d_bands; n += d_o) {
-          volk_32fc_32f_multiply_32fc(&temp[0], &R[n + d_subcarriers * d_bands * k], &d_taps[0], 2*d_o-1);
-          out[0] = std::accumulate(temp.begin(), temp.end(), gr_complex(0, 0));
-          std::cout << out[0] << ", ";
-          out++;
+        //volk_32fc_32f_multiply_32fc(&temp[0], first, &d_taps[0], 2*d_o-1);
+        volk_32fc_32f_dot_prod_32fc(out++, first, &d_taps[0], 2*d_o-1);
+       // out[0] = std::accumulate(temp.begin(), temp.end(), gr_complex(0, 0));
+        //out++;d_G * d_R
+        for(int n = 1; n <= d_subcarriers * d_bands * d_o - 2*d_o+1; n += d_o) {
+          //std::cout << k << ", " << n << std::endl;
+          //volk_32fc_32f_multiply_32d_G * d_Rfc(&temp[0], &R[n + d_subcarriers * d_bands * d_o * k], &d_taps[0], 2*d_o-1);
+          volk_32fc_32f_dot_prod_32fc(out++, &R[n + d_subcarriers * d_bands * d_o * k], &d_taps[0], 2*d_o-1);
+          //out[0] = std::accumulate(temp.begin(), temp.end(), gr_complex(0, 0));
+          //out++;
         }
       }
     }
@@ -141,10 +145,12 @@ namespace gr {
 
       // Do <+signal processing+>
       d_R.resize(d_subcarriers * d_bands * d_o * noutput_items);
+      //d_data.resize(d_subcarriers * d_bands, noutput_items);
       //memcpy(d_R.data(), in, sizeof(gr_complex) * d_bands * d_subcarriers * d_o * noutput_items);
       volk_32fc_x2_divide_32fc(&d_R[0], in, chan,
                                 static_cast<unsigned int>(d_bands * d_subcarriers * d_o * noutput_items)); // zero forcing
       despread(out, d_R, noutput_items);//d_G * d_R; // despreading
+      //d_data = d_G * d_R;
       //write_output(out, d_data);
       /*int row = 0;
       for(int i = 0; i < d_data.size(); i++) {
