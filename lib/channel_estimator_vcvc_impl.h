@@ -22,12 +22,8 @@
 #define INCLUDED_FBMC_CHANNEL_ESTIMATOR_VCVC_IMPL_H
 
 #include <fbmc/channel_estimator_vcvc.h>
-#include <Eigen/Dense>
 #include "interp2d.h"
 #include "phase_helper.h"
-
-typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> Matrixf;
-typedef Eigen::Matrix<gr_complex, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> Matrixc;
 
 namespace gr {
   namespace fbmc {
@@ -36,20 +32,19 @@ namespace gr {
     private:
       int d_subcarriers, d_pilot_timestep, d_o, d_frame_len, d_bands, d_curr_symbol, d_items_produced;
       std::vector<float> d_taps;
-      std::vector<int> d_pilot_carriers, d_spread_pilots;
+      std::vector<int> d_pilot_carriers, d_spread_pilots, d_base_times, d_base_freqs;
       float d_pilot_amp;
-      const Matrixf d_G = spreading_matrix();
-      Matrixc d_curr_pilot;
-      Matrixc d_R;
-      Matrixc d_prev_pilot;
+      std::vector<gr_complex> d_curr_pilot, d_prev_pilot;
+      std::vector<std::vector<gr_complex> > d_snippet;
+      std::vector<gr_complex> d_R;
       interp2d *d_interpolator;
       phase_helper *d_helper;
       bool d_pilot_stored;
 
-      Matrixf spreading_matrix();
-      void interpolate_time(std::vector<Matrixc>& queue);
-      void interpolate_freq(Matrixc estimate);
-      void write_output(gr_complex *out, std::vector<Matrixc>& queue);
+      void interpolate_time(std::vector<std::vector<gr_complex> >& queue);
+      void interpolate_freq(std::vector<gr_complex> estimate);
+      void write_output(gr_complex *out, std::vector<std::vector<gr_complex> >& queue);
+      void despread(gr_complex* out, int noutput_items);
       //double fine_freq_sync();
       //double fine_time_sync();
       //std::vector<gr_complex> matrix_mean(Matrixc matrix, int axis);
@@ -71,4 +66,3 @@ namespace gr {
 } // namespace gr
 
 #endif /* INCLUDED_FBMC_CHANNEL_ESTIMATOR_VCVC_IMPL_H */
-

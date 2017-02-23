@@ -75,7 +75,9 @@ namespace gr {
         memcpy(&first[d_o-1], &d_R[k * d_subcarriers * d_bands * d_o], d_o * sizeof(gr_complex));
         volk_32fc_32f_dot_prod_32fc(out++, first, &d_taps[0], 2*d_o-1);
         for(int n = 1; n <= d_subcarriers * d_bands * d_o - 2*d_o+1; n += d_o) {
-          volk_32fc_32f_dot_prod_32fc(out++, &d_R[n + d_subcarriers * d_bands * d_o * k], &d_taps[0], 2*d_o-1);
+          volk_32fc_32f_dot_prod_32fc(out, &d_R[n + d_subcarriers * d_bands * d_o * k], &d_taps[0], 2*d_o-1);
+          //std::cout << *(out) << " ";
+          out++;
         }
       }
     }
@@ -90,10 +92,11 @@ namespace gr {
 
 
       // Do <+signal processing+>
+
       d_R.resize(d_subcarriers * d_bands * d_o * noutput_items);
-      //memcpy(d_R.data(), in, sizeof(gr_complex) * d_bands * d_subcarriers * d_o * noutput_items);
-      volk_32fc_x2_divide_32fc(&d_R[0], in, chan,
-                               static_cast<unsigned int>(d_bands * d_subcarriers * d_o * noutput_items)); // zero forcing
+      memcpy(&d_R[0], in, sizeof(gr_complex) * d_bands * d_subcarriers * d_o * noutput_items);
+      //volk_32fc_x2_divide_32fc(&d_R[0], in, chan,
+                               //static_cast<unsigned int>(d_bands * d_subcarriers * d_o * noutput_items)); // zero forcing
       despread(out, noutput_items);//d_G * d_R; // despreading
 
 

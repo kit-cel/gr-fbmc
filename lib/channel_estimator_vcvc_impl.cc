@@ -25,6 +25,7 @@
 #include <gnuradio/io_signature.h>
 #include "channel_estimator_vcvc_impl.h"
 #include <numeric>
+#include <volk/volk.h>
 
 namespace gr {
   namespace fbmc {
@@ -53,9 +54,8 @@ namespace gr {
     {
       d_curr_symbol = 0; // frame position
       d_pilot_stored = false; // was there a pilot already?
-      d_prev_pilot.resize(d_subcarriers * d_bands * d_o, 1);
-      d_curr_pilot.resize(d_subcarriers * d_bands * d_o, 1);
-      d_R.resize(d_subcarriers * d_o * d_bands, d_frame_len); //receive data
+      d_prev_pilot.resize(d_subcarriers * d_bands * d_o);
+      d_curr_pilot.resize(d_subcarriers * d_bands * d_o);
       // freq positions of pilots
       for(int b = 0; b < d_bands; b++) {
         std::for_each(pilot_carriers.begin(), pilot_carriers.end(), [&](int &c) {
@@ -66,6 +66,10 @@ namespace gr {
       std::transform(d_pilot_carriers.begin(), d_pilot_carriers.end(), d_spread_pilots.begin(), std::bind1st(std::multiplies<int>(),d_o));
       d_interpolator = new interp2d();
       d_helper = new phase_helper(); // phase unwrap etc.
+      d_base_times.resize(2);
+      d_base_freqs.resize(d_subcarriers * d_bands * d_o);
+      std::iota(d_base_freqs.begin(), d_base_freqs.end(), 0);
+      d_snippet.resize(2);
       set_output_multiple(d_frame_len - std::floor((d_frame_len-2)/d_pilot_timestep) * d_pilot_timestep);
     }
 
@@ -75,33 +79,6 @@ namespace gr {
     channel_estimator_vcvc_impl::~channel_estimator_vcvc_impl() {
       delete d_interpolator;
       delete d_helper;
-    }
-
-    Matrixf
-    channel_estimator_vcvc_impl::spreading_matrix() {
-      Matrixf result(d_subcarriers *d_bands, d_subcarriers *d_o * d_bands);
-      // build first row
-      for (unsigned int k = 0; k < d_subcarriers*d_bands*d_o; k++) {
-        result(0, k) = 0.0;
-      }
-      for (unsigned int k = 0; k < d_taps.size(); k++) {
-        if (k < d_taps.size() / 2) {
-          result(0, d_subcarriers*d_bands*d_o - d_taps.size() / 2 + k) = d_taps[k];
-        } else {
-          result(0, k - d_taps.size() / 2) = d_taps[k];
-        }
-      }
-      int offset = 1;
-      for (unsigned int n = 1; n < d_subcarriers *d_bands; n++) {
-        for (unsigned int k = 0; k < d_subcarriers*d_bands*d_o; k++) {
-          result(n, k) = 0.0;
-          if (k >= offset && k < offset + d_taps.size()) {
-            result(n, k) = d_taps[k - offset];
-          }
-        }
-        offset += d_o;
-      }
-      return result;
     }
 
     /*std::vector<gr_complex>
@@ -159,40 +136,53 @@ namespace gr {
     }*/
 
     void
-    channel_estimator_vcvc_impl::interpolate_freq(Matrixc estimate) {
-      for (int j = 0; j < estimate.rows(); ++j) {
-      }
+    channel_estimator_vcvc_impl::interpolate_freq(std::vector<gr_complex> estimate) {
       std::vector<int> times {0};
-      Matrixc pilots(d_pilot_carriers.size(), 1);
+      std::vector<gr_complex> pilots(d_pilot_carriers.size());
 
       for (int i = 0; i < d_pilot_carriers.size(); i++) {
-        pilots(i, 0) = estimate(d_pilot_carriers[i], 0);
+        pilots[i] = estimate[d_pilot_carriers[i]];
       }
       // interpolate in frequency direction
-      d_curr_pilot = d_interpolator->interp1d(d_spread_pilots, d_R.rows(), pilots);
+      d_curr_pilot = d_interpolator->interp1d(d_spread_pilots, d_subcarriers * d_o * d_bands, pilots);
     }
 
     void
-    channel_estimator_vcvc_impl::interpolate_time(std::vector<Matrixc>& queue) {
+    channel_estimator_vcvc_impl::interpolate_time(std::vector<std::vector<gr_complex> >& queue) {
       int interpol_span = d_pilot_timestep;
       if(d_curr_symbol == 2) { // first pilot per frame
         interpol_span = d_frame_len - std::floor((d_frame_len-2)/d_pilot_timestep) * d_pilot_timestep;
       }
-      std::vector<int> times {0, interpol_span};
-      std::vector<int> freqs(d_curr_pilot.size());
-      std::iota(freqs.begin(), freqs.end(), 0);
-      Matrixc snippet(d_prev_pilot.rows(), d_prev_pilot.cols()+d_curr_pilot.cols());
-      snippet << d_prev_pilot, d_curr_pilot;
-      Matrixc interp = d_interpolator->interpolate(interpol_span, d_R.rows(), snippet);
-      d_items_produced += interpol_span;
-      queue.push_back(interp);
+      d_base_times[1] = interpol_span;
+      d_snippet[0] = d_prev_pilot;
+      d_snippet[1] = d_curr_pilot;
+      std::vector<std::vector<gr_complex> >* interp = d_interpolator->interpolate(interpol_span, d_subcarriers * d_o * d_bands, d_snippet);
+      //d_items_produced += interpol_span;
+      for (int j = 0; j < (*interp).size(); j++) {
+        queue.push_back((*interp)[j]);
+      }
     }
 
     void
-    channel_estimator_vcvc_impl::write_output(gr_complex *out, std::vector<Matrixc>& queue) {
+    channel_estimator_vcvc_impl::despread(gr_complex* out, int noutput_items) {
+      gr_complex first[2*d_o-1];
+      for (int k = 0; k < noutput_items; k++) {
+        // first symbol
+        memcpy(first, &d_R[(k+1) * d_subcarriers * d_bands * d_o - d_o+1], (d_o-1) * sizeof(gr_complex));
+        memcpy(&first[d_o-1], &d_R[k * d_subcarriers * d_bands * d_o], d_o * sizeof(gr_complex));
+        volk_32fc_32f_dot_prod_32fc(out++, first, &d_taps[0], 2*d_o-1);
+        for(int n = 1; n <= d_subcarriers * d_bands * d_o - 2*d_o+1; n += d_o) {
+          volk_32fc_32f_dot_prod_32fc(out++, &d_R[n + d_subcarriers * d_bands * d_o * k], &d_taps[0], 2*d_o-1);
+        }
+      }
+    }
+
+    void
+    channel_estimator_vcvc_impl::write_output(gr_complex *out, std::vector<std::vector<gr_complex> >& queue) {
       for (int i = 0; i < queue.size(); i++) {
-        memcpy(out, queue[i].data(), queue[i].size() * sizeof(gr_complex));
+        memcpy(out, &queue[i][0], queue[i].size() * sizeof(gr_complex));
         out += queue[i].size();
+        d_items_produced++;
       }
     }
 
@@ -204,24 +194,32 @@ namespace gr {
       gr_complex *out = (gr_complex *) output_items[0];
       d_items_produced = 0;
       // receive matrix
-      d_R.resize(d_subcarriers * d_o * d_bands, noutput_items);
+      d_R.resize(d_subcarriers * d_o * d_bands * noutput_items);
+      for (int k = 0; k < noutput_items * d_subcarriers * d_o * d_bands; ++k) {
+        out[k] = gr_complex(k, 0);
+      }
+
 
       // fill matrix with input data
-      memcpy(d_R.data(), in, sizeof(gr_complex) * d_subcarriers * d_o * d_bands * noutput_items);
+      memcpy(&d_R[0], in, sizeof(gr_complex) * d_subcarriers * d_o * d_bands * noutput_items);
 
-      Matrixc curr_data(d_subcarriers * d_bands, noutput_items);
-      std::vector<Matrixc> queue;
-      curr_data = d_G * d_R;
+      std::vector<gr_complex> curr_data(d_subcarriers * d_bands * noutput_items);
+      std::vector<std::vector<gr_complex> > queue;
+      //curr_data = d_G * d_R;
+      despread(&curr_data[0], noutput_items);
 
-      for (int j = 0; j < curr_data.cols(); j++) {
+      for (int j = 0; j < noutput_items; j++) {
         if((d_curr_symbol-2) % d_pilot_timestep == 0) { // hit
-          interpolate_freq(curr_data.col(j)); // this writes d_curr_pilot
+          std::vector<gr_complex> temp (&curr_data[d_subcarriers * d_bands * j], &curr_data[d_subcarriers * d_bands * (j+1) - 1]);
+          interpolate_freq(temp); // this writes d_curr_pilot
           if(d_pilot_stored) {
             interpolate_time(queue);
+            //queue.push_back(d_curr_pilot);
+            //d_items_produced++;
           } else { // we have not received other pilots yet - only extrapolation is possible
             for (int i = 0; i < 3; i++) {
               queue.push_back(d_curr_pilot); // 0 order extrapolation in time direction
-              d_items_produced++;
+              //d_items_produced++;
             }
           }
           d_prev_pilot = d_curr_pilot;
@@ -241,9 +239,9 @@ namespace gr {
       } else {
         d_curr_symbol = ((d_curr_symbol - 3) / d_pilot_timestep) * d_pilot_timestep + 3;
       }
+
       return d_items_produced;
     }
 
   } /* namespace fbmc */
 } /* namespace gr */
-
