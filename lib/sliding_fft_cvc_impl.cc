@@ -90,7 +90,7 @@ namespace gr {
 
             // Do <+signal processing+>
             //gr_complex fft_result[d_overlap * d_subcarriers * d_bands];
-            float normalize = static_cast<float>(5.0/4.0/std::sqrt(d_overlap * d_bands));
+            float normalize = static_cast<float>(5.0/8.0/std::sqrt(d_overlap * d_bands));
             for (unsigned int k = 0; k < d_full_symbols; k++) {
                 memcpy(d_fft->get_inbuf(), &in[k * d_bands * d_subcarriers / 2],
                        d_overlap * d_subcarriers * d_bands * sizeof(gr_complex));

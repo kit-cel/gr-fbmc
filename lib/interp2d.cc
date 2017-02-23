@@ -111,6 +111,7 @@ namespace gr {
           temp[n] = gr_complex(gsl_interp2d_eval_extrap(spline_real, xa, ya, za_real, k+1, n, xacc, yacc),
                                gsl_interp2d_eval_extrap(spline_imag, xa, ya, za_imag, k+1, n, xacc, yacc));
         }
+
         d_result.push_back(temp);
       }
       gsl_interp_accel_free(xacc);
