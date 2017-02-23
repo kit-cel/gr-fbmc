@@ -252,7 +252,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>10e6</value>
+      <value>1e6</value>
     </param>
   </block>
   <block>
@@ -381,6 +381,37 @@
     </param>
   </block>
   <block>
+    <key>variable_uhd_device3</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>dev_addr</key>
+      <value>type=x300</value>
+    </param>
+    <param>
+      <key>dev_args</key>
+      <value>""</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(524, 206)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>variable_uhd_device3_0</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_message_debug</key>
     <param>
       <key>alias</key>
@@ -396,7 +427,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -722,7 +753,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(436, 464)</value>
+      <value>(468, 464)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -853,6 +884,251 @@
     <param>
       <key>import</key>
       <value>import numpy as np</value>
+    </param>
+  </block>
+  <block>
+    <key>uhd_rfnoc_streamer_ddc</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>block_index</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>device_index</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>fpga_module_name</key>
+      <value>noc_block_ddc</value>
+    </param>
+    <param>
+      <key>freq</key>
+      <value>0.0</value>
+    </param>
+    <param>
+      <key>fullscale</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(160, 498)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>uhd_rfnoc_streamer_ddc_0</value>
+    </param>
+    <param>
+      <key>input_rate</key>
+      <value>200e6</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>num_chans</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>output_rate</key>
+      <value>samp_rate</value>
+    </param>
+  </block>
+  <block>
+    <key>uhd_rfnoc_streamer_dma_fifo</key>
+    <param>
+      <key>base_addr_0</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>base_addr_1</key>
+      <value>33554432</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>depth_0</key>
+      <value>33554432</value>
+    </param>
+    <param>
+      <key>depth_1</key>
+      <value>33554432</value>
+    </param>
+    <param>
+      <key>otw</key>
+      <value>sc16</value>
+    </param>
+    <param>
+      <key>device_index</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>block_index</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>fpga_module_name</key>
+      <value>noc_block_axi_dma_fifo</value>
+    </param>
+    <param>
+      <key>grvlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(272, 270)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>fc32</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>uhd_rfnoc_streamer_dma_fifo_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>num_chans</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>uhd_rfnoc_streamer_radio</key>
+    <param>
+      <key>ant</key>
+      <value>"TX/RX"</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>freq</key>
+      <value>1.982e9</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>dcenable</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>otw_format</key>
+      <value>sc16</value>
+    </param>
+    <param>
+      <key>device_index</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>grvlen</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(28, 264)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>gain</key>
+      <value>20</value>
+    </param>
+    <param>
+      <key>cpu_format</key>
+      <value>fc32</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>uhd_rfnoc_streamer_radio_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>direction</key>
+      <value>rx</value>
+    </param>
+    <param>
+      <key>num_channels</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>radio_index</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>1e6</value>
+    </param>
+    <param>
+      <key>stream_args</key>
+      <value>spp=256</value>
     </param>
   </block>
   <block>
@@ -2035,11 +2311,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(144, 470)</value>
+      <value>(212, 670)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2239,6 +2515,24 @@
   <connection>
     <source_block_id>fbmc_subchannel_deframer_vcb_0</source_block_id>
     <sink_block_id>blocks_stream_to_tagged_stream_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>uhd_rfnoc_streamer_ddc_0</source_block_id>
+    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>uhd_rfnoc_streamer_dma_fifo_0</source_block_id>
+    <sink_block_id>uhd_rfnoc_streamer_ddc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>uhd_rfnoc_streamer_radio_0</source_block_id>
+    <sink_block_id>uhd_rfnoc_streamer_dma_fifo_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

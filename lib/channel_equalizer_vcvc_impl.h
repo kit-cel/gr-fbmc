@@ -22,41 +22,32 @@
 #define INCLUDED_FBMC_CHANNEL_EQUALIZER_VCVC_IMPL_H
 
 #include <fbmc/channel_equalizer_vcvc.h>
-#include <Eigen/Dense>
-
-typedef Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> Matrixf;
-typedef Eigen::Matrix<gr_complex, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> Matrixc;
 
 namespace gr {
-    namespace fbmc {
+  namespace fbmc {
 
-        class channel_equalizer_vcvc_impl : public channel_equalizer_vcvc {
-        private:
-            int d_frame_len, d_pilot_timestep, d_subcarriers, d_o, d_bands;
-            std::vector<int> d_pilot_carriers;
-            std::vector<float> d_taps;
-            float d_pilot_amp;
-            Matrixf d_G;
-            Matrixc d_data;
-            std::vector<gr_complex> d_R;
-            Matrixf spreading_matrix();
-            void write_output(gr_complex* out, Matrixc data);
-            void despread(gr_complex* out, std::vector<gr_complex> R, int noutput_items);
+    class channel_equalizer_vcvc_impl : public channel_equalizer_vcvc {
+    private:
+      int d_frame_len, d_pilot_timestep, d_subcarriers, d_o, d_bands;
+      std::vector<int> d_pilot_carriers;
+      std::vector<float> d_taps;
+      float d_pilot_amp;
+      std::vector<gr_complex> d_R;
+      void despread(gr_complex* out, int noutput_items);
 
-        public:
-            channel_equalizer_vcvc_impl(int frame_len, int overlap, int bands, int pilot_timestep, std::vector<int> pilot_carriers,
-                                        int subcarriers, std::vector<float> taps, float pilot_amplitude);
+    public:
+      channel_equalizer_vcvc_impl(int frame_len, int overlap, int bands, int pilot_timestep, std::vector<int> pilot_carriers,
+                                  int subcarriers, std::vector<float> taps, float pilot_amplitude);
 
-            ~channel_equalizer_vcvc_impl();
+      ~channel_equalizer_vcvc_impl();
 
-            // Where all the action really happens
-            int work(int noutput_items,
-                     gr_vector_const_void_star &input_items,
-                     gr_vector_void_star &output_items);
-        };
+      // Where all the action really happens
+      int work(int noutput_items,
+               gr_vector_const_void_star &input_items,
+               gr_vector_void_star &output_items);
+    };
 
-    } // namespace fbmc
+  } // namespace fbmc
 } // namespace gr
 
 #endif /* INCLUDED_FBMC_CHANNEL_EQUALIZER_VCVC_IMPL_H */
-
