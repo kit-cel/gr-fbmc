@@ -51,11 +51,11 @@ namespace gr {
       gsl_spline_init (spline_real, x, y_real, pilot_carriers.size());
       gsl_spline_init (spline_imag, x, y_imag, pilot_carriers.size());
       for (int n = 0; n < span; ++n) {
-        if(n <= *std::min_element(pilot_carriers.begin(), pilot_carriers.end())) {
+        if(n <= pilot_carriers.front()) {
           result[n] = symbol[0]; // extrapolation
 
         }
-        else if(n >= *std::max_element(pilot_carriers.begin(), pilot_carriers.end())) {
+        else if(n >= pilot_carriers.back()) {
           result[n] = symbol[symbol.size()-1]; // extrapolation
         }
         else {

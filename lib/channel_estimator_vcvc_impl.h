@@ -34,17 +34,17 @@ namespace gr {
       std::vector<float> d_taps;
       std::vector<int> d_pilot_carriers, d_spread_pilots, d_base_times, d_base_freqs;
       float d_pilot_amp;
-      std::vector<gr_complex> d_curr_pilot, d_prev_pilot;
+      std::vector<gr_complex> d_curr_pilot, d_prev_pilot, d_pilots;
       std::vector<std::vector<gr_complex> > d_snippet;
-      std::vector<gr_complex> d_R;
+      std::vector<gr_complex> d_curr_data;
       interp2d *d_interpolator;
       phase_helper *d_helper;
       bool d_pilot_stored;
 
-      void interpolate_time(std::vector<std::vector<gr_complex> >& queue);
-      void interpolate_freq(std::vector<gr_complex> estimate);
+      void interpolate_time(gr_complex* out);
+      void interpolate_freq(std::vector<gr_complex>& estimate);
       void write_output(gr_complex *out, std::vector<std::vector<gr_complex> >& queue);
-      void despread(gr_complex* out, int noutput_items);
+      inline void despread(gr_complex* out, const gr_complex* in, int noutput_items);
       //double fine_freq_sync();
       //double fine_time_sync();
       //std::vector<gr_complex> matrix_mean(Matrixc matrix, int axis);

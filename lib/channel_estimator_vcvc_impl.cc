@@ -62,15 +62,18 @@ namespace gr {
           d_pilot_carriers.push_back(c + b*d_subcarriers);
         });
       }
+      d_pilots.resize(d_pilot_carriers.size());
       d_spread_pilots.resize(d_pilot_carriers.size());
       std::transform(d_pilot_carriers.begin(), d_pilot_carriers.end(), d_spread_pilots.begin(), std::bind1st(std::multiplies<int>(),d_o));
       d_interpolator = new interp2d();
       d_helper = new phase_helper(); // phase unwrap etc.
       d_base_times.resize(2);
       d_base_freqs.resize(d_subcarriers * d_bands);
+      d_curr_data.resize(d_subcarriers * d_bands * 50);
       std::iota(d_base_freqs.begin(), d_base_freqs.end(), 0);
       d_snippet.resize(2);
       set_output_multiple(d_frame_len - std::floor((d_frame_len-2)/d_pilot_timestep) * d_pilot_timestep);
+      set_max_noutput_items(50);
     }
 
     /*
@@ -136,19 +139,17 @@ namespace gr {
     }*/
 
     void
-    channel_estimator_vcvc_impl::interpolate_freq(std::vector<gr_complex> estimate) {
+    channel_estimator_vcvc_impl::interpolate_freq(std::vector<gr_complex>& estimate) {
       std::vector<int> times {0};
-      std::vector<gr_complex> pilots(d_pilot_carriers.size());
-
       for (int i = 0; i < d_pilot_carriers.size(); i++) {
-        pilots[i] = estimate[d_pilot_carriers[i]];
+        d_pilots[i] = estimate[d_pilot_carriers[i]];
       }
       // interpolate in frequency direction
-      d_curr_pilot = d_interpolator->interp1d(d_pilot_carriers, d_subcarriers * d_bands, pilots);
+      d_curr_pilot = d_interpolator->interp1d(d_pilot_carriers, d_subcarriers * d_bands, d_pilots);
     }
 
     void
-    channel_estimator_vcvc_impl::interpolate_time(std::vector<std::vector<gr_complex> >& queue) {
+    channel_estimator_vcvc_impl::interpolate_time(gr_complex* out) {
       int interpol_span = d_pilot_timestep;
       if(d_curr_symbol == 2) { // first pilot per frame
         interpol_span = d_frame_len - std::floor((d_frame_len-2)/d_pilot_timestep) * d_pilot_timestep;
@@ -158,21 +159,24 @@ namespace gr {
       d_snippet[1] = d_curr_pilot;
       std::vector<std::vector<gr_complex> >* interp = d_interpolator->interpolate(interpol_span, d_subcarriers * d_bands, d_snippet);
       //d_items_produced += interpol_span;
-      for (int j = 0; j < (*interp).size(); j++) {
-        queue.push_back((*interp)[j]);
+
+      for (int j = 0; j < interp->size(); j++) {
+        memcpy(out, interp->at(j).data(), interp->at(j).size() * sizeof(gr_complex));
+        out += interp->at(j).size();
+        d_items_produced++;
       }
     }
 
-    void
-    channel_estimator_vcvc_impl::despread(gr_complex* out, int noutput_items) {
+    inline void
+    channel_estimator_vcvc_impl::despread(gr_complex* out, const gr_complex* in, int noutput_items) {
       gr_complex first[2*d_o-1];
       for (int k = 0; k < noutput_items; k++) {
         // first symbol
-        memcpy(first, &d_R[(k+1) * d_subcarriers * d_bands * d_o - d_o+1], (d_o-1) * sizeof(gr_complex));
-        memcpy(&first[d_o-1], &d_R[k * d_subcarriers * d_bands * d_o], d_o * sizeof(gr_complex));
-        volk_32fc_32f_dot_prod_32fc(out++, first, &d_taps[0], 2*d_o-1);
+        memcpy(first, &in[(k+1) * d_subcarriers * d_bands * d_o - d_o+1], (d_o-1) * sizeof(gr_complex));
+        memcpy(&first[d_o-1], &in[k * d_subcarriers * d_bands * d_o], d_o * sizeof(gr_complex));
+        volk_32fc_32f_dot_prod_32fc(out++, first, d_taps.data(), 2*d_o-1);
         for(int n = 1; n <= d_subcarriers * d_bands * d_o - 2*d_o+1; n += d_o) {
-          volk_32fc_32f_dot_prod_32fc(out++, &d_R[n + d_subcarriers * d_bands * d_o * k], &d_taps[0], 2*d_o-1);
+          volk_32fc_32f_dot_prod_32fc(out++, &in[n + d_subcarriers * d_bands * d_o * k], d_taps.data(), 2*d_o-1);
         }
       }
     }
@@ -193,29 +197,31 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
       d_items_produced = 0;
+      d_curr_data.clear();
       // receive matrix
-      d_R.resize(d_subcarriers * d_o * d_bands * noutput_items);
+      //d_R.resize(d_subcarriers * d_o * d_bands * noutput_items);
 
       // fill matrix with input data
-      memcpy(&d_R[0], in, sizeof(gr_complex) * d_subcarriers * d_o * d_bands * noutput_items);
+      //memcpy(&d_R[0], in, sizeof(gr_complex) * d_subcarriers * d_o * d_bands * noutput_items);
 
-      std::vector<gr_complex> curr_data(d_subcarriers * d_bands * noutput_items);
-      std::vector<std::vector<gr_complex> > queue;
       //curr_data = d_G * d_R;
-      despread(&curr_data[0], noutput_items);
+      despread(&d_curr_data[0], in, noutput_items);
 
       for (int j = 0; j < noutput_items; j++) {
         if((d_curr_symbol-2) % d_pilot_timestep == 0) { // hit
-          std::vector<gr_complex> temp (&curr_data[d_subcarriers * d_bands * j], &curr_data[d_subcarriers * d_bands * (j+1) - 1]);
+          std::vector<gr_complex> temp (&d_curr_data[d_subcarriers * d_bands * j], &d_curr_data[d_subcarriers * d_bands * (j+1) - 1]);
           interpolate_freq(temp); // this writes d_curr_pilot
           if(d_pilot_stored) {
-            interpolate_time(queue);
-            //queue.push_back(d_curr_pilot);
+            interpolate_time(out);
+            //memcpy(out, &d_curr_pilot[0], d_subcarriers * d_bands * sizeof(gr_complex));
+            //out += d_subcarriers * d_bands;
             //d_items_produced++;
           } else { // we have not received other pilots yet - only extrapolation is possible
             for (int i = 0; i < 3; i++) {
-              queue.push_back(d_curr_pilot); // 0 order extrapolation in time direction
-              //d_items_produced++;
+              memcpy(out, &d_curr_pilot[0], d_subcarriers * d_bands * sizeof(gr_complex));
+              out += d_subcarriers * d_bands;
+              //d_queue.push_back(&d_curr_pilot); // 0 order extrapolation in time direction
+              d_items_produced++;
             }
           }
           d_prev_pilot = d_curr_pilot;
@@ -228,7 +234,7 @@ namespace gr {
         }
       }
 
-      write_output(out, queue);
+      //write_output(out, queue);
       // Tell runtime system how many output items we produced.
       if(d_curr_symbol < 3) {
         d_curr_symbol = ((d_frame_len-2)/d_pilot_timestep)*d_pilot_timestep + 3;
