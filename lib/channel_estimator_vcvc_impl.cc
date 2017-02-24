@@ -48,14 +48,14 @@ namespace gr {
                                                              std::vector<int> pilot_carriers)
         : gr::sync_block("channel_estimator_vcvc",
                          gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands * overlap),
-                         gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands * overlap)),
+                         gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands)),
           d_subcarriers(subcarriers), d_taps(taps), d_pilot_amp(pilot_amp),
           d_pilot_timestep(pilot_timestep), d_frame_len(frame_len), d_o(overlap), d_bands(bands)
     {
       d_curr_symbol = 0; // frame position
       d_pilot_stored = false; // was there a pilot already?
-      d_prev_pilot.resize(d_subcarriers * d_bands * d_o);
-      d_curr_pilot.resize(d_subcarriers * d_bands * d_o);
+      d_prev_pilot.resize(d_subcarriers * d_bands);
+      d_curr_pilot.resize(d_subcarriers * d_bands);
       // freq positions of pilots
       for(int b = 0; b < d_bands; b++) {
         std::for_each(pilot_carriers.begin(), pilot_carriers.end(), [&](int &c) {
@@ -67,7 +67,7 @@ namespace gr {
       d_interpolator = new interp2d();
       d_helper = new phase_helper(); // phase unwrap etc.
       d_base_times.resize(2);
-      d_base_freqs.resize(d_subcarriers * d_bands * d_o);
+      d_base_freqs.resize(d_subcarriers * d_bands);
       std::iota(d_base_freqs.begin(), d_base_freqs.end(), 0);
       d_snippet.resize(2);
       set_output_multiple(d_frame_len - std::floor((d_frame_len-2)/d_pilot_timestep) * d_pilot_timestep);
@@ -144,7 +144,7 @@ namespace gr {
         pilots[i] = estimate[d_pilot_carriers[i]];
       }
       // interpolate in frequency direction
-      d_curr_pilot = d_interpolator->interp1d(d_spread_pilots, d_subcarriers * d_o * d_bands, pilots);
+      d_curr_pilot = d_interpolator->interp1d(d_pilot_carriers, d_subcarriers * d_bands, pilots);
     }
 
     void
@@ -156,7 +156,7 @@ namespace gr {
       d_base_times[1] = interpol_span;
       d_snippet[0] = d_prev_pilot;
       d_snippet[1] = d_curr_pilot;
-      std::vector<std::vector<gr_complex> >* interp = d_interpolator->interpolate(interpol_span, d_subcarriers * d_o * d_bands, d_snippet);
+      std::vector<std::vector<gr_complex> >* interp = d_interpolator->interpolate(interpol_span, d_subcarriers * d_bands, d_snippet);
       //d_items_produced += interpol_span;
       for (int j = 0; j < (*interp).size(); j++) {
         queue.push_back((*interp)[j]);
@@ -195,10 +195,6 @@ namespace gr {
       d_items_produced = 0;
       // receive matrix
       d_R.resize(d_subcarriers * d_o * d_bands * noutput_items);
-      for (int k = 0; k < noutput_items * d_subcarriers * d_o * d_bands; ++k) {
-        out[k] = gr_complex(k, 0);
-      }
-
 
       // fill matrix with input data
       memcpy(&d_R[0], in, sizeof(gr_complex) * d_subcarriers * d_o * d_bands * noutput_items);

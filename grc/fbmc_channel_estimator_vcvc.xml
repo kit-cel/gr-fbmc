@@ -52,6 +52,6 @@
   <source>
     <name>out</name>
     <type>complex</type>
-    <vlen>$subcarriers * $bands * $overlap</vlen>
+    <vlen>$subcarriers * $bands</vlen>
   </source>
 </block>
