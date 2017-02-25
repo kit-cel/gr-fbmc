@@ -58,7 +58,7 @@
     </param>
     <param>
       <key>realtime_scheduling</key>
-      <value>1</value>
+      <value></value>
     </param>
     <param>
       <key>run_command</key>
@@ -252,7 +252,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>10e6</value>
+      <value>8e6</value>
     </param>
   </block>
   <block>
@@ -314,7 +314,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(248, 10)</value>
+      <value>(248, 6)</value>
     </param>
     <param>
       <key>_rotation</key>

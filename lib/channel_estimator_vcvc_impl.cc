@@ -76,7 +76,7 @@ namespace gr {
       std::iota(d_base_freqs.begin(), d_base_freqs.end(), 0); // used for timing interpolation (= no freq interpolation)
       d_snippet.resize(2);
       // maximum timestep that could occur with current settings. Wrong config leads to deadlock
-      set_output_multiple(d_frame_len - std::floor((d_frame_len-2)/d_pilot_timestep) * d_pilot_timestep);
+      set_output_multiple(d_frame_len - std::floor((d_frame_len-3)/d_pilot_timestep) * d_pilot_timestep);
       set_max_noutput_items(100);
     }
 
@@ -147,7 +147,12 @@ namespace gr {
     void
     channel_estimator_vcvc_impl::interpolate_freq(std::vector<gr_complex>::iterator estimate) {
       for (int i = 0; i < d_pilot_carriers.size(); i++) {
-        d_pilots[i] = *(estimate+d_pilot_carriers[i]);
+        if((d_curr_symbol + d_pilot_carriers[i]) % 2 == 0) {
+          d_pilots[i] = *(estimate + d_pilot_carriers[i]) / gr_complex(d_pilot_amp, 0);
+        } else {
+          d_pilots[i] = gr_complex((*(estimate + d_pilot_carriers[i])).imag(),
+                                   -(*(estimate + d_pilot_carriers[i])).real()) / gr_complex(d_pilot_amp, 0);
+        }
       }
       // interpolate in frequency direction
       d_curr_pilot = d_interpolator->interp1d(d_pilot_carriers, d_subcarriers * d_bands, d_pilots);
