@@ -58,7 +58,7 @@
     </param>
     <param>
       <key>realtime_scheduling</key>
-      <value></value>
+      <value>1</value>
     </param>
     <param>
       <key>run_command</key>
@@ -252,7 +252,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>7e6</value>
+      <value>10e6</value>
     </param>
   </block>
   <block>
@@ -682,7 +682,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(608, 660)</value>
+      <value>(580, 492)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2497,11 +2497,11 @@
   <connection>
     <source_block_id>fbmc_channel_estimator_vcvc_0</source_block_id>
     <sink_block_id>fbmc_channel_equalizer_vcvc_0</sink_block_id>
-    <source_key>0</source_key>
+    <source_key>1</source_key>
     <sink_key>1</sink_key>
   </connection>
   <connection>
-    <source_block_id>fbmc_sliding_fft_cvc_0</source_block_id>
+    <source_block_id>fbmc_channel_estimator_vcvc_0</source_block_id>
     <sink_block_id>fbmc_channel_equalizer_vcvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>

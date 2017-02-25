@@ -48,7 +48,7 @@ namespace gr {
                                                              std::vector<int> pilot_carriers)
         : gr::sync_block("channel_estimator_vcvc",
                          gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands * overlap),
-                         gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands)),
+                         gr::io_signature::make(2, 2, sizeof(gr_complex) * subcarriers * bands)),
           d_subcarriers(subcarriers), d_taps(taps), d_pilot_amp(pilot_amp),
           d_pilot_timestep(pilot_timestep), d_frame_len(frame_len), d_o(overlap), d_bands(bands)
     {
@@ -66,7 +66,7 @@ namespace gr {
       // only used when equalizing in spread domain
       //d_spread_pilots.resize(d_pilot_carriers.size());
       //std::transform(d_pilot_carriers.begin(), d_pilot_carriers.end(), d_spread_pilots.begin(), std::bind1st(std::multiplies<int>(),d_o));
-      d_interpolator = new interp2d();
+      d_interpolator = new interp2d(d_subcarriers * d_bands);
 
       // needed for fine freq/timing correction - not used right now
       //d_helper = new phase_helper(); // phase unwrap etc.
@@ -187,7 +187,8 @@ namespace gr {
                                       gr_vector_const_void_star &input_items,
                                       gr_vector_void_star &output_items) {
       const gr_complex *in = (const gr_complex *) input_items[0];
-      gr_complex *out = (gr_complex *) output_items[0];
+      gr_complex *out = (gr_complex *) output_items[1];
+      gr_complex *data = (gr_complex *) output_items[0];
 
       d_items_produced = 0;  // item counter for current work
       d_curr_data.clear(); // dump previous data
@@ -227,6 +228,9 @@ namespace gr {
       } else {
         d_curr_symbol = ((d_curr_symbol - 3) / d_pilot_timestep) * d_pilot_timestep + 3;
       }
+
+      // copy despread data into output buffer
+      memcpy(data, d_curr_data.data(), sizeof(gr_complex) * d_subcarriers * d_bands * d_items_produced);
 
       return d_items_produced;
     }

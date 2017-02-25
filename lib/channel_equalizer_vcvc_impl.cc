@@ -45,19 +45,11 @@ namespace gr {
                                                              std::vector<int> pilot_carriers, int subcarriers,
                                                              std::vector<float> taps, float pilot_amplitude)
         : gr::sync_block("channel_equalizer_vcvc",
-                         gr::io_signature::make2(2, 2, sizeof(gr_complex) * subcarriers * overlap * bands, sizeof(gr_complex) * subcarriers * bands),
+                         gr::io_signature::make(2, 2, sizeof(gr_complex) * subcarriers * bands),
                          gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands)),
           d_frame_len(frame_len), d_pilot_timestep(pilot_timestep), d_subcarriers(subcarriers),
           d_pilot_amp(pilot_amplitude), d_bands(bands),
           d_pilot_carriers(pilot_carriers), d_taps(taps), d_o(overlap) {
-      //set_output_multiple(d_frame_len);
-
-      /*for (int i = 0; i < d_G.rows(); ++i) {
-        for (int j = 0; j < d_G.cols(); ++j) {
-          std::cout << d_G(i, j) << " ";
-        }
-        std::cout << std::endl;
-      } */
     }
 
     /*
@@ -66,6 +58,8 @@ namespace gr {
     channel_equalizer_vcvc_impl::~channel_equalizer_vcvc_impl() {
     }
 
+    // despread method, not used since we get data from upstream block
+   /*
     void
     channel_equalizer_vcvc_impl::despread(gr_complex* out, int noutput_items) {
       gr_complex first[2*d_o-1];
@@ -80,7 +74,7 @@ namespace gr {
           out++;
         }
       }
-    }
+    } */
 
     int
     channel_equalizer_vcvc_impl::work(int noutput_items,
@@ -91,17 +85,14 @@ namespace gr {
       gr_complex *out = (gr_complex *) output_items[0];
 
 
-      // Do <+signal processing+>
-
-      d_R.resize(d_subcarriers * d_bands * d_o * noutput_items);
-      memcpy(&d_R[0], in, sizeof(gr_complex) * d_bands * d_subcarriers * d_o * noutput_items);
+      //d_R.resize(d_subcarriers * d_bands * d_o * noutput_items);
+      //memcpy(&d_R[0], in, sizeof(gr_complex) * d_bands * d_subcarriers * d_o * noutput_items);
       //volk_32fc_x2_divide_32fc(&d_R[0], in, chan,
                                //static_cast<unsigned int>(d_bands * d_subcarriers * d_o * noutput_items)); // zero forcing
-      despread(out, noutput_items);//d_G * d_R; // despreading
-      volk_32fc_x2_divide_32fc(out, out, chan,
+      //despread(out, noutput_items);//d_G * d_R; // despreading
+      volk_32fc_x2_divide_32fc(out, in, chan,
                                static_cast<unsigned int>(d_bands * d_subcarriers * noutput_items)); // zero forcing
-
-
+     
       // Tell runtime system how many output items we produced.
 
       return noutput_items;

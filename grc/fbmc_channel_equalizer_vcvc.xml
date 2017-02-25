@@ -47,7 +47,7 @@
   <sink>
     <name>in</name>
     <type>complex</type>
-    <vlen>$subcarriers * $overlap * $bands</vlen>
+    <vlen>$subcarriers * $bands</vlen>
   </sink>
   <sink>
     <name>chan</name>

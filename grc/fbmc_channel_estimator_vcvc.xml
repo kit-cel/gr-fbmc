@@ -54,4 +54,9 @@
     <type>complex</type>
     <vlen>$subcarriers * $bands</vlen>
   </source>
+  <source>
+    <name>chan</name>
+    <type>complex</type>
+    <vlen>$subcarriers * $bands</vlen>
+  </source>
 </block>

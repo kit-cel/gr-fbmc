@@ -16,10 +16,14 @@ namespace gr {
     class interp2d {
     private:
       const gsl_interp2d_type *d_T = gsl_interp2d_bilinear; // liniear interpolation
-      std::vector<std::vector<gr_complex> > d_result;
+      std::vector<gr_complex> d_result;
+      gsl_interp_accel *acc1;
+      gsl_interp_accel *acc2;
+      gsl_interp_accel *acc3;
+      gsl_interp_accel *acc4;
 
     public:
-      interp2d();
+      interp2d(int vec_len);
       ~interp2d();
       int interpolate(gr_complex* out, int spanx, int spany, std::vector<std::vector<gr_complex> >& pilots);
       std::vector<gr_complex> interp1d(std::vector<int>& pilot_carriers, int span, std::vector<gr_complex>& symbol);
