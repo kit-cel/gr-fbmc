@@ -39,6 +39,7 @@ namespace gr {
       void write_output(gr_complex*& out);
 
       int d_subcarriers, d_payload_symbols, d_payload_bits, d_overlap, d_frame_len, d_pilot_timestep, d_guard_carriers;
+      int d_num_zeros;
       float d_pilot_amp;
       std::vector<gr_complex> d_preamble_symbols;
       std::vector<int> d_pilot_carriers, d_data_carriers;
@@ -47,6 +48,7 @@ namespace gr {
       static const float d_weights_oe[3][7];
       static const float d_weights_oo[3][7];
       std::vector<std::vector<float> > d_freq_time_frame;
+      bool d_padding;
 
 
 
@@ -57,7 +59,7 @@ namespace gr {
                                           int payload_bits, int overlap,
                                           std::vector<gr_complex> preamble_symbols,
                                           float pilot_amp, int pilot_timestep,
-                                          std::vector<int> pilot_carriers);
+                                          std::vector<int> pilot_carriers, bool padding);
       ~subchannel_frame_generator_bvc_impl();
 
       // Where all the action really happens

@@ -30,11 +30,11 @@ namespace gr {
     subchannel_frame_generator_bvc::sptr
     subchannel_frame_generator_bvc::make(int subcarriers, int guard_carriers, int payload_bits, int overlap,
                                          std::vector<gr_complex> preamble_symbols, float pilot_amp, int pilot_timestep,
-                                         std::vector<int> pilot_carriers)
+                                         std::vector<int> pilot_carriers, bool padding)
     {
       return gnuradio::get_initial_sptr
         (new subchannel_frame_generator_bvc_impl(subcarriers, guard_carriers, payload_bits, overlap,
-                                                 preamble_symbols, pilot_amp, pilot_timestep, pilot_carriers));
+                                                 preamble_symbols, pilot_amp, pilot_timestep, pilot_carriers, padding));
     }
 
     /*
@@ -44,13 +44,15 @@ namespace gr {
                                                                              int payload_bits, int overlap,
                                                                              std::vector<gr_complex> preamble_symbols,
                                                                              float pilot_amp, int pilot_timestep,
-                                                                             std::vector<int> pilot_carriers)
+                                                                             std::vector<int> pilot_carriers,
+                                                                             bool padding)
       : gr::block("subchannel_frame_generator_bvc",
               gr::io_signature::make(1, 1, sizeof(char)),
               gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers)),
         d_subcarriers(subcarriers), d_payload_bits(payload_bits),
         d_overlap(overlap), d_preamble_symbols(preamble_symbols), d_pilot_amp(pilot_amp),
-        d_pilot_timestep(pilot_timestep), d_pilot_carriers(pilot_carriers), d_guard_carriers(guard_carriers)
+        d_pilot_timestep(pilot_timestep), d_pilot_carriers(pilot_carriers), d_guard_carriers(guard_carriers),
+        d_padding(padding)
     {
       if(d_subcarriers % 2 != 0) {
         throw std::length_error("Subcarriers must be an even number");
@@ -71,7 +73,8 @@ namespace gr {
         }
       }
       d_frame_len = 2 + d_payload_symbols;
-      set_output_multiple(d_frame_len);
+      d_num_zeros = (d_padding) ?  d_overlap * 2 : 0;
+      set_output_multiple(d_frame_len+d_num_zeros);
     }
 
 
@@ -118,12 +121,17 @@ namespace gr {
       for(unsigned int k = 0; k < d_frame_len; k++) {
         for(unsigned int n = 0; n < d_subcarriers; n++) {
           if((k+n) % 2 != 0) {
-            out[k*d_subcarriers + n] = gr_complex(0, d_freq_time_frame[n][k]);
+            out[0] = gr_complex(0, d_freq_time_frame[n][k]);
+            out++;
           }
           else {
-            out[k*d_subcarriers + n] = gr_complex(d_freq_time_frame[n][k], 0);
+            out[0] = gr_complex(d_freq_time_frame[n][k], 0);
+            out++;
           }
         }
+      }
+      if(d_padding) {
+        memset(out, 0, sizeof(gr_complex)*d_subcarriers * d_num_zeros);
       }
     }
 
@@ -249,7 +257,7 @@ namespace gr {
       consume_each (bits_written);
       //std::cout << "subchan_frame_gen: consume " << bits_written << " produce " << d_frame_len << std::endl;
       // Tell runtime system how many output items we produced.
-      return d_frame_len;
+      return d_frame_len + d_num_zeros;
     }
 
   } /* namespace fbmc */

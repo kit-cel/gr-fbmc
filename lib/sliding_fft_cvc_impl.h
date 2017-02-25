@@ -25,30 +25,29 @@
 #include <gnuradio/fft/fft.h>
 
 namespace gr {
-    namespace fbmc {
+  namespace fbmc {
 
-        class sliding_fft_cvc_impl : public sliding_fft_cvc {
-        private:
-            int d_subcarriers, d_overlap, d_bands, d_frame_len;
-            gr::fft::fft_complex *d_fft;
-          void fftshift(gr_complex* in);
+    class sliding_fft_cvc_impl : public sliding_fft_cvc {
+    private:
+      int d_subcarriers, d_overlap, d_bands, d_frame_len, d_curr_sym, d_symbol_count, d_consume, d_frames;
+      gr::fft::fft_complex *d_fft;
+      void fftshift(gr_complex* in);
 
-        public:
-            sliding_fft_cvc_impl(int subcarriers, int overlap, int bands, int frame_len);
+    public:
+      sliding_fft_cvc_impl(int subcarriers, int overlap, int bands, int frame_len);
 
-            ~sliding_fft_cvc_impl();
+      ~sliding_fft_cvc_impl();
 
-            // Where all the action really happens
-            void forecast(int noutput_items, gr_vector_int &ninput_items_required);
+      // Where all the action really happens
+      void forecast(int noutput_items, gr_vector_int &ninput_items_required);
 
-            int general_work(int noutput_items,
-                             gr_vector_int &ninput_items,
-                             gr_vector_const_void_star &input_items,
-                             gr_vector_void_star &output_items);
-        };
+      int general_work(int noutput_items,
+                       gr_vector_int &ninput_items,
+                       gr_vector_const_void_star &input_items,
+                       gr_vector_void_star &output_items);
+    };
 
-    } // namespace fbmc
+  } // namespace fbmc
 } // namespace gr
 
 #endif /* INCLUDED_FBMC_SLIDING_FFT_CVC_IMPL_H */
-

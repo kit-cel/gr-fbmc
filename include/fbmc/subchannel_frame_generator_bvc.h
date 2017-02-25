@@ -50,7 +50,7 @@ namespace gr {
                        int payload_bits, int overlap,
                        std::vector<gr_complex> preamble_symbols,
                        float pilot_amp, int pilot_timestep,
-                       std::vector<int> pilot_carriers);
+                       std::vector<int> pilot_carriers, bool padding);
     };
 
   } // namespace fbmc
