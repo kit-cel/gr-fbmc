@@ -21,7 +21,7 @@ namespace gr {
     public:
       interp2d();
       ~interp2d();
-      std::vector<std::vector<gr_complex> >* interpolate(int spanx, int spany, std::vector<std::vector<gr_complex> >& pilots);
+      int interpolate(gr_complex* out, int spanx, int spany, std::vector<std::vector<gr_complex> >& pilots);
       std::vector<gr_complex> interp1d(std::vector<int>& pilot_carriers, int span, std::vector<gr_complex>& symbol);
     };
   }

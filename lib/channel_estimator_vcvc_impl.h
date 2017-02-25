@@ -42,8 +42,7 @@ namespace gr {
       bool d_pilot_stored;
 
       void interpolate_time(gr_complex* out);
-      void interpolate_freq(std::vector<gr_complex>& estimate);
-      void write_output(gr_complex *out, std::vector<std::vector<gr_complex> >& queue);
+      void interpolate_freq(std::vector<gr_complex>::iterator estimate);
       inline void despread(gr_complex* out, const gr_complex* in, int noutput_items);
       //double fine_freq_sync();
       //double fine_time_sync();

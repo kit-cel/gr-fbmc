@@ -70,10 +70,11 @@ namespace gr {
       return result;
     }
 
-    std::vector<std::vector<gr_complex> >*
-    interp2d::interpolate(int spanx, int spany, std::vector<std::vector<gr_complex> >& pilots) {
+    int
+    interp2d::interpolate(gr_complex* out, int spanx, int spany, std::vector<std::vector<gr_complex> >& pilots) {
 
       d_result.clear();
+      int counter = 0;
 
       // fill pilot coordinate arrays
       const double xa[] {0.0, static_cast<double>(spanx)};
@@ -108,11 +109,11 @@ namespace gr {
       for (int k = 0; k < spanx; k++) {
         std::vector<gr_complex> temp(spany);
         for (int n = 0; n < spany; n++) {
-          temp[n] = gr_complex(gsl_interp2d_eval_extrap(spline_real, xa, ya, za_real, k+1, n, xacc, yacc),
+          out[0] = gr_complex(gsl_interp2d_eval_extrap(spline_real, xa, ya, za_real, k+1, n, xacc, yacc),
                                gsl_interp2d_eval_extrap(spline_imag, xa, ya, za_imag, k+1, n, xacc, yacc));
+          out++;
         }
-
-        d_result.push_back(temp);
+        counter++;
       }
       gsl_interp_accel_free(xacc);
       gsl_interp_accel_free(yacc);
@@ -121,7 +122,7 @@ namespace gr {
       free(za_real);
       free(za_imag);
 
-      return &d_result;
+      return counter;
     }
   }
 }
