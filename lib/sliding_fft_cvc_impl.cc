@@ -109,14 +109,13 @@ namespace gr {
 
         d_curr_sym++;
         d_symbol_count++;
-
+        d_consume += d_bands * d_subcarriers / 2;
         if (d_curr_sym == d_frame_len) {
           d_curr_sym = 0;
-          d_consume += d_bands * d_subcarriers * d_overlap;
+          d_consume += d_bands * (d_subcarriers * d_overlap - d_subcarriers/2);
           //std::cout << "break; " << ++d_frames << std::endl;
           break;
         }
-        d_consume += d_bands * d_subcarriers / 2;
       }
       //std::cout << "symbols processed: " << d_symbol_count << std::endl;
       //std::cout << "samples consumed: " << d_consume << std::endl;

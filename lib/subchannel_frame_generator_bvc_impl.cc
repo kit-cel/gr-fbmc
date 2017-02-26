@@ -73,7 +73,7 @@ namespace gr {
         }
       }
       d_frame_len = 2 + d_payload_symbols;
-      d_num_zeros = (d_padding) ?  d_overlap * 2 : 0;
+      d_num_zeros = (d_padding) ?  d_overlap * 2 - 1 : 0;
       set_output_multiple(d_frame_len+d_num_zeros);
     }
 

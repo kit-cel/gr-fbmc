@@ -631,7 +631,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -655,7 +655,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>cfg.num_total_subcarriers()*bands</value>
+      <value>cfg.num_total_subcarriers()*bands*4</value>
     </param>
   </block>
   <block>
@@ -2444,7 +2444,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2652,11 +2652,11 @@
     </param>
     <param>
       <key>update_time</key>
-      <value>0.10</value>
+      <value>0.2</value>
     </param>
     <param>
       <key>vlen</key>
-      <value>cfg.num_total_subcarriers()*bands</value>
+      <value>cfg.num_total_subcarriers()*bands*4</value>
     </param>
     <param>
       <key>x_axis_label</key>
@@ -2789,12 +2789,6 @@
   </connection>
   <connection>
     <source_block_id>fbmc_channel_equalizer_vcvc_0</source_block_id>
-    <sink_block_id>blocks_complex_to_mag_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fbmc_channel_equalizer_vcvc_0</source_block_id>
     <sink_block_id>fbmc_subchannel_deframer_vcb_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
@@ -2808,6 +2802,12 @@
   <connection>
     <source_block_id>fbmc_channel_estimator_vcvc_0</source_block_id>
     <sink_block_id>fbmc_channel_equalizer_vcvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_sliding_fft_cvc_0</source_block_id>
+    <sink_block_id>blocks_complex_to_mag_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
