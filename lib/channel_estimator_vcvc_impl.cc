@@ -25,6 +25,7 @@
 #include <gnuradio/io_signature.h>
 #include "channel_estimator_vcvc_impl.h"
 #include <numeric>
+#include <algorithm>
 #include <volk/volk.h>
 
 namespace gr {
@@ -76,7 +77,9 @@ namespace gr {
       std::iota(d_base_freqs.begin(), d_base_freqs.end(), 0); // used for timing interpolation (= no freq interpolation)
       d_snippet.resize(2);
       // maximum timestep that could occur with current settings. Wrong config leads to deadlock
-      set_output_multiple(d_frame_len - std::floor((d_frame_len-3)/d_pilot_timestep) * d_pilot_timestep);
+      set_output_multiple(std::max(
+          static_cast<int>(d_frame_len - std::floor((d_frame_len-3)/d_pilot_timestep) * d_pilot_timestep),
+                                   d_pilot_timestep));
       set_max_noutput_items(100);
     }
 
@@ -149,9 +152,15 @@ namespace gr {
       for (int i = 0; i < d_pilot_carriers.size(); i++) {
         if((d_curr_symbol + d_pilot_carriers[i]) % 2 == 0) {
           d_pilots[i] = *(estimate + d_pilot_carriers[i]) / gr_complex(d_pilot_amp, 0);
+          //if(d_curr_symbol == 16) {
+          //  std::cout << d_curr_symbol << "," << d_pilot_carriers[i] << ": [Even] " << d_pilots[i] << std::endl;
+          //}
         } else {
           d_pilots[i] = gr_complex((*(estimate + d_pilot_carriers[i])).imag(),
                                    -(*(estimate + d_pilot_carriers[i])).real()) / gr_complex(d_pilot_amp, 0);
+          //if(std::abs(d_pilots[i].imag()) > 0.8 && std::abs(d_pilots[i].real()) < 0.1) {
+          //  std::cout << d_curr_symbol << "," << d_pilot_carriers[i] << ":[Odd]  " << d_pilots[i] << std::endl;
+          //}
         }
       }
       // interpolate in frequency direction
@@ -229,14 +238,13 @@ namespace gr {
 
       // logic to reset current symbol to effectively processed symbols (we may have counted more)
       if(d_curr_symbol < 3) {
-        d_curr_symbol = ((d_frame_len-2)/d_pilot_timestep)*d_pilot_timestep + 3;
+        d_curr_symbol = (((d_frame_len-2)/d_pilot_timestep)*d_pilot_timestep + 3)%17;
       } else {
-        d_curr_symbol = ((d_curr_symbol - 3) / d_pilot_timestep) * d_pilot_timestep + 3;
+        d_curr_symbol = (((d_curr_symbol - 3) / d_pilot_timestep) * d_pilot_timestep + 3)%17;
       }
 
       // copy despread data into output buffer
       memcpy(data, d_curr_data.data(), sizeof(gr_complex) * d_subcarriers * d_bands * d_items_produced);
-
       return d_items_produced;
     }
 

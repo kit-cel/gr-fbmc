@@ -252,7 +252,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>8e6</value>
+      <value>10e6</value>
     </param>
   </block>
   <block>
@@ -279,7 +279,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>np.concatenate(([0,]*2, [1,]*60, [0,]*2))</value>
+      <value>np.concatenate(([0,]*2, [1,]*124, [0,]*2))</value>
     </param>
   </block>
   <block>
@@ -334,11 +334,11 @@
     </param>
     <param>
       <key>pilot_carriers</key>
-      <value>range(2, cfg.num_total_subcarriers()-2, 10)</value>
+      <value>range(2, cfg.num_total_subcarriers()-1, 41)</value>
     </param>
     <param>
       <key>pilot_timestep</key>
-      <value>4</value>
+      <value>7</value>
     </param>
     <param>
       <key>N</key>

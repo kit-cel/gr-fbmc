@@ -361,11 +361,11 @@
     </param>
     <param>
       <key>pilot_carriers</key>
-      <value>range(2, cfg.num_total_subcarriers()-2, 11)</value>
+      <value>range(2, cfg.num_total_subcarriers()-1, 41)</value>
     </param>
     <param>
       <key>pilot_timestep</key>
-      <value>4</value>
+      <value>8</value>
     </param>
     <param>
       <key>N</key>
@@ -411,7 +411,7 @@
     <key>analog_noise_source_x</key>
     <param>
       <key>amp</key>
-      <value>0.00</value>
+      <value>0.01</value>
     </param>
     <param>
       <key>alias</key>
@@ -1637,7 +1637,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>2</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2365,7 +2365,7 @@
     </param>
     <param>
       <key>size</key>
-      <value>1024*100</value>
+      <value>1024*50</value>
     </param>
     <param>
       <key>srate</key>
