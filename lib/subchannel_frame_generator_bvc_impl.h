@@ -59,7 +59,7 @@ namespace gr {
                                           int payload_bits, int overlap,
                                           std::vector<gr_complex> preamble_symbols,
                                           float pilot_amp, int pilot_timestep,
-                                          std::vector<int> pilot_carriers, bool padding);
+                                          std::vector<int> pilot_carriers, int frame_len, bool padding);
       ~subchannel_frame_generator_bvc_impl();
 
       // Where all the action really happens

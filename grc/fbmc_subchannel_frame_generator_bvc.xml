@@ -3,7 +3,7 @@
   <key>fbmc_subchannel_frame_generator_bvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.subchannel_frame_generator_bvc($subcarriers, $guards, $payload_bits, $overlap, $preamble_symbols, $pilot_amp, $pilot_timestep, $pilot_carriers, $padding)</make>
+  <make>fbmc.subchannel_frame_generator_bvc($subcarriers, $guards, $payload_bits, $overlap, $preamble_symbols, $pilot_amp, $pilot_timestep, $pilot_carriers, $frame_len, $padding)</make>
   <param>
     <name>Subcarriers</name>
     <key>subcarriers</key>
@@ -43,6 +43,11 @@
     <name>Pilot_carriers</name>
     <key>pilot_carriers</key>
     <type>int_vector</type>
+  </param>
+  <param>
+    <name>Syms per frame</name>
+    <key>frame_len</key>
+    <type>int</type>
   </param>
   <param>
     <name>Zero Padding</name>

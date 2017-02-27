@@ -356,6 +356,18 @@
       <value>bands</value>
     </param>
     <param>
+      <key>guard</key>
+      <value>3</value>
+    </param>
+    <param>
+      <key>bits</key>
+      <value>2048</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>4</value>
+    </param>
+    <param>
       <key>pilot_A</key>
       <value>1.0</value>
     </param>
@@ -635,7 +647,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(980, 444)</value>
+      <value>(956, 428)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1236,7 +1248,7 @@
     </param>
     <param>
       <key>frame_len</key>
-      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
+      <value>sync.get_syms_frame()</value>
     </param>
   </block>
   <block>
@@ -1307,7 +1319,7 @@
     </param>
     <param>
       <key>frame_len</key>
-      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
+      <value>sync.get_syms_frame()</value>
     </param>
   </block>
   <block>
@@ -1362,7 +1374,7 @@
     </param>
     <param>
       <key>frame_len</key>
-      <value>17</value>
+      <value>sync.get_syms_frame()</value>
     </param>
   </block>
   <block>
@@ -1456,7 +1468,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(200, 288)</value>
+      <value>(188, 270)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1505,6 +1517,10 @@
     <param>
       <key>subcarriers</key>
       <value>cfg.num_total_subcarriers()</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>sync.get_syms_frame()</value>
     </param>
     <param>
       <key>padding</key>

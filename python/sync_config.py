@@ -25,7 +25,8 @@
 import numpy as np
 
 class sync_config:
-    def __init__(self, taps, N, L, pilot_A, pilot_timestep, pilot_carriers, subbands=1, pos=4, u=1, q=4, A=1.0, fft_len=2**13):
+    def __init__(self, taps, N, overlap, L, pilot_A, pilot_timestep, pilot_carriers, subbands=1, bits=1, pos=4, u=1, q=4, A=1.0,
+                 fft_len=2**13, guard=3):
         """
         Calculates preamble with independent Zadoff-Chu sequence
         :param taps: Filter taps of length O*N
@@ -40,9 +41,12 @@ class sync_config:
         assert pilot_timestep >= 4, "Min. pilot timstep is 4 when compensation with aux pilots is used"
         self.h = np.reshape(taps, (-1, N//2))
         self.N = N
+        self.guard = guard
         self.k = pos
+        self.bits = bits
         self.L = L
         self.pilot_A = pilot_A
+        self.overlap = overlap
         self.pilot_timestep = pilot_timestep
         self.pilot_carriers = pilot_carriers
         self.u = u
@@ -124,5 +128,25 @@ class sync_config:
     def get_moving_average_taps(self, length):
         """Taps for moving average FIR filter with given length"""
         return [1.0/length for n in range(length)]
+
+    def get_syms_frame(self):
+        bits_rem = self.bits
+        syms = 2
+        while bits_rem > 0:
+            if (syms-2) % self.pilot_timestep == 0 or (syms-2) % self.pilot_timestep == 1:
+                bits_rem -= (self.N - 2*self.guard) - len(self.pilot_carriers)
+            else:
+                bits_rem -= (self.N - 2*self.guard)
+            syms += 1
+        return syms
+
+    def get_frame_samps(self, zeropad):
+        syms = self.get_syms_frame()
+        if zeropad:
+            samps = (syms+2*self.overlap-2)*self.N//2 + self.N * self.overlap
+        else:
+            samps = (syms-1)*self.N//2 + self.N * self.overlap
+        return samps
+
 
 #a = sync_config(taps=np.ones(32*4), N=32, L=31, pilot_A=1.0, pilot_timestep=4, pilot_carriers=range(0,32,5), pos=4, u=1, q=4, A=1.0, fft_len=2**13)
