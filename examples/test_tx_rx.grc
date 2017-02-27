@@ -105,7 +105,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>1</value>
+      <value>4</value>
     </param>
   </block>
   <block>
@@ -443,7 +443,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>sync.get_frame_samps()</value>
+      <value>sync.get_frame_samps(True)</value>
     </param>
   </block>
   <block>
@@ -787,7 +787,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>2</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1578,7 +1578,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>2</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1762,7 +1762,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>2</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
