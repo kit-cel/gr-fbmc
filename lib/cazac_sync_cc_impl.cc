@@ -65,7 +65,8 @@ namespace gr {
 
     void
     cazac_sync_cc_impl::zero_pad(std::vector<gr_complex> *vector, int len) {
-      for (int i = 0; i < len - vector->size(); i++) {
+      int vecsize = vector->size();
+      for (int i = 0; i < len - vecsize; i++) {
         vector->push_back(gr_complex(0, 0));
       }
     }
