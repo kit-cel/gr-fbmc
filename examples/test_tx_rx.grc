@@ -105,7 +105,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>4</value>
+      <value>1</value>
     </param>
   </block>
   <block>
@@ -417,6 +417,33 @@
     <param>
       <key>value</key>
       <value>10</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(656, 124)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>variable_0</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>sync.get_frame_samps()</value>
     </param>
   </block>
   <block>
@@ -760,7 +787,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1275,7 +1302,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(924, 560)</value>
+      <value>(936, 560)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1551,7 +1578,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1735,7 +1762,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2385,7 +2412,7 @@
     </param>
     <param>
       <key>srate</key>
-      <value>samp_rate</value>
+      <value>1</value>
     </param>
     <param>
       <key>tr_chan</key>

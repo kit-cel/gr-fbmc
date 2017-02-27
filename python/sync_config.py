@@ -143,9 +143,9 @@ class sync_config:
     def get_frame_samps(self, zeropad):
         syms = self.get_syms_frame()
         if zeropad:
-            samps = (syms+2*self.overlap-2)*self.N//2 + self.N * self.overlap
-        else:
             samps = (syms-1)*self.N//2 + self.N * self.overlap
+        else:
+            samps = (syms)*self.N//2
         return samps
 
 
