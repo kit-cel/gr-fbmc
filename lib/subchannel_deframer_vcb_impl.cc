@@ -138,6 +138,7 @@ namespace gr {
     void
     subchannel_deframer_vcb_impl::extract_payload(char *out, unsigned int *bits_written) {
       // bands get prcessed highest to lowest
+      int total_payload_bits = std::count(d_used_bands.begin(), d_used_bands.end(), true) * d_payload_bits;
       for (int b = d_bands - 1; b >= 0; b--) {
         if (d_used_bands[b]) {
           // extract data
@@ -161,9 +162,10 @@ namespace gr {
                 //std::cout << k << ", " << n << ": " << *bits_written << std::endl;
               }
             }
+            if(*bits_written == d_payload_bits) { break; }
           }
         }
-        if(*bits_written == d_payload_bits) { break; }
+        if(*bits_written == total_payload_bits) { break; }
       }
     }
 
