@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::subchannel_deframer_vcb::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int subcarriers, int bands, int guard, float threshold, std::vector<gr_complex> preamble, int symbols, std::vector<int> pilot_carriers, int pilot_timestep);
+      static sptr make(int subcarriers, int bands, int guard, float threshold, std::vector<gr_complex> preamble, int symbols, int bits, std::vector<int> pilot_carriers, int pilot_timestep);
     };
 
   } // namespace fbmc

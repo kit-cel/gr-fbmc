@@ -217,6 +217,7 @@ namespace gr {
               if(*bits_written == d_payload_bits) break;
             }
         }
+        if(*bits_written == d_payload_bits) break;
       }
     }
 

@@ -3,7 +3,7 @@
   <key>fbmc_subchannel_deframer_vcb</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.subchannel_deframer_vcb($subcarriers, $bands, $guard, $threshold, $preamble, $symbols, $pilot_carriers, $pilot_timestep)</make>
+  <make>fbmc.subchannel_deframer_vcb($subcarriers, $bands, $guard, $threshold, $preamble, $symbols, $bits, $pilot_carriers, $pilot_timestep)</make>
   <param>
     <name>Subcarriers</name>
     <key>subcarriers</key>
@@ -32,6 +32,11 @@
   <param>
     <name>Symbols per Frame</name>
     <key>symbols</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Payload bits</name>
+    <key>bits</key>
     <type>int</type>
   </param>
   <param>

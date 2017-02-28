@@ -33,9 +33,9 @@ namespace gr {
     subchannel_deframer_vcb::sptr
     subchannel_deframer_vcb::make(int subcarriers, int bands, int guard, float threshold,
                                   std::vector<gr_complex> preamble,
-                                  int symbols, std::vector<int> pilot_carriers, int pilot_timestep) {
+                                  int symbols, int bits, std::vector<int> pilot_carriers, int pilot_timestep) {
       return gnuradio::get_initial_sptr
-              (new subchannel_deframer_vcb_impl(subcarriers, bands, guard, threshold, preamble, symbols,
+              (new subchannel_deframer_vcb_impl(subcarriers, bands, guard, threshold, preamble, symbols, bits,
                                                 pilot_carriers,
                                                 pilot_timestep));
     }
@@ -45,13 +45,13 @@ namespace gr {
      */
     subchannel_deframer_vcb_impl::subchannel_deframer_vcb_impl(int subcarriers, int bands, int guard,
                                                                float threshold,
-                                                               std::vector<gr_complex> preamble, int symbols,
+                                                               std::vector<gr_complex> preamble, int symbols, int bits,
                                                                std::vector<int> pilot_carriers, int pilot_timestep)
             : gr::block("subchannel_deframer_vcb",
                         gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands),
                         gr::io_signature::make(1, 1, sizeof(char))),
               d_subcarriers(subcarriers), d_bands(bands), d_threshold(threshold), d_symbols(symbols),
-              d_preamble(preamble),
+              d_preamble(preamble), d_payload_bits(bits),
               d_pilot_carriers(pilot_carriers), d_pilot_timestep(pilot_timestep), d_guard_carriers(guard) {
       d_used_bands.resize(static_cast<unsigned long>(bands));
       set_output_multiple(d_symbols * d_subcarriers * d_bands);
@@ -140,7 +140,6 @@ namespace gr {
       // bands get prcessed highest to lowest
       for (int b = d_bands - 1; b >= 0; b--) {
         if (d_used_bands[b]) {
-          // std::cout << "using band " << b << std::endl;
           // extract data
           for (int k = 2; k < d_symbols; k++) {
             // case: we hit a symbol occupied with pilots or aux pilots
@@ -149,6 +148,7 @@ namespace gr {
                    it != d_data_carriers.end(); ++it) {
                 *out++ = demod(d_curr_frame[k][*it + d_subcarriers * b], *it + k);
                 (*bits_written)++;
+                if(*bits_written == d_payload_bits) { break; }
                 //std::cout << k << ", " << *it << ": " << *bits_written << std::endl;
               }
             }
@@ -157,11 +157,13 @@ namespace gr {
               for (int n = d_guard_carriers; n < d_subcarriers - d_guard_carriers; n++) {
                 *out++ = demod(d_curr_frame[k][n + d_subcarriers * b], n + k);
                 (*bits_written)++;
+                if(*bits_written == d_payload_bits) { break; }
                 //std::cout << k << ", " << n << ": " << *bits_written << std::endl;
               }
             }
           }
         }
+        if(*bits_written == d_payload_bits) { break; }
       }
     }
 

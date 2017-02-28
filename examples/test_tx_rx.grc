@@ -357,7 +357,7 @@
     </param>
     <param>
       <key>guard</key>
-      <value>3</value>
+      <value>2</value>
     </param>
     <param>
       <key>bits</key>
@@ -373,7 +373,7 @@
     </param>
     <param>
       <key>pilot_carriers</key>
-      <value>range(2, cfg.num_total_subcarriers()-1, 41)</value>
+      <value>range(2, cfg.num_total_subcarriers()-1, 13)</value>
     </param>
     <param>
       <key>pilot_timestep</key>
@@ -470,7 +470,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(356, 862)</value>
+      <value>(280, 810)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -866,7 +866,7 @@
     </param>
     <param>
       <key>packet_len</key>
-      <value>266</value>
+      <value>256</value>
     </param>
     <param>
       <key>type</key>
@@ -968,7 +968,7 @@
     </param>
     <param>
       <key>samples_per_second</key>
-      <value>100000</value>
+      <value>10000</value>
     </param>
     <param>
       <key>type</key>
@@ -1137,7 +1137,7 @@
     </param>
     <param>
       <key>vector</key>
-      <value>(171, 205, 239)</value>
+      <value>list(range(256))</value>
     </param>
   </block>
   <block>
@@ -1451,6 +1451,10 @@
       <value>0</value>
     </param>
     <param>
+      <key>bits</key>
+      <value>2048</value>
+    </param>
+    <param>
       <key>pilot_carriers</key>
       <value>sync.get_pilot_carriers()</value>
     </param>
@@ -1472,7 +1476,7 @@
     </param>
     <param>
       <key>symbols</key>
-      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
+      <value>sync.get_syms_frame()</value>
     </param>
   </block>
   <block>
@@ -1680,7 +1684,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>_coordinate</key>
