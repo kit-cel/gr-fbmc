@@ -46,6 +46,7 @@
 #include "fbmc/subchannel_deframer_vcb.h"
 #include "fbmc/tx_dummy_mixer_cc.h"
 #include "fbmc/cazac_sync_cc.h"
+#include "fbmc/correlator_postprocessor_cf.h"
 %}
 
 %include "../lib/fbmc_config.h"
@@ -123,3 +124,5 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, subchannel_deframer_vcb);
 GR_SWIG_BLOCK_MAGIC2(fbmc, tx_dummy_mixer_cc);
 %include "fbmc/cazac_sync_cc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, cazac_sync_cc);
+%include "fbmc/correlator_postprocessor_cf.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, correlator_postprocessor_cf);

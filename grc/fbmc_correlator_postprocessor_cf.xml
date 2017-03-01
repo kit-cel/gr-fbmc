@@ -1,0 +1,27 @@
+<block>
+  <name>Correlator postprocessor cf</name>
+  <key>fbmc_correlator_postprocessor_cf</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.correlator_postprocessor_cf($offset, $window_len)</make>
+  <callback>set_offset($offset)</callback>
+  <param>
+    <name>Offset</name>
+    <key>offset</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Window_len</name>
+    <key>window_len</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <nports>5</nports>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>float</type>
+  </source>
+</block>
