@@ -1,0 +1,24 @@
+<block>
+  <name>Frame detector</name>
+  <key>fbmc_frame_detector</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.frame_detector($frame_len)</make>
+  <param>
+    <name>Frame_len</name>
+    <key>frame_len</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>float</type>
+  </sink>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>

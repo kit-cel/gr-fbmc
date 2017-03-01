@@ -75,3 +75,4 @@ GR_ADD_TEST(qa_subchannel_deframer_vcb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOUR
 GR_ADD_TEST(qa_tx_dummy_mixer_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_tx_dummy_mixer_cc.py)
 GR_ADD_TEST(qa_cazac_sync_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_cazac_sync_cc.py)
 GR_ADD_TEST(qa_correlator_postprocessor_cf ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_correlator_postprocessor_cf.py)
+GR_ADD_TEST(qa_frame_detector ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_frame_detector.py)

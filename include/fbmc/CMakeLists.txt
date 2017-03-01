@@ -59,5 +59,6 @@ install(FILES
     subchannel_deframer_vcb.h
     tx_dummy_mixer_cc.h
     cazac_sync_cc.h
-    correlator_postprocessor_cf.h DESTINATION include/fbmc
+    correlator_postprocessor_cf.h
+    frame_detector.h DESTINATION include/fbmc
 )

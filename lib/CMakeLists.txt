@@ -64,7 +64,8 @@ list(APPEND fbmc_sources
     subchannel_deframer_vcb_impl.cc
     tx_dummy_mixer_cc_impl.cc
     cazac_sync_cc_impl.cc
-    correlator_postprocessor_cf_impl.cc )
+    correlator_postprocessor_cf_impl.cc
+    frame_detector_impl.cc )
 
 set(fbmc_sources "${fbmc_sources}" PARENT_SCOPE)
 if(NOT fbmc_sources)

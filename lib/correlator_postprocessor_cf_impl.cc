@@ -62,7 +62,8 @@ namespace gr {
         gr_vector_const_void_star &input_items,
         gr_vector_void_star &output_items)
     {
-      const gr_complex *in[5] = {(gr_complex*) input_items[0], (gr_complex*) input_items[1], (gr_complex*) input_items[2], (gr_complex*) input_items[3], (gr_complex*) input_items[4]};
+      const gr_complex *fir_in[4] = {(gr_complex*) input_items[0], (gr_complex*) input_items[1], (gr_complex*) input_items[2], (gr_complex*) input_items[3]};
+      const gr_complex *sig_in = (gr_complex*) input_items[4];
       float *out = (float *) output_items[0];
 
       int nitems_available = noutput_items - d_window_len - 1;
@@ -71,9 +72,9 @@ namespace gr {
         float corr_power = 0;
         for(int n = 0; n < 4; n++)
         {
-          corr_power += std::abs(in[n][i]);
+          corr_power += std::abs(fir_in[n][i]);
         }
-        d_avg = d_avg - std::pow(std::abs(in[4][i]), 2) + std::pow(std::abs(in[4][i+d_window_len]), 2); 
+        d_avg = d_avg - std::pow(std::abs(sig_in[i]), 2) + std::pow(std::abs(sig_in[i+d_window_len]), 2); 
         out[i] = corr_power / (d_avg + d_offset);    
       }
 

@@ -54,5 +54,6 @@ install(FILES
     fbmc_subchannel_deframer_vcb.xml
     fbmc_tx_dummy_mixer_cc.xml
     fbmc_cazac_sync_cc.xml
-    fbmc_correlator_postprocessor_cf.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_correlator_postprocessor_cf.xml
+    fbmc_frame_detector.xml DESTINATION share/gnuradio/grc/blocks
 )
