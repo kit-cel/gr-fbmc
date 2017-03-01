@@ -148,7 +148,7 @@ namespace gr {
                    it != d_data_carriers.end(); ++it) {
                 *out++ = demod(d_curr_frame[k][*it + d_subcarriers * b], *it + k);
                 (*bits_written)++;
-                if(*bits_written == d_payload_bits) { break; }
+                if(*bits_written % d_payload_bits == 0) { break; }
                 //std::cout << k << ", " << *it << ": " << *bits_written << std::endl;
               }
             }
@@ -157,11 +157,10 @@ namespace gr {
               for (int n = d_guard_carriers; n < d_subcarriers - d_guard_carriers; n++) {
                 *out++ = demod(d_curr_frame[k][n + d_subcarriers * b], n + k);
                 (*bits_written)++;
-                if(*bits_written == d_payload_bits) { break; }
+                if(*bits_written % d_payload_bits == 0) { break; }
                 //std::cout << k << ", " << n << ": " << *bits_written << std::endl;
               }
             }
-            if(*bits_written == d_payload_bits) { break; }
           }
         }
       }
