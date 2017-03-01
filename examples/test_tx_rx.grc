@@ -124,7 +124,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(340, 8)</value>
+      <value>(428, 120)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -159,7 +159,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(880, 256)</value>
+      <value>(1068, 256)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -172,6 +172,33 @@
     <param>
       <key>value</key>
       <value>[h*np.exp(1j*2*np.pi*np.random.random()) for h in [0.98304252, 0.01179651, 0.00516097]]</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(656, 124)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fir</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>np.conj(np.fft.ifft(np.fft.ifftshift(np.hstack((np.fft.fftshift(np.fft.fft(sync.get_zadoff_chu(64))), np.zeros(3*64))))))</value>
     </param>
   </block>
   <block>
@@ -325,7 +352,7 @@
     </param>
     <param>
       <key>L</key>
-      <value>cfg.num_total_subcarriers()-1</value>
+      <value>127</value>
     </param>
     <param>
       <key>comment</key>
@@ -357,7 +384,7 @@
     </param>
     <param>
       <key>guard</key>
-      <value>2</value>
+      <value>0</value>
     </param>
     <param>
       <key>bits</key>
@@ -373,7 +400,7 @@
     </param>
     <param>
       <key>pilot_carriers</key>
-      <value>range(2, cfg.num_total_subcarriers()-1, 13)</value>
+      <value>range(8, cfg.num_total_subcarriers()-7, 13)</value>
     </param>
     <param>
       <key>pilot_timestep</key>
@@ -420,33 +447,6 @@
     </param>
   </block>
   <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(656, 124)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>variable_0</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>sync.get_frame_samps(True)</value>
-    </param>
-  </block>
-  <block>
     <key>analog_noise_source_x</key>
     <param>
       <key>amp</key>
@@ -466,7 +466,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -576,7 +576,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -627,7 +627,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -698,6 +698,49 @@
     </param>
   </block>
   <block>
+    <key>blocks_complex_to_mag</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(884, 260)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_complex_to_mag_2</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_message_debug</key>
     <param>
       <key>alias</key>
@@ -713,7 +756,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -968,7 +1011,7 @@
     </param>
     <param>
       <key>samples_per_second</key>
-      <value>10000</value>
+      <value>100000</value>
     </param>
     <param>
       <key>type</key>
@@ -1254,12 +1297,12 @@
       <value>sync.get_pilot_amplitude()</value>
     </param>
     <param>
-      <key>pilot_carriers</key>
-      <value>sync.get_pilot_carriers()</value>
-    </param>
-    <param>
       <key>pilot_timestep</key>
       <value>sync.get_pilot_timestep()</value>
+    </param>
+    <param>
+      <key>pilot_carriers</key>
+      <value>sync.get_pilot_carriers()</value>
     </param>
     <param>
       <key>taps</key>
@@ -1280,10 +1323,6 @@
   </block>
   <block>
     <key>fbmc_channel_estimator_vcvc</key>
-    <param>
-      <key>bands</key>
-      <value>bands</value>
-    </param>
     <param>
       <key>alias</key>
       <value></value>
@@ -1341,6 +1380,10 @@
       <value>np.array(cfg.phydyas_frequency_taps(cfg.num_overlap_sym()))</value>
     </param>
     <param>
+      <key>bands</key>
+      <value>bands</value>
+    </param>
+    <param>
       <key>subcarriers</key>
       <value>cfg.num_total_subcarriers()</value>
     </param>
@@ -1351,10 +1394,6 @@
   </block>
   <block>
     <key>fbmc_sliding_fft_cvc</key>
-    <param>
-      <key>bands</key>
-      <value>bands</value>
-    </param>
     <param>
       <key>alias</key>
       <value></value>
@@ -1394,6 +1433,10 @@
     <param>
       <key>overlap</key>
       <value>cfg.num_overlap_sym()</value>
+    </param>
+    <param>
+      <key>bands</key>
+      <value>bands</value>
     </param>
     <param>
       <key>subcarriers</key>
@@ -1436,7 +1479,7 @@
     </param>
     <param>
       <key>guard</key>
-      <value>2</value>
+      <value>0</value>
     </param>
     <param>
       <key>id</key>
@@ -1507,7 +1550,7 @@
     </param>
     <param>
       <key>guards</key>
-      <value>2</value>
+      <value>0</value>
     </param>
     <param>
       <key>id</key>
@@ -1633,7 +1676,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>taps</key>
@@ -1684,7 +1727,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>2</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1713,6 +1756,61 @@
     <param>
       <key>taps</key>
       <value>channel</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>ccc</value>
+    </param>
+  </block>
+  <block>
+    <key>fir_filter_xxx</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>decim</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(660, 248)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fir_filter_xxx_1</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>samp_delay</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value>sync.get_fir_sequences()[0]</value>
     </param>
     <param>
       <key>type</key>
@@ -2412,7 +2510,7 @@
     </param>
     <param>
       <key>size</key>
-      <value>1024*50</value>
+      <value>1024*10</value>
     </param>
     <param>
       <key>srate</key>
@@ -2769,6 +2867,12 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>blocks_complex_to_mag_2</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>blocks_pack_k_bits_bb_0</source_block_id>
     <sink_block_id>blocks_tagged_stream_to_pdu_0</sink_block_id>
     <source_key>0</source_key>
@@ -2801,6 +2905,12 @@
   <connection>
     <source_block_id>blocks_throttle_0</source_block_id>
     <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_throttle_0</source_block_id>
+    <sink_block_id>fir_filter_xxx_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2878,6 +2988,12 @@
   </connection>
   <connection>
     <source_block_id>fbmc_tx_dummy_mixer_cc_0</source_block_id>
+    <sink_block_id>blocks_throttle_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_tx_dummy_mixer_cc_0</source_block_id>
     <sink_block_id>fir_filter_xxx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
@@ -2891,6 +3007,12 @@
   <connection>
     <source_block_id>fir_filter_xxx_0</source_block_id>
     <sink_block_id>blocks_add_xx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fir_filter_xxx_1</source_block_id>
+    <sink_block_id>blocks_complex_to_mag_2</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

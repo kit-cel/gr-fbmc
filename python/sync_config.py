@@ -99,15 +99,15 @@ class sync_config:
     def get_fir_sequences(self):
         """Returns list of lists containing FIR filter taps for time correlation with time input signal"""
         zc = self.get_zadoff_chu(self.N//2)
-        zc_freq = np.fft.fftshift(np.fft.fft(zc))
+        zc_freq = np.fft.fftshift(np.fft.fft(np.conj(zc)))
         zc_freq0 = np.concatenate((zc_freq, np.zeros(3*self.N//2))) # time interpolation
         zc_freq1 = np.roll(zc_freq0, self.N//2 * 1) # freq shift
         zc_freq2 = np.roll(zc_freq0, self.N//2 * 2) # freq shift
         zc_freq3 = np.roll(zc_freq0, self.N//2 * 3) # freq shift
-        zc0 = np.conj(np.flipud(np.fft.ifft(np.fft.ifftshift(zc_freq0))))
-        zc1 = np.conj(np.flipud(np.fft.ifft(np.fft.ifftshift(zc_freq1))))
-        zc2 = np.conj(np.flipud(np.fft.ifft(np.fft.ifftshift(zc_freq2))))
-        zc3 = np.conj(np.flipud(np.fft.ifft(np.fft.ifftshift(zc_freq3))))
+        zc0 = np.fft.ifft(np.fft.ifftshift(zc_freq0))
+        zc1 = np.fft.ifft(np.fft.ifftshift(zc_freq1))
+        zc2 = np.fft.ifft(np.fft.ifftshift(zc_freq2))
+        zc3 = np.fft.ifft(np.fft.ifftshift(zc_freq3))
         return [zc0.tolist(), zc1.tolist(), zc2.tolist(), zc3.tolist()]
 
     def get_preamble_symbols(self):
