@@ -81,6 +81,7 @@ namespace gr {
           static_cast<int>(d_frame_len - std::floor((d_frame_len-3)/d_pilot_timestep) * d_pilot_timestep),
                                    d_pilot_timestep));
       set_max_noutput_items(100);
+      d_frame_counter = 0;
     }
 
     /*
@@ -149,6 +150,7 @@ namespace gr {
 
     void
     channel_estimator_vcvc_impl::interpolate_freq(std::vector<gr_complex>::iterator estimate) {
+      //std::cout << "Call to work Chan Est" << std::endl;
       for (int i = 0; i < d_pilot_carriers.size(); i++) {
         if((d_curr_symbol + d_pilot_carriers[i]) % 2 == 0) {
           d_pilots[i] = *(estimate + d_pilot_carriers[i]) / gr_complex(d_pilot_amp, 0);
@@ -162,7 +164,14 @@ namespace gr {
           //  std::cout << d_curr_symbol << "," << d_pilot_carriers[i] << ":[Odd]  " << d_pilots[i] << std::endl;
           //}
         }
+        //std::cout << d_curr_symbol << ": " << *(estimate + d_pilot_carriers[i]) << std::endl;
+        /*if(d_curr_symbol == 2) {
+          for (int j = 0; j < d_subcarriers * d_bands; ++j) {
+            std::cout << j << ":" << *(estimate + j) << std::endl;
+          }
+        }*/
       }
+
       // interpolate in frequency direction
       d_curr_pilot = d_interpolator->interp1d(d_pilot_carriers, d_subcarriers * d_bands, d_pilots);
     }
@@ -171,8 +180,14 @@ namespace gr {
     channel_estimator_vcvc_impl::interpolate_time(gr_complex* out) {
       int interpol_span = d_pilot_timestep;
       if(d_curr_symbol == 2) { // first pilot per frame
-        interpol_span = d_frame_len - std::floor((d_frame_len-2)/d_pilot_timestep) * d_pilot_timestep;
+        int lastpilot = 2;
+        while(lastpilot < d_frame_len) {
+          lastpilot += d_pilot_timestep;
+        }
+        lastpilot -= d_pilot_timestep;
+        interpol_span = d_frame_len - lastpilot + 2;
       }
+      //std::cout << "Interpolating " << interpol_span << std::endl;
       // first base time is always 0
       d_base_times[1] = interpol_span;
       // data to interpolate in between
@@ -206,8 +221,25 @@ namespace gr {
 
       d_items_produced = 0;  // item counter for current work
       d_curr_data.clear(); // dump previous data
+      d_curr_data.resize(noutput_items);
 
       despread(&d_curr_data[0], in, noutput_items); // frequency despreading
+      //std::cout << "Call to work" << std::endl;
+      int tempsymbol = d_curr_symbol;
+      for (int k = 0; k < noutput_items; ++k) {
+        //if((tempsymbol-2) % d_pilot_timestep == 0) {
+          for (int n = 0; n < d_pilot_carriers.size(); ++n) {
+            //if (std::abs(d_curr_data[k * d_subcarriers * d_bands + n].real() - d_pilot_amp) > 0.1) {
+             // std::cout << "[" << d_frame_counter << "] " << "Pilot at " << tempsymbol << ", " << d_pilot_carriers[n] << ": "
+             //           << d_curr_data[k * d_subcarriers * d_bands + d_pilot_carriers[n]] << std::endl;
+            //}
+         // }
+        }
+        tempsymbol++;
+        if(tempsymbol == d_frame_len) {
+          tempsymbol = 0;
+        }
+      }
 
       // logic to extract pilot symbols
       for (int j = 0; j < noutput_items; j++) {
@@ -233,18 +265,26 @@ namespace gr {
         d_curr_symbol++; // in-frame symbol counter
         if(d_curr_symbol == d_frame_len) {
           d_curr_symbol = 0; // counter reset at frame end
+          d_frame_counter++;
         }
       }
 
+      //std::cout << "d_curr_symbol: " <<d_curr_symbol << std::endl;
+
       // logic to reset current symbol to effectively processed symbols (we may have counted more)
       if(d_curr_symbol < 3) {
-        d_curr_symbol = (((d_frame_len-2)/d_pilot_timestep)*d_pilot_timestep + 3)%17;
+        d_curr_symbol = (((d_frame_len-3)/d_pilot_timestep)*d_pilot_timestep + 3)%d_frame_len;
       } else {
-        d_curr_symbol = (((d_curr_symbol - 3) / d_pilot_timestep) * d_pilot_timestep + 3)%17;
+        d_curr_symbol = (((d_curr_symbol - 3) / d_pilot_timestep) * d_pilot_timestep + 3)%d_frame_len;
       }
+      //std::cout << "d_curr_symbol (reset): " <<d_curr_symbol << std::endl;
 
       // copy despread data into output buffer
       memcpy(data, d_curr_data.data(), sizeof(gr_complex) * d_subcarriers * d_bands * d_items_produced);
+      for (int k = 0; k < d_items_produced * d_subcarriers * d_bands; ++k) {
+        //std::cout << out[k] << ", ";
+      }
+      //std::cout << "returning " << d_items_produced << std::endl;
       return d_items_produced;
     }
 

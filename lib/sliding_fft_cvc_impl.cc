@@ -76,6 +76,8 @@ namespace gr {
     sliding_fft_cvc_impl::forecast(int noutput_items, gr_vector_int &ninput_items_required) {
       /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
       ninput_items_required[0] = d_bands * d_subcarriers * (d_overlap + (noutput_items - 1) / 2);
+      //ninput_items_required[0] = d_bands * d_subcarriers * d_overlap;
+      //std::cout << "sliding fft forecast [" << ninput_items_required[0] << "->" << noutput_items << "]" << std::endl;
     }
 
     int
@@ -94,7 +96,7 @@ namespace gr {
 
       // Do <+signal processing+>
       //gr_complex fft_result[d_overlap * d_subcarriers * d_bands];
-      float normalize = static_cast<float>(10.0 / std::sqrt(d_overlap * d_subcarriers * d_bands));
+      float normalize = static_cast<float>(5.0 / std::sqrt(d_overlap * d_subcarriers * d_bands));
       for (unsigned int k = 0; k < d_full_symbols; k++) {
         //std::cout << "============== SYMBOL " << k << " ==============" << std::endl;
         //std::cout << "curr sym: " << d_curr_sym << std::endl;
@@ -126,7 +128,7 @@ namespace gr {
       consume_each(d_consume);
 
       // Tell runtime system how many output items we produced.
-      //std::cout << "return " << d_symbol_count << std::endl;
+      //std::cout << "sliding fft return " << d_symbol_count << std::endl;
 
       return d_symbol_count;
     }

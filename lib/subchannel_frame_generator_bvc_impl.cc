@@ -24,6 +24,7 @@
 
 #include <gnuradio/io_signature.h>
 #include "subchannel_frame_generator_bvc_impl.h"
+#include <algorithm>
 
 namespace gr {
   namespace fbmc {
@@ -116,7 +117,7 @@ namespace gr {
     }
 
     void
-    subchannel_frame_generator_bvc_impl::write_output(gr_complex*& out) {
+    subchannel_frame_generator_bvc_impl::write_output(gr_complex* out) {
       for(unsigned int k = 0; k < d_frame_len; k++) {
         for(unsigned int n = 0; n < d_subcarriers; n++) {
           if((k+n) % 2 != 0) {
@@ -147,6 +148,7 @@ namespace gr {
     subchannel_frame_generator_bvc_impl::insert_pilots() {
       for (unsigned int k = 2; k < d_frame_len - 1; k += d_pilot_timestep) {
         for (std::vector<int>::iterator it = d_pilot_carriers.begin(); it != d_pilot_carriers.end(); ++it) {
+          //std::cout << "insert pilot " << d_pilot_amp << " at " << k << ", " << *it << std::endl;
           d_freq_time_frame[*it][k] = d_pilot_amp;
           insert_aux_pilots(static_cast<unsigned int>(*it), k);
         }
@@ -257,6 +259,14 @@ namespace gr {
       consume_each (bits_written);
       //std::cout << "subchan_frame_gen: consume " << bits_written << " produce " << d_frame_len << std::endl;
       // Tell runtime system how many output items we produced.
+      /*std::cout << "Call to work Frame Gen" << std::endl;
+      for (int k = 0; k < d_frame_len; ++k) {
+        for (int n = 0; n < d_pilot_carriers.size(); ++n) {
+          if((k-2) % d_pilot_timestep == 0) {
+            std::cout << out[d_subcarriers * k + d_pilot_carriers[n]] << std::endl;
+          }
+        }
+      }*/
       return d_frame_len + d_num_zeros;
     }
 

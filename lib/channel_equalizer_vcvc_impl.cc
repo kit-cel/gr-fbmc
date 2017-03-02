@@ -90,8 +90,12 @@ namespace gr {
       //volk_32fc_x2_divide_32fc(&d_R[0], in, chan,
                                //static_cast<unsigned int>(d_bands * d_subcarriers * d_o * noutput_items)); // zero forcing
       //despread(out, noutput_items);//d_G * d_R; // despreading
-      volk_32fc_x2_divide_32fc(out, in, chan,
-                               static_cast<unsigned int>(d_bands * d_subcarriers * noutput_items)); // zero forcing
+      //volk_32fc_x2_divide_32fc(out, in, chan,
+                               //static_cast<unsigned int>(d_bands * d_subcarriers * noutput_items)); // zero forcing
+
+     for (int i = 0; i < d_bands * d_subcarriers * noutput_items; ++i) {
+       out[i] = in[i]/chan[i];
+     }
      
       // Tell runtime system how many output items we produced.
 

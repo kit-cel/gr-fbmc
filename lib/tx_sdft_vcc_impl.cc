@@ -67,6 +67,7 @@ namespace gr {
       int nout = tx_sdft_kernel::generic_work(out, in, noutput_items);
 
       // Tell runtime system how many output items we produced.
+      //std::cout << "tx sdft return " << nout << std::endl;
       return nout;
     }
 

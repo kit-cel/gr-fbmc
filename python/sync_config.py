@@ -140,6 +140,9 @@ class sync_config:
             syms += 1
         return syms
 
+    def get_guard_bands(self):
+        return self.guard
+
     def get_frame_samps(self, zeropad):
         syms = self.get_syms_frame()
         if zeropad:

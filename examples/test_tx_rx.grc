@@ -105,7 +105,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>4</value>
+      <value>1</value>
     </param>
   </block>
   <block>
@@ -172,6 +172,69 @@
     <param>
       <key>value</key>
       <value>[h*np.exp(1j*2*np.pi*np.random.random()) for h in [0.98304252, 0.01179651, 0.00516097]]</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_qtgui_range</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>10</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1316, 148)</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>delay</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>min_len</key>
+      <value>200</value>
+    </param>
+    <param>
+      <key>orient</key>
+      <value>Qt.Horizontal</value>
+    </param>
+    <param>
+      <key>start</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>step</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>stop</key>
+      <value>10</value>
+    </param>
+    <param>
+      <key>rangeType</key>
+      <value>int</value>
+    </param>
+    <param>
+      <key>widget</key>
+      <value>counter_slider</value>
     </param>
   </block>
   <block>
@@ -384,11 +447,11 @@
     </param>
     <param>
       <key>guard</key>
-      <value>0</value>
+      <value>8</value>
     </param>
     <param>
       <key>bits</key>
-      <value>2048</value>
+      <value>npackets*packetlen_base*8</value>
     </param>
     <param>
       <key>overlap</key>
@@ -400,11 +463,11 @@
     </param>
     <param>
       <key>pilot_carriers</key>
-      <value>range(8, cfg.num_total_subcarriers()-7, 13)</value>
+      <value>range(8, 118, 10)</value>
     </param>
     <param>
       <key>pilot_timestep</key>
-      <value>8</value>
+      <value>4</value>
     </param>
     <param>
       <key>N</key>
@@ -694,11 +757,11 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>cfg.num_total_subcarriers()*bands*4</value>
+      <value>cfg.num_total_subcarriers()*bands</value>
     </param>
   </block>
   <block>
-    <key>blocks_complex_to_mag</key>
+    <key>blocks_complex_to_mag_squared</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -713,11 +776,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(884, 260)</value>
+      <value>(856, 270)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -725,7 +788,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>blocks_complex_to_mag_2</value>
+      <value>blocks_complex_to_mag_squared_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -734,6 +797,61 @@
     <param>
       <key>minoutbuf</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_delay</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>delay</key>
+      <value>delay</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(596, 488)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_delay_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>num_ports</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
     </param>
     <param>
       <key>vlen</key>
@@ -756,7 +874,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -769,6 +887,53 @@
     <param>
       <key>id</key>
       <value>blocks_message_debug_0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_null_sink</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>bus_conns</key>
+      <value>[[0,],]</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1192, 764)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_null_sink_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>num_inputs</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>128</value>
     </param>
   </block>
   <block>
@@ -830,11 +995,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(532, 524)</value>
+      <value>(460, 592)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -983,11 +1148,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(584, 660)</value>
+      <value>(520, 640)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1180,7 +1345,7 @@
     </param>
     <param>
       <key>vector</key>
-      <value>list(range(256))</value>
+      <value>list(range(256))*4</value>
     </param>
   </block>
   <block>
@@ -1270,7 +1435,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1156, 560)</value>
+      <value>(1172, 586)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1297,12 +1462,12 @@
       <value>sync.get_pilot_amplitude()</value>
     </param>
     <param>
-      <key>pilot_timestep</key>
-      <value>sync.get_pilot_timestep()</value>
-    </param>
-    <param>
       <key>pilot_carriers</key>
       <value>sync.get_pilot_carriers()</value>
+    </param>
+    <param>
+      <key>pilot_timestep</key>
+      <value>sync.get_pilot_timestep()</value>
     </param>
     <param>
       <key>taps</key>
@@ -1324,6 +1489,10 @@
   <block>
     <key>fbmc_channel_estimator_vcvc</key>
     <param>
+      <key>bands</key>
+      <value>bands</value>
+    </param>
+    <param>
       <key>alias</key>
       <value></value>
     </param>
@@ -1341,7 +1510,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(936, 560)</value>
+      <value>(852, 586)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1380,10 +1549,6 @@
       <value>np.array(cfg.phydyas_frequency_taps(cfg.num_overlap_sym()))</value>
     </param>
     <param>
-      <key>bands</key>
-      <value>bands</value>
-    </param>
-    <param>
       <key>subcarriers</key>
       <value>cfg.num_total_subcarriers()</value>
     </param>
@@ -1394,6 +1559,10 @@
   </block>
   <block>
     <key>fbmc_sliding_fft_cvc</key>
+    <param>
+      <key>bands</key>
+      <value>bands</value>
+    </param>
     <param>
       <key>alias</key>
       <value></value>
@@ -1412,7 +1581,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(748, 588)</value>
+      <value>(672, 614)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1433,10 +1602,6 @@
     <param>
       <key>overlap</key>
       <value>cfg.num_overlap_sym()</value>
-    </param>
-    <param>
-      <key>bands</key>
-      <value>bands</value>
     </param>
     <param>
       <key>subcarriers</key>
@@ -1471,7 +1636,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1460, 544)</value>
+      <value>(1460, 554)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1479,7 +1644,7 @@
     </param>
     <param>
       <key>guard</key>
-      <value>0</value>
+      <value>8</value>
     </param>
     <param>
       <key>id</key>
@@ -1495,7 +1660,7 @@
     </param>
     <param>
       <key>bits</key>
-      <value>2048</value>
+      <value>cfg.num_payload_bits()</value>
     </param>
     <param>
       <key>pilot_carriers</key>
@@ -1550,7 +1715,7 @@
     </param>
     <param>
       <key>guards</key>
-      <value>0</value>
+      <value>8</value>
     </param>
     <param>
       <key>id</key>
@@ -1625,7 +1790,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1684,7 +1849,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(432, 328)</value>
+      <value>(452, 372)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1731,7 +1896,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(212, 736)</value>
+      <value>(220, 736)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1782,7 +1947,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1864,7 +2029,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2510,7 +2675,7 @@
     </param>
     <param>
       <key>size</key>
-      <value>1024*10</value>
+      <value>sync.get_frame_samps(True)*4</value>
     </param>
     <param>
       <key>srate</key>
@@ -2593,7 +2758,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1200, 396)</value>
+      <value>(1164, 352)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -2801,7 +2966,7 @@
     </param>
     <param>
       <key>vlen</key>
-      <value>cfg.num_total_subcarriers()*bands*4</value>
+      <value>cfg.num_total_subcarriers()*bands</value>
     </param>
     <param>
       <key>x_axis_label</key>
@@ -2867,8 +3032,20 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_complex_to_mag_2</source_block_id>
+    <source_block_id>blocks_complex_to_mag_squared_0</source_block_id>
     <sink_block_id>qtgui_time_sink_x_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_delay_0</source_block_id>
+    <sink_block_id>blocks_complex_to_mag_squared_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_delay_0</source_block_id>
+    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2904,7 +3081,7 @@
   </connection>
   <connection>
     <source_block_id>blocks_throttle_0</source_block_id>
-    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
+    <sink_block_id>blocks_delay_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2958,13 +3135,19 @@
   </connection>
   <connection>
     <source_block_id>fbmc_channel_estimator_vcvc_0</source_block_id>
-    <sink_block_id>fbmc_channel_equalizer_vcvc_0</sink_block_id>
+    <sink_block_id>blocks_complex_to_mag_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>fbmc_sliding_fft_cvc_0</source_block_id>
-    <sink_block_id>blocks_complex_to_mag_1</sink_block_id>
+    <source_block_id>fbmc_channel_estimator_vcvc_0</source_block_id>
+    <sink_block_id>blocks_null_sink_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fbmc_channel_estimator_vcvc_0</source_block_id>
+    <sink_block_id>fbmc_channel_equalizer_vcvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3000,19 +3183,13 @@
   </connection>
   <connection>
     <source_block_id>fbmc_tx_sdft_vcc_0</source_block_id>
-    <sink_block_id>interp_fir_filter_xxx_0</sink_block_id>
+    <sink_block_id>blocks_delay_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>fir_filter_xxx_0</source_block_id>
     <sink_block_id>blocks_add_xx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fir_filter_xxx_1</source_block_id>
-    <sink_block_id>blocks_complex_to_mag_2</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

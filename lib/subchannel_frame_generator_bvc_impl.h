@@ -36,7 +36,7 @@ namespace gr {
       void insert_aux_pilots(const unsigned int N, const unsigned int K);
 
       void init_freq_time_frame();
-      void write_output(gr_complex*& out);
+      void write_output(gr_complex* out);
 
       int d_subcarriers, d_payload_symbols, d_payload_bits, d_overlap, d_frame_len, d_pilot_timestep, d_guard_carriers;
       int d_num_zeros;
