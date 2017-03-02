@@ -42,7 +42,7 @@ namespace gr {
     frame_detector_impl::frame_detector_impl(int frame_len)
       : gr::sync_block("frame_detector",
               gr::io_signature::make2(2, 2, sizeof(float), sizeof(gr_complex)),
-              gr::io_signature::make(1, 1, sizeof(gr_complex))),
+              gr::io_signature::make2(2, 2, sizeof(float), sizeof(gr_complex))),
               d_frame_len(frame_len)
     {
       set_output_multiple(2 * d_frame_len);  
@@ -78,14 +78,17 @@ namespace gr {
     {
       float *corr_in = (float *) input_items[0];
       gr_complex *sig_in = (gr_complex *) input_items[1];
-      gr_complex *out = (gr_complex *) output_items[0];
+      float *corr_out = (float *) output_items[0];
+      gr_complex *sig_out = (gr_complex *) output_items[1];
 
       int nframes = noutput_items / d_frame_len - 1;
       
       for(int i = 0; i < nframes; i++)
       {
         int offset = argmax(corr_in + i * d_frame_len, d_frame_len);
-        memcpy(out + i * d_frame_len, sig_in + i * d_frame_len + offset, sizeof(gr_complex) * d_frame_len);
+        memcpy(sig_out + i * d_frame_len, sig_in + i * d_frame_len + offset, sizeof(gr_complex) * d_frame_len);
+        memcpy(corr_out + i * d_frame_len, corr_in + i * d_frame_len, sizeof(float) * d_frame_len);
+        add_item_tag(1, nitems_written(1) + i * d_frame_len + offset, pmt::intern("peak"), pmt::PMT_NIL);
       }
 
       return nframes * d_frame_len;

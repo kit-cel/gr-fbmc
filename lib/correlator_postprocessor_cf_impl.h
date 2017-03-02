@@ -37,7 +37,7 @@ namespace gr {
       correlator_postprocessor_cf_impl(float offset, int window_len);
       ~correlator_postprocessor_cf_impl();
       
-      virtual void set_offset(float offset){ std::cout << "set new offset " << offset << std::endl; d_offset = offset; }
+      virtual void set_offset(float offset){ d_offset = offset; }
 
       // Where all the action really happens
       int work(int noutput_items,
