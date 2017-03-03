@@ -30,7 +30,7 @@ namespace gr {
 
     class channel_estimator_vcvc_impl : public channel_estimator_vcvc {
     private:
-      int d_subcarriers, d_pilot_timestep, d_o, d_frame_len, d_bands, d_curr_symbol, d_items_produced, d_frame_counter;
+      int d_subcarriers, d_pilot_timestep, d_o, d_frame_len, d_bands, d_curr_symbol, d_items_produced, d_lastpilot;
       std::vector<float> d_taps;
       std::vector<int> d_pilot_carriers, d_spread_pilots, d_base_times, d_base_freqs;
       float d_pilot_amp;
@@ -39,9 +39,8 @@ namespace gr {
       std::vector<gr_complex> d_curr_data;
       interp2d *d_interpolator;
       phase_helper *d_helper;
-      bool d_pilot_stored;
 
-      void interpolate_time(gr_complex* out);
+      void interpolate_time(gr_complex*& out);
       void interpolate_freq(std::vector<gr_complex>::iterator estimate);
       inline void despread(gr_complex* out, const gr_complex* in, int noutput_items);
       //double fine_freq_sync();

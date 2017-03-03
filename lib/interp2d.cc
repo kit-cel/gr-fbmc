@@ -80,7 +80,7 @@ namespace gr {
     }
 
     int
-    interp2d::interpolate(gr_complex* out, int spanx, int spany, std::vector<std::vector<gr_complex> >& pilots) {
+    interp2d::interpolate(gr_complex*& out, int spanx, int spany, std::vector<std::vector<gr_complex> >& pilots) {
       int counter = 0;
 
       // fill pilot coordinate arrays
