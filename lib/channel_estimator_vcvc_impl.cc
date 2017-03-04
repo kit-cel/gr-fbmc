@@ -77,15 +77,16 @@ namespace gr {
       std::iota(d_base_freqs.begin(), d_base_freqs.end(), 0); // used for timing interpolation (= no freq interpolation)
       d_snippet.resize(2);
       // maximum timestep that could occur with current settings. Wrong config leads to deadlock
-      set_output_multiple(std::max(
-          static_cast<int>(d_frame_len - std::floor((d_frame_len-3)/d_pilot_timestep) * d_pilot_timestep),
-                                   d_pilot_timestep));
       set_max_noutput_items(100);
       d_lastpilot = 2;
-      while(d_lastpilot < d_frame_len) {
+      while(d_lastpilot < d_frame_len-1) {
         d_lastpilot += d_pilot_timestep;
       }
       d_lastpilot -= d_pilot_timestep;
+      set_output_multiple(d_frame_len - d_lastpilot - 1 + d_pilot_timestep);
+      //set_output_multiple(std::max(d_frame_len - d_lastpilot - 1, d_pilot_timestep));
+      std::cout << "lst pilot " << d_lastpilot << std::endl;
+      d_frame_counter = 0;
     }
 
     /*
@@ -158,15 +159,16 @@ namespace gr {
       for (int i = 0; i < d_pilot_carriers.size(); i++) {
         if((d_curr_symbol + d_pilot_carriers[i]) % 2 == 0) {
           d_pilots[i] = *(estimate + d_pilot_carriers[i]) / gr_complex(d_pilot_amp, 0);
-          //if(d_curr_symbol == 16) {
+          //if(std::abs(d_pilots[i].imag()) > 0.1) {
+            //std::cout << "============================== ERROR =============================" << std::endl;
           //  std::cout << d_curr_symbol << "," << d_pilot_carriers[i] << ": [Even] " << d_pilots[i] << std::endl;
           //}
         } else {
           d_pilots[i] = gr_complex((*(estimate + d_pilot_carriers[i])).imag(),
                                    -(*(estimate + d_pilot_carriers[i])).real()) / gr_complex(d_pilot_amp, 0);
-          //if(std::abs(d_pilots[i].imag()) > 0.8 && std::abs(d_pilots[i].real()) < 0.1) {
-          //  std::cout << d_curr_symbol << "," << d_pilot_carriers[i] << ":[Odd]  " << d_pilots[i] << std::endl;
-          //}
+         // if(std::abs(d_pilots[i].imag()) > 0.1) {
+         //   std::cout << d_curr_symbol << "," << d_pilot_carriers[i] << ":[Odd]  " << d_pilots[i] << std::endl;
+         // }
         }
         //std::cout << d_curr_symbol << ": " << *(estimate + d_pilot_carriers[i]) << std::endl;
         /*if(d_curr_symbol == 18) {
@@ -216,41 +218,49 @@ namespace gr {
       gr_complex *data = (gr_complex *) output_items[0];
 
       d_items_produced = 0;  // item counter for current work
-      d_curr_data.clear(); // dump previous data
-      d_curr_data.resize(noutput_items);
+      //d_curr_data.clear(); // dump previous data
+      //d_curr_data.resize(noutput_items* d_subcarriers * d_bands);
 
       despread(&d_curr_data[0], in, noutput_items); // frequency despreading
       //std::cout << "Call to work" << std::endl;
+      //std::cout << "frame " << d_frame_counter << std::endl;
+      //std::cout << "d_curr_symbol (reset): " <<d_curr_symbol << std::endl;
       /*int tempsymbol = d_curr_symbol;
       for (int k = 0; k < noutput_items; ++k) {
+        //std::cout << tempsymbol << std::endl;
         //if((tempsymbol-2) % d_pilot_timestep == 0) {
-          for (int n = 0; n < d_subcarriers* d_bands; ++n) {
-            //if (std::abs(d_curr_data[k * d_subcarriers * d_bands + n].real() - d_pilot_amp) > 0.1) {
-              std::cout << "Pilot at " << tempsymbol << ", " << n << ": "
-                        << d_curr_data[k * d_subcarriers * d_bands + n] << std::endl;
+          for (int n = 0; n < d_pilot_carriers.size(); ++n) {
+            //if (std::abs(d_curr_data[k * d_subcarriers * d_bands + d_pilot_carriers[n]].imag()) > 0.1) {
+              std::cout << "Pilot at " << tempsymbol << ", " << d_pilot_carriers[n] << ": "
+                        << d_curr_data[k * d_subcarriers * d_bands + d_pilot_carriers[n]] << std::endl;
             //}
-         // }
-        }
+         }
+        //}
         tempsymbol++;
         if(tempsymbol == d_frame_len) {
           tempsymbol = 0;
         }
       }*/
 
+
       // logic to extract pilot symbols
       for (int j = 0; j < noutput_items; j++) {
-        if((d_curr_symbol-2) % d_pilot_timestep == 0) { // hit
+        if((d_curr_symbol-2) % d_pilot_timestep == 0 && d_curr_symbol < d_frame_len-1) { // hit
+         // std::cout << "at " << d_curr_symbol << std::endl;
           // frequency interpolation over one symbol
           interpolate_freq(d_curr_data.begin() + (d_subcarriers * d_bands * j)); // this writes d_curr_pilot
           // extrapolation at end of frame
+          //std::cout << "at " << d_curr_symbol << "/" << d_lastpilot << std::endl;
           if(d_curr_symbol == d_lastpilot) {
             interpolate_time(out);
             for (int i = 0; i < d_frame_len - d_lastpilot - 1; i++) {
               memcpy(out, &d_curr_pilot[0], d_subcarriers * d_bands * sizeof(gr_complex));
               out += d_subcarriers * d_bands;
               d_items_produced++;
+              //std::cout << "extrap " << d_items_produced << std::endl;
               d_curr_symbol++;
             }
+            d_frame_counter++;
             break;
           }
           // extrapolate at beginning of frame
@@ -274,29 +284,30 @@ namespace gr {
         d_curr_symbol++; // in-frame symbol counter
         if(d_curr_symbol == d_frame_len) {
           d_curr_symbol = 0; // counter reset at frame end
+          d_frame_counter++;
         }
       }
 
-      //std::cout << "d_curr_symbol: " <<d_curr_symbol << std::endl;
+     // std::cout << "d_curr_symbol: " <<d_curr_symbol << std::endl;
 
       // logic to reset current symbol to effectively processed symbols (we may have counted more)
       if(d_curr_symbol < 3) {
-        d_curr_symbol = 3;
+        d_curr_symbol = 2;
       }
-      else if (d_curr_symbol >= d_lastpilot) {
+      else if (d_curr_symbol > d_lastpilot) {
         d_curr_symbol = 0;
       }
       else {
         d_curr_symbol = (((d_curr_symbol - 3) / d_pilot_timestep) * d_pilot_timestep + 3)%d_frame_len;
       }
-      //std::cout << "d_curr_symbol (reset): " <<d_curr_symbol << std::endl;
 
       // copy despread data into output buffer
       memcpy(data, d_curr_data.data(), sizeof(gr_complex) * d_subcarriers * d_bands * d_items_produced);
       for (int k = 0; k < d_items_produced * d_subcarriers * d_bands; ++k) {
         //std::cout << out[k] << ", ";
       }
-      //std::cout << "returning " << d_items_produced << std::endl;
+
+      //std::cout << "returning " << d_items_produced << "/" << noutput_items << std::endl;
       return d_items_produced;
     }
 

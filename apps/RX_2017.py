@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx 2017
-# Generated: Fri Mar  3 14:50:17 2017
+# Generated: Sat Mar  4 13:50:19 2017
 ##################################################
 
 if __name__ == '__main__':
@@ -73,7 +73,7 @@ class RX_2017(gr.top_block, Qt.QWidget):
         self.phydyas_taps_time = phydyas_taps_time = np.array(cfg.phydyas_impulse_taps(cfg.num_total_subcarriers(), cfg.num_overlap_sym()))
         self.nguard_bins = nguard_bins = 8
         self.nchan = nchan = 4
-        self.sync = sync = fbmc.sync_config(taps=(phydyas_taps_time[1:]/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))), N=cfg.num_total_subcarriers(), overlap=4, L=cfg.num_total_subcarriers()-1, pilot_A=1.0, pilot_timestep=4, pilot_carriers=(range(8, 118, 10)), subbands=nchan, bits=packetlen_base, pos=4, u=1, q=4, A=1.0 , fft_len=2**13, guard=nguard_bins)
+        self.sync = sync = fbmc.sync_config(taps=(phydyas_taps_time[1:]/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))), N=cfg.num_total_subcarriers(), overlap=4, L=cfg.num_total_subcarriers()-1, pilot_A=1.0, pilot_timestep=4, pilot_carriers=(range(8, 118, 12) + [119]), subbands=nchan, bits=packetlen_base, pos=4, u=1, q=4, A=1.0 , fft_len=2**13, guard=nguard_bins)
         self.su_frame_len_low_rate = su_frame_len_low_rate = sync.get_frame_samps(True)
         self.rx_gain = rx_gain = .9
         self.fine_frequency_correction = fine_frequency_correction = 0

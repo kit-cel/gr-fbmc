@@ -526,11 +526,11 @@
     </param>
     <param>
       <key>pilot_carriers</key>
-      <value>range(8, 118, 10)</value>
+      <value>range(8, 118, 12) + [119]</value>
     </param>
     <param>
       <key>pilot_timestep</key>
-      <value>4</value>
+      <value>6</value>
     </param>
     <param>
       <key>N</key>
@@ -569,14 +569,14 @@
     </param>
     <param>
       <key>value</key>
-      <value>10</value>
+      <value>2</value>
     </param>
   </block>
   <block>
     <key>analog_noise_source_x</key>
     <param>
       <key>amp</key>
-      <value>0.0001</value>
+      <value>0.001</value>
     </param>
     <param>
       <key>alias</key>
@@ -706,7 +706,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>freq</key>
@@ -976,7 +976,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1325,7 +1325,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(368, 430)</value>
+      <value>(384, 434)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1475,7 +1475,7 @@
     </param>
     <param>
       <key>vector</key>
-      <value>list(range(256))*4</value>
+      <value>range(256)</value>
     </param>
   </block>
   <block>
@@ -1908,11 +1908,11 @@
     </param>
     <param>
       <key>taps</key>
-      <value>phydyas_taps_time/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))   *10**(-tx_att_db/20)</value>
+      <value>phydyas_taps_time/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))/2</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(452, 372)</value>
+      <value>(452, 360)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3025,7 +3025,7 @@
     </param>
     <param>
       <key>update_time</key>
-      <value>0.2</value>
+      <value>0.1</value>
     </param>
     <param>
       <key>vlen</key>
@@ -3064,61 +3064,6 @@
       <value>""</value>
     </param>
   </block>
-  <block>
-    <key>time_sync</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(556, 476)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>time_sync_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>constant</key>
-      <value>1000</value>
-    </param>
-    <param>
-      <key>fir_sequences</key>
-      <value>sync.get_fir_sequences()</value>
-    </param>
-    <param>
-      <key>frame_len</key>
-      <value>sync.get_frame_samps(True)*bands</value>
-    </param>
-    <param>
-      <key>peak_delay</key>
-      <value>delay</value>
-    </param>
-  </block>
   <connection>
     <source_block_id>analog_noise_source_x_0</source_block_id>
     <sink_block_id>blocks_add_xx_0</sink_block_id>
@@ -3140,12 +3085,6 @@
   <connection>
     <source_block_id>blocks_add_xx_0</source_block_id>
     <sink_block_id>blocks_multiply_xx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_add_xx_0</source_block_id>
-    <sink_block_id>blocks_throttle_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3211,6 +3150,12 @@
   </connection>
   <connection>
     <source_block_id>blocks_throttle_0</source_block_id>
+    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_throttle_0</source_block_id>
     <sink_block_id>fir_filter_xxx_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
@@ -3218,12 +3163,6 @@
   <connection>
     <source_block_id>blocks_unpack_k_bits_bb_0</source_block_id>
     <sink_block_id>fbmc_subchannel_frame_generator_bvc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_vector_insert_x_0</source_block_id>
-    <sink_block_id>time_sync_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3302,18 +3241,6 @@
   <connection>
     <source_block_id>interp_fir_filter_xxx_0</source_block_id>
     <sink_block_id>blocks_skiphead_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>time_sync_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0</sink_block_id>
-    <source_key>1</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>time_sync_0</source_block_id>
-    <sink_block_id>fbmc_sliding_fft_cvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

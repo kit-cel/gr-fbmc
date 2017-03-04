@@ -96,7 +96,7 @@ namespace gr {
 
       // Do <+signal processing+>
       //gr_complex fft_result[d_overlap * d_subcarriers * d_bands];
-      float normalize = static_cast<float>(5.0 / std::sqrt(d_overlap * d_subcarriers * d_bands));
+      float normalize = static_cast<float>(1.0 / std::sqrt(d_overlap * d_subcarriers * d_bands));
       for (unsigned int k = 0; k < d_full_symbols; k++) {
         //std::cout << "============== SYMBOL " << k << " ==============" << std::endl;
         //std::cout << "curr sym: " << d_curr_sym << std::endl;

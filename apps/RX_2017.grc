@@ -679,7 +679,7 @@
     </param>
     <param>
       <key>pilot_carriers</key>
-      <value>range(8, 118, 10)</value>
+      <value>range(8, 118, 12) + [119]</value>
     </param>
     <param>
       <key>pilot_timestep</key>
@@ -995,7 +995,7 @@
     <key>dyspan_packet_sink</key>
     <param>
       <key>address</key>
-      <value>"192.168.10.12"</value>
+      <value>"192.168.20.3"</value>
     </param>
     <param>
       <key>alias</key>
