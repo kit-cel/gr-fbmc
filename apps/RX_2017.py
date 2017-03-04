@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx 2017
-# Generated: Sat Mar  4 14:12:00 2017
+# Generated: Sat Mar  4 16:36:01 2017
 ##################################################
 
 if __name__ == '__main__':
@@ -31,7 +31,7 @@ from gnuradio.filter import firdes
 from gnuradio.qtgui import Range, RangeWidget
 from optparse import OptionParser
 from time_sync import time_sync  # grc-generated hier_block
-import dyspan
+import classifier
 import fbmc
 import numpy as np
 import sip
@@ -109,7 +109,7 @@ class RX_2017(gr.top_block, Qt.QWidget):
         self.uhd_usrp_source_0.set_time_source('gpsdo', 0)
         self.uhd_usrp_source_0.set_samp_rate(samp_rate)
         self.uhd_usrp_source_0.set_center_freq(cfreq+fine_frequency_correction, 0)
-        self.uhd_usrp_source_0.set_gain(rx_gain*70, 0)
+        self.uhd_usrp_source_0.set_normalized_gain(rx_gain, 0)
         self.uhd_usrp_source_0.set_antenna('RX2', 0)
         self.time_sync_0 = time_sync(
             constant=const,
@@ -117,42 +117,6 @@ class RX_2017(gr.top_block, Qt.QWidget):
             frame_len=sync.get_frame_samps(True) * nchan,
             peak_delay=delay_offset,
         )
-        self.qtgui_vector_sink_f_0 = qtgui.vector_sink_f(
-            512,
-            0,
-            1.0,
-            "x-Axis",
-            "y-Axis",
-            "Channel",
-            1 # Number of inputs
-        )
-        self.qtgui_vector_sink_f_0.set_update_time(0.10)
-        self.qtgui_vector_sink_f_0.set_y_axis(-140, 10)
-        self.qtgui_vector_sink_f_0.enable_autoscale(False)
-        self.qtgui_vector_sink_f_0.enable_grid(False)
-        self.qtgui_vector_sink_f_0.set_x_axis_units("")
-        self.qtgui_vector_sink_f_0.set_y_axis_units("")
-        self.qtgui_vector_sink_f_0.set_ref_level(0)
-        
-        labels = ['', '', '', '', '',
-                  '', '', '', '', '']
-        widths = [1, 1, 1, 1, 1,
-                  1, 1, 1, 1, 1]
-        colors = ["blue", "red", "green", "black", "cyan",
-                  "magenta", "yellow", "dark red", "dark green", "dark blue"]
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-                  1.0, 1.0, 1.0, 1.0, 1.0]
-        for i in xrange(1):
-            if len(labels[i]) == 0:
-                self.qtgui_vector_sink_f_0.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_vector_sink_f_0.set_line_label(i, labels[i])
-            self.qtgui_vector_sink_f_0.set_line_width(i, widths[i])
-            self.qtgui_vector_sink_f_0.set_line_color(i, colors[i])
-            self.qtgui_vector_sink_f_0.set_line_alpha(i, alphas[i])
-        
-        self._qtgui_vector_sink_f_0_win = sip.wrapinstance(self.qtgui_vector_sink_f_0.pyqwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_vector_sink_f_0_win)
         self.qtgui_time_sink_x_1 = qtgui.time_sink_c(
         	7168 * 4, #size
         	samp_rate, #samp_rate
@@ -207,20 +171,17 @@ class RX_2017(gr.top_block, Qt.QWidget):
         self.fbmc_sliding_fft_cvc_0 = fbmc.sliding_fft_cvc(cfg.num_total_subcarriers(), cfg.num_overlap_sym(), nchan, sync.get_syms_frame())
         self.fbmc_channel_estimator_vcvc_0 = fbmc.channel_estimator_vcvc(sync.get_syms_frame(), cfg.num_total_subcarriers(), cfg.num_overlap_sym(), nchan, (np.array(cfg.phydyas_frequency_taps(cfg.num_overlap_sym()))), sync.get_pilot_amplitude(), sync.get_pilot_timestep(), (sync.get_pilot_carriers()))
         self.fbmc_channel_equalizer_vcvc_0 = fbmc.channel_equalizer_vcvc(sync.get_syms_frame(), cfg.num_overlap_sym(), nchan, sync.get_pilot_timestep(), (sync.get_pilot_carriers()), cfg.num_total_subcarriers(), (cfg.phydyas_frequency_taps(cfg.num_overlap_sym())), sync.get_pilot_amplitude())
-        self.dyspan_packet_sink_0 = dyspan.packet_sink("packet_len","192.168.20.3",5002,packetlen_base/8,0)
-        self.blocks_stream_to_tagged_stream_0 = blocks.stream_to_tagged_stream(gr.sizeof_char, 1, packetlen_base/8, "packet_len")
+        self.classifier_packet_sink_0 = classifier.packet_sink("packet_len","192.168.20.3",5002,64,0)
+        self.blocks_stream_to_tagged_stream_0 = blocks.stream_to_tagged_stream(gr.sizeof_char, 1, 64, "packet_len")
         self.blocks_pack_k_bits_bb_0 = blocks.pack_k_bits_bb(8)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_float*1)
-        self.blocks_complex_to_mag_0 = blocks.complex_to_mag(128*4)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_complex_to_mag_0, 0), (self.qtgui_vector_sink_f_0, 0))    
         self.connect((self.blocks_pack_k_bits_bb_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))    
-        self.connect((self.blocks_stream_to_tagged_stream_0, 0), (self.dyspan_packet_sink_0, 0))    
+        self.connect((self.blocks_stream_to_tagged_stream_0, 0), (self.classifier_packet_sink_0, 0))    
         self.connect((self.fbmc_channel_equalizer_vcvc_0, 0), (self.fbmc_subchannel_deframer_vcb_0, 0))    
-        self.connect((self.fbmc_channel_estimator_vcvc_0, 1), (self.blocks_complex_to_mag_0, 0))    
         self.connect((self.fbmc_channel_estimator_vcvc_0, 1), (self.fbmc_channel_equalizer_vcvc_0, 1))    
         self.connect((self.fbmc_channel_estimator_vcvc_0, 0), (self.fbmc_channel_equalizer_vcvc_0, 0))    
         self.connect((self.fbmc_sliding_fft_cvc_0, 0), (self.fbmc_channel_estimator_vcvc_0, 0))    
@@ -254,8 +215,6 @@ class RX_2017(gr.top_block, Qt.QWidget):
 
     def set_packetlen_base(self, packetlen_base):
         self.packetlen_base = packetlen_base
-        self.blocks_stream_to_tagged_stream_0.set_packet_len(self.packetlen_base/8)
-        self.blocks_stream_to_tagged_stream_0.set_packet_len_pmt(self.packetlen_base/8)
 
     def get_cfg(self):
         return self.cfg
@@ -305,7 +264,7 @@ class RX_2017(gr.top_block, Qt.QWidget):
 
     def set_rx_gain(self, rx_gain):
         self.rx_gain = rx_gain
-        self.uhd_usrp_source_0.set_gain(self.rx_gain*70, 0)
+        self.uhd_usrp_source_0.set_normalized_gain(self.rx_gain, 0)
         	
 
     def get_fine_frequency_correction(self):

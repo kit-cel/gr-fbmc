@@ -530,7 +530,7 @@
     </param>
     <param>
       <key>pilot_timestep</key>
-      <value>6</value>
+      <value>4</value>
     </param>
     <param>
       <key>N</key>

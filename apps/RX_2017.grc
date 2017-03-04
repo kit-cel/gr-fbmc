@@ -741,7 +741,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -933,7 +933,7 @@
     </param>
     <param>
       <key>packet_len</key>
-      <value>packetlen_base/8</value>
+      <value>64</value>
     </param>
     <param>
       <key>type</key>
@@ -992,7 +992,7 @@
     </param>
   </block>
   <block>
-    <key>dyspan_packet_sink</key>
+    <key>classifier_packet_sink</key>
     <param>
       <key>address</key>
       <value>"192.168.20.3"</value>
@@ -1015,7 +1015,62 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1744, 226)</value>
+      <value>(1496, 54)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>classifier_packet_sink_0</value>
+    </param>
+    <param>
+      <key>port</key>
+      <value>5002</value>
+    </param>
+    <param>
+      <key>state</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>tag_key</key>
+      <value>"packet_len"</value>
+    </param>
+    <param>
+      <key>isTransmitter</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>pkt_len</key>
+      <value>64</value>
+    </param>
+  </block>
+  <block>
+    <key>dyspan_packet_sink</key>
+    <param>
+      <key>address</key>
+      <value>"192.168.20.3"</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value>Old Version</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1748, 210)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1043,7 +1098,7 @@
     </param>
     <param>
       <key>pkt_len</key>
-      <value>packetlen_base/8</value>
+      <value>256</value>
     </param>
   </block>
   <block>
@@ -1066,7 +1121,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(960, 372)</value>
+      <value>(960, 376)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2099,7 +2154,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2652,11 +2707,11 @@
     </param>
     <param>
       <key>norm_gain0</key>
-      <value>False</value>
+      <value>True</value>
     </param>
     <param>
       <key>gain0</key>
-      <value>rx_gain*70</value>
+      <value>rx_gain</value>
     </param>
     <param>
       <key>lo_export0</key>
@@ -3978,6 +4033,12 @@
   <connection>
     <source_block_id>blocks_stream_to_tagged_stream_0</source_block_id>
     <sink_block_id>blocks_tagged_stream_to_pdu_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_stream_to_tagged_stream_0</source_block_id>
+    <sink_block_id>classifier_packet_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
