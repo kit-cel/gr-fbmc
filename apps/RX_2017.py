@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx 2017
-# Generated: Sat Mar  4 13:50:19 2017
+# Generated: Sat Mar  4 14:12:00 2017
 ##################################################
 
 if __name__ == '__main__':
@@ -31,6 +31,7 @@ from gnuradio.filter import firdes
 from gnuradio.qtgui import Range, RangeWidget
 from optparse import OptionParser
 from time_sync import time_sync  # grc-generated hier_block
+import dyspan
 import fbmc
 import numpy as np
 import sip
@@ -116,42 +117,6 @@ class RX_2017(gr.top_block, Qt.QWidget):
             frame_len=sync.get_frame_samps(True) * nchan,
             peak_delay=delay_offset,
         )
-        self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
-        	1024, #size
-        	firdes.WIN_BLACKMAN_hARRIS, #wintype
-        	0, #fc
-        	samp_rate, #bw
-        	"", #name
-                1 #number of inputs
-        )
-        self.qtgui_waterfall_sink_x_0.set_update_time(0.10)
-        self.qtgui_waterfall_sink_x_0.enable_grid(False)
-        self.qtgui_waterfall_sink_x_0.enable_axis_labels(True)
-        
-        if not True:
-          self.qtgui_waterfall_sink_x_0.disable_legend()
-        
-        if "complex" == "float" or "complex" == "msg_float":
-          self.qtgui_waterfall_sink_x_0.set_plot_pos_half(not True)
-        
-        labels = ['', '', '', '', '',
-                  '', '', '', '', '']
-        colors = [0, 0, 0, 0, 0,
-                  0, 0, 0, 0, 0]
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-                  1.0, 1.0, 1.0, 1.0, 1.0]
-        for i in xrange(1):
-            if len(labels[i]) == 0:
-                self.qtgui_waterfall_sink_x_0.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_waterfall_sink_x_0.set_line_label(i, labels[i])
-            self.qtgui_waterfall_sink_x_0.set_color_map(i, colors[i])
-            self.qtgui_waterfall_sink_x_0.set_line_alpha(i, alphas[i])
-        
-        self.qtgui_waterfall_sink_x_0.set_intensity_range(-140, 10)
-        
-        self._qtgui_waterfall_sink_x_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_waterfall_sink_x_0_win)
         self.qtgui_vector_sink_f_0 = qtgui.vector_sink_f(
             512,
             0,
@@ -188,53 +153,6 @@ class RX_2017(gr.top_block, Qt.QWidget):
         
         self._qtgui_vector_sink_f_0_win = sip.wrapinstance(self.qtgui_vector_sink_f_0.pyqwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_vector_sink_f_0_win)
-        self.qtgui_time_sink_x_2_0_0 = qtgui.time_sink_f(
-        	sync.get_frame_samps(True) * nchan, #size
-        	1, #samp_rate
-        	"", #name
-        	1 #number of inputs
-        )
-        self.qtgui_time_sink_x_2_0_0.set_update_time(0.10)
-        self.qtgui_time_sink_x_2_0_0.set_y_axis(-1, 1)
-        
-        self.qtgui_time_sink_x_2_0_0.set_y_label('Amplitude', "")
-        
-        self.qtgui_time_sink_x_2_0_0.enable_tags(-1, True)
-        self.qtgui_time_sink_x_2_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_time_sink_x_2_0_0.enable_autoscale(False)
-        self.qtgui_time_sink_x_2_0_0.enable_grid(False)
-        self.qtgui_time_sink_x_2_0_0.enable_axis_labels(True)
-        self.qtgui_time_sink_x_2_0_0.enable_control_panel(False)
-        
-        if not True:
-          self.qtgui_time_sink_x_2_0_0.disable_legend()
-        
-        labels = ['corr', 'corr', '', '', '',
-                  '', '', '', '', '']
-        widths = [1, 2, 1, 1, 1,
-                  1, 1, 1, 1, 1]
-        colors = ["blue", "red", "green", "black", "cyan",
-                  "magenta", "yellow", "dark red", "dark green", "blue"]
-        styles = [1, 1, 1, 1, 1,
-                  1, 1, 1, 1, 1]
-        markers = [-1, -1, -1, -1, -1,
-                   -1, -1, -1, -1, -1]
-        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
-                  1.0, 1.0, 1.0, 1.0, 1.0]
-        
-        for i in xrange(1):
-            if len(labels[i]) == 0:
-                self.qtgui_time_sink_x_2_0_0.set_line_label(i, "Data {0}".format(i))
-            else:
-                self.qtgui_time_sink_x_2_0_0.set_line_label(i, labels[i])
-            self.qtgui_time_sink_x_2_0_0.set_line_width(i, widths[i])
-            self.qtgui_time_sink_x_2_0_0.set_line_color(i, colors[i])
-            self.qtgui_time_sink_x_2_0_0.set_line_style(i, styles[i])
-            self.qtgui_time_sink_x_2_0_0.set_line_marker(i, markers[i])
-            self.qtgui_time_sink_x_2_0_0.set_line_alpha(i, alphas[i])
-        
-        self._qtgui_time_sink_x_2_0_0_win = sip.wrapinstance(self.qtgui_time_sink_x_2_0_0.pyqwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_time_sink_x_2_0_0_win)
         self.qtgui_time_sink_x_1 = qtgui.time_sink_c(
         	7168 * 4, #size
         	samp_rate, #samp_rate
@@ -289,20 +207,18 @@ class RX_2017(gr.top_block, Qt.QWidget):
         self.fbmc_sliding_fft_cvc_0 = fbmc.sliding_fft_cvc(cfg.num_total_subcarriers(), cfg.num_overlap_sym(), nchan, sync.get_syms_frame())
         self.fbmc_channel_estimator_vcvc_0 = fbmc.channel_estimator_vcvc(sync.get_syms_frame(), cfg.num_total_subcarriers(), cfg.num_overlap_sym(), nchan, (np.array(cfg.phydyas_frequency_taps(cfg.num_overlap_sym()))), sync.get_pilot_amplitude(), sync.get_pilot_timestep(), (sync.get_pilot_carriers()))
         self.fbmc_channel_equalizer_vcvc_0 = fbmc.channel_equalizer_vcvc(sync.get_syms_frame(), cfg.num_overlap_sym(), nchan, sync.get_pilot_timestep(), (sync.get_pilot_carriers()), cfg.num_total_subcarriers(), (cfg.phydyas_frequency_taps(cfg.num_overlap_sym())), sync.get_pilot_amplitude())
-        self.blocks_tagged_stream_to_pdu_0 = blocks.tagged_stream_to_pdu(blocks.byte_t, 'packet_len')
+        self.dyspan_packet_sink_0 = dyspan.packet_sink("packet_len","192.168.20.3",5002,packetlen_base/8,0)
         self.blocks_stream_to_tagged_stream_0 = blocks.stream_to_tagged_stream(gr.sizeof_char, 1, packetlen_base/8, "packet_len")
         self.blocks_pack_k_bits_bb_0 = blocks.pack_k_bits_bb(8)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_float*1)
-        self.blocks_message_debug_0 = blocks.message_debug()
         self.blocks_complex_to_mag_0 = blocks.complex_to_mag(128*4)
 
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.blocks_tagged_stream_to_pdu_0, 'pdus'), (self.blocks_message_debug_0, 'print_pdu'))    
         self.connect((self.blocks_complex_to_mag_0, 0), (self.qtgui_vector_sink_f_0, 0))    
         self.connect((self.blocks_pack_k_bits_bb_0, 0), (self.blocks_stream_to_tagged_stream_0, 0))    
-        self.connect((self.blocks_stream_to_tagged_stream_0, 0), (self.blocks_tagged_stream_to_pdu_0, 0))    
+        self.connect((self.blocks_stream_to_tagged_stream_0, 0), (self.dyspan_packet_sink_0, 0))    
         self.connect((self.fbmc_channel_equalizer_vcvc_0, 0), (self.fbmc_subchannel_deframer_vcb_0, 0))    
         self.connect((self.fbmc_channel_estimator_vcvc_0, 1), (self.blocks_complex_to_mag_0, 0))    
         self.connect((self.fbmc_channel_estimator_vcvc_0, 1), (self.fbmc_channel_equalizer_vcvc_0, 1))    
@@ -312,8 +228,6 @@ class RX_2017(gr.top_block, Qt.QWidget):
         self.connect((self.time_sync_0, 1), (self.blocks_null_sink_0, 0))    
         self.connect((self.time_sync_0, 0), (self.fbmc_sliding_fft_cvc_0, 0))    
         self.connect((self.time_sync_0, 0), (self.qtgui_time_sink_x_1, 0))    
-        self.connect((self.time_sync_0, 1), (self.qtgui_time_sink_x_2_0_0, 0))    
-        self.connect((self.uhd_usrp_source_0, 0), (self.qtgui_waterfall_sink_x_0, 0))    
         self.connect((self.uhd_usrp_source_0, 0), (self.time_sync_0, 0))    
 
     def closeEvent(self, event):
@@ -333,7 +247,6 @@ class RX_2017(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
-        self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.samp_rate)
         self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate)
 
     def get_packetlen_base(self):
