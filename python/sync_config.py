@@ -26,7 +26,7 @@ import numpy as np
 
 class sync_config:
     def __init__(self, taps, N, overlap, L, pilot_A, pilot_timestep, pilot_carriers, subbands=1, bits=1, pos=4, u=1, q=4, A=1.0,
-                 fft_len=2**13, guard=3):
+                 fft_len=2**13, guard=3, order=1):
         """
         Calculates preamble with independent Zadoff-Chu sequence
         :param taps: Filter taps of length O*N
@@ -50,6 +50,7 @@ class sync_config:
         self.pilot_timestep = pilot_timestep
         self.pilot_carriers = pilot_carriers
         self.u = u
+        self.order = order
         self.q = q
         self.A = A
         self.subbands = subbands
@@ -130,7 +131,7 @@ class sync_config:
         return [1.0/length for n in range(length)]
 
     def get_syms_frame(self):
-        bits_rem = self.bits
+        bits_rem = self.bits/self.order
         syms = 2
         while bits_rem > 0:
             if (syms-2) % self.pilot_timestep == 0 or (syms-2) % self.pilot_timestep == 1:
@@ -150,6 +151,8 @@ class sync_config:
         else:
             samps = (syms)*self.N//2
         return samps
-
+    
+    def get_mod_order(self):
+        return self.order;
 
 #a = sync_config(taps=np.ones(32*4), N=32, L=31, pilot_A=1.0, pilot_timestep=4, pilot_carriers=range(0,32,5), pos=4, u=1, q=4, A=1.0, fft_len=2**13)

@@ -5,8 +5,8 @@
     <key>variable_sync_config</key>
     <category>FBMC</category>
     <import>import fbmc</import>
-    <var_make>self.$(id) = $(id) = fbmc.sync_config(taps=$taps, N=$N, overlap=$overlap, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, subbands=$bands, bits=$bits, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len, guard=$guard)</var_make>
-    <var_value>fbmc.sync_config(taps=$taps, N=$N, overlap=$overlap, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, subbands=$bands, bits=$bits, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len, guard=$guard)</var_value>
+    <var_make>self.$(id) = $(id) = fbmc.sync_config(taps=$taps, N=$N, overlap=$overlap, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, subbands=$bands, bits=$bits, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len, guard=$guard, order=$order)</var_make>
+    <var_value>fbmc.sync_config(taps=$taps, N=$N, overlap=$overlap, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, subbands=$bands, bits=$bits, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len, guard=$guard, order=$order)</var_value>
     <make></make>
     <param>
         <name>Filter Taps</name>
@@ -97,6 +97,13 @@
         <value>3</value>
         <type>int</type>
     </param>
+    <param>
+        <name>Modulation order</name>
+        <key>order</key>
+        <value>1</value>
+        <type>int</type>
+    </param>
+
     <doc>
 Use Zadoff-Chu sequence to build an FBMC based preamble of length N for preamble
 https://en.wikipedia.org/wiki/Zadoff%E2%80%93Chu_sequence

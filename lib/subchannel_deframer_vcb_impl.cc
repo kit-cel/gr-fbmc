@@ -1,17 +1,17 @@
 /* -*- c++ -*- */
-/* 
+/*
  * Copyright 2017 <+YOU OR YOUR COMPANY+>.
- * 
+ *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this software; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 51 Franklin Street,
@@ -33,11 +33,11 @@ namespace gr {
     subchannel_deframer_vcb::sptr
     subchannel_deframer_vcb::make(int subcarriers, int bands, int guard, float threshold,
                                   std::vector<gr_complex> preamble,
-                                  int symbols, int bits, std::vector<int> pilot_carriers, int pilot_timestep) {
+                                  int symbols, int bits, std::vector<int> pilot_carriers, int pilot_timestep, int order) {
       return gnuradio::get_initial_sptr
               (new subchannel_deframer_vcb_impl(subcarriers, bands, guard, threshold, preamble, symbols, bits,
                                                 pilot_carriers,
-                                                pilot_timestep));
+                                                pilot_timestep, order));
     }
 
     /*
@@ -46,13 +46,13 @@ namespace gr {
     subchannel_deframer_vcb_impl::subchannel_deframer_vcb_impl(int subcarriers, int bands, int guard,
                                                                float threshold,
                                                                std::vector<gr_complex> preamble, int symbols, int bits,
-                                                               std::vector<int> pilot_carriers, int pilot_timestep)
+                                                               std::vector<int> pilot_carriers, int pilot_timestep, int order)
             : gr::block("subchannel_deframer_vcb",
                         gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands),
                         gr::io_signature::make(1, 1, sizeof(char))),
               d_subcarriers(subcarriers), d_bands(bands), d_threshold(threshold), d_symbols(symbols),
               d_preamble(preamble), d_payload_bits(bits),
-              d_pilot_carriers(pilot_carriers), d_pilot_timestep(pilot_timestep), d_guard_carriers(guard) {
+              d_pilot_carriers(pilot_carriers), d_pilot_timestep(pilot_timestep), d_guard_carriers(guard), d_mod_order(order) {
       d_used_bands.resize(static_cast<unsigned long>(bands));
       set_output_multiple(d_symbols * d_subcarriers * d_bands);
       d_preamble.reserve(static_cast<unsigned long>(d_subcarriers));
@@ -131,8 +131,34 @@ namespace gr {
       if (iq % 2 != 0) {
         sym = gr_complex(sym.imag(), -sym.real()); // phase rotation
       }
+      char symbol;
       //std:: cout << sym.real() << ", ";
-      return static_cast<char>((sym.real() >= 0.0) ? 1 : 0);
+      if(d_mod_order == 1) {
+      	symbol =  static_cast<char>((sym.real() >= 0.0) ? 1 : 0);
+      }
+      else if (d_mod_order == 2) {
+      	if(sym.real() < -2.0f/std::sqrt(10.0f)) { symbol =  static_cast<char>(0); }
+      	else if(sym.real() >= -2.0f/std::sqrt(10.0f) && sym.real() < 0.0) { symbol = static_cast<char>(1); }
+      	else if(sym.real() >= 0.0 && sym.real() <= 2.0f/std::sqrt(10.0f)) { symbol = static_cast<char>(2); }
+      	else if(sym.real() > 2.0f/std::sqrt(10.0f)) { symbol = static_cast<char>(3); }
+      	else {
+		      throw std::runtime_error("Unidentified symbol to demodulate");
+      	}
+      }
+      else if (d_mod_order == 4) {
+	      if(sym.real() < -6.0f/std::sqrt(42.0f)) { symbol =  static_cast<char>(0); }
+      	else if(sym.real() >= -6.0f/std::sqrt(42.0f) && sym.real() < -4.0f/std::sqrt(42.0f)) { symbol = static_cast<char>(1); }
+      	else if(sym.real() >= -4.0f / std::sqrt(42.0f) && sym.real() < -2.0f/std::sqrt(42.0f)) { symbol = static_cast<char>(2); }
+      	else if(sym.real() >= -2.0/std::sqrt(42.0f) && sym.real() < 0.0) { symbol = static_cast<char>(3); }
+        else if(sym.real() >= 0.0 && sym.real() < 2.0f/std::sqrt(42.0f)) { symbol = static_cast<char>(4); }
+	      else if(sym.real() >= 2.0f/std::sqrt(42.0f) && sym.real() < 4.0f/std::sqrt(42.0f)) { symbol = static_cast<char>(5); }
+	      else if(sym.real() >= 4.0f/std::sqrt(42.0f) && sym.real() < 6.0f/std::sqrt(42.0f)) { symbol = static_cast<char>(6); }
+	      else if(sym.real() >= 6.0f/std::sqrt(42.0f)) { symbol = static_cast<char>(7); }
+        else {
+          throw std::runtime_error("Unidentified symbol to demodulate");
+        }
+      }
+      return symbol;
     }
 
     void
@@ -147,7 +173,7 @@ namespace gr {
               for (std::vector<int>::iterator it = d_data_carriers.begin();
                    it != d_data_carriers.end(); ++it) {
                 *out++ = demod(d_curr_frame[k][*it + d_subcarriers * b], *it + k);
-                (*bits_written)++;
+                (*bits_written) += d_mod_order;
                 if(*bits_written % d_payload_bits == 0) { break; }
                 //std::cout << k << ", " << *it << ": " << *bits_written << std::endl;
               }
@@ -156,7 +182,7 @@ namespace gr {
             else {
               for (int n = d_guard_carriers; n < d_subcarriers - d_guard_carriers; n++) {
                 *out++ = demod(d_curr_frame[k][n + d_subcarriers * b], n + k);
-                (*bits_written)++;
+                (*bits_written) += d_mod_order;
                 if(*bits_written % d_payload_bits == 0) { break; }
                 //std::cout << k << ", " << n << ": " << *bits_written << std::endl;
               }
@@ -205,9 +231,8 @@ namespace gr {
       consume_each(d_symbols);
 
       // Tell runtime system how many output items we produced.
-      return bits_written;
+      return bits_written/d_mod_order;
     }
 
   } /* namespace fbmc */
 } /* namespace gr */
-

@@ -29,7 +29,7 @@ namespace gr {
     class subchannel_deframer_vcb_impl : public subchannel_deframer_vcb
     {
      private:
-      int d_subcarriers, d_bands, d_symbols, d_pilot_timestep, d_guard_carriers, d_payload_bits;
+      int d_subcarriers, d_bands, d_symbols, d_pilot_timestep, d_guard_carriers, d_payload_bits, d_mod_order;
       float d_threshold;
       std::vector<gr_complex> d_preamble;
       std::vector<int> d_pilot_carriers, d_data_carriers;
@@ -45,7 +45,7 @@ namespace gr {
      public:
       subchannel_deframer_vcb_impl(int subcarriers, int bands, int guard, float threshold,
                                    std::vector<gr_complex> preamble, int symbols, int bits, std::vector<int> pilot_carriers,
-                                   int pilot_timestep);
+                                   int pilot_timestep, int order);
       ~subchannel_deframer_vcb_impl();
 
       // Where all the action really happens

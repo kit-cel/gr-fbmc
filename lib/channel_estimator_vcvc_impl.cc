@@ -85,7 +85,6 @@ namespace gr {
       d_lastpilot -= d_pilot_timestep;
       set_output_multiple(d_frame_len - d_lastpilot - 1 + d_pilot_timestep);
       //set_output_multiple(std::max(d_frame_len - d_lastpilot - 1, d_pilot_timestep));
-      std::cout << "lst pilot " << d_lastpilot << std::endl;
       d_frame_counter = 0;
     }
 
