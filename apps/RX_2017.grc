@@ -97,7 +97,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(548, 72)</value>
+      <value>(544, 72)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -144,7 +144,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>3.195e9</value>
+      <value>uhd.tune_request(3.195e9, samp_rate)</value>
     </param>
   </block>
   <block>
@@ -441,7 +441,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>256 * 8</value>
+      <value>256 * 8 * 3</value>
     </param>
   </block>
   <block>
@@ -658,6 +658,10 @@
       <value>sync</value>
     </param>
     <param>
+      <key>order</key>
+      <value>8</value>
+    </param>
+    <param>
       <key>bands</key>
       <value>nchan</value>
     </param>
@@ -847,49 +851,6 @@
     </param>
   </block>
   <block>
-    <key>blocks_pack_k_bits_bb</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1484, 372)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_pack_k_bits_bb_0</value>
-    </param>
-    <param>
-      <key>k</key>
-      <value>8</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
     <key>blocks_stream_to_tagged_stream</key>
     <param>
       <key>alias</key>
@@ -992,10 +953,65 @@
     </param>
   </block>
   <block>
+    <key>blocks_unpacked_to_packed_xx</key>
+    <param>
+      <key>bits_per_chunk</key>
+      <value>sync.get_bps()</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>endianness</key>
+      <value>gr.GR_LSB_FIRST</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1476, 404)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_unpacked_to_packed_xx_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>num_ports</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>byte</value>
+    </param>
+  </block>
+  <block>
     <key>classifier_packet_sink</key>
     <param>
       <key>address</key>
-      <value>"192.168.20.3"</value>
+      <value>"127.0.0.1"</value>
     </param>
     <param>
       <key>alias</key>
@@ -1301,6 +1317,10 @@
   <block>
     <key>fbmc_subchannel_deframer_vcb</key>
     <param>
+      <key>order</key>
+      <value>sync.get_bps()</value>
+    </param>
+    <param>
       <key>alias</key>
       <value></value>
     </param>
@@ -1436,7 +1456,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2695,7 +2715,7 @@
     </param>
     <param>
       <key>center_freq0</key>
-      <value>cfreq+fine_frequency_correction</value>
+      <value>cfreq</value>
     </param>
     <param>
       <key>dc_offs_enb0</key>
@@ -3863,7 +3883,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(60, 350)</value>
+      <value>(44, 300)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4025,12 +4045,6 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_pack_k_bits_bb_0</source_block_id>
-    <sink_block_id>blocks_stream_to_tagged_stream_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>blocks_stream_to_tagged_stream_0</source_block_id>
     <sink_block_id>blocks_tagged_stream_to_pdu_0</sink_block_id>
     <source_key>0</source_key>
@@ -4053,6 +4067,12 @@
     <sink_block_id>blocks_message_debug_0</sink_block_id>
     <source_key>pdus</source_key>
     <sink_key>print_pdu</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_unpacked_to_packed_xx_0</source_block_id>
+    <sink_block_id>blocks_stream_to_tagged_stream_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>fbmc_channel_equalizer_vcvc_0</source_block_id>
@@ -4086,7 +4106,7 @@
   </connection>
   <connection>
     <source_block_id>fbmc_subchannel_deframer_vcb_0</source_block_id>
-    <sink_block_id>blocks_pack_k_bits_bb_0</sink_block_id>
+    <sink_block_id>blocks_unpacked_to_packed_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -39,6 +39,7 @@ class sync_config:
         :param fft_len: Length of zero-padded FFT during frequency sync
         """
         assert pilot_timestep >= 4, "Min. pilot timstep is 4 when compensation with aux pilots is used"
+        assert (order == 2 or order == 4 or order == 8), "Modulation order has to be 2, 4 or 8"
         self.h = np.reshape(taps, (-1, N//2))
         self.N = N
         self.guard = guard
@@ -131,7 +132,7 @@ class sync_config:
         return [1.0/length for n in range(length)]
 
     def get_syms_frame(self):
-        bits_rem = self.bits/self.order
+        bits_rem = int(self.bits/np.log2(self.order))
         syms = 2
         while bits_rem > 0:
             if (syms-2) % self.pilot_timestep == 0 or (syms-2) % self.pilot_timestep == 1:
@@ -152,7 +153,7 @@ class sync_config:
             samps = (syms)*self.N//2
         return samps
     
-    def get_mod_order(self):
-        return self.order;
+    def get_bps(self):
+        return int(np.log2(self.order));
 
 #a = sync_config(taps=np.ones(32*4), N=32, L=31, pilot_A=1.0, pilot_timestep=4, pilot_carriers=range(0,32,5), pos=4, u=1, q=4, A=1.0, fft_len=2**13)

@@ -55,7 +55,7 @@
     <type>bool</type>
   </param>
   <param>
-    <name>Modulation order</name>
+    <name>Bits per Symbol</name>
     <key>order</key>
     <type>int</type>
   </param>
