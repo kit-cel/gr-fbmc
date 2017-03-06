@@ -66,6 +66,9 @@ namespace gr {
       }) != d_pilot_carriers.end()) {
         throw std::length_error("Pilot carriers configured in guard bands!");
       }
+      if(d_payload_bits % d_mod_order != 0) {
+	      throw std::length_error("payload bits won't fit into selected modulation order.");
+      }
       // build vector of usable carriers for data
       if(order == 1) {
       	D_CONSTELLATION = new float[2] {-1.0f / std::sqrt(2.0f), 1.0f / std::sqrt(2.0f)};
@@ -73,11 +76,11 @@ namespace gr {
       else if(order ==2 ) {
 	      D_CONSTELLATION = new float[4] { -3.0f / std::sqrt(10.0f), -1.0f / std::sqrt(10.0f), 1.0f / std::sqrt(10.0f), 3.0f / std::sqrt(10.0f) };
       }
-      else if(order == 4) {
+      else if(order == 3) {
 	      D_CONSTELLATION = new float[8] { -7.0f / std::sqrt(42.0f), -5.0f / std::sqrt(42.0f), -3.0f / std::sqrt(42.0f), -1.0f / std::sqrt(42.0f), 1.0f / std::sqrt(42.0f), 3.0f / std::sqrt(42.0f), 5.0f / std::sqrt(42.0f), 7.0f / std::sqrt(42.0f) };
       }
       else {
-	    throw std::runtime_error("Mod order must be 1, 2 or 4!");
+	    throw std::runtime_error("Mod order must be 1, 2 or 3!");
       }
       for (int i = d_guard_carriers; i < d_subcarriers-d_guard_carriers; i++) {
         if (std::find(d_pilot_carriers.begin(), d_pilot_carriers.end(), i) == d_pilot_carriers.end()) {

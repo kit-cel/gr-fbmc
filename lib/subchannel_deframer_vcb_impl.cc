@@ -63,7 +63,7 @@ namespace gr {
         }
       }
     }
-
+    
     /*
      * Our virtual destructor.
      */
@@ -145,7 +145,7 @@ namespace gr {
 		      throw std::runtime_error("Unidentified symbol to demodulate");
       	}
       }
-      else if (d_mod_order == 4) {
+      else if (d_mod_order == 3) {
 	      if(sym.real() < -6.0f/std::sqrt(42.0f)) { symbol =  static_cast<char>(0); }
       	else if(sym.real() >= -6.0f/std::sqrt(42.0f) && sym.real() < -4.0f/std::sqrt(42.0f)) { symbol = static_cast<char>(1); }
       	else if(sym.real() >= -4.0f / std::sqrt(42.0f) && sym.real() < -2.0f/std::sqrt(42.0f)) { symbol = static_cast<char>(2); }
@@ -158,12 +158,15 @@ namespace gr {
           throw std::runtime_error("Unidentified symbol to demodulate");
         }
       }
+      else {
+	      throw std::runtime_error("Modulation order must be 1, 2 or 3!");
+      }
       return symbol;
     }
 
     void
     subchannel_deframer_vcb_impl::extract_payload(char *out, unsigned int *bits_written) {
-      // bands get prcessed highest to lowest
+      // bands get prcessed highest to lowesti
       for (int b = d_bands - 1; b >= 0; b--) {
         if (d_used_bands[b]) {
           // extract data
