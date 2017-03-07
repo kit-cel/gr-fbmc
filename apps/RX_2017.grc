@@ -289,74 +289,11 @@
     </param>
     <param>
       <key>stop</key>
-      <value>2000</value>
+      <value>2240</value>
     </param>
     <param>
       <key>rangeType</key>
       <value>int</value>
-    </param>
-    <param>
-      <key>widget</key>
-      <value>counter_slider</value>
-    </param>
-  </block>
-  <block>
-    <key>variable_qtgui_range</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(708, 146)</value>
-    </param>
-    <param>
-      <key>gui_hint</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>fine_frequency_correction</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Fine frequency correction</value>
-    </param>
-    <param>
-      <key>min_len</key>
-      <value>200</value>
-    </param>
-    <param>
-      <key>orient</key>
-      <value>Qt.Horizontal</value>
-    </param>
-    <param>
-      <key>start</key>
-      <value>-10000</value>
-    </param>
-    <param>
-      <key>step</key>
-      <value>10</value>
-    </param>
-    <param>
-      <key>stop</key>
-      <value>10000</value>
-    </param>
-    <param>
-      <key>rangeType</key>
-      <value>float</value>
     </param>
     <param>
       <key>widget</key>
@@ -441,7 +378,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>256 * 8 * 3</value>
+      <value>256 * 8 * 2</value>
     </param>
   </block>
   <block>
@@ -612,7 +549,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>np.concatenate(([0,]*6, [1,]*116, [0,]*6))</value>
+      <value>[1]*128</value>
     </param>
   </block>
   <block>
@@ -627,7 +564,7 @@
     </param>
     <param>
       <key>A</key>
-      <value>1.0 </value>
+      <value>2.0</value>
     </param>
     <param>
       <key>L</key>
@@ -659,7 +596,7 @@
     </param>
     <param>
       <key>order</key>
-      <value>8</value>
+      <value>4</value>
     </param>
     <param>
       <key>bands</key>
@@ -679,11 +616,11 @@
     </param>
     <param>
       <key>pilot_A</key>
-      <value>1.0</value>
+      <value>2.0</value>
     </param>
     <param>
       <key>pilot_carriers</key>
-      <value>range(8, 118, 12) + [119]</value>
+      <value>range(8, 118, 4) + [119]</value>
     </param>
     <param>
       <key>pilot_timestep</key>
@@ -780,7 +717,7 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>This chain is for debug purposes</value>
     </param>
     <param>
       <key>affinity</key>
@@ -792,7 +729,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1628, 504)</value>
+      <value>(1764, 480)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -870,7 +807,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1468, 284)</value>
+      <value>(1436, 252)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -925,7 +862,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1644, 380)</value>
+      <value>(1732, 380)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1031,7 +968,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1496, 54)</value>
+      <value>(1680, 150)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1060,61 +997,6 @@
     <param>
       <key>pkt_len</key>
       <value>64</value>
-    </param>
-  </block>
-  <block>
-    <key>dyspan_packet_sink</key>
-    <param>
-      <key>address</key>
-      <value>"192.168.20.3"</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Old Version</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1748, 210)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>dyspan_packet_sink_0</value>
-    </param>
-    <param>
-      <key>port</key>
-      <value>5002</value>
-    </param>
-    <param>
-      <key>state</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>tag_key</key>
-      <value>"packet_len"</value>
-    </param>
-    <param>
-      <key>isTransmitter</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>pkt_len</key>
-      <value>256</value>
     </param>
   </block>
   <block>
@@ -1342,7 +1224,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1260, 370)</value>
+      <value>(1244, 114)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1819,7 +1701,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -4053,12 +3935,6 @@
   <connection>
     <source_block_id>blocks_stream_to_tagged_stream_0</source_block_id>
     <sink_block_id>classifier_packet_sink_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_stream_to_tagged_stream_0</source_block_id>
-    <sink_block_id>dyspan_packet_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -155,6 +155,7 @@ namespace gr {
 	      else if(sym.real() >= 4.0f/std::sqrt(42.0f) && sym.real() < 6.0f/std::sqrt(42.0f)) { symbol = static_cast<char>(6); }
 	      else if(sym.real() >= 6.0f/std::sqrt(42.0f)) { symbol = static_cast<char>(7); }
         else {
+					std::cout << "Symbol: " << sym << std::endl;
           throw std::runtime_error("Unidentified symbol to demodulate");
         }
       }
