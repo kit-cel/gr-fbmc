@@ -378,7 +378,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>256 * 8 * 2</value>
+      <value>256 * 12 * 2</value>
     </param>
   </block>
   <block>
