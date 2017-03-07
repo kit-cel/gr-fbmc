@@ -142,7 +142,9 @@ namespace gr {
       	else if(sym.real() >= 0.0 && sym.real() <= 2.0f/std::sqrt(10.0f)) { symbol = static_cast<char>(2); }
       	else if(sym.real() > 2.0f/std::sqrt(10.0f)) { symbol = static_cast<char>(3); }
       	else {
-		      throw std::runtime_error("Unidentified symbol to demodulate");
+					std::cout << "Unidentified symbol to demodulate: " << sym << std::endl;
+		      //throw std::runtime_error("Unidentified symbol to demodulate");
+					symbol = static_cast<int>(0);
       	}
       }
       else if (d_mod_order == 3) {
@@ -155,8 +157,9 @@ namespace gr {
 	      else if(sym.real() >= 4.0f/std::sqrt(42.0f) && sym.real() < 6.0f/std::sqrt(42.0f)) { symbol = static_cast<char>(6); }
 	      else if(sym.real() >= 6.0f/std::sqrt(42.0f)) { symbol = static_cast<char>(7); }
         else {
-					std::cout << "Symbol: " << sym << std::endl;
-          throw std::runtime_error("Unidentified symbol to demodulate");
+					std::cout << "Unidentified symbol to demodulate: " << sym << std::endl;
+					symbol = static_cast<int>(0);
+          //throw std::runtime_error("Unidentified symbol to demodulate");
         }
       }
       else {
