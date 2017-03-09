@@ -62,6 +62,7 @@ namespace gr {
    /*
     void
     channel_equalizer_vcvc_impl::despread(gr_complex* out, int noutput_items) {
+			// TODO replace by allocated array
       gr_complex first[2*d_o-1];
       for (int k = 0; k < noutput_items; k++) {
         // first symbol
@@ -84,19 +85,15 @@ namespace gr {
       const gr_complex *chan = (const gr_complex *) input_items[1];
       gr_complex *out = (gr_complex *) output_items[0];
 
-
+			// TODO rollback to equalization in upsampled domain
       //d_R.resize(d_subcarriers * d_bands * d_o * noutput_items);
       //memcpy(&d_R[0], in, sizeof(gr_complex) * d_bands * d_subcarriers * d_o * noutput_items);
       //volk_32fc_x2_divide_32fc(&d_R[0], in, chan,
                                //static_cast<unsigned int>(d_bands * d_subcarriers * d_o * noutput_items)); // zero forcing
       //despread(out, noutput_items);//d_G * d_R; // despreading
-      //volk_32fc_x2_divide_32fc(out, in, chan,
-                               //static_cast<unsigned int>(d_bands * d_subcarriers * noutput_items)); // zero forcing
+      volk_32fc_x2_divide_32fc(out, in, chan,
+                               static_cast<unsigned int>(d_bands * d_subcarriers * noutput_items)); // zero forcing
 
-     for (int i = 0; i < d_bands * d_subcarriers * noutput_items; ++i) {
-       out[i] = in[i]/chan[i];
-     }
-     
       // Tell runtime system how many output items we produced.
 
       return noutput_items;

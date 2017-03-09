@@ -74,7 +74,7 @@ namespace gr {
       // TODO fine freq/timing correction - not used right now
       //d_helper = new phase_helper(); // phase unwrap etc.
       
-			d_demod_temp = new gr_complex[2*d_o-1];
+			d_despread_temp = new gr_complex[2*d_o-1];
 
 			d_base_times.resize(2, 0); // time index of pilots used in interpolation
       d_base_freqs.resize(d_subcarriers * d_bands); // frequency index of pilots used in interpolation
@@ -100,7 +100,7 @@ namespace gr {
     channel_estimator_vcvc_impl::~channel_estimator_vcvc_impl() {
       delete d_interpolator;
       //delete d_helper;
-			delete d_demod_temp;
+			delete d_despread_temp;
     }
 
     // TODO the following is fine frequency and timing estimation functionality and not used for dyspan
@@ -186,9 +186,9 @@ namespace gr {
     channel_estimator_vcvc_impl::despread(gr_complex* out, const gr_complex* in, int noutput_items) {
       for (int k = 0; k < noutput_items; k++) {
         // first symbol - special case
-        memcpy(d_demod_temp, &in[(k+1) * d_subcarriers * d_bands * d_o - d_o+1], (d_o-1) * sizeof(gr_complex));
-        memcpy(&d_demod_temp[d_o-1], &in[k * d_subcarriers * d_bands * d_o], d_o * sizeof(gr_complex));
-        volk_32fc_32f_dot_prod_32fc(out++, d_demod_temp, d_taps.data(), 2*d_o-1);
+        memcpy(d_despread_temp, &in[(k+1) * d_subcarriers * d_bands * d_o - d_o+1], (d_o-1) * sizeof(gr_complex));
+        memcpy(&d_despread_temp[d_o-1], &in[k * d_subcarriers * d_bands * d_o], d_o * sizeof(gr_complex));
+        volk_32fc_32f_dot_prod_32fc(out++, d_despread_temp, d_taps.data(), 2*d_o-1);
         // all other symbols
         for(int n = 1; n <= d_subcarriers * d_bands * d_o - 2*d_o+1; n += d_o) {
           volk_32fc_32f_dot_prod_32fc(out++, &in[n + d_subcarriers * d_bands * d_o * k], d_taps.data(), 2*d_o-1);

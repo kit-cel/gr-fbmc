@@ -33,6 +33,7 @@ namespace gr {
       std::vector<float> d_taps;
       float d_pilot_amp;
       //std::vector<gr_complex> d_R;
+			gr_complex* d_despread_temp;
       //void despread(gr_complex* out, int noutput_items);
 
     public:
