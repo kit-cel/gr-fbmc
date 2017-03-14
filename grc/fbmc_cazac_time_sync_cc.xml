@@ -1,0 +1,38 @@
+<block>
+  <name>CAZAC Time Sync</name>
+  <key>fbmc_cazac_time_sync_cc</key>
+  <category>FBMC</category>
+  <import>import fbmc</import>
+  <make>fbmc.cazac_time_sync_cc($fir_sequences, $frame_len, $threshold)</make>
+  <param>
+    <name>Fir_sequences</name>
+    <key>fir_sequences</key>
+    <type>raw</type>
+  </param>
+  <param>
+    <name>Frame_len</name>
+    <key>frame_len</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Threshold</name>
+    <key>threshold</key>
+    <type>float</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+  <source>
+    <name>corr</name>
+    <type>float</type>
+  </source>
+  <source>
+    <name>pwr</name>
+    <type>float</type>
+  </source>
+</block>
