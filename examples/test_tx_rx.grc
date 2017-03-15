@@ -1047,7 +1047,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1100, 232)</value>
+      <value>(1100, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1122,7 +1122,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(864, 232)</value>
+      <value>(864, 280)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1193,7 +1193,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(672, 260)</value>
+      <value>(672, 200)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1252,7 +1252,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(832, 442)</value>
+      <value>(832, 538)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2001,11 +2001,11 @@
   <connection>
     <source_block_id>fbmc_channel_estimator_vcvc_0</source_block_id>
     <sink_block_id>fbmc_channel_equalizer_vcvc_0</sink_block_id>
-    <source_key>1</source_key>
+    <source_key>0</source_key>
     <sink_key>1</sink_key>
   </connection>
   <connection>
-    <source_block_id>fbmc_channel_estimator_vcvc_0</source_block_id>
+    <source_block_id>fbmc_sliding_fft_cvc_0</source_block_id>
     <sink_block_id>fbmc_channel_equalizer_vcvc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>

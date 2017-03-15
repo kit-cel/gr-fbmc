@@ -52,11 +52,11 @@
   <source>
     <name>out</name>
     <type>complex</type>
-    <vlen>$subcarriers * $bands</vlen>
+    <vlen>$subcarriers * $bands * $overlap</vlen>
   </source>
-  <source>
+  <!--<source>
     <name>chan</name>
     <type>complex</type>
     <vlen>$subcarriers * $bands</vlen>
-  </source>
+  </source>-->
 </block>

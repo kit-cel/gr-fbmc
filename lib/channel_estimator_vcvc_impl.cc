@@ -49,13 +49,13 @@ namespace gr {
                                                              std::vector<int> pilot_carriers)
         : gr::sync_block("channel_estimator_vcvc",
                          gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands * overlap),
-                         gr::io_signature::make(2, 2, sizeof(gr_complex) * subcarriers * bands)),
+                         gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands * overlap)),
           d_subcarriers(subcarriers), d_taps(taps), d_pilot_amp(pilot_amp),
           d_pilot_timestep(pilot_timestep), d_frame_len(frame_len), d_o(overlap), d_bands(bands)
     {
       d_curr_symbol = 0; // frame position
-      d_prev_pilot.resize(d_subcarriers * d_bands);
-      d_curr_pilot.resize(d_subcarriers * d_bands);
+      d_prev_pilot.resize(d_subcarriers * d_bands * d_o);
+      d_curr_pilot.resize(d_subcarriers * d_bands * d_o);
       // pilot carriers over all bands 
       for(int b = 0; b < d_bands; b++) {
         std::for_each(pilot_carriers.begin(), pilot_carriers.end(), [&](int &c) {
@@ -63,13 +63,12 @@ namespace gr {
         });
       }
       d_pilots.resize(d_pilot_carriers.size());
-			// TODO rollback to equalization in upsampled domain
-      //d_spread_pilots.resize(d_pilot_carriers.size());
+      d_spread_pilots.resize(d_pilot_carriers.size());
 			// pilot carriers in oversampled domain
-      //std::transform(d_pilot_carriers.begin(), d_pilot_carriers.end(), d_spread_pilots.begin(), std::bind1st(std::multiplies<int>(),d_o));
+      std::transform(d_pilot_carriers.begin(), d_pilot_carriers.end(), d_spread_pilots.begin(), std::bind1st(std::multiplies<int>(),d_o));
       
 			// interpolation helper class
-			d_interpolator = new interp2d(d_subcarriers * d_bands);
+			d_interpolator = new interp2d(d_subcarriers * d_bands * d_o);
 
       // TODO fine freq/timing correction - not used right now
       //d_helper = new phase_helper(); // phase unwrap etc.
@@ -77,7 +76,7 @@ namespace gr {
 			d_despread_temp = new gr_complex[2*d_o-1];
 
 			d_base_times.resize(2, 0); // time index of pilots used in interpolation
-      d_base_freqs.resize(d_subcarriers * d_bands); // frequency index of pilots used in interpolation
+      d_base_freqs.resize(d_subcarriers * d_bands * d_o); // frequency index of pilots used in interpolation
       d_curr_data.resize(d_subcarriers * d_bands * 100); // despread data
       std::iota(d_base_freqs.begin(), d_base_freqs.end(), 0); // used for timing interpolation (= no freq interpolation)
       d_snippet.resize(2); // contains two pilot symbols for interpolation
@@ -171,7 +170,7 @@ namespace gr {
         }
       }
       // interpolate in frequency direction
-      d_curr_pilot = d_interpolator->interp1d(d_pilot_carriers, d_subcarriers * d_bands, d_pilots);
+      d_curr_pilot = d_interpolator->interp1d(d_spread_pilots, d_subcarriers * d_bands * d_o, d_pilots);
     }
 
     void
@@ -179,7 +178,7 @@ namespace gr {
       // data to interpolate in between
       d_snippet[0] = d_prev_pilot;
       d_snippet[1] = d_curr_pilot;
-      d_items_produced += d_interpolator->interpolate(out, d_pilot_timestep, d_subcarriers * d_bands, d_snippet);
+      d_items_produced += d_interpolator->interpolate(out, d_pilot_timestep, d_subcarriers * d_bands * d_o, d_snippet);
     }
 
     inline void
@@ -201,8 +200,8 @@ namespace gr {
                                       gr_vector_const_void_star &input_items,
                                       gr_vector_void_star &output_items) {
       const gr_complex *in = (const gr_complex *) input_items[0];
-      gr_complex *out = (gr_complex *) output_items[1];
-      gr_complex *data = (gr_complex *) output_items[0];
+      gr_complex *out = (gr_complex *) output_items[0];
+      //gr_complex *data = (gr_complex *) output_items[0];
 
       d_items_produced = 0;  // item counter for current work
 
@@ -217,8 +216,8 @@ namespace gr {
           if(d_curr_symbol == d_lastpilot) {
             interpolate_time(out);
             for (int i = 0; i < d_frame_len - d_lastpilot - 1; i++) {
-              memcpy(out, &d_curr_pilot[0], d_subcarriers * d_bands * sizeof(gr_complex));
-              out += d_subcarriers * d_bands;
+              memcpy(out, &d_curr_pilot[0], d_subcarriers * d_bands * d_o * sizeof(gr_complex));
+              out += d_subcarriers * d_bands * d_o;
               d_items_produced++;
               d_curr_symbol++;
             }
@@ -228,8 +227,8 @@ namespace gr {
           // extrapolate at beginning of frame
           else if(d_curr_symbol == 2) {
             for (int i = 0; i < 3; i++) {
-              memcpy(out, &d_curr_pilot[0], d_subcarriers * d_bands * sizeof(gr_complex));
-              out += d_subcarriers * d_bands;
+              memcpy(out, &d_curr_pilot[0], d_subcarriers * d_bands * d_o * sizeof(gr_complex));
+              out += d_subcarriers * d_bands * d_o;
               d_items_produced++;
             }
           }
@@ -259,7 +258,7 @@ namespace gr {
       }
 
       // copy despread data into output buffer
-      memcpy(data, d_curr_data.data(), sizeof(gr_complex) * d_subcarriers * d_bands * d_items_produced);
+      //memcpy(data, d_curr_data.data(), sizeof(gr_complex) * d_subcarriers * d_bands * d_items_produced);
 
       return d_items_produced;
     }
