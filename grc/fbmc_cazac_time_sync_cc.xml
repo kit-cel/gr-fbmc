@@ -3,11 +3,16 @@
   <key>fbmc_cazac_time_sync_cc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.cazac_time_sync_cc($fir_sequences, $frame_len, $threshold)</make>
+  <make>fbmc.cazac_time_sync_cc($fir_sequences, $frame_len, $threshold, $bands)</make>
   <param>
     <name>Fir_sequences</name>
     <key>fir_sequences</key>
     <type>raw</type>
+  </param>
+  <param>
+    <name>Subbands</name>
+    <key>bands</key>
+    <type>int</type>
   </param>
   <param>
     <name>Frame_len</name>
@@ -29,10 +34,6 @@
   </source>
   <source>
     <name>corr</name>
-    <type>float</type>
-  </source>
-  <source>
-    <name>pwr</name>
     <type>float</type>
   </source>
 </block>

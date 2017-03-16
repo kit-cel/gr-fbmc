@@ -100,17 +100,14 @@ class sync_config:
 
     def get_fir_sequences(self):
         """Returns list of lists containing FIR filter taps for time correlation with time input signal"""
-        zc = self.get_zadoff_chu(self.N//2)
+        zc = self.get_zadoff_chu(self.N//2)/self.A
         zc_freq = np.fft.fftshift(np.fft.fft(np.conj(zc)))
-        zc_freq0 = np.concatenate((zc_freq, np.zeros(3*self.N//2))) # time interpolation
-        zc_freq1 = np.roll(zc_freq0, self.N//2 * 1) # freq shift
-        zc_freq2 = np.roll(zc_freq0, self.N//2 * 2) # freq shift
-        zc_freq3 = np.roll(zc_freq0, self.N//2 * 3) # freq shift
-        zc0 = np.fft.ifft(np.fft.ifftshift(zc_freq0))
-        zc1 = np.fft.ifft(np.fft.ifftshift(zc_freq1))
-        zc2 = np.fft.ifft(np.fft.ifftshift(zc_freq2))
-        zc3 = np.fft.ifft(np.fft.ifftshift(zc_freq3))
-        return [zc0.tolist(), zc1.tolist(), zc2.tolist(), zc3.tolist()]
+        zc_freq = np.concatenate((zc_freq, np.zeros((self.subbands-1)*self.N//2))) # time interpolation
+
+        zc_freq_vec = []
+        for i in range(0, self.subbands):
+            zc_freq_vec.append(np.fft.ifft(np.fft.ifftshift(np.roll(zc_freq, self.N//2 * i))))
+        return zc_freq_vec
 
     def get_preamble_symbols(self):
         return self.c
@@ -151,7 +148,7 @@ class sync_config:
             samps = (syms-1)*self.N//2 + self.N * self.overlap
         else:
             samps = (syms)*self.N//2
-        return samps
+        return samps*self.subbands
     
     def get_bps(self):
         return int(np.log2(self.order));

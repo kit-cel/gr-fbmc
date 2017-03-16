@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::cazac_time_sync_cc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold);
+      static sptr make(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold, int bands);
     };
 
   } // namespace fbmc

@@ -30,33 +30,44 @@ namespace gr {
   namespace fbmc {
 
     cazac_time_sync_cc::sptr
-    cazac_time_sync_cc::make(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold)
+    cazac_time_sync_cc::make(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold, int bands)
     {
       return gnuradio::get_initial_sptr
-        (new cazac_time_sync_cc_impl(fir_sequences, frame_len, threshold));
+        (new cazac_time_sync_cc_impl(fir_sequences, frame_len, threshold, bands));
     }
 
     /*
      * The private constructor
      */
-    cazac_time_sync_cc_impl::cazac_time_sync_cc_impl(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold)
+    cazac_time_sync_cc_impl::cazac_time_sync_cc_impl(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold, int bands)
       : gr::block("cazac_time_sync_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
-              gr::io_signature::make3(3, 3, sizeof(gr_complex), sizeof(float), sizeof(float))),
-        d_threshold(threshold), d_frame_len(frame_len), d_fir_sequences(fir_sequences)
+              gr::io_signature::make3(2, 2, sizeof(gr_complex), sizeof(float), sizeof(float))),
+        d_threshold(threshold), d_frame_len(frame_len), d_fir_sequences(fir_sequences), d_bands(bands)
     {
       // instantiate correlators
       d_corr_abs.resize(d_fir_sequences.size());
       d_correlators.reserve(d_fir_sequences.size());
       for (int i = 0; i < d_fir_sequences.size(); ++i) {
+        // normalize taps
+        std::for_each(d_fir_sequences[i].begin(), d_fir_sequences[i].end(), [&](gr_complex& c) {
+          c = c/gr_complex(d_fir_sequences[i].size(), 0);
+        });
         d_correlators.push_back(new gr::filter::kernel::fft_filter_ccc(1, d_fir_sequences[i]));
       }
-      // moving average filter for power
-      d_avg_filter = new filter::single_pole_iir<float,float,float>(0.5);
+      d_nsamps = d_correlators[0]->set_taps(d_fir_sequences[0]); // get FFT filter sample number
 
-      set_history(d_frame_len);
-      set_output_multiple(d_frame_len); // we need one frame space at the output
+      // moving average filter for power
+      d_avg_filter = new filter::single_pole_iir<float,float,float>(0.001);
+
+      d_peak_offset = static_cast<int>(310.5 * d_bands);
+      d_items_left = 0;
+
+      set_history(d_peak_offset);
+      set_output_multiple(d_frame_len+d_peak_offset); // we need one frame space at the output
     }
+
+
 
     /*
      * Our virtual destructor.
@@ -86,48 +97,68 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
       float *corr = (float *) output_items[1];
-      float *pwr = (float *) output_items[2];
 
-      gr_complex temp[ninput_items[0]];
+      // we have not finished the last frame yet
+      if(d_items_left > 0) {
+        int emit = std::min(d_items_left, ninput_items[0]-d_peak_offset);
+        memcpy(out, in+d_peak_offset, emit * sizeof(gr_complex));
+        d_items_left -= emit;
+        consume_each(emit);
+        return emit;
+      }
+      // fft filter kernel wants specific number of samples in each call
+      int num_items = d_nsamps*(ninput_items[0]/d_nsamps); // round down to nearest multiple of d_nsamps
 
-      float addbuf[ninput_items[0]];
-      float magbuf[ninput_items[0]];
-      float power[ninput_items[0]];
-      memset(addbuf, 0, sizeof(float) * ninput_items[0]);
+      // allocate temporary buffers
+      gr_complex* temp = (gr_complex*) volk_malloc(sizeof(gr_complex) * num_items, volk_get_alignment());
+      float* temp2 = (float*) volk_malloc(sizeof(float) * num_items, volk_get_alignment());
+      float* addbuf = (float*) volk_malloc(sizeof(float) * num_items, volk_get_alignment());
+      float* magbuf = (float*) volk_malloc(sizeof(float) * num_items, volk_get_alignment());
+      float* power = (float*) volk_malloc(sizeof(float) * num_items, volk_get_alignment());
+      memset(addbuf, 0, sizeof(float) * num_items);
 
       // correlate against CAZAC preamble with FFT filters
-      float temp2[ninput_items[0]];
       for (int i = 0; i < d_correlators.size(); ++i) {
-        d_correlators[i]->filter(ninput_items[0], in, temp);
-        volk_32fc_magnitude_32f(temp2, temp, ninput_items[0]);
-        volk_32f_x2_add_32f(addbuf, addbuf, temp2, ninput_items[0]);
+        d_correlators[i]->filter(num_items, in, temp);
+        volk_32fc_magnitude_32f(temp2, temp, num_items);
+        volk_32f_x2_add_32f(addbuf, addbuf, temp2, num_items);
       }
-      // TODO debug
-      memcpy(corr, addbuf, sizeof(float) * ninput_items[0]);
-      // power calculation
-      volk_32fc_magnitude_squared_32f(magbuf, in, ninput_items[0]);
-      d_avg_filter->filterN(pwr, magbuf, ninput_items[0]);
 
-      // TODO debug
-      consume_each(ninput_items[0]);
-      return ninput_items[0];
+      // power estimation
+      volk_32fc_magnitude_32f(magbuf, in, num_items); // according to correlation coefficient we don't need to square
+                                                      // here because of normalized taps sqrt(e^2 * 1^2) = e
+      d_avg_filter->filterN(power, magbuf, num_items);
 
+      // normalize correlation
+      volk_32f_x2_divide_32f(addbuf, addbuf, power, num_items);
+      memcpy(corr, addbuf, sizeof(float) * std::min(num_items, noutput_items));
 
       // check if threshold is met
-      if(!std::any_of(addbuf, addbuf+noutput_items, [&](float f){return f >= d_threshold;} )) {
+      if(!std::any_of(addbuf, addbuf+noutput_items, [&](float f){return f >= d_threshold/(float)d_bands;} )) {
         // nothing to do this work()
+        volk_free(temp);
+        volk_free(temp2);
+        volk_free(addbuf);
+        volk_free(magbuf);
+        volk_free(power);
         consume_each(noutput_items);
         return(0);
       }
-      int peak_pos = std::distance(addbuf, std::max_element(addbuf, addbuf + noutput_items));
-      memcpy(out, in+peak_pos-1120, d_frame_len);
-
-
-
-      consume_each (noutput_items);
+      int frame_start = std::distance(addbuf, std::max_element(addbuf, addbuf + num_items))-d_peak_offset; // argmax
+      add_item_tag(1, nitems_written(1)+frame_start+d_peak_offset, pmt::intern("peak"), pmt::get_PMT_NIL());
+      d_items_left = d_frame_len;
+      int emit = std::min(d_frame_len, ninput_items[0]-frame_start);
+      memcpy(out, in+frame_start, emit * sizeof(gr_complex));
+      d_items_left -= emit;
+      volk_free(temp);
+      volk_free(temp2);
+      volk_free(addbuf);
+      volk_free(magbuf);
+      volk_free(power);
+      consume_each (emit);
 
       // Tell runtime system how many output items we produced.
-      return d_frame_len;
+      return emit;
     }
 
   } /* namespace fbmc */

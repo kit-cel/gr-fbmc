@@ -31,7 +31,7 @@ namespace gr {
     class cazac_time_sync_cc_impl : public cazac_time_sync_cc
     {
      private:
-      int d_frame_len;
+      int d_frame_len, d_nsamps, d_bands, d_peak_offset, d_items_left;
       float d_threshold;
       std::vector<gr::filter::kernel::fft_filter_ccc*> d_correlators;
       filter::single_pole_iir<float,float,float>* d_avg_filter;
@@ -39,7 +39,7 @@ namespace gr {
       std::vector<float*> d_corr_abs;
 
      public:
-      cazac_time_sync_cc_impl(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold);
+      cazac_time_sync_cc_impl(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold, int bands);
       ~cazac_time_sync_cc_impl();
 
       // Where all the action really happens
