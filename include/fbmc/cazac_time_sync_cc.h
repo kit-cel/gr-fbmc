@@ -19,8 +19,8 @@
  */
 
 
-#ifndef INCLUDED_FBMC_CAZAC_SYNC_CC_H
-#define INCLUDED_FBMC_CAZAC_SYNC_CC_H
+#ifndef INCLUDED_FBMC_CAZAC_TIME_SYNC_CC_H
+#define INCLUDED_FBMC_CAZAC_TIME_SYNC_CC_H
 
 #include <fbmc/api.h>
 #include <gnuradio/block.h>
@@ -33,24 +33,24 @@ namespace gr {
      * \ingroup fbmc
      *
      */
-    class FBMC_API cazac_sync_cc : virtual public gr::block
+    class FBMC_API cazac_time_sync_cc : virtual public gr::block
     {
      public:
-      typedef boost::shared_ptr<cazac_sync_cc> sptr;
+      typedef boost::shared_ptr<cazac_time_sync_cc> sptr;
 
       /*!
-       * \brief Return a shared_ptr to a new instance of fbmc::cazac_sync_cc.
+       * \brief Return a shared_ptr to a new instance of fbmc::cazac_time_sync_cc.
        *
-       * To avoid accidental use of raw pointers, fbmc::cazac_sync_cc's
+       * To avoid accidental use of raw pointers, fbmc::cazac_time_sync_cc's
        * constructor is in a private implementation
-       * class. fbmc::cazac_sync_cc::make is the public interface for
+       * class. fbmc::cazac_time_sync_cc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int subcarriers, int bands, int overlap, int frame_len, float threshold, std::vector<std::vector<gr_complex> > zc_seqs, std::vector<gr_complex> zc_fft);
+      static sptr make(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold, int bands);
     };
 
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_CAZAC_SYNC_CC_H */
+#endif /* INCLUDED_FBMC_CAZAC_TIME_SYNC_CC_H */
 
