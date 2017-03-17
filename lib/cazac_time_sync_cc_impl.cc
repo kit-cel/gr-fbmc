@@ -30,19 +30,19 @@ namespace gr {
   namespace fbmc {
 
     cazac_time_sync_cc::sptr
-    cazac_time_sync_cc::make(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold, int bands)
+    cazac_time_sync_cc::make(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold, int bands, float peak_offset)
     {
       return gnuradio::get_initial_sptr
-        (new cazac_time_sync_cc_impl(fir_sequences, frame_len, threshold, bands));
+        (new cazac_time_sync_cc_impl(fir_sequences, frame_len, threshold, bands, peak_offset));
     }
 
     /*
      * The private constructor
      */
-    cazac_time_sync_cc_impl::cazac_time_sync_cc_impl(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold, int bands)
+    cazac_time_sync_cc_impl::cazac_time_sync_cc_impl(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold, int bands, float peak_offset)
       : gr::block("cazac_time_sync_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
-              gr::io_signature::make3(2, 2, sizeof(gr_complex), sizeof(float), sizeof(float))),
+              gr::io_signature::make(1, 1, sizeof(gr_complex))),
         d_threshold(threshold), d_frame_len(frame_len), d_fir_sequences(fir_sequences), d_bands(bands)
     {
       // instantiate correlators
@@ -60,7 +60,7 @@ namespace gr {
       // moving average filter for power
       d_avg_filter = new filter::single_pole_iir<float,float,float>(0.001);
 
-      d_peak_offset = static_cast<int>(310.5 * d_bands);
+      d_peak_offset = static_cast<int>(peak_offset * d_bands);
       d_items_left = 0;
 
       set_history(d_peak_offset);
@@ -96,7 +96,6 @@ namespace gr {
     {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
-      float *corr = (float *) output_items[1];
 
       // we have not finished the last frame yet
       if(d_items_left > 0) {
@@ -131,7 +130,6 @@ namespace gr {
 
       // normalize correlation
       volk_32f_x2_divide_32f(addbuf, addbuf, power, num_items);
-      memcpy(corr, addbuf, sizeof(float) * std::min(num_items, noutput_items));
 
       // check if threshold is met
       if(!std::any_of(addbuf, addbuf+noutput_items, [&](float f){return f >= d_threshold/(float)d_bands;} )) {
@@ -145,7 +143,6 @@ namespace gr {
         return(0);
       }
       int frame_start = std::distance(addbuf, std::max_element(addbuf, addbuf + num_items))-d_peak_offset; // argmax
-      add_item_tag(1, nitems_written(1)+frame_start+d_peak_offset, pmt::intern("peak"), pmt::get_PMT_NIL());
       d_items_left = d_frame_len;
       int emit = std::min(d_frame_len, ninput_items[0]-frame_start);
       memcpy(out, in+frame_start, emit * sizeof(gr_complex));

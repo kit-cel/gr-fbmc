@@ -39,7 +39,7 @@ namespace gr {
       std::vector<float*> d_corr_abs;
 
      public:
-      cazac_time_sync_cc_impl(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold, int bands);
+      cazac_time_sync_cc_impl(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold, int bands, float peak_offset);
       ~cazac_time_sync_cc_impl();
 
       // Where all the action really happens

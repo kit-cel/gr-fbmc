@@ -3,7 +3,7 @@
   <key>fbmc_cazac_time_sync_cc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.cazac_time_sync_cc($fir_sequences, $frame_len, $threshold, $bands)</make>
+  <make>fbmc.cazac_time_sync_cc($fir_sequences, $frame_len, $threshold, $bands, $peak)</make>
   <param>
     <name>Fir_sequences</name>
     <key>fir_sequences</key>
@@ -24,6 +24,11 @@
     <key>threshold</key>
     <type>float</type>
   </param>
+  <param>
+    <name>Peak Offset</name>
+    <key>peak</key>
+    <type>float</type>
+  </param>
   <sink>
     <name>in</name>
     <type>complex</type>
@@ -31,9 +36,5 @@
   <source>
     <name>out</name>
     <type>complex</type>
-  </source>
-  <source>
-    <name>corr</name>
-    <type>float</type>
   </source>
 </block>

@@ -48,6 +48,7 @@
 #include "fbmc/correlator_postprocessor_cf.h"
 #include "fbmc/frame_detector.h"
 #include "fbmc/cazac_time_sync_cc.h"
+#include "fbmc/cazac_freq_sync_cc.h"
 %}
 
 %include "../lib/fbmc_config.h"
@@ -130,3 +131,5 @@ GR_SWIG_BLOCK_MAGIC2(fbmc, correlator_postprocessor_cf);
 GR_SWIG_BLOCK_MAGIC2(fbmc, frame_detector);
 %include "fbmc/cazac_time_sync_cc.h"
 GR_SWIG_BLOCK_MAGIC2(fbmc, cazac_time_sync_cc);
+%include "fbmc/cazac_freq_sync_cc.h"
+GR_SWIG_BLOCK_MAGIC2(fbmc, cazac_freq_sync_cc);

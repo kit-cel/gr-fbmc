@@ -1,0 +1,40 @@
+<block>
+  <name>CAZAC Frequency Sync</name>
+  <key>fbmc_cazac_freq_sync_cc</key>
+  <category>FBMC</category>
+  <import>import fbmc</import>
+  <make>fbmc.cazac_freq_sync_cc($subcarriers, $bands, $frame_len, $fft, $fft_sequences)</make>
+  <param>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Bands</name>
+    <key>bands</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Samples per Frame</name>
+    <key>frame_len</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>FFT Size</name>
+    <key>fft</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Fft_sequences</name>
+    <key>fft_sequences</key>
+    <type>complex_vector</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>

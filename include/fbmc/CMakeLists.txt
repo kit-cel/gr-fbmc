@@ -60,5 +60,6 @@ install(FILES
     tx_dummy_mixer_cc.h
     correlator_postprocessor_cf.h
     frame_detector.h
-    cazac_time_sync_cc.h DESTINATION include/fbmc
+    cazac_time_sync_cc.h
+    cazac_freq_sync_cc.h DESTINATION include/fbmc
 )

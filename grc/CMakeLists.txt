@@ -55,5 +55,6 @@ install(FILES
     fbmc_tx_dummy_mixer_cc.xml
     fbmc_correlator_postprocessor_cf.xml
     fbmc_frame_detector.xml
-    fbmc_cazac_time_sync_cc.xml DESTINATION share/gnuradio/grc/blocks
+    fbmc_cazac_time_sync_cc.xml
+    fbmc_cazac_freq_sync_cc.xml DESTINATION share/gnuradio/grc/blocks
 )

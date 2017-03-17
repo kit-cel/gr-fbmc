@@ -23,6 +23,7 @@
 # Synchronization Sequence Design for FBMC/OQAM Systems Bd. 15, IEEE (2016), Nr. 10, S. 7199 - 721]
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 class sync_config:
     def __init__(self, taps, N, overlap, L, pilot_A, pilot_timestep, pilot_carriers, subbands=1, bits=1, pos=4, u=1, q=4, A=1.0,
@@ -53,6 +54,7 @@ class sync_config:
         self.u = u
         self.order = order
         self.q = q
+        self.fft_len = fft_len
         self.A = A
         self.subbands = subbands
         self.c = self.build_preamble_symbols()
@@ -112,8 +114,20 @@ class sync_config:
     def get_preamble_symbols(self):
         return self.c
 
-    def get_cazac_fft(self):
-        return self.Z_fft
+    def get_fft_len(self):
+        return self.fft_len
+
+    def get_cazac_ffts(self):
+        zc = self.get_zadoff_chu(self.N//2)/self.A
+        zc_freq = np.fft.fft(zc, self.fft_len)
+        #zc_freq = np.concatenate((zc_freq, np.zeros((self.subbands-1)*self.fft_len))) # time interpolation
+
+        zc_freq_vec = np.tile(zc_freq, self.subbands)
+        #for i in range(0, self.subbands):
+        #    zc_freq_vec.append(np.roll(zc_freq, self.fft_len * i))
+        #plt.plot(abs(zc_freq_vec))
+        #plt.show()
+        return zc_freq_vec
 
     def get_pilot_amplitude(self):
         return self.pilot_A
