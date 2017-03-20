@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <block>
-    <name>Sync Configuration</name>
+    <name>CAZAC Configuration</name>
     <key>variable_sync_config</key>
     <category>FBMC</category>
     <import>import fbmc</import>

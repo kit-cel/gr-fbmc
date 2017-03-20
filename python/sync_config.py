@@ -90,7 +90,8 @@ class sync_config:
             tap = 0.0
         return tap
 
-    def phydyas_frequency_taps(self, overlap):
+    def phydyas_frequency_taps(self):
+        overlap = self.overlap
         taps = []
         for i in range(2*overlap-1):
             k = i-overlap+1
@@ -98,7 +99,10 @@ class sync_config:
             taps.append(tap)
         return taps
 
-    def phydyas_impulse_taps(self, L, overlap):
+    def phydyas_impulse_taps(self):
+        # adapted from previous versions, sorry for bad variable names
+        L = self.N
+        overlap = self.overlap
         num_taps = L * overlap +1
         taps = [0.0] * num_taps
         for m in range(num_taps):
@@ -115,7 +119,7 @@ class sync_config:
         return taps
 
     def get_taps_time(self):
-        phydyas_taps_time = np.array(self.phydyas_impulse_taps(self.N, self.overlap))
+        phydyas_taps_time = np.array(self.phydyas_impulse_taps())
         return phydyas_taps_time[1:]/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))
 
     def get_zadoff_chu(self, length):

@@ -342,7 +342,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>np.array(sync.phydyas_impulse_taps(sync.get_subcarriers(), sync.get_overlap()))*10**(-tx_att_db/20)</value>
+      <value>np.array(sync.phydyas_impulse_taps())*10**(-tx_att_db/20)</value>
     </param>
   </block>
   <block>
@@ -1079,7 +1079,7 @@
     </param>
     <param>
       <key>taps</key>
-      <value>sync.phydyas_frequency_taps(sync.get_overlap())</value>
+      <value>sync.phydyas_frequency_taps()</value>
     </param>
     <param>
       <key>bands</key>
@@ -1154,7 +1154,7 @@
     </param>
     <param>
       <key>taps</key>
-      <value>sync.phydyas_frequency_taps(sync.get_overlap())</value>
+      <value>sync.phydyas_frequency_taps()</value>
     </param>
     <param>
       <key>subcarriers</key>
