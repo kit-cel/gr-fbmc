@@ -37,4 +37,8 @@
     <name>out</name>
     <type>complex</type>
   </source>
+  <source>
+    <name>corr</name>
+    <type>float</type>
+  </source>
 </block>

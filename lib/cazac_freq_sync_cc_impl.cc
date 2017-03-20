@@ -47,6 +47,7 @@ namespace gr {
     {
       d_curr_samp = 0;
       d_fo = 0;
+      d_range = 16 * d_bands;
       d_fft_len = fft_size * d_bands;
       d_phase = lv_cmake(1, 0); //phase for rotation
       d_fft = new gr::fft::fft_complex(d_fft_len, true);
@@ -56,6 +57,11 @@ namespace gr {
         throw std::runtime_error("Wrong FFT size!");
       };
       set_output_multiple(d_bands * 5.0/2.0 * d_subcarriers);
+    }
+
+    float
+    cazac_freq_sync_cc_impl::get_fo() {
+      return d_fo;
     }
 
     /*
@@ -106,7 +112,7 @@ namespace gr {
         d_fft->execute();
         //estimate frequency offset
         d_fo = 0.8*d_fo + 0.2 * get_freq_offset(d_fft->get_outbuf()); // averaging frequency offset
-        //std::cout << "FO: " << d_fo*10000000 << std::endl;
+        //std::cout << "FO: " << d_fo*2500000 << std::endl;
         //calculate phase increment
         float arg = -2*M_PI * d_fo;
         d_phase_inc = lv_cmake(std::cos(arg), std::sin(arg));

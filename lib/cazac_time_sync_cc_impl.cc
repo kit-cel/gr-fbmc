@@ -42,7 +42,7 @@ namespace gr {
     cazac_time_sync_cc_impl::cazac_time_sync_cc_impl(std::vector<std::vector<gr_complex> > fir_sequences, int frame_len, float threshold, int bands, float peak_offset)
       : gr::block("cazac_time_sync_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
-              gr::io_signature::make(1, 1, sizeof(gr_complex))),
+              gr::io_signature::make2(2, 2, sizeof(gr_complex), sizeof(float))),
         d_threshold(threshold), d_frame_len(frame_len), d_fir_sequences(fir_sequences), d_bands(bands)
     {
       // instantiate correlators
@@ -64,10 +64,8 @@ namespace gr {
       d_items_left = 0;
 
       set_history(d_peak_offset);
-      set_output_multiple(d_frame_len+d_peak_offset); // we need one frame space at the output
+      set_output_multiple(d_frame_len); // we need one frame space at the output
     }
-
-
 
     /*
      * Our virtual destructor.
@@ -95,12 +93,15 @@ namespace gr {
                        gr_vector_void_star &output_items)
     {
       const gr_complex *in = (const gr_complex *) input_items[0];
+      const gr_complex *newitems = in+history();
       gr_complex *out = (gr_complex *) output_items[0];
+      float *corr = (float *) output_items[1];
 
       // we have not finished the last frame yet
       if(d_items_left > 0) {
         int emit = std::min(d_items_left, ninput_items[0]);
-        memcpy(out, in+d_peak_offset, emit * sizeof(gr_complex));
+        memcpy(out, newitems, emit * sizeof(gr_complex));
+        add_item_tag(0, nitems_written(0), pmt::intern("cont"), pmt::get_PMT_NIL());
         d_items_left -= emit;
         consume_each(emit);
         return emit;
@@ -118,18 +119,19 @@ namespace gr {
 
       // correlate against CAZAC preamble with FFT filters
       for (int i = 0; i < d_correlators.size(); ++i) {
-        d_correlators[i]->filter(num_items, in, temp);
+        d_correlators[i]->filter(num_items, newitems, temp);
         volk_32fc_magnitude_32f(temp2, temp, num_items);
         volk_32f_x2_add_32f(addbuf, addbuf, temp2, num_items);
       }
 
       // power estimation
-      volk_32fc_magnitude_32f(magbuf, in, num_items); // according to correlation coefficient we don't need to square
+      volk_32fc_magnitude_32f(magbuf, newitems, num_items); // according to correlation coefficient we don't need to square
                                                       // here because of normalized taps sqrt(e^2 * 1^2) = e
       d_avg_filter->filterN(power, magbuf, num_items);
 
       // normalize correlation
       volk_32f_x2_divide_32f(addbuf, addbuf, power, num_items);
+      memcpy(corr, addbuf, num_items*sizeof(float));
 
       // check if threshold is met
       if(!std::any_of(addbuf, addbuf+noutput_items, [&](float f){return f >= d_threshold/(float)d_bands;} )) {
@@ -142,7 +144,8 @@ namespace gr {
         consume_each(noutput_items);
         return(0);
       }
-      int frame_start = std::distance(addbuf, std::max_element(addbuf, addbuf + num_items))-d_peak_offset; // argmax
+      int frame_start = std::distance(addbuf, std::max_element(addbuf, addbuf + num_items)); // argmax
+      add_item_tag(1, nitems_written(1)+frame_start, pmt::intern("peak"), pmt::get_PMT_NIL());
       d_items_left = d_frame_len;
       int emit = std::min(d_frame_len, ninput_items[0]-frame_start);
       memcpy(out, in+frame_start, emit * sizeof(gr_complex));
@@ -152,7 +155,7 @@ namespace gr {
       volk_free(addbuf);
       volk_free(magbuf);
       volk_free(power);
-      consume_each (emit);
+      consume_each (emit+frame_start-history());
 
       // Tell runtime system how many output items we produced.
       return emit;

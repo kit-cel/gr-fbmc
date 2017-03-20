@@ -46,6 +46,8 @@ namespace gr {
        * class. fbmc::cazac_freq_sync_cc::make is the public interface for
        * creating new instances.
        */
+
+      virtual float get_fo() = 0;
       static sptr make(int subcarriers, int bands, int frame_len, int fft_size, std::vector<gr_complex> fft_sequences);
     };
 

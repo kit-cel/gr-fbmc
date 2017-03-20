@@ -32,7 +32,7 @@ namespace gr {
      private:
       int d_bands, d_subcarriers, d_frame_len, d_curr_samp, d_fft_len;
       float d_fo;
-      static const int d_range = 32;
+      int d_range;
       std::vector<gr_complex> d_fft_sequences;
       gr::fft::fft_complex* d_fft;
       gr_complex d_temp, d_phase, d_phase_inc;
@@ -42,6 +42,7 @@ namespace gr {
      public:
       cazac_freq_sync_cc_impl(int subcarriers, int bands, int frame_len, int fft_size, std::vector<gr_complex> fft_sequences);
       ~cazac_freq_sync_cc_impl();
+      float get_fo();
 
       // Where all the action really happens
       int work(int noutput_items,

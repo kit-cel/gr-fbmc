@@ -119,7 +119,7 @@ class sync_config:
 
     def get_cazac_ffts(self):
         zc = self.get_zadoff_chu(self.N//2)/self.A
-        zc_freq = np.fft.fft(zc, self.fft_len)
+        zc_freq = np.fft.fftshift(np.fft.fft(zc, self.fft_len))
         #zc_freq = np.concatenate((zc_freq, np.zeros((self.subbands-1)*self.fft_len))) # time interpolation
 
         zc_freq_vec = np.tile(zc_freq, self.subbands)
