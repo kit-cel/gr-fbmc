@@ -26,7 +26,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class sync_config:
-    def __init__(self, taps, N, overlap, L, pilot_A, pilot_timestep, pilot_carriers, subbands=1, bits=1, pos=4, u=1, q=4, A=1.0,
+    def __init__(self, N, overlap, L, pilot_A, pilot_timestep, pilot_carriers, subbands=1, bits=1, pos=4, u=1, q=4, A=1.0,
                  fft_len=2**13, guard=3, order=1):
         """
         Calculates preamble with independent Zadoff-Chu sequence
@@ -41,7 +41,6 @@ class sync_config:
         """
         assert pilot_timestep >= 4, "Min. pilot timstep is 4 when compensation with aux pilots is used"
         assert (order == 2 or order == 4 or order == 8), "Modulation order has to be 2, 4 or 8"
-        self.h = np.reshape(taps, (-1, N//2))
         self.N = N
         self.guard = guard
         self.k = pos
@@ -57,8 +56,67 @@ class sync_config:
         self.fft_len = fft_len
         self.A = A
         self.subbands = subbands
+        self.h = np.reshape(self.get_taps_time(), (-1, N//2))
         self.c = self.build_preamble_symbols()
         self.Z_fft = np.fft.fft(self.get_zadoff_chu(self.N), fft_len)
+
+
+    def get_phydyas_frequency_tap(self, k, overlap):
+        optimal_filter_coeffs = [[],
+                                 [],
+                                 [],
+                                 [0.91143783],
+                                 [0.97195983],
+                                 [],
+                                 [0.99722723, 0.94136732],
+                                 [],
+                                 [0.99988389, 0.99315513, 0.92708081]]
+
+        if len(optimal_filter_coeffs[overlap]) == 0:
+            print("WARNING: Unsupported overlap size. Returning 0.0f")
+            return 0.0
+
+        k = abs(k)
+        tap = 0.0
+        if k == 0:
+            tap = 1.0
+        elif k < overlap//2:
+            tap = optimal_filter_coeffs[overlap][k-1]
+        elif k == overlap//2:
+            tap = 1.0/np.sqrt(2.0)
+        elif k < overlap:
+            tap = np.sqrt(1.0 - optimal_filter_coeffs[overlap][overlap - k - 1] ** 2)
+        else:
+            tap = 0.0
+        return tap
+
+    def phydyas_frequency_taps(self, overlap):
+        taps = []
+        for i in range(2*overlap-1):
+            k = i-overlap+1
+            tap = (-1.0)**k * self.get_phydyas_frequency_tap(k, overlap)
+            taps.append(tap)
+        return taps
+
+    def phydyas_impulse_taps(self, L, overlap):
+        num_taps = L * overlap +1
+        taps = [0.0] * num_taps
+        for m in range(num_taps):
+            if m == 0:
+                taps[m] = 0.0
+            elif m <= L * overlap//2:
+                taps[m] = self.get_phydyas_frequency_tap(0, overlap)
+                for k in range(1,overlap):
+                    tap = self.get_phydyas_frequency_tap(k, overlap)
+                    taps[m] += 2.0 * (-1.0)**k * tap * np.cos(2*np.pi*float(k*m)/float(overlap*L))
+                taps[m] /= 2.0
+            else:
+                taps[m] = taps[num_taps - m - 1]
+        return taps
+
+    def get_taps_time(self):
+        phydyas_taps_time = np.array(self.phydyas_impulse_taps(self.N, self.overlap))
+        return phydyas_taps_time[1:]/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))
 
     def get_zadoff_chu(self, length):
         """ Returns Zadoff-Chu sequence of length """
@@ -163,8 +221,17 @@ class sync_config:
         else:
             samps = (syms)*self.N//2
         return samps*self.subbands
-    
+
     def get_bps(self):
         return int(np.log2(self.order));
+
+    def get_subcarriers(self):
+        return self.N
+
+    def get_payload_bits(self):
+        return self.bits
+
+    def get_overlap(self):
+        return self.overlap
 
 #a = sync_config(taps=np.ones(32*4), N=32, L=31, pilot_A=1.0, pilot_timestep=4, pilot_carriers=range(0,32,5), pos=4, u=1, q=4, A=1.0, fft_len=2**13)

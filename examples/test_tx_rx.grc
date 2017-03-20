@@ -120,7 +120,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -342,7 +342,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>np.array(cfg.phydyas_impulse_taps(cfg.num_total_subcarriers(), cfg.num_overlap_sym()))</value>
+      <value>np.array(sync.phydyas_impulse_taps(sync.get_subcarriers(), sync.get_overlap()))*10**(-tx_att_db/20)</value>
     </param>
   </block>
   <block>
@@ -426,10 +426,6 @@
       <value>True</value>
     </param>
     <param>
-      <key>taps</key>
-      <value>phydyas_taps_time[1:]/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))  *10**(-tx_att_db/20)</value>
-    </param>
-    <param>
       <key>_coordinate</key>
       <value>(172, 6)</value>
     </param>
@@ -475,7 +471,7 @@
     </param>
     <param>
       <key>N</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>128</value>
     </param>
     <param>
       <key>q</key>
@@ -1067,7 +1063,7 @@
     </param>
     <param>
       <key>overlap</key>
-      <value>cfg.num_overlap_sym()</value>
+      <value>sync.get_overlap()</value>
     </param>
     <param>
       <key>pilot_amplitude</key>
@@ -1083,7 +1079,7 @@
     </param>
     <param>
       <key>taps</key>
-      <value>cfg.phydyas_frequency_taps(cfg.num_overlap_sym())</value>
+      <value>sync.phydyas_frequency_taps(sync.get_overlap())</value>
     </param>
     <param>
       <key>bands</key>
@@ -1091,7 +1087,7 @@
     </param>
     <param>
       <key>subcarriers</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>sync.get_subcarriers()</value>
     </param>
     <param>
       <key>frame_len</key>
@@ -1142,7 +1138,7 @@
     </param>
     <param>
       <key>overlap</key>
-      <value>cfg.num_overlap_sym()</value>
+      <value>sync.get_overlap()</value>
     </param>
     <param>
       <key>pilot_amp</key>
@@ -1158,11 +1154,11 @@
     </param>
     <param>
       <key>taps</key>
-      <value>np.array(cfg.phydyas_frequency_taps(cfg.num_overlap_sym()))</value>
+      <value>sync.phydyas_frequency_taps(sync.get_overlap())</value>
     </param>
     <param>
       <key>subcarriers</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>sync.get_subcarriers()</value>
     </param>
     <param>
       <key>frame_len</key>
@@ -1213,11 +1209,11 @@
     </param>
     <param>
       <key>overlap</key>
-      <value>cfg.num_overlap_sym()</value>
+      <value>sync.get_overlap()</value>
     </param>
     <param>
       <key>subcarriers</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>sync.get_subcarriers()</value>
     </param>
     <param>
       <key>frame_len</key>
@@ -1276,7 +1272,7 @@
     </param>
     <param>
       <key>bits</key>
-      <value>cfg.num_payload_bits()</value>
+      <value>sync.get_payload_bits()</value>
     </param>
     <param>
       <key>pilot_carriers</key>
@@ -1296,7 +1292,7 @@
     </param>
     <param>
       <key>subcarriers</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>sync.get_subcarriers()</value>
     </param>
     <param>
       <key>symbols</key>
@@ -1351,11 +1347,11 @@
     </param>
     <param>
       <key>overlap</key>
-      <value>cfg.num_overlap_sym()</value>
+      <value>sync.get_overlap()</value>
     </param>
     <param>
       <key>payload_bits</key>
-      <value>cfg.num_payload_bits()</value>
+      <value>sync.get_payload_bits()</value>
     </param>
     <param>
       <key>pilot_amp</key>
@@ -1375,7 +1371,7 @@
     </param>
     <param>
       <key>subcarriers</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>sync.get_subcarriers()</value>
     </param>
     <param>
       <key>frame_len</key>
@@ -1438,11 +1434,11 @@
     </param>
     <param>
       <key>subcarriers</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>sync.get_subcarriers()</value>
     </param>
     <param>
       <key>symbols</key>
-      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
+      <value>sync.get_syms_frame()</value>
     </param>
   </block>
   <block>
@@ -1465,7 +1461,7 @@
     </param>
     <param>
       <key>taps</key>
-      <value>phydyas_taps_time/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))/2</value>
+      <value>phydyas_taps_time/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1481,7 +1477,7 @@
     </param>
     <param>
       <key>osr</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>sync.get_subcarriers()</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1516,7 +1512,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(440, 560)</value>
+      <value>(508, 568)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1681,7 +1677,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(768, 678)</value>
+      <value>(840, 722)</value>
     </param>
     <param>
       <key>gui_hint</key>
