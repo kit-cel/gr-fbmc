@@ -120,7 +120,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -136,7 +136,7 @@
     </param>
     <param>
       <key>bits</key>
-      <value>256*8*2</value>
+      <value>256*8</value>
     </param>
     <param>
       <key>overlap</key>
@@ -159,7 +159,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(824, 116)</value>
+      <value>(804, 124)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -308,7 +308,7 @@
     </param>
     <param>
       <key>start</key>
-      <value>-5000</value>
+      <value>-10000</value>
     </param>
     <param>
       <key>step</key>
@@ -316,7 +316,7 @@
     </param>
     <param>
       <key>stop</key>
-      <value>5000</value>
+      <value>10000</value>
     </param>
     <param>
       <key>rangeType</key>
@@ -518,7 +518,7 @@
     </param>
     <param>
       <key>bits</key>
-      <value>256*8*2</value>
+      <value>256*8</value>
     </param>
     <param>
       <key>overlap</key>
@@ -1322,7 +1322,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(884, 636)</value>
+      <value>(912, 564)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1377,7 +1377,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(692, 644)</value>
+      <value>(696, 564)</value>
     </param>
     <param>
       <key>_rotation</key>

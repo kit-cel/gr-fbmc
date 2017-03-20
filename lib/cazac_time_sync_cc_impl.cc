@@ -99,7 +99,7 @@ namespace gr {
 
       // we have not finished the last frame yet
       if(d_items_left > 0) {
-        int emit = std::min(d_items_left, ninput_items[0]-d_peak_offset);
+        int emit = std::min(d_items_left, ninput_items[0]);
         memcpy(out, in+d_peak_offset, emit * sizeof(gr_complex));
         d_items_left -= emit;
         consume_each(emit);
