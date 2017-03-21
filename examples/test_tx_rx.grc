@@ -1225,7 +1225,7 @@
     </param>
     <param>
       <key>padding</key>
-      <value>False</value>
+      <value>True</value>
     </param>
   </block>
   <block>
@@ -1387,7 +1387,7 @@
     </param>
     <param>
       <key>padding</key>
-      <value>False</value>
+      <value>True</value>
     </param>
   </block>
   <block>
