@@ -46,7 +46,7 @@ namespace gr {
        * class. fbmc::sliding_fft_cvc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int subcarriers, int overlap, int bands, int frame_len);
+      static sptr make(int subcarriers, int overlap, int bands, int frame_len, bool padding=false);
     };
 
   } // namespace fbmc

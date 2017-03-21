@@ -1223,6 +1223,10 @@
       <key>frame_len</key>
       <value>sync.get_syms_frame()</value>
     </param>
+    <param>
+      <key>padding</key>
+      <value>False</value>
+    </param>
   </block>
   <block>
     <key>fbmc_subchannel_deframer_vcb</key>
@@ -1383,7 +1387,7 @@
     </param>
     <param>
       <key>padding</key>
-      <value>True</value>
+      <value>False</value>
     </param>
   </block>
   <block>

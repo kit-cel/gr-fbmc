@@ -52,7 +52,16 @@
   <param>
     <name>Zero Padding</name>
     <key>padding</key>
-    <type>bool</type>
+    <value>True</value>
+    <type>enum</type>
+    <option>
+      <name>Yes</name>
+      <key>True</key>
+    </option>
+    <option>
+      <name>No</name>
+      <key>False</key>
+    </option>
   </param>
   <param>
     <name>Bits per Symbol</name>

@@ -3,7 +3,7 @@
   <key>fbmc_sliding_fft_cvc</key>
   <category>FBMC</category>
   <import>import fbmc</import>
-  <make>fbmc.sliding_fft_cvc($subcarriers, $overlap, $bands, $frame_len)</make>
+  <make>fbmc.sliding_fft_cvc($subcarriers, $overlap, $bands, $frame_len, $padding)</make>
   <param>
     <name>Subcarriers</name>
     <key>subcarriers</key>
@@ -23,6 +23,20 @@
     <name>Symbols per Frame</name>
     <key>frame_len</key>
     <type>int</type>
+  </param>
+  <param>
+    <name>Zero padded Frames</name>
+    <key>padding</key>
+    <value>True</value>
+    <type>enum</type>
+    <option>
+      <name>Yes</name>
+      <key>True</key>
+    </option>
+    <option>
+      <name>No</name>
+      <key>False</key>
+    </option>
   </param>
   <sink>
     <name>in</name>
