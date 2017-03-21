@@ -56,7 +56,7 @@ class sync_config:
         self.fft_len = fft_len
         self.A = A
         self.subbands = subbands
-        self.h = np.reshape(self.get_taps_time(), (-1, N//2))
+        self.h = np.reshape(self.get_taps_time()[1:], (-1, N//2))
         self.c = self.build_preamble_symbols()
         self.Z_fft = np.fft.fft(self.get_zadoff_chu(self.N), fft_len)
 
@@ -103,7 +103,7 @@ class sync_config:
         # adapted from previous versions, sorry for bad variable names
         L = self.N
         overlap = self.overlap
-        num_taps = L * overlap +1
+        num_taps = L * overlap + 1
         taps = [0.0] * num_taps
         for m in range(num_taps):
             if m == 0:
@@ -120,7 +120,7 @@ class sync_config:
 
     def get_taps_time(self):
         phydyas_taps_time = np.array(self.phydyas_impulse_taps())
-        return phydyas_taps_time[1:]/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))
+        return phydyas_taps_time#/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))
 
     def get_zadoff_chu(self, length):
         """ Returns Zadoff-Chu sequence of length """
@@ -237,5 +237,8 @@ class sync_config:
 
     def get_overlap(self):
         return self.overlap
+
+    def get_guard_bands(self):
+        return self.guard
 
 #a = sync_config(taps=np.ones(32*4), N=32, L=31, pilot_A=1.0, pilot_timestep=4, pilot_carriers=range(0,32,5), pos=4, u=1, q=4, A=1.0, fft_len=2**13)
