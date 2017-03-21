@@ -109,45 +109,6 @@
     </param>
   </block>
   <block>
-    <key>variable_configuration_new</key>
-    <param>
-      <key>chanmap</key>
-      <value>subchan_map</value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(428, 120)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>cfg</value>
-    </param>
-    <param>
-      <key>bits</key>
-      <value>256*8*3</value>
-    </param>
-    <param>
-      <key>overlap</key>
-      <value>4</value>
-    </param>
-    <param>
-      <key>sample_rate</key>
-      <value>int(samp_rate)/4</value>
-    </param>
-  </block>
-  <block>
     <key>variable</key>
     <param>
       <key>comment</key>

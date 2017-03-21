@@ -56,7 +56,7 @@ class sync_config:
         self.fft_len = fft_len
         self.A = A
         self.subbands = subbands
-        self.h = np.reshape(self.get_taps_time()[1:], (-1, N//2))
+        self.h = np.reshape(self.get_taps_time()[1:]/np.sqrt(self.get_taps_time().dot(self.get_taps_time()))/10, (-1, N//2))
         self.c = self.build_preamble_symbols()
         self.Z_fft = np.fft.fft(self.get_zadoff_chu(self.N), fft_len)
 
