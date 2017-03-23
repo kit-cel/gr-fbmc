@@ -18,7 +18,11 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>This flowgraphs shows the
+two sync blocks in action
+in a frequency selective
+AWGN channel with
+timing and frequency offsets</value>
     </param>
     <param>
       <key>description</key>
@@ -658,7 +662,7 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>AWGN</value>
     </param>
     <param>
       <key>affinity</key>
@@ -670,7 +674,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(148, 798)</value>
+      <value>(148, 822)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -713,7 +717,7 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>Frequency offset</value>
     </param>
     <param>
       <key>affinity</key>
@@ -909,7 +913,7 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>Timing Offset</value>
     </param>
     <param>
       <key>affinity</key>
@@ -1900,7 +1904,8 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>Frequency Selective
+Channel</value>
     </param>
     <param>
       <key>affinity</key>

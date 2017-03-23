@@ -18,7 +18,7 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>Receiver for the system</value>
     </param>
     <param>
       <key>description</key>
@@ -319,7 +319,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(816, 496)</value>
+      <value>(876, 560)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -374,7 +374,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(908, 624)</value>
+      <value>(1100, 568)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -429,7 +429,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(664, 608)</value>
+      <value>(716, 560)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -803,7 +803,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(772, 310)</value>
+      <value>(820, 282)</value>
     </param>
     <param>
       <key>_rotation</key>
