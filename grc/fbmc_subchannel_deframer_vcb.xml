@@ -15,23 +15,28 @@
     <type>int</type>
   </param>
   <param>
-    <name>Guard bands (per side)</name>
-    <key>guard</key>
+    <name>Symbols per Frame</name>
+    <key>symbols</key>
     <type>int</type>
   </param>
   <param>
-    <name>Detection threshold</name>
+    <name>Pilot Timestep</name>
+    <key>pilot_timestep</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Pilot Carriers</name>
+    <key>pilot_carriers</key>
+    <type>int_vector</type>
+  </param>
+  <param>
+    <name>Detection Threshold</name>
     <key>threshold</key>
     <type>float</type>
   </param>
   <param>
-    <name>Preamble Symbols</name>
-    <key>preamble</key>
-    <type>complex_vector</type>
-  </param>
-  <param>
-    <name>Symbols per Frame</name>
-    <key>symbols</key>
+    <name>Guard Carriers (per side)</name>
+    <key>guard</key>
     <type>int</type>
   </param>
   <param>
@@ -40,14 +45,9 @@
     <type>int</type>
   </param>
   <param>
-    <name>Pilot carriers</name>
-    <key>pilot_carriers</key>
-    <type>int_vector</type>
-  </param>
-  <param>
-    <name>Pilot timestep</name>
-    <key>pilot_timestep</key>
-    <type>int</type>
+    <name>Preamble Symbols</name>
+    <key>preamble</key>
+    <type>complex_vector</type>
   </param>
   <param>
     <name>Bits per Symbol</name>

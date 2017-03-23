@@ -35,7 +35,7 @@
     <type>int_vector</type>
   </param>
   <param>
-    <name>Guard carriers (per side)</name>
+    <name>Guard Carriers (per side)</name>
     <key>guards</key>
     <type>int</type>
   </param>
