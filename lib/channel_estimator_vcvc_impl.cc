@@ -54,9 +54,10 @@ namespace gr {
           d_pilot_timestep(pilot_timestep), d_frame_len(frame_len), d_o(overlap), d_bands(bands)
     {
       d_curr_symbol = 0; // frame position
+      // buffer for current and previous pilot symbol
       d_prev_pilot.resize(d_subcarriers * d_bands * d_o);
       d_curr_pilot.resize(d_subcarriers * d_bands * d_o);
-      // pilot carriers over all bands 
+      // pilot carriers indices over all bands
       for(int b = 0; b < d_bands; b++) {
         std::for_each(pilot_carriers.begin(), pilot_carriers.end(), [&](int &c) {
           d_pilot_carriers.push_back(c + b*d_subcarriers);
@@ -89,7 +90,7 @@ namespace gr {
         d_lastpilot += d_pilot_timestep;
       }
       
-			// maximumi number of symbols that we could return. Wrong config leads to deadlock/malfunction!
+			// maximum number of symbols that we could return. Wrong config leads to deadlock/malfunction!
       set_output_multiple(d_frame_len - d_lastpilot - 1 + d_pilot_timestep);
     }
 
@@ -161,7 +162,7 @@ namespace gr {
     void
     channel_estimator_vcvc_impl::interpolate_freq(std::vector<gr_complex>::iterator estimate) {
       for (int i = 0; i < static_cast<int>(d_pilot_carriers.size()); i++) {
-				// phase shift to recover chess pattern of fbmc frame
+				// phase shift to revert chess pattern of fbmc frame
         if((d_curr_symbol + d_pilot_carriers[i]) % 2 == 0) {
           d_pilots[i] = *(estimate + d_pilot_carriers[i]) / gr_complex(d_pilot_amp, 0);
         } else {
@@ -201,7 +202,6 @@ namespace gr {
                                       gr_vector_void_star &output_items) {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
-      //gr_complex *data = (gr_complex *) output_items[0];
 
       d_items_produced = 0;  // item counter for current work
 
@@ -232,7 +232,7 @@ namespace gr {
               d_items_produced++;
             }
           }
-          else { // case we have received another pilot symbol to interpolate in time
+          else { // interpolate within one frame
             interpolate_time(out); // linear time interpolation
           }
           d_prev_pilot = d_curr_pilot; // set current pilot as previous pilot for next work()
@@ -256,9 +256,6 @@ namespace gr {
 				// set symbol index to symbol behind last processed pilot symbol. We will continue from there in the next work()
         d_curr_symbol = (((d_curr_symbol - 3) / d_pilot_timestep) * d_pilot_timestep + 3)%d_frame_len;
       }
-
-      // copy despread data into output buffer
-      //memcpy(data, d_curr_data.data(), sizeof(gr_complex) * d_subcarriers * d_bands * d_items_produced);
 
       return d_items_produced;
     }

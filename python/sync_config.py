@@ -18,7 +18,7 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 #
-#
+# This block uses work from:
 # Chung, Wonsuk ; Kim, Chanhong ; Choi, Sooyong ; Hong, Daesik:
 # Synchronization Sequence Design for FBMC/OQAM Systems Bd. 15, IEEE (2016), Nr. 10, S. 7199 - 721]
 
@@ -27,17 +27,24 @@ import matplotlib.pyplot as plt
 
 class sync_config:
     def __init__(self, N, overlap, L, pilot_A, pilot_timestep, pilot_carriers, subbands=1, bits=1, pos=4, u=1, q=4, A=1.0,
-                 fft_len=2**13, guard=3, order=1):
+                 fft_len=2**13, guard=3, order=2):
         """
-        Calculates preamble with independent Zadoff-Chu sequence
-        :param taps: Filter taps of length O*N
-        :param pos: Block position of preamble in first symbol
+        Holds parameters and methods used for FBMC system with CAZAC preamble
         :param N: Subcarrier number
+        :param overlap: Overlap factor
         :param L: Periodic length of ZC sequence
+        :param pilot_A: Amplitude of scattered pilots (real)
+        :param pilot_timestep: Distance between two adjacent pilot symbols
+        :param pilot_carriers: Vector of subcarriers assigned with pilots
+        :param subbands: Number of subbands in channel
+        :param bits: Number of payload bits per frame
+        :param pos: Block position of preamble in first symbol
         :param u: Parameter for ZC sequence
         :param q: Parameter for ZC sequence
         :param A: Amplitude of ZC sequence
         :param fft_len: Length of zero-padded FFT during frequency sync
+        :param guard: Number of guard bands on each side
+        :param order: Modulation order (2, 4 or 8)
         """
         assert pilot_timestep >= 4, "Min. pilot timstep is 4 when compensation with aux pilots is used"
         assert (order == 2 or order == 4 or order == 8), "Modulation order has to be 2, 4 or 8"
@@ -62,6 +69,7 @@ class sync_config:
 
 
     def get_phydyas_frequency_tap(self, k, overlap):
+        """Reimplemented from previous C++ version"""
         optimal_filter_coeffs = [[],
                                  [],
                                  [],
@@ -91,6 +99,7 @@ class sync_config:
         return tap
 
     def phydyas_frequency_taps(self):
+        """Reimplemented from previous C++ version"""
         overlap = self.overlap
         taps = []
         for i in range(2*overlap-1):
@@ -100,6 +109,7 @@ class sync_config:
         return taps
 
     def phydyas_impulse_taps(self):
+        """Reimplemented from previous C++ version"""
         # adapted from previous versions, sorry for bad variable names
         L = self.N
         overlap = self.overlap
@@ -120,7 +130,7 @@ class sync_config:
 
     def get_taps_time(self):
         phydyas_taps_time = np.array(self.phydyas_impulse_taps())
-        return phydyas_taps_time#/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))
+        return phydyas_taps_time
 
     def get_zadoff_chu(self, length):
         """ Returns Zadoff-Chu sequence of length """
@@ -180,16 +190,14 @@ class sync_config:
         return self.fft_len
 
     def get_cazac_ffts(self):
+        """Return FFT of cazac sequences in all subbands"""
         zc = self.get_zadoff_chu(self.N//2)/self.A
         zc_freq = np.fft.fftshift(np.fft.fft(zc, self.fft_len))
-        #zc_freq = np.concatenate((zc_freq, np.zeros((self.subbands-1)*self.fft_len))) # time interpolation
 
         zc_freq_vec = np.tile(zc_freq, self.subbands)
-        #for i in range(0, self.subbands):
-        #    zc_freq_vec.append(np.roll(zc_freq, self.fft_len * i))
         #plt.plot(abs(zc_freq_vec))
         #plt.show()
-        return zc_freq_vec
+        return np.fft.ifftshift(zc_freq_vec)
 
     def get_pilot_amplitude(self):
         return self.pilot_A
@@ -200,11 +208,8 @@ class sync_config:
     def get_pilot_carriers(self):
         return self.pilot_carriers
 
-    def get_moving_average_taps(self, length):
-        """Taps for moving average FIR filter with given length"""
-        return [1.0/length for n in range(length)]
-
     def get_syms_frame(self):
+        """Returns number of symbols in one frame"""
         bits_rem = int(self.bits/np.log2(self.order))
         syms = 2
         while bits_rem > 0:
@@ -219,6 +224,7 @@ class sync_config:
         return self.guard
 
     def get_frame_samps(self, zeropad):
+        """Returns number of samples in one frame"""
         syms = self.get_syms_frame()
         if zeropad:
             samps = (syms-1)*self.N//2 + self.N * self.overlap
@@ -227,6 +233,7 @@ class sync_config:
         return samps*self.subbands
 
     def get_bps(self):
+        """Return bits per symbol"""
         return int(np.log2(self.order));
 
     def get_subcarriers(self):
@@ -240,5 +247,3 @@ class sync_config:
 
     def get_guard_bands(self):
         return self.guard
-
-#a = sync_config(taps=np.ones(32*4), N=32, L=31, pilot_A=1.0, pilot_timestep=4, pilot_carriers=range(0,32,5), pos=4, u=1, q=4, A=1.0, fft_len=2**13)

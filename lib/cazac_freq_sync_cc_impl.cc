@@ -47,7 +47,7 @@ namespace gr {
     {
       d_curr_samp = 0;
       d_fo = 0;
-      d_range = 16 * d_bands;
+      d_range = 16 * d_bands; // affects tracking range of frequency offset
       d_fft_len = fft_size * d_bands;
       d_phase = lv_cmake(1, 0); //phase for rotation
       d_fft = new gr::fft::fft_complex(d_fft_len, true);
@@ -75,20 +75,20 @@ namespace gr {
     float
     cazac_freq_sync_cc_impl::get_freq_offset(gr_complex* in) {
       std::vector<float> correlation;
+      // calculate first half of correlation vector
       for (int r = d_range; r > 0; r--) {
         volk_32fc_x2_conjugate_dot_prod_32fc(&d_temp, in, d_fft_sequences.data() + r,
                                                d_fft_len-d_range);
         correlation.push_back(std::abs(d_temp));
-        //std::cout << "add " << correlation.back() << std::endl;
       }
+      // calculate second half of correlation vector
       for (int r = 0; r < d_range; r++) {
         volk_32fc_x2_conjugate_dot_prod_32fc(&d_temp, in + r, d_fft_sequences.data(),
                                              d_fft_len-d_range);
         correlation.push_back(std::abs(d_temp));
-        //std::cout << "add " << correlation.back() << std::endl;
       }
+      // argmax(correlation) - mean
       float fo = std::distance(correlation.begin(), std::max_element(correlation.begin(), correlation.end())) - d_range;
-      //fo /= d_fft_sequences.size();
       return fo/d_fft_len;
     }
 
@@ -100,29 +100,20 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
-      // get either max output buffer size or frame length
+      // get either max output buffer size or frame length to produce
       int emit = std::min(noutput_items, d_frame_len-d_curr_samp);
 
       // frame start -> search for CAZAC and estimate frequency offset
       if(d_curr_samp == 0) {
-        //memset(d_fft->get_inbuf(), 0, sizeof(gr_complex) * d_fft_len); // zero padding
-
         //copy CAZAC into fft
         memcpy(d_fft->get_inbuf(), in + 2 * d_subcarriers * d_bands, d_subcarriers/2 * d_bands * sizeof(gr_complex));
         d_fft->execute();
         //estimate frequency offset
         d_fo = 0.8*d_fo + 0.2 * get_freq_offset(d_fft->get_outbuf()); // averaging frequency offset
-        //std::cout << "FO: " << d_fo*2500000 << std::endl;
-        //calculate phase increment
+        //calculate phase increment for new frequency correction
         float arg = -2*M_PI * d_fo;
         d_phase_inc = lv_cmake(std::cos(arg), std::sin(arg));
-
-        // add item tags for begin and end of CAZAC for debug purposes
-        add_item_tag(0, nitems_written(0) + 2 * d_subcarriers * d_bands, pmt::intern("begin"), pmt::get_PMT_NIL());
-        add_item_tag(0, nitems_written(0) + 5.0 / 2.0 * d_subcarriers * d_bands, pmt::intern("end"),
-                     pmt::get_PMT_NIL());
       }
-      // Do <+signal processing+>
       // correct frequency offset
       volk_32fc_s32fc_x2_rotator_32fc(out, in, d_phase_inc, &d_phase, emit);
 

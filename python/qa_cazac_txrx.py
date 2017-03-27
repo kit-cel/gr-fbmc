@@ -34,7 +34,6 @@ class qa_tx_rx(gr_unittest.TestCase):
             cfg.phydyas_impulse_taps(cfg.num_total_subcarriers(), cfg.num_overlap_sym()))
         self.tb.bands = bands = 4
         self.tb.sync = sync = fbmc.sync_config(
-            taps=(phydyas_taps_time[1:] / np.sqrt(phydyas_taps_time.dot(phydyas_taps_time)) * 10 ** (-tx_att_db / 20)),
             N=cfg.num_total_subcarriers(), overlap=4, L=127, pilot_A=1.0, pilot_timestep=4,
             pilot_carriers=(range(8, 118, 12) + [119]), subbands=bands, bits=256 * 8 * 3, pos=4, u=1, q=4,
             A=1.0 * 10 ** (-tx_att_db / 20), fft_len=2 ** 13, guard=8, order=8)

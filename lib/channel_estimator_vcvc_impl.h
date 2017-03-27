@@ -38,7 +38,7 @@ namespace gr {
       std::vector<std::vector<gr_complex> > d_snippet;
       std::vector<gr_complex> d_curr_data;
       interp2d *d_interpolator;
-      phase_helper *d_helper;
+      //phase_helper *d_helper;
 			gr_complex* d_despread_temp;
 
       void interpolate_time(gr_complex*& out);
