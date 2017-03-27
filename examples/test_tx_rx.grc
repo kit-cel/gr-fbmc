@@ -154,7 +154,7 @@ channel</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1236, 36)</value>
+      <value>(944, 16)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -240,60 +240,6 @@ channel</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(928, 28)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>npackets</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1104, 9)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>packetlen_base</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>32*8</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
       <value>(760, 32)</value>
     </param>
     <param>
@@ -334,33 +280,6 @@ channel</value>
     <param>
       <key>value</key>
       <value>10e6</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1064, 92)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>subchan_map</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>np.concatenate(([0,]*2, [1,]*124, [0,]*2))</value>
     </param>
   </block>
   <block>
@@ -1106,10 +1025,6 @@ to stay time synced</value>
   <block>
     <key>fbmc_channel_estimator_vcvc</key>
     <param>
-      <key>bands</key>
-      <value>bands</value>
-    </param>
-    <param>
       <key>alias</key>
       <value></value>
     </param>
@@ -1166,6 +1081,10 @@ to stay time synced</value>
       <value>sync.phydyas_frequency_taps()</value>
     </param>
     <param>
+      <key>bands</key>
+      <value>bands</value>
+    </param>
+    <param>
       <key>subcarriers</key>
       <value>sync.get_subcarriers()</value>
     </param>
@@ -1176,10 +1095,6 @@ to stay time synced</value>
   </block>
   <block>
     <key>fbmc_sliding_fft_cvc</key>
-    <param>
-      <key>bands</key>
-      <value>bands</value>
-    </param>
     <param>
       <key>alias</key>
       <value></value>
@@ -1219,6 +1134,10 @@ to stay time synced</value>
     <param>
       <key>overlap</key>
       <value>sync.get_overlap()</value>
+    </param>
+    <param>
+      <key>bands</key>
+      <value>bands</value>
     </param>
     <param>
       <key>subcarriers</key>
@@ -1371,12 +1290,12 @@ to stay time synced</value>
       <value>sync.get_pilot_amplitude()</value>
     </param>
     <param>
-      <key>pilot_carriers</key>
-      <value>sync.get_pilot_carriers()</value>
-    </param>
-    <param>
       <key>pilot_timestep</key>
       <value>sync.get_pilot_timestep()</value>
+    </param>
+    <param>
+      <key>pilot_carriers</key>
+      <value>sync.get_pilot_carriers()</value>
     </param>
     <param>
       <key>preamble_symbols</key>

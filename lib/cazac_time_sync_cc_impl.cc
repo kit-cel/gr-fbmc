@@ -108,7 +108,6 @@ namespace gr {
       if(d_items_left > 0) {
         int emit = std::min(d_items_left, ninput_items[0]);
         memcpy(out, newitems, emit * sizeof(gr_complex));
-        add_item_tag(0, nitems_written(0), pmt::intern("cont"), pmt::get_PMT_NIL());
         d_items_left -= emit;
         consume_each(emit);
         return emit;

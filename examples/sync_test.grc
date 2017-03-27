@@ -374,60 +374,6 @@ timing and frequency offsets</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(928, 28)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>npackets</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1104, 9)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>packetlen_base</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>32*8</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
       <value>(760, 32)</value>
     </param>
     <param>
@@ -468,33 +414,6 @@ timing and frequency offsets</value>
     <param>
       <key>value</key>
       <value>2.5e6</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1064, 92)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>subchan_map</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>np.concatenate(([0,]*2, [1,]*124, [0,]*2))</value>
     </param>
   </block>
   <block>
@@ -1483,7 +1402,7 @@ timing and frequency offsets</value>
     </param>
     <param>
       <key>threshold</key>
-      <value>0.8</value>
+      <value>0.7</value>
     </param>
   </block>
   <block>
@@ -1560,10 +1479,6 @@ timing and frequency offsets</value>
   <block>
     <key>fbmc_channel_estimator_vcvc</key>
     <param>
-      <key>bands</key>
-      <value>bands</value>
-    </param>
-    <param>
       <key>alias</key>
       <value></value>
     </param>
@@ -1620,6 +1535,10 @@ timing and frequency offsets</value>
       <value>np.array(sync.phydyas_frequency_taps())</value>
     </param>
     <param>
+      <key>bands</key>
+      <value>bands</value>
+    </param>
+    <param>
       <key>subcarriers</key>
       <value>sync.get_subcarriers()</value>
     </param>
@@ -1630,10 +1549,6 @@ timing and frequency offsets</value>
   </block>
   <block>
     <key>fbmc_sliding_fft_cvc</key>
-    <param>
-      <key>bands</key>
-      <value>bands</value>
-    </param>
     <param>
       <key>alias</key>
       <value></value>
@@ -1673,6 +1588,10 @@ timing and frequency offsets</value>
     <param>
       <key>overlap</key>
       <value>sync.get_overlap()</value>
+    </param>
+    <param>
+      <key>bands</key>
+      <value>bands</value>
     </param>
     <param>
       <key>subcarriers</key>
@@ -1825,12 +1744,12 @@ timing and frequency offsets</value>
       <value>sync.get_pilot_amplitude()</value>
     </param>
     <param>
-      <key>pilot_carriers</key>
-      <value>sync.get_pilot_carriers()</value>
-    </param>
-    <param>
       <key>pilot_timestep</key>
       <value>sync.get_pilot_timestep()</value>
+    </param>
+    <param>
+      <key>pilot_carriers</key>
+      <value>sync.get_pilot_carriers()</value>
     </param>
     <param>
       <key>preamble_symbols</key>

@@ -197,7 +197,7 @@ class sync_config:
         zc_freq_vec = np.tile(zc_freq, self.subbands)
         #plt.plot(abs(zc_freq_vec))
         #plt.show()
-        return np.fft.ifftshift(zc_freq_vec)
+        return zc_freq_vec
 
     def get_pilot_amplitude(self):
         return self.pilot_A
