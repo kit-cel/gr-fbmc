@@ -18,7 +18,10 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>This flowgraph simulates
+the whole system in a
+frequency selective AWGN
+channel</value>
     </param>
     <param>
       <key>description</key>
@@ -46,7 +49,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>SU_TX</value>
+      <value>test_tx_rx</value>
     </param>
     <param>
       <key>max_nouts</key>
@@ -151,7 +154,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1236, 36)</value>
+      <value>(944, 16)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -237,60 +240,6 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(928, 28)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>npackets</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1104, 9)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>packetlen_base</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>32*8</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
       <value>(760, 32)</value>
     </param>
     <param>
@@ -318,7 +267,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(10, 170)</value>
+      <value>(12, 148)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -331,33 +280,6 @@
     <param>
       <key>value</key>
       <value>10e6</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1064, 92)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>subchan_map</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>np.concatenate(([0,]*2, [1,]*124, [0,]*2))</value>
     </param>
   </block>
   <block>
@@ -482,7 +404,7 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>AWGN</value>
     </param>
     <param>
       <key>affinity</key>
@@ -494,7 +416,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(264, 690)</value>
+      <value>(264, 718)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -596,7 +518,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(992, 860)</value>
+      <value>(744, 698)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -713,7 +635,9 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>Subtract group delay
+of interpolation filter
+to stay time synced</value>
     </param>
     <param>
       <key>affinity</key>
@@ -725,7 +649,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(500, 464)</value>
+      <value>(500, 444)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -800,7 +724,7 @@
     </param>
     <param>
       <key>packet_len</key>
-      <value>64</value>
+      <value>384</value>
     </param>
     <param>
       <key>type</key>
@@ -878,7 +802,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(588, 692)</value>
+      <value>(564, 692)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1047,7 +971,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1100, 180)</value>
+      <value>(1468, 176)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1101,10 +1025,6 @@
   <block>
     <key>fbmc_channel_estimator_vcvc</key>
     <param>
-      <key>bands</key>
-      <value>bands</value>
-    </param>
-    <param>
       <key>alias</key>
       <value></value>
     </param>
@@ -1122,7 +1042,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(864, 280)</value>
+      <value>(1152, 264)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1161,6 +1081,10 @@
       <value>sync.phydyas_frequency_taps()</value>
     </param>
     <param>
+      <key>bands</key>
+      <value>bands</value>
+    </param>
+    <param>
       <key>subcarriers</key>
       <value>sync.get_subcarriers()</value>
     </param>
@@ -1172,16 +1096,12 @@
   <block>
     <key>fbmc_sliding_fft_cvc</key>
     <param>
-      <key>bands</key>
-      <value>bands</value>
-    </param>
-    <param>
       <key>alias</key>
       <value></value>
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>Begin of receiver</value>
     </param>
     <param>
       <key>affinity</key>
@@ -1193,7 +1113,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(672, 200)</value>
+      <value>(852, 188)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1214,6 +1134,10 @@
     <param>
       <key>overlap</key>
       <value>sync.get_overlap()</value>
+    </param>
+    <param>
+      <key>bands</key>
+      <value>bands</value>
     </param>
     <param>
       <key>subcarriers</key>
@@ -1256,7 +1180,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(832, 538)</value>
+      <value>(840, 486)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1366,12 +1290,12 @@
       <value>sync.get_pilot_amplitude()</value>
     </param>
     <param>
-      <key>pilot_carriers</key>
-      <value>sync.get_pilot_carriers()</value>
-    </param>
-    <param>
       <key>pilot_timestep</key>
       <value>sync.get_pilot_timestep()</value>
+    </param>
+    <param>
+      <key>pilot_carriers</key>
+      <value>sync.get_pilot_carriers()</value>
     </param>
     <param>
       <key>preamble_symbols</key>
@@ -1406,7 +1330,9 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>This dummy block mixes
+frames to the left of 4
+bands</value>
     </param>
     <param>
       <key>affinity</key>
@@ -1418,7 +1344,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(288, 540)</value>
+      <value>(280, 560)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1457,7 +1383,7 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>End of transmitter</value>
     </param>
     <param>
       <key>affinity</key>
@@ -1504,7 +1430,7 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>Channel</value>
     </param>
     <param>
       <key>affinity</key>
@@ -1516,11 +1442,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>2</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(508, 568)</value>
+      <value>(468, 580)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1590,7 +1516,8 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>Interpolation to allow four
+coexisting bands</value>
     </param>
     <param>
       <key>affinity</key>
@@ -1602,7 +1529,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(292, 456)</value>
+      <value>(272, 436)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1685,7 +1612,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(840, 722)</value>
+      <value>(668, 822)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1972,7 +1899,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1148, 772)</value>
+      <value>(892, 818)</value>
     </param>
     <param>
       <key>gui_hint</key>

@@ -10,32 +10,22 @@
     <type>int</type>
   </param>
   <param>
-    <name>Guard carriers (per side)</name>
-    <key>guards</key>
-    <type>int</type>
-  </param>
-  <param>
-    <name>Payload bits</name>
-    <key>payload_bits</key>
-    <type>int</type>
-  </param>
-  <param>
     <name>Overlap</name>
     <key>overlap</key>
     <type>int</type>
   </param>
   <param>
-    <name>Preamble_symbols</name>
-    <key>preamble_symbols</key>
-    <type>complex_vector</type>
+    <name>Syms per Frame</name>
+    <key>frame_len</key>
+    <type>int</type>
   </param>
   <param>
-    <name>Pilot_amp</name>
+    <name>Pilot Amplitude</name>
     <key>pilot_amp</key>
     <type>float</type>
   </param>
   <param>
-    <name>Pilot_timestep</name>
+    <name>Pilot Timestep</name>
     <key>pilot_timestep</key>
     <type>int</type>
   </param>
@@ -45,8 +35,23 @@
     <type>int_vector</type>
   </param>
   <param>
-    <name>Syms per frame</name>
-    <key>frame_len</key>
+    <name>Guard Carriers (per side)</name>
+    <key>guards</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Payload bits</name>
+    <key>payload_bits</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Preamble Symbols</name>
+    <key>preamble_symbols</key>
+    <type>complex_vector</type>
+  </param>
+  <param>
+    <name>Bits per Symbol</name>
+    <key>order</key>
     <type>int</type>
   </param>
   <param>
@@ -62,11 +67,6 @@
       <name>No</name>
       <key>False</key>
     </option>
-  </param>
-  <param>
-    <name>Bits per Symbol</name>
-    <key>order</key>
-    <type>int</type>
   </param>
   <sink>
     <name>in</name>

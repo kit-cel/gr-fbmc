@@ -18,7 +18,9 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>This flowgraph is used to 
+make a valgrind profile 
+of the receiver chain</value>
     </param>
     <param>
       <key>description</key>
@@ -109,45 +111,6 @@
     </param>
   </block>
   <block>
-    <key>variable_configuration_new</key>
-    <param>
-      <key>chanmap</key>
-      <value>subchan_map</value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(352, 12)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>cfg</value>
-    </param>
-    <param>
-      <key>bits</key>
-      <value>npackets*packetlen_base*8</value>
-    </param>
-    <param>
-      <key>overlap</key>
-      <value>4</value>
-    </param>
-    <param>
-      <key>sample_rate</key>
-      <value>int(samp_rate)/4</value>
-    </param>
-  </block>
-  <block>
     <key>variable</key>
     <param>
       <key>comment</key>
@@ -159,7 +122,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(756, 16)</value>
+      <value>(460, 124)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -167,11 +130,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>npackets</value>
+      <value>cazac_len</value>
     </param>
     <param>
       <key>value</key>
-      <value>1</value>
+      <value>71</value>
     </param>
   </block>
   <block>
@@ -186,34 +149,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(836, 12)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>packetlen_base</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>32*8</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(592, 16)</value>
+      <value>(600, 16)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -225,7 +161,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>np.array(cfg.phydyas_impulse_taps(cfg.num_total_subcarriers(), cfg.num_overlap_sym()))</value>
+      <value>np.array(sync.phydyas_impulse_taps())</value>
     </param>
   </block>
   <block>
@@ -240,7 +176,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 88)</value>
+      <value>(8, 184)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -298,7 +234,7 @@
     </param>
     <param>
       <key>L</key>
-      <value>cfg.num_total_subcarriers()-1</value>
+      <value>cazac_len</value>
     </param>
     <param>
       <key>comment</key>
@@ -309,12 +245,8 @@
       <value>True</value>
     </param>
     <param>
-      <key>taps</key>
-      <value>phydyas_taps_time[1:]/np.sqrt(phydyas_taps_time.dot(phydyas_taps_time))</value>
-    </param>
-    <param>
       <key>_coordinate</key>
-      <value>(180, 10)</value>
+      <value>(216, 10)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -325,8 +257,24 @@
       <value>sync</value>
     </param>
     <param>
+      <key>order</key>
+      <value>2</value>
+    </param>
+    <param>
       <key>bands</key>
       <value>bands</value>
+    </param>
+    <param>
+      <key>guard</key>
+      <value>3</value>
+    </param>
+    <param>
+      <key>bits</key>
+      <value>2048</value>
+    </param>
+    <param>
+      <key>overlap</key>
+      <value>4</value>
     </param>
     <param>
       <key>pilot_A</key>
@@ -334,7 +282,7 @@
     </param>
     <param>
       <key>pilot_carriers</key>
-      <value>range(2, cfg.num_total_subcarriers()-2, 10)</value>
+      <value>range(8, 118, 12) + [119]</value>
     </param>
     <param>
       <key>pilot_timestep</key>
@@ -342,7 +290,7 @@
     </param>
     <param>
       <key>N</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>128</value>
     </param>
     <param>
       <key>q</key>
@@ -495,7 +443,7 @@
     </param>
     <param>
       <key>overlap</key>
-      <value>cfg.num_overlap_sym()</value>
+      <value>sync.get_overlap()</value>
     </param>
     <param>
       <key>pilot_amplitude</key>
@@ -511,7 +459,7 @@
     </param>
     <param>
       <key>taps</key>
-      <value>cfg.phydyas_frequency_taps(cfg.num_overlap_sym())</value>
+      <value>sync.phydyas_frequency_taps()</value>
     </param>
     <param>
       <key>bands</key>
@@ -519,11 +467,11 @@
     </param>
     <param>
       <key>subcarriers</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>sync.get_subcarriers()</value>
     </param>
     <param>
       <key>frame_len</key>
-      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
+      <value>sync.get_syms_frame()</value>
     </param>
   </block>
   <block>
@@ -550,7 +498,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(464, 534)</value>
+      <value>(500, 370)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -570,7 +518,7 @@
     </param>
     <param>
       <key>overlap</key>
-      <value>cfg.num_overlap_sym()</value>
+      <value>sync.get_overlap()</value>
     </param>
     <param>
       <key>pilot_amp</key>
@@ -586,15 +534,15 @@
     </param>
     <param>
       <key>taps</key>
-      <value>np.array(cfg.phydyas_frequency_taps(cfg.num_overlap_sym()))</value>
+      <value>sync.phydyas_frequency_taps()</value>
     </param>
     <param>
       <key>subcarriers</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>sync.get_subcarriers()</value>
     </param>
     <param>
       <key>frame_len</key>
-      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
+      <value>sync.get_syms_frame()</value>
     </param>
   </block>
   <block>
@@ -621,7 +569,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(264, 314)</value>
+      <value>(264, 308)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -641,19 +589,27 @@
     </param>
     <param>
       <key>overlap</key>
-      <value>cfg.num_overlap_sym()</value>
+      <value>sync.get_overlap()</value>
     </param>
     <param>
       <key>subcarriers</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>sync.get_subcarriers()</value>
     </param>
     <param>
       <key>frame_len</key>
-      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
+      <value>sync.get_syms_frame()</value>
+    </param>
+    <param>
+      <key>padding</key>
+      <value>True</value>
     </param>
   </block>
   <block>
     <key>fbmc_subchannel_deframer_vcb</key>
+    <param>
+      <key>order</key>
+      <value>sync.get_bps()</value>
+    </param>
     <param>
       <key>alias</key>
       <value></value>
@@ -699,6 +655,10 @@
       <value>0</value>
     </param>
     <param>
+      <key>bits</key>
+      <value>sync.get_payload_bits()</value>
+    </param>
+    <param>
       <key>pilot_carriers</key>
       <value>sync.get_pilot_carriers()</value>
     </param>
@@ -716,11 +676,11 @@
     </param>
     <param>
       <key>subcarriers</key>
-      <value>cfg.num_total_subcarriers()</value>
+      <value>sync.get_subcarriers()</value>
     </param>
     <param>
       <key>symbols</key>
-      <value>cfg.num_payload_bits() / (cfg.num_total_subcarriers() - len(sync.get_pilot_carriers())/sync.get_pilot_timestep()) + 1</value>
+      <value>sync.get_syms_frame()</value>
     </param>
   </block>
   <block>

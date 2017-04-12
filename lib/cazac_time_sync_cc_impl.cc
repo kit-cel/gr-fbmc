@@ -53,14 +53,19 @@ namespace gr {
         std::for_each(d_fir_sequences[i].begin(), d_fir_sequences[i].end(), [&](gr_complex& c) {
           c = c/gr_complex(d_fir_sequences[i].size(), 0);
         });
+        // instantiate new fft filter with given taps
         d_correlators.push_back(new gr::filter::kernel::fft_filter_ccc(1, d_fir_sequences[i]));
       }
-      d_nsamps = d_correlators[0]->set_taps(d_fir_sequences[0]); // get FFT filter sample number
+      // get FFT filter sample number (see FFT filter docs)
+      d_nsamps = d_correlators[0]->set_taps(d_fir_sequences[0]);
 
-      // moving average filter for power
+      // moving average filter for power. We need a super small value here since our transmission is pulsed and we
+      // want a steady power estimation
       d_avg_filter = new filter::single_pole_iir<float,float,float>(0.001);
 
+      // difference between frame start and correlation peak
       d_peak_offset = static_cast<int>(peak_offset * d_bands);
+      // counter for items left to emit when a frame is detected
       d_items_left = 0;
 
       set_history(d_peak_offset);
@@ -84,6 +89,7 @@ namespace gr {
       /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
       ninput_items_required[0] = noutput_items; // pretend to be a sync block since there is no mathematical expression
                                                 // that describes our behaviour
+      // Play around with this assignment if flowgraph freezes etc. Scheduler is stupid.
     }
 
     int
@@ -95,13 +101,13 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       const gr_complex *newitems = in+history();
       gr_complex *out = (gr_complex *) output_items[0];
+      // TODO remove correlation output?
       float *corr = (float *) output_items[1];
 
       // we have not finished the last frame yet
       if(d_items_left > 0) {
         int emit = std::min(d_items_left, ninput_items[0]);
         memcpy(out, newitems, emit * sizeof(gr_complex));
-        add_item_tag(0, nitems_written(0), pmt::intern("cont"), pmt::get_PMT_NIL());
         d_items_left -= emit;
         consume_each(emit);
         return emit;
@@ -109,7 +115,7 @@ namespace gr {
       // fft filter kernel wants specific number of samples in each call
       int num_items = d_nsamps*(ninput_items[0]/d_nsamps); // round down to nearest multiple of d_nsamps
 
-      // allocate temporary buffers
+      // allocate temporary buffers (one could do this not in every work call ...)
       gr_complex* temp = (gr_complex*) volk_malloc(sizeof(gr_complex) * num_items, volk_get_alignment());
       float* temp2 = (float*) volk_malloc(sizeof(float) * num_items, volk_get_alignment());
       float* addbuf = (float*) volk_malloc(sizeof(float) * num_items, volk_get_alignment());
@@ -141,7 +147,7 @@ namespace gr {
         volk_free(addbuf);
         volk_free(magbuf);
         volk_free(power);
-        consume_each(noutput_items);
+        consume_each(num_items);
         return(0);
       }
       int frame_start = std::distance(addbuf, std::max_element(addbuf, addbuf + num_items)); // argmax

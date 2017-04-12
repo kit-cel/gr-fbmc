@@ -15,7 +15,7 @@
     <type>int</type>
   </param>
   <param>
-    <name>Bands</name>
+    <name>Subbands</name>
     <key>bands</key>
     <type>int</type>
   </param>

@@ -5,11 +5,6 @@
   <import>import fbmc</import>
   <make>fbmc.channel_estimator_vcvc($frame_len, $subcarriers, $overlap, $bands, $taps, $pilot_amp, $pilot_timestep, $pilot_carriers)</make>
   <param>
-    <name>Symbols per Frame</name>
-    <key>frame_len</key>
-    <type>int</type>
-  </param>
-  <param>
     <name>Subcarriers</name>
     <key>subcarriers</key>
     <type>int</type>
@@ -20,28 +15,33 @@
     <type>int</type>
   </param>
   <param>
-    <name>Bands</name>
+    <name>Subbands</name>
     <key>bands</key>
     <type>int</type>
   </param>
   <param>
-    <name>Prototype taps</name>
-    <key>taps</key>
-    <type>float_vector</type>
+    <name>Symbols per Frame</name>
+    <key>frame_len</key>
+    <type>int</type>
   </param>
-  <param>
-    <name>Pilot amplitude</name>
+   <param>
+    <name>Pilot Amplitude</name>
     <key>pilot_amp</key>
     <type>float</type>
   </param>
   <param>
-    <name>Pilot timestep</name>
+    <name>Pilot Timestep</name>
     <key>pilot_timestep</key>
     <type>int</type>
   </param>
   <param>
-    <name>Pilot carriers</name>
+    <name>Pilot Carriers</name>
     <key>pilot_carriers</key>
+    <type>float_vector</type>
+  </param>
+  <param>
+    <name>Prototype Taps</name>
+    <key>taps</key>
     <type>float_vector</type>
   </param>
   <sink>
