@@ -249,7 +249,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>5e6</value>
+      <value>100e6/240</value>
     </param>
   </block>
   <block>
@@ -304,7 +304,7 @@
     </param>
     <param>
       <key>bits</key>
-      <value>256*3*8</value>
+      <value>256*8</value>
     </param>
     <param>
       <key>overlap</key>
@@ -441,7 +441,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -513,6 +513,104 @@
     <param>
       <key>id</key>
       <value>blocks_complex_to_mag_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_float_to_short</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(296, 900)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_float_to_short_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>scale</key>
+      <value>2**15</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_multiply_const_vxx</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>const</key>
+      <value>0.6</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>2</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(296, 772)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_multiply_const_vxx_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -657,11 +755,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>file</key>
-      <value>/home/senpo/Downloads/Luis Fonsi - Despacito ft. Daddy Yankee(1).wav</value>
+      <value>/home/senpo/Downloads/demo.wav</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1535,7 +1633,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>2</value>
     </param>
     <param>
       <key>fbw</key>
@@ -1543,7 +1641,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(312, 760)</value>
+      <value>(480, 760)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1555,7 +1653,7 @@
     </param>
     <param>
       <key>interp</key>
-      <value>4</value>
+      <value>2</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1582,7 +1680,7 @@
     </param>
     <param>
       <key>ant0</key>
-      <value>TX/RX</value>
+      <value></value>
     </param>
     <param>
       <key>bw0</key>
@@ -1590,7 +1688,7 @@
     </param>
     <param>
       <key>center_freq0</key>
-      <value>2.48e9</value>
+      <value>2.49e9</value>
     </param>
     <param>
       <key>norm_gain0</key>
@@ -2234,7 +2332,7 @@
     </param>
     <param>
       <key>dev_addr</key>
-      <value>"name=Diana"</value>
+      <value>"name=Chasmine"</value>
     </param>
     <param>
       <key>dev_args</key>
@@ -2421,7 +2519,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(552, 716)</value>
+      <value>(720, 772)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2441,7 +2539,46 @@
     </param>
     <param>
       <key>resample</key>
-      <value>8</value>
+      <value>16</value>
+    </param>
+  </block>
+  <block>
+    <key>vocoder_ulaw_encode_sb</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(488, 904)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>vocoder_ulaw_encode_sb_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
     </param>
   </block>
   <connection>
@@ -2453,6 +2590,18 @@
   <connection>
     <source_block_id>blocks_complex_to_mag_0</source_block_id>
     <sink_block_id>qtgui_time_sink_x_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_float_to_short_0</source_block_id>
+    <sink_block_id>vocoder_ulaw_encode_sb_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_multiply_const_vxx_0</source_block_id>
+    <sink_block_id>rational_resampler_xxx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2470,7 +2619,7 @@
   </connection>
   <connection>
     <source_block_id>blocks_wavfile_source_0</source_block_id>
-    <sink_block_id>rational_resampler_xxx_0</sink_block_id>
+    <sink_block_id>blocks_multiply_const_vxx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2500,12 +2649,24 @@
   </connection>
   <connection>
     <source_block_id>rational_resampler_xxx_0</source_block_id>
+    <sink_block_id>blocks_float_to_short_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>rational_resampler_xxx_0</source_block_id>
     <sink_block_id>vocoder_cvsd_encode_fb_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>vocoder_cvsd_encode_fb_0</source_block_id>
+    <sink_block_id>blocks_packed_to_unpacked_xx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>vocoder_ulaw_encode_sb_0</source_block_id>
     <sink_block_id>blocks_packed_to_unpacked_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
