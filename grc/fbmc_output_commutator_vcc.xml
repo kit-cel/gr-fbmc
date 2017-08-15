@@ -1,0 +1,21 @@
+<block>
+  <name>Output commutator</name>
+  <key>fbmc_output_commutator_vcc</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.output_commutator_vcc($L)</make>
+  <param>
+    <name>L</name>
+    <key>L</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$L</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>

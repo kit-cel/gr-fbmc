@@ -1,0 +1,36 @@
+<block>
+  <name>Apply Betas</name>
+  <key>fbmc_apply_betas_vcvc</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.apply_betas_vcvc($L, $inverse)</make>
+  <param>
+    <name>Number of subcarriers (padded)</name>
+    <key>L</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Direction</name>
+    <key>inverse</key>
+    <value>0</value>
+    <type>int</type>
+    <option>
+        <name>Forward</name>
+        <key>0</key>
+    </option>
+    <option>
+        <name>Reverse</name>
+        <key>1</key>
+    </option>    
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$L</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$L</vlen>
+  </source>
+</block>

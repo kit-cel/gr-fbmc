@@ -1,0 +1,45 @@
+<block>
+  <name>Frame sync</name>
+  <key>fbmc_frame_sync_cc</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.frame_sync_cc($L, $frame_len, $preamble_sym, $step_size, $threshold, $overlap)</make>
+  <param>
+    <name>Num total subcarriers</name>
+    <key>L</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Frame length</name>
+    <key>frame_len</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Preamble</name>
+    <key>preamble_sym</key>
+    <type>complex_vector</type>
+  </param>
+  <param>
+    <name>Step size</name>
+    <key>step_size</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Threshold</name>
+    <key>threshold</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Overlap</name>
+    <key>overlap</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>

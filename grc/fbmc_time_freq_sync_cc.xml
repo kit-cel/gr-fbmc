@@ -1,0 +1,45 @@
+<block>
+  <name>Time Frequency Synchronization</name>
+  <key>fbmc_time_freq_sync_cc</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.time_freq_sync_cc($L, $threshold, $nsym_frame, $stepsize, $addsamps, $cfo_avg)</make>
+  <param>
+    <name>Num subcarriers (all subchannels)</name>
+    <key>L</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Threshold</name>
+    <key>threshold</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Num symbols per frame</name>
+    <key>nsym_frame</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Step size</name>
+    <key>stepsize</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Additional samples</name>
+    <key>addsamps</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>CFO MA length</name>
+    <key>cfo_avg</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>

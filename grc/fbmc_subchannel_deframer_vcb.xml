@@ -1,0 +1,66 @@
+<block>
+  <name>Subchannel Deframer</name>
+  <key>fbmc_subchannel_deframer_vcb</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.subchannel_deframer_vcb($subcarriers, $bands, $guard, $threshold, $preamble, $symbols, $bits, $pilot_carriers, $pilot_timestep, $order)</make>
+  <param>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Subbands</name>
+    <key>bands</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Guard bands (per side)</name>
+    <key>guard</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Detection threshold</name>
+    <key>threshold</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Preamble Symbols</name>
+    <key>preamble</key>
+    <type>complex_vector</type>
+  </param>
+  <param>
+    <name>Symbols per Frame</name>
+    <key>symbols</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Payload bits</name>
+    <key>bits</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Pilot carriers</name>
+    <key>pilot_carriers</key>
+    <type>int_vector</type>
+  </param>
+  <param>
+    <name>Pilot timestep</name>
+    <key>pilot_timestep</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Bits per Symbol</name>
+    <key>order</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$subcarriers * $bands</vlen>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>byte</type>
+  </source>
+</block>

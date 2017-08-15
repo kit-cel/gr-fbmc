@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<block>
+  <name>RX SDFT Kernel</name>
+  <key>fbmc_rx_sdft_kernel</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.rx_sdft_kernel($taps, $osr)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Filter taps</name>
+    <key>taps</key>
+    <type>float_vector</type>
+  </param>
+
+  <param>
+    <name>L</name>
+    <key>osr</key>
+    <type>int</type>
+  </param>
+</block>

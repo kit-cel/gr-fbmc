@@ -1,0 +1,45 @@
+<block>
+  <name>Multichannel Frame Synchronization</name>
+  <key>fbmc_multichannel_frame_sync_cc</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.multichannel_frame_sync_cc($L, $nsym_frame, $preamble_sym, $taps, $step_size, $threshold)</make>
+  <param>
+    <name>Num subcarriers (all subchannels)</name>
+    <key>L</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Symbols per frame</name>
+    <key>nsym_frame</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Preamble symbol (frequency domain, one subchannel)</name>
+    <key>preamble_sym</key>
+    <type>complex_vector</type>
+  </param>
+  <param>
+    <name>Taps (frequency domain, all subchannels)</name>
+    <key>taps</key>
+    <type>float_vector</type>
+  </param>
+  <param>
+    <name>Step size</name>
+    <key>step_size</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Threshold ([0,1])</name>
+    <key>threshold</key>
+    <type>float</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>

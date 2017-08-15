@@ -1,0 +1,31 @@
+<block>
+  <name>Channel mapper</name>
+  <key>fbmc_serial_to_parallel_cvc</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.serial_to_parallel_cvc($len_in, $vlen_out, $channel_map)</make>
+  <param>
+    <name>Num used carriers</name>
+    <key>len_in</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Num total carriers</name>
+    <key>vlen_out</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Channel map</name>
+    <key>channel_map</key>
+    <type>int_vector</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$vlen_out</vlen>
+  </source>
+</block>

@@ -1,0 +1,20 @@
+<block>
+  <name>Coarse CFO correction</name>
+  <key>fbmc_coarse_cfo_correction</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.coarse_cfo_correction($channel_map)</make>
+  <param>
+    <name>Channel_map</name>
+    <key>channel_map</key>
+    <type>int_vector</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>

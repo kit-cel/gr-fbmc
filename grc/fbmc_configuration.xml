@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<block>
+	<name>FBMC configuration</name>
+	<key>variable_configuration_new</key>
+	<category>[FBMC]</category>
+	<import>import fbmc</import>
+	<var_make>self.$(id) = $(id) = fbmc.fbmc_config(channel_map=$chanmap, num_payload_bits=$bits, num_overlap_sym=$overlap, samp_rate=$sample_rate)</var_make>
+	<var_value>fbmc.fbmc_config(channel_map=$chanmap, num_payload_bits=$bits, num_overlap_sym=$overlap, samp_rate=$sample_rate)</var_value>
+	<make></make>
+	<param>
+		<name>Channel Map</name>
+		<key>chanmap</key>
+		<value>[1,]*32</value>
+		<type>int_vector</type>
+	</param>
+	<param>
+		<name>Num payload bits</name>
+		<key>bits</key>
+		<value>1</value>
+		<type>int</type>
+	</param>	<param>
+		<name>Overlap</name>
+		<key>overlap</key>
+		<value>4</value>
+		<type>int</type>
+	</param>
+	<param>
+		<name>Sample rate</name>
+		<key>sample_rate</key>
+		<value>1</value>
+		<type>int</type>
+	</param>
+</block>

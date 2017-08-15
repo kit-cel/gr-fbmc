@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+
+<block>
+    <name>Sync Configuration</name>
+    <key>variable_sync_config</key>
+    <category>[FBMC]</category>
+    <import>import fbmc</import>
+    <var_make>self.$(id) = $(id) = fbmc.sync_config(taps=$taps, N=$N, overlap=$overlap, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, subbands=$bands, bits=$bits, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len, guard=$guard, order=$order)</var_make>
+    <var_value>fbmc.sync_config(taps=$taps, N=$N, overlap=$overlap, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, subbands=$bands, bits=$bits, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len, guard=$guard, order=$order)</var_value>
+    <make></make>
+    <param>
+        <name>Filter Taps</name>
+        <key>taps</key>
+        <value></value>
+        <type>float_vector</type>
+    </param>
+    <param>
+        <name>Subcarriers</name>
+        <key>N</key>
+        <value>256</value>
+        <type>int</type>
+    </param>
+    <param>
+        <name>Overlap</name>
+        <key>overlap</key>
+        <value>4</value>
+        <type>int</type>
+    </param>
+    <param>
+        <name>Number of Subbands</name>
+        <key>bands</key>
+        <value>1</value>
+        <type>int</type>
+    </param>
+    <param>
+        <name>Number of payload bits</name>
+        <key>bits</key>
+        <type>int</type>
+    </param>
+    <param>
+        <name>CAZAC periodic len</name>
+        <key>L</key>
+        <value>255</value>
+        <type>int</type>
+    </param>
+    <param>
+        <name>Pilot amplitude</name>
+        <key>pilot_A</key>
+        <value>1.0</value>
+        <type>float</type>
+    </param>
+    <param>
+        <name>Pilot time step</name>
+        <key>pilot_timestep</key>
+        <value>4</value>
+        <type>int</type>
+    </param>
+    <param>
+        <name>Pilot carrier map</name>
+        <key>pilot_carriers</key>
+        <value>range(0, $N, 20)</value>
+        <type>int_vector</type>
+    </param>
+    <param>
+        <name>Block position</name>
+        <key>pos</key>
+        <value>4</value>
+        <type>int</type>
+    </param>
+    <param>
+        <name>u</name>
+        <key>u</key>
+        <value>1</value>
+        <type>int</type>
+    </param>
+    <param>
+        <name>q</name>
+        <key>q</key>
+        <value>4</value>
+        <type>int</type>
+    </param>
+    <param>
+        <name>CAZAC Amplitude</name>
+        <key>A</key>
+        <value>1.0</value>
+        <type>float</type>
+    </param>
+    <param>
+        <name>Analysis FFT length</name>
+        <key>fft_len</key>
+        <value>2**13</value>
+        <type>int</type>
+    </param>
+    <param>
+        <name>Number of guard bands</name>
+        <key>guard</key>
+        <value>3</value>
+        <type>int</type>
+    </param>
+    <param>
+        <name>Modulation order</name>
+        <key>order</key>
+        <value>1</value>
+        <type>int</type>
+    </param>
+
+    <doc>
+Use Zadoff-Chu sequence to build an FBMC based preamble of length N for preamble
+https://en.wikipedia.org/wiki/Zadoff%E2%80%93Chu_sequence
+
+Set rectangular pilot positions and parameters.
+    </doc>
+</block>

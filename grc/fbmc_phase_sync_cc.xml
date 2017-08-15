@@ -1,0 +1,45 @@
+<block>
+  <name>Phase Synchronization</name>
+  <key>fbmc_phase_sync_cc</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.phase_sync_cc($search_window, $preamble, $threshold, $L, $nsym_frame, $taps)</make>
+  <param>
+    <name>Search window length</name>
+    <key>search_window</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Preamble (frequency domain)</name>
+    <key>preamble</key>
+    <type>complex_vector</type>
+  </param>
+  <param>
+    <name>Threshold [0,1]</name>
+    <key>threshold</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Num subcarriers (all subchannels)</name>
+    <key>L</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Symbols per frame</name>
+    <key>nsym_frame</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>TX filterbank taps</name>
+    <key>taps</key>
+    <type>real_vector</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>

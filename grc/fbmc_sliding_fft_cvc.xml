@@ -1,0 +1,36 @@
+<block>
+  <name>Sliding FFT</name>
+  <key>fbmc_sliding_fft_cvc</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.sliding_fft_cvc($subcarriers, $overlap, $bands, $frame_len)</make>
+  <param>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Overlap</name>
+    <key>overlap</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Bands</name>
+    <key>bands</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Symbols per Frame</name>
+    <key>frame_len</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$subcarriers * $overlap * $bands</vlen>
+  </source>
+</block>

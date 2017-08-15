@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<block>
+  <name>RX frequency domain SMT</name>
+  <key>fbmc_rx_domain_cvc</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.rx_domain_cvc($taps, $osr)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Filter taps</name>
+    <key>taps</key>
+    <type>float_vector</type>
+  </param>
+
+  <param>
+    <name>L</name>
+    <key>osr</key>
+    <type>int</type>
+  </param>
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$osr</vlen>
+  </source>
+</block>

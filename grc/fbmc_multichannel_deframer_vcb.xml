@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<block>
+  <name>FBMC Multichannel Deframer</name>
+  <key>fbmc_multichannel_deframer_vcb</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.multichannel_deframer_vcb($total_subcarriers, $num_preamble_symbols, $payload_symbols, $payload_bits, $overlap, $channel_map)</make>
+
+  <param>
+    <name>Num Total Subcarriers</name>
+    <key>total_subcarriers</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Num preamble Symbols</name>
+    <key>num_preamble_symbols</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Num Payload Symbols</name>
+    <key>payload_symbols</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Num Payload Bits</name>
+    <key>payload_bits</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Num Overlap Symbols</name>
+    <key>overlap</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Channel Map Vector</name>
+    <key>channel_map</key>
+    <type>int_vector</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+    <vlen>$total_subcarriers</vlen>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>byte</type>
+  </source>
+</block>

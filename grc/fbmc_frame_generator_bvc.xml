@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<block>
+  <name>Frame Generator</name>
+  <key>fbmc_frame_generator_bvc</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.frame_generator_bvc($used_subcarriers, $total_subcarriers, $payload_symbols, $payload_bits, $overlap, $channel_map, $preamble)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Num Used Subcarriers</name>
+    <key>used_subcarriers</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Num Total Subcarriers</name>
+    <key>total_subcarriers</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Num Payload Symbols</name>
+    <key>payload_symbols</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Num Payload Bits</name>
+    <key>payload_bits</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Num Overlap Symbols</name>
+    <key>overlap</key>
+    <type>int</type>
+  </param>
+
+  <param>
+    <name>Channel Map Vector</name>
+    <key>channel_map</key>
+    <type>int_vector</type>
+  </param>
+
+  <param>
+    <name>Preamble Symbol</name>
+    <key>preamble</key>
+    <type>complex_vector</type>
+  </param>
+
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>complex</type>
+    <vlen>$total_subcarriers</vlen>
+  </source>
+</block>

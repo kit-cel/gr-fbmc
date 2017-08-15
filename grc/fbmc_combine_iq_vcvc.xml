@@ -1,0 +1,20 @@
+<block>
+  <name>Combine IQ</name>
+  <key>fbmc_combine_iq_vcvc</key>
+  <category>[FBMC]</category>
+  <import>import fbmc</import>
+  <make>fbmc.combine_iq_vcvc($L)</make>
+  <param>
+    <name>L</name>
+    <key>L</key>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>complex</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>complex</type>
+  </source>
+</block>
