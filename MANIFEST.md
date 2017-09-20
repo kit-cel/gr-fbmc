@@ -10,7 +10,7 @@ author:
   - Sebastian Müller
   - Felix Wunsch
 copyright_owner:
-   - Sebastian Koslowski
+  - Sebastian Koslowski
   - Johannes Demel
   - Sebastian Müller
   - Felix Wunsch
