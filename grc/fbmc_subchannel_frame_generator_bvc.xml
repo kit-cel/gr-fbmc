@@ -1,7 +1,7 @@
 <block>
   <name>Subchannel Frame Generator</name>
   <key>fbmc_subchannel_frame_generator_bvc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.subchannel_frame_generator_bvc($subcarriers, $guards, $payload_bits, $overlap, $preamble_symbols, $pilot_amp, $pilot_timestep, $pilot_carriers, $frame_len, $padding, $order)</make>
   <param>
@@ -10,32 +10,7 @@
     <type>int</type>
   </param>
   <param>
-    <name>Overlap</name>
-    <key>overlap</key>
-    <type>int</type>
-  </param>
-  <param>
-    <name>Syms per Frame</name>
-    <key>frame_len</key>
-    <type>int</type>
-  </param>
-  <param>
-    <name>Pilot Amplitude</name>
-    <key>pilot_amp</key>
-    <type>float</type>
-  </param>
-  <param>
-    <name>Pilot Timestep</name>
-    <key>pilot_timestep</key>
-    <type>int</type>
-  </param>
-  <param>
-    <name>Pilot_carriers</name>
-    <key>pilot_carriers</key>
-    <type>int_vector</type>
-  </param>
-  <param>
-    <name>Guard Carriers (per side)</name>
+    <name>Guard carriers (per side)</name>
     <key>guards</key>
     <type>int</type>
   </param>
@@ -45,28 +20,44 @@
     <type>int</type>
   </param>
   <param>
-    <name>Preamble Symbols</name>
+    <name>Overlap</name>
+    <key>overlap</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Preamble_symbols</name>
     <key>preamble_symbols</key>
     <type>complex_vector</type>
   </param>
   <param>
-    <name>Bits per Symbol</name>
-    <key>order</key>
+    <name>Pilot_amp</name>
+    <key>pilot_amp</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Pilot_timestep</name>
+    <key>pilot_timestep</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Pilot_carriers</name>
+    <key>pilot_carriers</key>
+    <type>int_vector</type>
+  </param>
+  <param>
+    <name>Syms per frame</name>
+    <key>frame_len</key>
     <type>int</type>
   </param>
   <param>
     <name>Zero Padding</name>
     <key>padding</key>
-    <value>True</value>
-    <type>enum</type>
-    <option>
-      <name>Yes</name>
-      <key>True</key>
-    </option>
-    <option>
-      <name>No</name>
-      <key>False</key>
-    </option>
+    <type>bool</type>
+  </param>
+  <param>
+    <name>Bits per Symbol</name>
+    <key>order</key>
+    <type>int</type>
   </param>
   <sink>
     <name>in</name>

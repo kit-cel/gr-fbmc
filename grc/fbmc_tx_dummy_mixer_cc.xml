@@ -1,7 +1,7 @@
 <block>
   <name>Tx Dummy Mixer</name>
   <key>fbmc_tx_dummy_mixer_cc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.tx_dummy_mixer_cc($bands, $bandwidth, $symbols, $subcarriers, $samp_rate)</make>
   <param>

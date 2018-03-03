@@ -1,7 +1,7 @@
 <block>
   <name>Output commutator</name>
   <key>fbmc_output_commutator_vcc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.output_commutator_vcc($L)</make>
   <param>

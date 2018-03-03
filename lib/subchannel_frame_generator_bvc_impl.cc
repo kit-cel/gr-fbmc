@@ -80,7 +80,7 @@ namespace gr {
 	      D_CONSTELLATION = new float[8] { -7.0f / std::sqrt(42.0f), -5.0f / std::sqrt(42.0f), -3.0f / std::sqrt(42.0f), -1.0f / std::sqrt(42.0f), 1.0f / std::sqrt(42.0f), 3.0f / std::sqrt(42.0f), 5.0f / std::sqrt(42.0f), 7.0f / std::sqrt(42.0f) };
       }
       else {
-	      throw std::runtime_error("Mod order must be 1, 2 or 3!");
+	    throw std::runtime_error("Mod order must be 1, 2 or 3!");
       }
       for (int i = d_guard_carriers; i < d_subcarriers-d_guard_carriers; i++) {
         if (std::find(d_pilot_carriers.begin(), d_pilot_carriers.end(), i) == d_pilot_carriers.end()) {
@@ -97,8 +97,6 @@ namespace gr {
     //const float subchannel_frame_generator_bvc_impl::D_CONSTELLATION[2] = {-1.0f / std::sqrt(2.0f), 1.0f / std::sqrt(2.0f)}; //std::sqrt(2.0f)
     //const float subchannel_frame_generator_bvc_impl::D_CONSTELLATION[4] = {-3.0f / std::sqrt(2.0f), -1.0f / std::sqrt(2.0f), 1.0f / std::sqrt(2.0f), 3.0f / std::sqrt(2.0f)}; //std::sqrt(2.0f)
     //const float subchannel_frame_generator_bvc_impl::D_CONSTELLATION[2] = {-0.5f , 0.5f }; // better to read in console
-
-    // Interference weights due to FBMC modulation
     const float subchannel_frame_generator_bvc_impl::d_weights_ee[3][7] = {
         {4.29311317e-02f, -1.24972423e-01f, -2.05796767e-01f, 2.39276696e-01f, 2.05796767e-01f, -1.24972423e-01f, -4.29311317e-02f},
         {-6.67270408e-02f, 0.00000000e+00f, 5.64445506e-01f, 0.00000000e+00f, 0.000000000000f, 0.00000000e+00f, -6.67270408e-02f},
@@ -211,6 +209,15 @@ namespace gr {
     void
     subchannel_frame_generator_bvc_impl::insert_payload(const char* inbuf, unsigned int* bits_written)
     {
+      /*// fill preamble symbols with data in gaps
+      for (int k = 0; k < 2; k++) {
+        for (int n = 0; n < d_subcarriers / 2; n++) {
+          // fill uneven carriers with data
+          d_freq_time_frame[2 * n + 1][k] = D_CONSTELLATION[*inbuf++];
+          (*bits_written)++;
+        }
+      } */
+
       // fill remaining symbols with data
       for (int k = 2; k < d_frame_len; k++) {
         // case: we hit a symbol occupied with pilots or aux pilots
@@ -251,14 +258,32 @@ namespace gr {
       unsigned int bits_written = 0;
       // clear freq/time matrix
       init_freq_time_frame();
-
+      // Do <+signal processing+>
       insert_payload(in, &bits_written);
       insert_preamble();
       insert_pilots();
       write_output(out);
-
+      /*int n = 0;
+      for(unsigned int i = 0; i < d_frame_len * d_subcarriers; i++) {
+        if(n % d_subcarriers == 0 ) { std::cout << n/d_subcarriers << ": "; }
+        std::cout << out[i] << ", ";
+        n++;
+        if(n % d_subcarriers == 0 ) { std::cout << std::endl; }
+      }
+      std::cout << "=====================================" << std::endl;*/
+      // Tell runtime system how many input items we consumed on
+      // each input stream.
       consume_each (bits_written/d_mod_order);
-
+      //std::cout << "subchan_frame_gen: consume " << bits_written << " produce " << d_frame_len << std::endl;
+      // Tell runtime system how many output items we produced.
+      /*std::cout << "Call to work Frame Gen" << std::endl;
+      for (int k = 0; k < d_frame_len; ++k) {
+        for (int n = 0; n < d_pilot_carriers.size(); ++n) {
+          if((k-2) % d_pilot_timestep == 0) {
+            std::cout << out[d_subcarriers * k + d_pilot_carriers[n]] << std::endl;
+          }
+        }
+      }*/
       return d_frame_len + d_num_zeros;
     }
 

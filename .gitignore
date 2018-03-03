@@ -1,7 +1,4 @@
-build/
-cython/
-*~
-examples/*.py
-.idea/
+__pycache__
+*.pyo
 *.pyc
-perf*
+build

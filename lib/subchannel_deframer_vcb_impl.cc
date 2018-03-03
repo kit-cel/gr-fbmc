@@ -52,8 +52,7 @@ namespace gr {
                         gr::io_signature::make(1, 1, sizeof(char))),
               d_subcarriers(subcarriers), d_bands(bands), d_threshold(threshold), d_symbols(symbols),
               d_preamble(preamble), d_payload_bits(bits),
-              d_pilot_carriers(pilot_carriers), d_pilot_timestep(pilot_timestep), d_guard_carriers(guard), d_mod_order(order)
-    {
+              d_pilot_carriers(pilot_carriers), d_pilot_timestep(pilot_timestep), d_guard_carriers(guard), d_mod_order(order) {
       d_used_bands.resize(static_cast<unsigned long>(bands));
       set_output_multiple(d_symbols * d_subcarriers * d_bands);
       d_preamble.reserve(static_cast<unsigned long>(d_subcarriers));
@@ -79,28 +78,41 @@ namespace gr {
 
     std::vector<gr_complex>
     subchannel_deframer_vcb_impl::extract_preamble(int band) {
+
       std::vector<gr_complex> result;
       for (int j = band * d_subcarriers + ((d_guard_carriers+1) & ~1); // this rounds up to the next even integer
            j < band * d_subcarriers + d_subcarriers - ((d_guard_carriers+1) & ~1); j += 2) {
         result.push_back(gr_complex(d_curr_frame[0][j].real(), d_curr_frame[1][j].imag()));
       }
+
+      //for(int i = band * d_subcarriers + d_guard_carriers; i < band * d_subcarriers + d_subcarriers - d_guard_carriers; i += 2) {
+      //result.push_back(gr_complex(in[i].real(), in[i+d_subcarriers*d_bands].imag()));
+      //std::cout << result.back() << ", ";
+      //}
+      //for(int i = (band + d_bands -1) * d_subcarriers; i < (band + d_bands -1) * d_subcarriers + d_subcarriers; i += 2) {
+      //  result.push_back(in[i]);
+      //  std::cout << in[i] << std::endl;
+      //}
       return result;
     }
 
     double
     subchannel_deframer_vcb_impl::correlate(const std::vector<gr_complex> &received) {
-      double energy = 0.0;
+      //std::vector<float> abs_square(received.size());
+      //volk_32fc_magnitude_squared_32f(&abs_square[0], &received[0], static_cast<unsigned int>(received.size()));
+      double energy = 0.0;//std::accumulate(abs_square.begin(), abs_square.end(), 0.0);
 
       gr_complex correlation[received.size()];
       volk_32fc_x2_multiply_conjugate_32fc(&correlation[0], &d_preamble[(d_guard_carriers + 1) / 2], &received[0],
                                            static_cast<unsigned int>(received.size()));
+      //std::cout << d_preamble.size() << ", " << received.size() << std::endl;
       gr_complex corr_result = gr_complex(0, 0);
       for (int i = 0; i < received.size(); i++) {
         corr_result += correlation[i];
         energy += std::sqrt(std::abs(received[i]) * std::abs(received[i]) * std::abs(d_preamble[i+(d_guard_carriers + 1) / 2]) *
                   std::abs(d_preamble[i+(d_guard_carriers + 1) / 2]));
       }
-      // correlation coefficient
+      //std::cout << std::abs(corr_result) << ", " << energy << std::endl;
       return std::abs(corr_result) / energy;
     }
 
@@ -120,6 +132,7 @@ namespace gr {
         sym = gr_complex(sym.imag(), -sym.real()); // phase rotation
       }
       char symbol;
+      //std:: cout << sym.real() << ", ";
       if(d_mod_order == 1) {
       	symbol =  static_cast<char>((sym.real() >= 0.0) ? 1 : 0);
       }
@@ -130,6 +143,7 @@ namespace gr {
       	else if(sym.real() > 2.0f/std::sqrt(10.0f)) { symbol = static_cast<char>(3); }
       	else {
 					std::cout << "Unidentified symbol to demodulate: " << sym << std::endl;
+		      //throw std::runtime_error("Unidentified symbol to demodulate");
 					symbol = static_cast<int>(0);
       	}
       }
@@ -145,6 +159,7 @@ namespace gr {
         else {
 					std::cout << "Unidentified symbol to demodulate: " << sym << std::endl;
 					symbol = static_cast<int>(0);
+          //throw std::runtime_error("Unidentified symbol to demodulate");
         }
       }
       else {
@@ -155,7 +170,7 @@ namespace gr {
 
     void
     subchannel_deframer_vcb_impl::extract_payload(char *out, unsigned int *bits_written) {
-      // bands get processed highest to lowest
+      // bands get prcessed highest to lowesti
       for (int b = d_bands - 1; b >= 0; b--) {
         if (d_used_bands[b]) {
           // extract data
@@ -167,14 +182,16 @@ namespace gr {
                 *out++ = demod(d_curr_frame[k][*it + d_subcarriers * b], *it + k);
                 (*bits_written) += d_mod_order;
                 if(*bits_written % d_payload_bits == 0) { break; }
+                //std::cout << k << ", " << *it << ": " << *bits_written << std::endl;
               }
             }
-            // case: no pilots in this symbol, extract all carriers
+              // case: no pilots in this symbol, extract all carriers
             else {
               for (int n = d_guard_carriers; n < d_subcarriers - d_guard_carriers; n++) {
                 *out++ = demod(d_curr_frame[k][n + d_subcarriers * b], n + k);
                 (*bits_written) += d_mod_order;
                 if(*bits_written % d_payload_bits == 0) { break; }
+                //std::cout << k << ", " << n << ": " << *bits_written << std::endl;
               }
             }
           }
@@ -191,9 +208,14 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       char *out = (char *) output_items[0];
       unsigned int bits_written = 0;
-
+      /*for (int i = 0; i < 2*d_subcarriers; i++) {
+        std::cout << in[i] << ", ";
+      }
+      std::cout << std::endl;*/
       d_curr_frame.clear();
+      char *old = out;
 
+      //in += 2*d_subcarriers * d_bands;
       for (int k = 0; k < d_symbols; k++) {
         std::vector<gr_complex> carrier(static_cast<unsigned long>(d_subcarriers * d_bands));
         for (int n = 0; n < d_subcarriers * d_bands; n++) {
@@ -201,10 +223,18 @@ namespace gr {
         }
         d_curr_frame.push_back(carrier);
       }
+      // std::cout << "Size: " << d_curr_frame.size() << ", " << d_curr_frame[0].size() << std::endl;
 
       detect_used_bands();
       extract_payload(out, &bits_written);
+      /*for (int i = 0; i < bits_written; ++i) {
+        std::cout << (int)old[i] << " ";
+      }
+      if(bits_written > 0) {std::cout << std::endl << std::endl;} */
 
+      // Do <+signal processing+>
+      // Tell runtime system how many input items we consumed on
+      // each input stream.
       consume_each(d_symbols);
 
       // Tell runtime system how many output items we produced.

@@ -49,49 +49,43 @@ namespace gr {
                                                              std::vector<int> pilot_carriers)
         : gr::sync_block("channel_estimator_vcvc",
                          gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands * overlap),
-                         gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * bands * overlap)),
+                         gr::io_signature::make(2, 2, sizeof(gr_complex) * subcarriers * bands)),
           d_subcarriers(subcarriers), d_taps(taps), d_pilot_amp(pilot_amp),
           d_pilot_timestep(pilot_timestep), d_frame_len(frame_len), d_o(overlap), d_bands(bands)
     {
       d_curr_symbol = 0; // frame position
-      // buffer for current and previous pilot symbol
-      d_prev_pilot.resize(d_subcarriers * d_bands * d_o);
-      d_curr_pilot.resize(d_subcarriers * d_bands * d_o);
-      // pilot carriers indices over all bands
+      //d_pilot_stored = false; // was there a pilot already?
+      d_prev_pilot.resize(d_subcarriers * d_bands);
+      d_curr_pilot.resize(d_subcarriers * d_bands);
+      // freq positions of pilots
       for(int b = 0; b < d_bands; b++) {
         std::for_each(pilot_carriers.begin(), pilot_carriers.end(), [&](int &c) {
           d_pilot_carriers.push_back(c + b*d_subcarriers);
         });
       }
       d_pilots.resize(d_pilot_carriers.size());
-      d_spread_pilots.resize(d_pilot_carriers.size());
-			// pilot carriers in oversampled domain
-      std::transform(d_pilot_carriers.begin(), d_pilot_carriers.end(), d_spread_pilots.begin(), std::bind1st(std::multiplies<int>(),d_o));
-      
-			// interpolation helper class
-			d_interpolator = new interp2d(d_subcarriers * d_bands * d_o);
+      // only used when equalizing in spread domain
+      //d_spread_pilots.resize(d_pilot_carriers.size());
+      //std::transform(d_pilot_carriers.begin(), d_pilot_carriers.end(), d_spread_pilots.begin(), std::bind1st(std::multiplies<int>(),d_o));
+      d_interpolator = new interp2d(d_subcarriers * d_bands);
 
-      // TODO fine freq/timing correction - not used right now
+      // needed for fine freq/timing correction - not used right now
       //d_helper = new phase_helper(); // phase unwrap etc.
-      
-			d_despread_temp = new gr_complex[2*d_o-1];
-
-			d_base_times.resize(2, 0); // time index of pilots used in interpolation
-      d_base_freqs.resize(d_subcarriers * d_bands * d_o); // frequency index of pilots used in interpolation
+      d_base_times.resize(2); // time index of pilots
+      d_base_freqs.resize(d_subcarriers * d_bands); // frequency index of pilots
       d_curr_data.resize(d_subcarriers * d_bands * 100); // despread data
       std::iota(d_base_freqs.begin(), d_base_freqs.end(), 0); // used for timing interpolation (= no freq interpolation)
-      d_snippet.resize(2); // contains two pilot symbols for interpolation
-      
-			set_max_noutput_items(100); // first buffer acceps 100 symbols max which get allocated in advance for better performance
-			
-			// calculate index of last pilot in each frame
+      d_snippet.resize(2);
+      // maximum timestep that could occur with current settings. Wrong config leads to deadlock
+      set_max_noutput_items(100);
       d_lastpilot = 2;
-      while(d_lastpilot < d_frame_len-1-d_pilot_timestep) {
+      while(d_lastpilot < d_frame_len-1) {
         d_lastpilot += d_pilot_timestep;
       }
-      
-			// maximum number of symbols that we could return. Wrong config leads to deadlock/malfunction!
+      d_lastpilot -= d_pilot_timestep;
       set_output_multiple(d_frame_len - d_lastpilot - 1 + d_pilot_timestep);
+      //set_output_multiple(std::max(d_frame_len - d_lastpilot - 1, d_pilot_timestep));
+      d_frame_counter = 0;
     }
 
     /*
@@ -100,10 +94,9 @@ namespace gr {
     channel_estimator_vcvc_impl::~channel_estimator_vcvc_impl() {
       delete d_interpolator;
       //delete d_helper;
-			delete d_despread_temp;
     }
 
-    // TODO the following is fine frequency and timing estimation functionality and not used for dyspan
+    // the following is fine frequency and timing estimation functionality and not used for dyspan
 
     /*std::vector<gr_complex>
     channel_estimator_vcvc_impl::matrix_mean(Matrixc matrix, int axis) {
@@ -161,34 +154,53 @@ namespace gr {
 
     void
     channel_estimator_vcvc_impl::interpolate_freq(std::vector<gr_complex>::iterator estimate) {
-      for (int i = 0; i < static_cast<int>(d_pilot_carriers.size()); i++) {
-				// phase shift to revert chess pattern of fbmc frame
+      //std::cout << "Call to work Chan Est" << std::endl;
+      for (int i = 0; i < d_pilot_carriers.size(); i++) {
         if((d_curr_symbol + d_pilot_carriers[i]) % 2 == 0) {
           d_pilots[i] = *(estimate + d_pilot_carriers[i]) / gr_complex(d_pilot_amp, 0);
+          //if(std::abs(d_pilots[i].imag()) > 0.1) {
+            //std::cout << "============================== ERROR =============================" << std::endl;
+          //  std::cout << d_curr_symbol << "," << d_pilot_carriers[i] << ": [Even] " << d_pilots[i] << std::endl;
+          //}
         } else {
           d_pilots[i] = gr_complex((*(estimate + d_pilot_carriers[i])).imag(),
                                    -(*(estimate + d_pilot_carriers[i])).real()) / gr_complex(d_pilot_amp, 0);
+         // if(std::abs(d_pilots[i].imag()) > 0.1) {
+         //   std::cout << d_curr_symbol << "," << d_pilot_carriers[i] << ":[Odd]  " << d_pilots[i] << std::endl;
+         // }
         }
+        //std::cout << d_curr_symbol << ": " << *(estimate + d_pilot_carriers[i]) << std::endl;
+        /*if(d_curr_symbol == 18) {
+          for (int j = 0; j < d_subcarriers * d_bands; ++j) {
+            std::cout << j << ":" << *(estimate + j) << std::endl;
+          }
+        }*/
       }
+
       // interpolate in frequency direction
-      d_curr_pilot = d_interpolator->interp1d(d_spread_pilots, d_subcarriers * d_bands * d_o, d_pilots);
+      d_curr_pilot = d_interpolator->interp1d(d_pilot_carriers, d_subcarriers * d_bands, d_pilots);
     }
 
     void
     channel_estimator_vcvc_impl::interpolate_time(gr_complex*& out) {
+      int interpol_span = d_pilot_timestep;
+      //std::cout << "Interpolating " << interpol_span << std::endl;
+      // first base time is always 0
+      d_base_times[1] = interpol_span;
       // data to interpolate in between
       d_snippet[0] = d_prev_pilot;
       d_snippet[1] = d_curr_pilot;
-      d_items_produced += d_interpolator->interpolate(out, d_pilot_timestep, d_subcarriers * d_bands * d_o, d_snippet);
+      d_items_produced += d_interpolator->interpolate(out, interpol_span, d_subcarriers * d_bands, d_snippet);
     }
 
     inline void
     channel_estimator_vcvc_impl::despread(gr_complex* out, const gr_complex* in, int noutput_items) {
+      gr_complex first[2*d_o-1];
       for (int k = 0; k < noutput_items; k++) {
         // first symbol - special case
-        memcpy(d_despread_temp, &in[(k+1) * d_subcarriers * d_bands * d_o - d_o+1], (d_o-1) * sizeof(gr_complex));
-        memcpy(&d_despread_temp[d_o-1], &in[k * d_subcarriers * d_bands * d_o], d_o * sizeof(gr_complex));
-        volk_32fc_32f_dot_prod_32fc(out++, d_despread_temp, d_taps.data(), 2*d_o-1);
+        memcpy(first, &in[(k+1) * d_subcarriers * d_bands * d_o - d_o+1], (d_o-1) * sizeof(gr_complex));
+        memcpy(&first[d_o-1], &in[k * d_subcarriers * d_bands * d_o], d_o * sizeof(gr_complex));
+        volk_32fc_32f_dot_prod_32fc(out++, first, d_taps.data(), 2*d_o-1);
         // all other symbols
         for(int n = 1; n <= d_subcarriers * d_bands * d_o - 2*d_o+1; n += d_o) {
           volk_32fc_32f_dot_prod_32fc(out++, &in[n + d_subcarriers * d_bands * d_o * k], d_taps.data(), 2*d_o-1);
@@ -201,62 +213,100 @@ namespace gr {
                                       gr_vector_const_void_star &input_items,
                                       gr_vector_void_star &output_items) {
       const gr_complex *in = (const gr_complex *) input_items[0];
-      gr_complex *out = (gr_complex *) output_items[0];
+      gr_complex *out = (gr_complex *) output_items[1];
+      gr_complex *data = (gr_complex *) output_items[0];
 
       d_items_produced = 0;  // item counter for current work
+      //d_curr_data.clear(); // dump previous data
+      //d_curr_data.resize(noutput_items* d_subcarriers * d_bands);
 
       despread(&d_curr_data[0], in, noutput_items); // frequency despreading
+      //std::cout << "Call to work" << std::endl;
+      //std::cout << "frame " << d_frame_counter << std::endl;
+      //std::cout << "d_curr_symbol (reset): " <<d_curr_symbol << std::endl;
+      /*int tempsymbol = d_curr_symbol;
+      for (int k = 0; k < noutput_items; ++k) {
+        //std::cout << tempsymbol << std::endl;
+        //if((tempsymbol-2) % d_pilot_timestep == 0) {
+          for (int n = 0; n < d_pilot_carriers.size(); ++n) {
+            //if (std::abs(d_curr_data[k * d_subcarriers * d_bands + d_pilot_carriers[n]].imag()) > 0.1) {
+              std::cout << "Pilot at " << tempsymbol << ", " << d_pilot_carriers[n] << ": "
+                        << d_curr_data[k * d_subcarriers * d_bands + d_pilot_carriers[n]] << std::endl;
+            //}
+         }
+        //}
+        tempsymbol++;
+        if(tempsymbol == d_frame_len) {
+          tempsymbol = 0;
+        }
+      }*/
+
 
       // logic to extract pilot symbols
       for (int j = 0; j < noutput_items; j++) {
         if((d_curr_symbol-2) % d_pilot_timestep == 0 && d_curr_symbol < d_frame_len-1) { // hit
+         // std::cout << "at " << d_curr_symbol << std::endl;
           // frequency interpolation over one symbol
           interpolate_freq(d_curr_data.begin() + (d_subcarriers * d_bands * j)); // this writes d_curr_pilot
           // extrapolation at end of frame
+          //std::cout << "at " << d_curr_symbol << "/" << d_lastpilot << std::endl;
           if(d_curr_symbol == d_lastpilot) {
             interpolate_time(out);
             for (int i = 0; i < d_frame_len - d_lastpilot - 1; i++) {
-              memcpy(out, &d_curr_pilot[0], d_subcarriers * d_bands * d_o * sizeof(gr_complex));
-              out += d_subcarriers * d_bands * d_o;
+              memcpy(out, &d_curr_pilot[0], d_subcarriers * d_bands * sizeof(gr_complex));
+              out += d_subcarriers * d_bands;
               d_items_produced++;
+              //std::cout << "extrap " << d_items_produced << std::endl;
               d_curr_symbol++;
             }
-						// we drop out here since the frame is finished
+            d_frame_counter++;
             break;
           }
           // extrapolate at beginning of frame
           else if(d_curr_symbol == 2) {
             for (int i = 0; i < 3; i++) {
-              memcpy(out, &d_curr_pilot[0], d_subcarriers * d_bands * d_o * sizeof(gr_complex));
-              out += d_subcarriers * d_bands * d_o;
+              memcpy(out, &d_curr_pilot[0], d_subcarriers * d_bands * sizeof(gr_complex));
+              out += d_subcarriers * d_bands;
               d_items_produced++;
             }
           }
-          else { // interpolate within one frame
+          else { // case we have received another pilot symbol to interpolate in time
             interpolate_time(out); // linear time interpolation
+            // the following implements zero order interpolation
+            //memcpy(out, &d_curr_pilot[0], d_subcarriers * d_bands * sizeof(gr_complex));
+            //out += d_subcarriers * d_bands;
+            //d_items_produced++;
           }
           d_prev_pilot = d_curr_pilot; // set current pilot as previous pilot for next work()
         }
+        //std::cout << "currently in " << d_curr_symbol << std::endl;
         d_curr_symbol++; // in-frame symbol counter
         if(d_curr_symbol == d_frame_len) {
           d_curr_symbol = 0; // counter reset at frame end
+          d_frame_counter++;
         }
       }
 
+     // std::cout << "d_curr_symbol: " <<d_curr_symbol << std::endl;
+
       // logic to reset current symbol to effectively processed symbols (we may have counted more)
       if(d_curr_symbol < 3) {
-        // if we stopped before first pilot, jump to first pilot (should never happen because of extrapolation)
-				d_curr_symbol = 2;
+        d_curr_symbol = 2;
       }
       else if (d_curr_symbol > d_lastpilot) {
-				// if we stopped behind last pilot, jump to frame start (should never happen because of extrapolation)
         d_curr_symbol = 0;
       }
       else {
-				// set symbol index to symbol behind last processed pilot symbol. We will continue from there in the next work()
         d_curr_symbol = (((d_curr_symbol - 3) / d_pilot_timestep) * d_pilot_timestep + 3)%d_frame_len;
       }
 
+      // copy despread data into output buffer
+      memcpy(data, d_curr_data.data(), sizeof(gr_complex) * d_subcarriers * d_bands * d_items_produced);
+      for (int k = 0; k < d_items_produced * d_subcarriers * d_bands; ++k) {
+        //std::cout << out[k] << ", ";
+      }
+
+      //std::cout << "returning " << d_items_produced << "/" << noutput_items << std::endl;
       return d_items_produced;
     }
 

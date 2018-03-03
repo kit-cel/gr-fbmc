@@ -1,7 +1,7 @@
 <block>
   <name>Subchannel Deframer</name>
   <key>fbmc_subchannel_deframer_vcb</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.subchannel_deframer_vcb($subcarriers, $bands, $guard, $threshold, $preamble, $symbols, $bits, $pilot_carriers, $pilot_timestep, $order)</make>
   <param>
@@ -15,28 +15,23 @@
     <type>int</type>
   </param>
   <param>
-    <name>Symbols per Frame</name>
-    <key>symbols</key>
+    <name>Guard bands (per side)</name>
+    <key>guard</key>
     <type>int</type>
   </param>
   <param>
-    <name>Pilot Timestep</name>
-    <key>pilot_timestep</key>
-    <type>int</type>
-  </param>
-  <param>
-    <name>Pilot Carriers</name>
-    <key>pilot_carriers</key>
-    <type>int_vector</type>
-  </param>
-  <param>
-    <name>Detection Threshold</name>
+    <name>Detection threshold</name>
     <key>threshold</key>
     <type>float</type>
   </param>
   <param>
-    <name>Guard Carriers (per side)</name>
-    <key>guard</key>
+    <name>Preamble Symbols</name>
+    <key>preamble</key>
+    <type>complex_vector</type>
+  </param>
+  <param>
+    <name>Symbols per Frame</name>
+    <key>symbols</key>
     <type>int</type>
   </param>
   <param>
@@ -45,9 +40,14 @@
     <type>int</type>
   </param>
   <param>
-    <name>Preamble Symbols</name>
-    <key>preamble</key>
-    <type>complex_vector</type>
+    <name>Pilot carriers</name>
+    <key>pilot_carriers</key>
+    <type>int_vector</type>
+  </param>
+  <param>
+    <name>Pilot timestep</name>
+    <key>pilot_timestep</key>
+    <type>int</type>
   </param>
   <param>
     <name>Bits per Symbol</name>

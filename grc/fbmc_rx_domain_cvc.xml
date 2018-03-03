@@ -2,7 +2,7 @@
 <block>
   <name>RX frequency domain SMT</name>
   <key>fbmc_rx_domain_cvc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.rx_domain_cvc($taps, $osr)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.

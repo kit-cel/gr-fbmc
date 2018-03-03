@@ -1,7 +1,7 @@
 <block>
   <name>Apply Betas</name>
   <key>fbmc_apply_betas_vcvc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.apply_betas_vcvc($L, $inverse)</make>
   <param>

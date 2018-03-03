@@ -1,7 +1,7 @@
 <block>
   <name>Coarse CFO correction</name>
   <key>fbmc_coarse_cfo_correction</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.coarse_cfo_correction($channel_map)</make>
   <param>

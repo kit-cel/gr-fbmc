@@ -1,7 +1,7 @@
 <block>
   <name>Combine IQ</name>
   <key>fbmc_combine_iq_vcvc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.combine_iq_vcvc($L)</make>
   <param>

@@ -1,7 +1,7 @@
 <block>
   <name>Time Frequency Synchronization</name>
   <key>fbmc_time_freq_sync_cc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.time_freq_sync_cc($L, $threshold, $nsym_frame, $stepsize, $addsamps, $cfo_avg)</make>
   <param>

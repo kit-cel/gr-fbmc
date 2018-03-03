@@ -2,7 +2,7 @@
 <block>
   <name>FBMC Multichannel Deframer</name>
   <key>fbmc_multichannel_deframer_vcb</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.multichannel_deframer_vcb($total_subcarriers, $num_preamble_symbols, $payload_symbols, $payload_bits, $overlap, $channel_map)</make>
 

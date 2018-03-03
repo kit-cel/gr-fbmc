@@ -1,7 +1,7 @@
 <block>
   <name>Symbols to bits</name>
   <key>fbmc_symbols_to_bits_cb</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.symbols_to_bits_cb($constellation)</make>
   <param>

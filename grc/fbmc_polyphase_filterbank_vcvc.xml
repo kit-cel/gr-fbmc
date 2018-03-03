@@ -1,7 +1,7 @@
 <block>
   <name>Polyphase filterbank</name>
   <key>fbmc_polyphase_filterbank_vcvc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.polyphase_filterbank_vcvc($L, $taps)</make>
   <param>

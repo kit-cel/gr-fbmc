@@ -2,7 +2,7 @@
 <block>
   <name>TX SDFT</name>
   <key>fbmc_tx_sdft_vcc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.tx_sdft_vcc($taps, $osr)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.

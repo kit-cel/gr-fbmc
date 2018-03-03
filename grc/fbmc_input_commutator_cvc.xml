@@ -1,7 +1,7 @@
 <block>
   <name>Input commutator</name>
   <key>fbmc_input_commutator_cvc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.input_commutator_cvc($L)</make>
   <param>

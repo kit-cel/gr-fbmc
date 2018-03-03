@@ -1,7 +1,7 @@
 <block>
   <name>Channel demapper</name>
   <key>fbmc_parallel_to_serial_vcc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.parallel_to_serial_vcc($len_out, $vlen_in, $channel_map)</make>
   <param>

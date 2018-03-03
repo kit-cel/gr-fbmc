@@ -30,26 +30,26 @@ namespace gr {
   namespace fbmc {
 
     sliding_fft_cvc::sptr
-    sliding_fft_cvc::make(int subcarriers, int overlap, int bands, int frame_len, bool padding) {
+    sliding_fft_cvc::make(int subcarriers, int overlap, int bands, int frame_len) {
       return gnuradio::get_initial_sptr
-          (new sliding_fft_cvc_impl(subcarriers, overlap, bands, frame_len, padding));
+          (new sliding_fft_cvc_impl(subcarriers, overlap, bands, frame_len));
     }
 
     /*
      * The private constructor
      */
-    sliding_fft_cvc_impl::sliding_fft_cvc_impl(int subcarriers, int overlap, int bands, int frame_len, bool padding)
+    sliding_fft_cvc_impl::sliding_fft_cvc_impl(int subcarriers, int overlap, int bands, int frame_len)
         : gr::block("sliding_fft_cvc",
                     gr::io_signature::make(1, 1, sizeof(gr_complex)),
                     gr::io_signature::make(1, 1, sizeof(gr_complex) * subcarriers * overlap * bands)),
-          d_subcarriers(subcarriers), d_overlap(overlap), d_bands(bands), d_frame_len(frame_len), d_padding(padding)
-    {
+          d_subcarriers(subcarriers), d_overlap(overlap), d_bands(bands), d_frame_len(frame_len) {
       d_fft = new gr::fft::fft_complex(d_subcarriers * d_overlap * d_bands, true);
       //set_output_multiple(d_frame_len);
       if (subcarriers % 2 != 0) {
         throw std::runtime_error("sliding_fft_cvc: Subcarriers not an even number!");
       }
       d_curr_sym = 0;
+      d_frames = 0;
     }
 
     /*
@@ -109,16 +109,14 @@ namespace gr {
                                       static_cast<unsigned int>(d_overlap * d_subcarriers * d_bands));
         out += d_overlap * d_subcarriers * d_bands;
 
+        d_curr_sym++;
         d_symbol_count++;
         d_consume += d_bands * d_subcarriers / 2;
-        if (d_padding) {
-          d_curr_sym++;
-          if (d_curr_sym == d_frame_len) {
-            d_curr_sym = 0;
-            d_consume += d_bands * (d_subcarriers * d_overlap - d_subcarriers / 2);
-            //std::cout << "break; " << ++d_frames << std::endl;
-            break;
-          }
+        if (d_curr_sym == d_frame_len) {
+          d_curr_sym = 0;
+          d_consume += d_bands * (d_subcarriers * d_overlap - d_subcarriers/2);
+          //std::cout << "break; " << ++d_frames << std::endl;
+          break;
         }
       }
       //std::cout << "symbols processed: " << d_symbol_count << std::endl;

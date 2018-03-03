@@ -1,7 +1,7 @@
 <block>
   <name>Phase Synchronization</name>
   <key>fbmc_phase_sync_cc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.phase_sync_cc($search_window, $preamble, $threshold, $L, $nsym_frame, $taps)</make>
   <param>

@@ -1,12 +1,12 @@
 <block>
   <name>Channel Equalizer and Despread</name>
   <key>fbmc_channel_equalizer_vcvc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.channel_equalizer_vcvc($frame_len, $overlap, $bands, $pilot_timestep, $pilot_carriers, $subcarriers, $taps, $pilot_amplitude)</make>
   <param>
-    <name>Subcarriers</name>
-    <key>subcarriers</key>
+    <name>Symbols per frame</name>
+    <key>frame_len</key>
     <type>int</type>
   </param>
   <param>
@@ -20,39 +20,39 @@
     <type>int</type>
   </param>
   <param>
-    <name>Symbols per Frame</name>
-    <key>frame_len</key>
-    <type>int</type>
-  </param>
-  <param>
-    <name>Pilot Amplitude</name>
-    <key>pilot_amplitude</key>
-    <type>float</type>
-  </param>
-  <param>
-    <name>Pilot Timestep</name>
+    <name>Pilot timestep</name>
     <key>pilot_timestep</key>
     <type>int</type>
   </param>
   <param>
-    <name>Pilot Carriers</name>
+    <name>Pilot carriers</name>
     <key>pilot_carriers</key>
     <type>float_vector</type>
   </param>
   <param>
-    <name>Prototype Taps</name>
+    <name>Subcarriers</name>
+    <key>subcarriers</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Prototype taps</name>
     <key>taps</key>
     <type>float_vector</type>
+  </param>
+  <param>
+    <name>Pilot amplitude</name>
+    <key>pilot_amplitude</key>
+    <type>float</type>
   </param>
   <sink>
     <name>in</name>
     <type>complex</type>
-    <vlen>$subcarriers * $bands * $overlap</vlen>
+    <vlen>$subcarriers * $bands</vlen>
   </sink>
   <sink>
     <name>chan</name>
     <type>complex</type>
-    <vlen>$subcarriers * $bands * $overlap</vlen>
+    <vlen>$subcarriers * $bands</vlen>
   </sink>
   <source>
     <name>out</name>

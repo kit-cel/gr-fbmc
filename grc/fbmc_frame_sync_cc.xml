@@ -1,7 +1,7 @@
 <block>
   <name>Frame sync</name>
   <key>fbmc_frame_sync_cc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.frame_sync_cc($L, $frame_len, $preamble_sym, $step_size, $threshold, $overlap)</make>
   <param>

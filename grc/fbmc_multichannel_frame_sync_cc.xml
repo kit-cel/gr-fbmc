@@ -1,7 +1,7 @@
 <block>
   <name>Multichannel Frame Synchronization</name>
   <key>fbmc_multichannel_frame_sync_cc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.multichannel_frame_sync_cc($L, $nsym_frame, $preamble_sym, $taps, $step_size, $threshold)</make>
   <param>

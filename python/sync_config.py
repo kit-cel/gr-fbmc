@@ -18,36 +18,29 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 #
-# This block uses work from:
+#
 # Chung, Wonsuk ; Kim, Chanhong ; Choi, Sooyong ; Hong, Daesik:
 # Synchronization Sequence Design for FBMC/OQAM Systems Bd. 15, IEEE (2016), Nr. 10, S. 7199 - 721]
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 class sync_config:
-    def __init__(self, N, overlap, L, pilot_A, pilot_timestep, pilot_carriers, subbands=1, bits=1, pos=4, u=1, q=4, A=1.0,
-                 fft_len=2**13, guard=3, order=2):
+    def __init__(self, taps, N, overlap, L, pilot_A, pilot_timestep, pilot_carriers, subbands=1, bits=1, pos=4, u=1, q=4, A=1.0,
+                 fft_len=2**13, guard=3, order=1):
         """
-        Holds parameters and methods used for FBMC system with CAZAC preamble
-        :param N: Subcarrier number
-        :param overlap: Overlap factor
-        :param L: Periodic length of ZC sequence
-        :param pilot_A: Amplitude of scattered pilots (real)
-        :param pilot_timestep: Distance between two adjacent pilot symbols
-        :param pilot_carriers: Vector of subcarriers assigned with pilots
-        :param subbands: Number of subbands in channel
-        :param bits: Number of payload bits per frame
+        Calculates preamble with independent Zadoff-Chu sequence
+        :param taps: Filter taps of length O*N
         :param pos: Block position of preamble in first symbol
+        :param N: Subcarrier number
+        :param L: Periodic length of ZC sequence
         :param u: Parameter for ZC sequence
         :param q: Parameter for ZC sequence
         :param A: Amplitude of ZC sequence
         :param fft_len: Length of zero-padded FFT during frequency sync
-        :param guard: Number of guard bands on each side
-        :param order: Modulation order (2, 4 or 8)
         """
         assert pilot_timestep >= 4, "Min. pilot timstep is 4 when compensation with aux pilots is used"
         assert (order == 2 or order == 4 or order == 8), "Modulation order has to be 2, 4 or 8"
+        self.h = np.reshape(taps, (-1, N//2))
         self.N = N
         self.guard = guard
         self.k = pos
@@ -60,77 +53,10 @@ class sync_config:
         self.u = u
         self.order = order
         self.q = q
-        self.fft_len = fft_len
         self.A = A
         self.subbands = subbands
-        self.h = np.reshape(self.get_taps_time()[1:]/np.sqrt(self.get_taps_time().dot(self.get_taps_time()))/10, (-1, N//2))
         self.c = self.build_preamble_symbols()
         self.Z_fft = np.fft.fft(self.get_zadoff_chu(self.N), fft_len)
-
-
-    def get_phydyas_frequency_tap(self, k, overlap):
-        """Reimplemented from previous C++ version"""
-        optimal_filter_coeffs = [[],
-                                 [],
-                                 [],
-                                 [0.91143783],
-                                 [0.97195983],
-                                 [],
-                                 [0.99722723, 0.94136732],
-                                 [],
-                                 [0.99988389, 0.99315513, 0.92708081]]
-
-        if len(optimal_filter_coeffs[overlap]) == 0:
-            print("WARNING: Unsupported overlap size. Returning 0.0f")
-            return 0.0
-
-        k = abs(k)
-        tap = 0.0
-        if k == 0:
-            tap = 1.0
-        elif k < overlap//2:
-            tap = optimal_filter_coeffs[overlap][k-1]
-        elif k == overlap//2:
-            tap = 1.0/np.sqrt(2.0)
-        elif k < overlap:
-            tap = np.sqrt(1.0 - optimal_filter_coeffs[overlap][overlap - k - 1] ** 2)
-        else:
-            tap = 0.0
-        return tap
-
-    def phydyas_frequency_taps(self):
-        """Reimplemented from previous C++ version"""
-        overlap = self.overlap
-        taps = []
-        for i in range(2*overlap-1):
-            k = i-overlap+1
-            tap = (-1.0)**k * self.get_phydyas_frequency_tap(k, overlap)
-            taps.append(tap)
-        return taps
-
-    def phydyas_impulse_taps(self):
-        """Reimplemented from previous C++ version"""
-        # adapted from previous versions, sorry for bad variable names
-        L = self.N
-        overlap = self.overlap
-        num_taps = L * overlap + 1
-        taps = [0.0] * num_taps
-        for m in range(num_taps):
-            if m == 0:
-                taps[m] = 0.0
-            elif m <= L * overlap//2:
-                taps[m] = self.get_phydyas_frequency_tap(0, overlap)
-                for k in range(1,overlap):
-                    tap = self.get_phydyas_frequency_tap(k, overlap)
-                    taps[m] += 2.0 * (-1.0)**k * tap * np.cos(2*np.pi*float(k*m)/float(overlap*L))
-                taps[m] /= 2.0
-            else:
-                taps[m] = taps[num_taps - m - 1]
-        return taps
-
-    def get_taps_time(self):
-        phydyas_taps_time = np.array(self.phydyas_impulse_taps())
-        return phydyas_taps_time
 
     def get_zadoff_chu(self, length):
         """ Returns Zadoff-Chu sequence of length """
@@ -174,30 +100,23 @@ class sync_config:
 
     def get_fir_sequences(self):
         """Returns list of lists containing FIR filter taps for time correlation with time input signal"""
-        zc = self.get_zadoff_chu(self.N//2)/self.A
+        zc = self.get_zadoff_chu(self.N//2)
         zc_freq = np.fft.fftshift(np.fft.fft(np.conj(zc)))
-        zc_freq = np.concatenate((zc_freq, np.zeros((self.subbands-1)*self.N//2))) # time interpolation
-
-        zc_freq_vec = []
-        for i in range(0, self.subbands):
-            zc_freq_vec.append(np.fft.ifft(np.fft.ifftshift(np.roll(zc_freq, self.N//2 * i))))
-        return zc_freq_vec
+        zc_freq0 = np.concatenate((zc_freq, np.zeros(3*self.N//2))) # time interpolation
+        zc_freq1 = np.roll(zc_freq0, self.N//2 * 1) # freq shift
+        zc_freq2 = np.roll(zc_freq0, self.N//2 * 2) # freq shift
+        zc_freq3 = np.roll(zc_freq0, self.N//2 * 3) # freq shift
+        zc0 = np.fft.ifft(np.fft.ifftshift(zc_freq0))
+        zc1 = np.fft.ifft(np.fft.ifftshift(zc_freq1))
+        zc2 = np.fft.ifft(np.fft.ifftshift(zc_freq2))
+        zc3 = np.fft.ifft(np.fft.ifftshift(zc_freq3))
+        return [zc0.tolist(), zc1.tolist(), zc2.tolist(), zc3.tolist()]
 
     def get_preamble_symbols(self):
         return self.c
 
-    def get_fft_len(self):
-        return self.fft_len
-
-    def get_cazac_ffts(self):
-        """Return FFT of cazac sequences in all subbands"""
-        zc = self.get_zadoff_chu(self.N//2)/self.A
-        zc_freq = np.fft.fftshift(np.fft.fft(zc, self.fft_len))
-
-        zc_freq_vec = np.tile(zc_freq, self.subbands)
-        #plt.plot(abs(zc_freq_vec))
-        #plt.show()
-        return zc_freq_vec
+    def get_cazac_fft(self):
+        return self.Z_fft
 
     def get_pilot_amplitude(self):
         return self.pilot_A
@@ -208,8 +127,11 @@ class sync_config:
     def get_pilot_carriers(self):
         return self.pilot_carriers
 
+    def get_moving_average_taps(self, length):
+        """Taps for moving average FIR filter with given length"""
+        return [1.0/length for n in range(length)]
+
     def get_syms_frame(self):
-        """Returns number of symbols in one frame"""
         bits_rem = int(self.bits/np.log2(self.order))
         syms = 2
         while bits_rem > 0:
@@ -224,26 +146,14 @@ class sync_config:
         return self.guard
 
     def get_frame_samps(self, zeropad):
-        """Returns number of samples in one frame"""
         syms = self.get_syms_frame()
         if zeropad:
             samps = (syms-1)*self.N//2 + self.N * self.overlap
         else:
             samps = (syms)*self.N//2
-        return samps*self.subbands
-
+        return samps
+    
     def get_bps(self):
-        """Return bits per symbol"""
         return int(np.log2(self.order));
 
-    def get_subcarriers(self):
-        return self.N
-
-    def get_payload_bits(self):
-        return self.bits
-
-    def get_overlap(self):
-        return self.overlap
-
-    def get_guard_bands(self):
-        return self.guard
+#a = sync_config(taps=np.ones(32*4), N=32, L=31, pilot_A=1.0, pilot_timestep=4, pilot_carriers=range(0,32,5), pos=4, u=1, q=4, A=1.0, fft_len=2**13)

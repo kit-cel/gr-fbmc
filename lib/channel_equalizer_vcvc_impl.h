@@ -32,9 +32,8 @@ namespace gr {
       std::vector<int> d_pilot_carriers;
       std::vector<float> d_taps;
       float d_pilot_amp;
-      std::vector<gr_complex> d_R;
-			gr_complex* d_despread_temp;
-      void despread(gr_complex* out, int noutput_items);
+      //std::vector<gr_complex> d_R;
+      //void despread(gr_complex* out, int noutput_items);
 
     public:
       channel_equalizer_vcvc_impl(int frame_len, int overlap, int bands, int pilot_timestep, std::vector<int> pilot_carriers,

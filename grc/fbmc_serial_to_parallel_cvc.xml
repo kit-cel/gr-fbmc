@@ -1,7 +1,7 @@
 <block>
   <name>Channel mapper</name>
   <key>fbmc_serial_to_parallel_cvc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.serial_to_parallel_cvc($len_in, $vlen_out, $channel_map)</make>
   <param>

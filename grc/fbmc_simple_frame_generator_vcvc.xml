@@ -1,7 +1,7 @@
 <block>
   <name>Simple Frame generator</name>
   <key>fbmc_simple_frame_generator_vcvc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.simple_frame_generator_vcvc($sym_len, $num_payload, $inverse, $num_overlap, $num_sync)</make>
   <param>

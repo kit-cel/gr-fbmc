@@ -18,25 +18,40 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef INCLUDED_FBMC_SLIDING_FFT_CVC_IMPL_H
-#define INCLUDED_FBMC_SLIDING_FFT_CVC_IMPL_H
+#ifndef INCLUDED_FBMC_CAZAC_SYNC_CC_IMPL_H
+#define INCLUDED_FBMC_CAZAC_SYNC_CC_IMPL_H
 
-#include <fbmc/sliding_fft_cvc.h>
+#include <fbmc/cazac_sync_cc.h>
 #include <gnuradio/fft/fft.h>
+#include <volk/volk.h>
 
 namespace gr {
   namespace fbmc {
 
-    class sliding_fft_cvc_impl : public sliding_fft_cvc {
+    class cazac_sync_cc_impl : public cazac_sync_cc {
     private:
-      int d_subcarriers, d_overlap, d_bands, d_frame_len, d_curr_sym, d_symbol_count, d_consume, d_frames;
-      gr::fft::fft_complex *d_fft;
-      void fftshift(gr_complex* in);
+      int d_frame_len, d_subcarriers, d_bands, d_o, d_curr_sample, d_fft_len;
+      float d_threshold;
+      bool d_synced;
+      std::vector<std::vector<gr_complex> > d_zc_seqs;
+      std::vector<gr_complex> d_zc_fft;
+      fft::fft_complex *d_fft;
+      lv_32fc_t d_phase, d_phase_increment;
+
+      void zero_pad(std::vector<gr_complex> *vector, int len);
+
+      void circshift(std::vector<gr_complex> *vector, int shift);
+
+      int time_sync(const gr_complex *in);
+
+      void freq_sync(const gr_complex *out);
+      void freq_correction(gr_complex *out, int length);
 
     public:
-      sliding_fft_cvc_impl(int subcarriers, int overlap, int bands, int frame_len);
+      cazac_sync_cc_impl(int subcarriers, int bands, int overlap, int frame_len, float threshold,
+                         std::vector<std::vector<gr_complex> > zc_seqs, std::vector<gr_complex> zc_fft);
 
-      ~sliding_fft_cvc_impl();
+      ~cazac_sync_cc_impl();
 
       // Where all the action really happens
       void forecast(int noutput_items, gr_vector_int &ninput_items_required);
@@ -50,4 +65,5 @@ namespace gr {
   } // namespace fbmc
 } // namespace gr
 
-#endif /* INCLUDED_FBMC_SLIDING_FFT_CVC_IMPL_H */
+#endif /* INCLUDED_FBMC_CAZAC_SYNC_CC_IMPL_H */
+

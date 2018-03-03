@@ -1,13 +1,19 @@
 <?xml version="1.0"?>
 
 <block>
-    <name>CAZAC Configuration</name>
+    <name>Sync Configuration</name>
     <key>variable_sync_config</key>
-    <category>FBMC</category>
+    <category>[FBMC]</category>
     <import>import fbmc</import>
-    <var_make>self.$(id) = $(id) = fbmc.sync_config(N=$N, overlap=$overlap, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, subbands=$bands, bits=$bits, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len, guard=$guard, order=$order)</var_make>
-    <var_value>fbmc.sync_config(N=$N, overlap=$overlap, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, subbands=$bands, bits=$bits, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len, guard=$guard, order=$order)</var_value>
+    <var_make>self.$(id) = $(id) = fbmc.sync_config(taps=$taps, N=$N, overlap=$overlap, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, subbands=$bands, bits=$bits, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len, guard=$guard, order=$order)</var_make>
+    <var_value>fbmc.sync_config(taps=$taps, N=$N, overlap=$overlap, L=$L, pilot_A=$pilot_A, pilot_timestep=$pilot_timestep, pilot_carriers=$pilot_carriers, subbands=$bands, bits=$bits, pos=$pos, u=$u, q=$q, A=$A, fft_len=$fft_len, guard=$guard, order=$order)</var_value>
     <make></make>
+    <param>
+        <name>Filter Taps</name>
+        <key>taps</key>
+        <value></value>
+        <type>float_vector</type>
+    </param>
     <param>
         <name>Subcarriers</name>
         <key>N</key>

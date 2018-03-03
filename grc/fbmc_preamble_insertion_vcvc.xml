@@ -1,7 +1,7 @@
 <block>
   <name>Preamble insertion</name>
   <key>fbmc_preamble_insertion_vcvc</key>
-  <category>FBMC</category>
+  <category>[FBMC]</category>
   <import>import fbmc</import>
   <make>fbmc.preamble_insertion_vcvc($L, $frame_len, $preamble_sym)</make>
   <param>
