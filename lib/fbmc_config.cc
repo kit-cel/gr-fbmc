@@ -274,8 +274,8 @@ namespace gr {
     {
       if(d_num_used_subcarriers > pow(2, 16) - 1)
         throw std::runtime_error("Max length 2**16-1 of PN sequence exceeded");
-      gr_uint16 start_state = 0xACE1u; /* Any nonzero start start will work. */
-      gr_uint16  lfsr = start_state;
+      uint16_t start_state = 0xACE1u; /* Any nonzero start start will work. */
+      uint16_t  lfsr = start_state;
       unsigned bit;
       unsigned period = 0;
       float output;
